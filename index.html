@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NaturaBotanica — Premium Botanical & Pharmaceutical Ingredients</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: '#A3B14B',
+            'brand-hover': '#8f9c40',
+            'brand-dark': '#5e6629',
+            'bg-light': '#FAFAF9',
+            'bg-dark': '#050A06',
+            'bg-dark2': '#1C1917',
+            'card-dark': '#132316',
+            'txt-main': '#1C1917',
+            'txt-sub': '#57534E',
+            'txt-third': '#78716C',
+            'border-main': '#E7E5E4',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
+    ::selection { background: #A3B14B; color: white; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-up { opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
+    .anim-d1 { animation-delay: 0.1s; }
+    .anim-d2 { animation-delay: 0.2s; }
+    .anim-d3 { animation-delay: 0.3s; }
+    .anim-d4 { animation-delay: 0.4s; }
+    .anim-d5 { animation-delay: 0.5s; }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .cart-badge { animation: fadeInUp 0.3s ease-out; }
+
+    .toast-enter {
+      animation: slideInRight 0.4s ease-out forwards;
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .toast-exit {
+      animation: slideOutRight 0.3s ease-in forwards;
+    }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    .product-card:hover .product-img {
+      transform: scale(1.05);
+    }
+
+    .cat-btn.active {
+      background: #1C1917;
+      color: #FAFAF9;
+    }
+
+    .overlay-open { overflow: hidden; }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+  </style>
+</head>
+<body class="bg-bg-light text-txt-main">
+
+  <!-- NAVBAR -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
+    <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center">
+          <i data-lucide="leaf" class="w-5 h-5 text-white"></i>
+        </div>
+        <span class="text-xl font-semibold tracking-tight">NaturaBotanica</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Products</a>
+        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Categories</a>
+        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors">About</a>
+        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Contact</a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </button>
+        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full flex items-center justify-center cart-badge">0</span>
+        </button>
+        <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SEARCH BAR -->
+  <div id="searchBar" class="fixed top-20 left-0 right-0 z-40 bg-white border-b border-border-main shadow-lg hidden">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="relative">
+        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
+        <input id="searchInput" type="text" placeholder="Search products... (e.g. Curcumin, Neem Oil, Reishi)" class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+        <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2">
+          <i data-lucide="x" class="w-5 h-5 text-txt-third hover:text-txt-main transition-colors"></i>
+        </button>
+      </div>
+      <div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- MOBILE MENU -->
+  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-8">
+          <span class="text-lg font-semibold">Menu</span>
+          <button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="flex flex-col gap-4">
+          <a href="#products" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Products</a>
+          <a href="#categories" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Categories</a>
+          <a href="#about" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">About</a>
+          <a href="#contact" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
+    <div class="absolute inset-0">
+      <img src="https://picsum.photos/seed/botanical-herbs-green/1920/1080.jpg" class="w-full h-full object-cover opacity-30">
+      <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
+    </div>
+    <!-- Decorative orb -->
+    <div class="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-16 items-center w-full">
+      <div>
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8">
+          <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
+          <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Wholesale Available</span>
+        </div>
+        <h1 class="anim-up anim-d1 text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">
+          Premium<br><span class="text-brand">Botanical</span><br>Ingredients
+        </h1>
+        <p class="anim-up anim-d2 text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-10">
+          APIs, Oils, Extracts, Mushrooms & Raw Herbs — sourced globally, delivered reliably.
+        </p>
+        <div class="anim-up anim-d3 flex flex-wrap gap-4">
+          <a href="#products" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
+            Browse Catalog
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="#contact" class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300">
+            Get Quote
+          </a>
+        </div>
+        <div class="anim-up anim-d4 flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
+          <div>
+            <div class="text-3xl font-semibold text-white">500+</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div>
+          </div>
+          <div class="w-px h-10 bg-white/10"></div>
+          <div>
+            <div class="text-3xl font-semibold text-white">50+</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Countries</div>
+          </div>
+          <div class="w-px h-10 bg-white/10"></div>
+          <div>
+            <div class="text-3xl font-semibold text-white">15yr</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce" style="animation-duration:2s">
+      <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
+      <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
+    </div>
+  </section>
+
+  <!-- CATEGORIES STRIP -->
+  <section id="categories" class="py-16 bg-white border-b border-border-main">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-10">
+        <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p>
+        <h2 class="text-3xl md:text-4xl font-medium tracking-tight">Five Pillars of Nature</h2>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <button onclick="filterCategory('all')" class="cat-btn active group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="grid-3x3" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">All Products</span>
+        </button>
+        <button onclick="filterCategory('api')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="api">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="flask-conical" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">APIs</span>
+        </button>
+        <button onclick="filterCategory('oils')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="oils">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="droplets" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">Oils</span>
+        </button>
+        <button onclick="filterCategory('extracts')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="extracts">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="beaker" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">Extracts</span>
+        </button>
+        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="cloud-fog" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">Mushrooms</span>
+        </button>
+        <button onclick="filterCategory('herbs')" class="cat-btn group col-span-2 md:col-span-1 p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="sprout" class="w-6 h-6 text-brand"></i>
+          </div>
+          <span class="text-sm font-medium">Raw Herbs</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS GRID -->
+  <section id="products" class="py-24 md:py-32">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
+          <h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <p class="text-txt-sub mt-3 text-lg font-light">All prices per kilogram (1 kg). Bulk discounts available.</p>
+        </div>
+        <div class="flex items-center gap-3 mt-6 md:mt-0">
+          <span class="text-sm text-txt-third" id="productCount">30 products</span>
+          <select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand">
+            <option value="name">Sort by Name</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Products injected by JS -->
+      </div>
+      <div id="noResults" class="hidden text-center py-20">
+        <i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i>
+        <p class="text-lg text-txt-sub">No products found matching your criteria.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="py-24 md:py-32 bg-bg-dark relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-brand/5 blur-[120px]"></div>
+    <div class="max-w-7xl mx-auto px-6 relative">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p>
+          <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Trusted Source for Natural Ingredients</h2>
+          <p class="text-lg font-light text-white/60 leading-relaxed mb-8">
+            With over 15 years in the botanical supply industry, we connect manufacturers, formulators, and brands with the highest quality natural ingredients from sustainable sources worldwide.
+          </p>
+          <div class="grid grid-cols-2 gap-6">
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Quality Tested</h4>
+              <p class="text-sm text-white/50">COA with every order</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Global Shipping</h4>
+              <p class="text-sm text-white/50">50+ countries served</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="recycle" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Sustainable</h4>
+              <p class="text-sm text-white/50">Ethically sourced</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Expert Support</h4>
+              <p class="text-sm text-white/50">Dedicated account mgr</p>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <img src="https://picsum.photos/seed/herbal-lab-workspace/800/600.jpg" class="w-full h-[500px] object-cover rounded-3xl opacity-80">
+          <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="py-24 md:py-32">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p>
+          <h2 class="text-3xl md:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2>
+          <p class="text-lg font-light text-txt-sub leading-relaxed mb-8">
+            Need bulk pricing, custom specifications, or documentation? Our team responds within 24 hours.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="mail" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Email</p>
+                <p class="text-sm font-medium">sales@naturabotanica.com</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="phone" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Phone</p>
+                <p class="text-sm font-medium">+91 98765 43210</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="map-pin" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Location</p>
+                <p class="text-sm font-medium">Mumbai, India</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form id="contactForm" onsubmit="submitForm(event)" class="space-y-5">
+          <div class="grid grid-cols-2 gap-5">
+            <input type="text" placeholder="First Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+            <input type="text" placeholder="Last Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          </div>
+          <input type="email" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <input type="text" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <textarea placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
+          <button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
+            Send Inquiry
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+          <div id="formMsg" class="hidden text-center text-sm text-brand font-medium py-2"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-bg-dark2 py-16 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center">
+              <i data-lucide="leaf" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="text-white font-semibold">NaturaBotanica</span>
+          </div>
+          <p class="text-sm text-white/40 leading-relaxed">Premium botanical & pharmaceutical ingredients for the global market.</p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Categories</h4>
+          <div class="space-y-2">
+            <a href="#" onclick="filterCategory('api');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">APIs</a>
+            <a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a>
+            <a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a>
+            <a href="#" onclick="filterCategory('mushrooms');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Mushrooms</a>
+            <a href="#" onclick="filterCategory('herbs');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Raw Herbs</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Company</h4>
+          <div class="space-y-2">
+            <a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a>
+            <a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Certifications</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Careers</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Legal</h4>
+          <div class="space-y-2">
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Shipping Policy</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Return Policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+            <i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+            <i data-lucide="twitter" class="w-4 h-4 text-white/50"></i>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+            <i data-lucide="instagram" class="w-4 h-4 text-white/50"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+    <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+      <div class="p-6 border-b border-border-main flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <h3 class="text-lg font-semibold">Your Cart</h3>
+          <span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span>
+        </div>
+        <button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="cartItems" class="flex-1 overflow-y-auto p-6">
+        <div id="emptyCart" class="flex flex-col items-center justify-center h-full text-center">
+          <i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i>
+          <p class="text-txt-sub font-medium">Your cart is empty</p>
+          <p class="text-sm text-txt-third mt-1">Browse products and add items</p>
+        </div>
+      </div>
+      <div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-txt-sub">Subtotal</span>
+          <span id="cartTotal" class="text-xl font-semibold">$0.00</span>
+        </div>
+        <p class="text-xs text-txt-third">Shipping & taxes calculated at checkout. Bulk discounts applied for orders over 100 kg.</p>
+        <button onclick="checkout()" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
+          Proceed to Inquiry
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 transition-colors">Clear Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
+
+  <!-- PRODUCT DETAIL MODAL -->
+  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-6" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="relative">
+        <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl">
+        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
+      </div>
+      <div class="p-8">
+        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-2"></h3>
+        <p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
+        <div class="flex items-center gap-4 mb-6">
+          <span id="modalPrice" class="text-3xl font-semibold text-brand"></span>
+          <span class="text-sm text-txt-third">per kg</span>
+        </div>
+        <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">Unit</p>
+            <p class="text-sm text-white font-medium">1 kg</p>
+          </div>
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">MOQ</p>
+            <p class="text-sm text-white font-medium">25 kg</p>
+          </div>
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">Lead Time</p>
+            <p class="text-sm text-white font-medium">7-14 days</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <div class="flex items-center border border-border-main rounded-xl overflow-hidden">
+            <button onclick="modalQtyChange(-1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
+            <input id="modalQty" type="number" value="1" min="1" class="w-16 text-center py-3 text-sm font-medium border-x border-border-main focus:outline-none">
+            <button onclick="modalQtyChange(1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          </div>
+          <button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ==================== PRODUCT DATA ====================
+const products = [
+  // Active Pharmaceutical Ingredients
+  { id: 1, name: "Curcumin 95%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 85, img: "curcumin-powder-golden", desc: "High-purity curcumin extracted from turmeric rhizomes. Widely used in anti-inflammatory formulations, dietary supplements, and nutraceuticals. Minimum 95% curcuminoids by HPLC." },
+  { id: 2, name: "Piperine 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 120, img: "piperine-white-crystals", desc: "Bioavailability enhancer extracted from black pepper. Used to increase absorption of curcumin, resveratrol, and other compounds. 98% purity guaranteed." },
+  { id: 3, name: "Berberine HCl", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 95, img: "berberine-yellow-powder", desc: "Alkaloid extract from Berberis species. Known for blood sugar management and antimicrobial properties. Pharmaceutical grade HCl form." },
+  { id: 4, name: "Resveratrol 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 150, img: "resveratrol-fine-powder", desc: "Polyphenol from Japanese knotweed. Powerful antioxidant used in anti-aging and cardiovascular health supplements. Trans-resveratrol 98%." },
+  { id: 5, name: "Quercetin 95%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 110, img: "quercetin-yellow-extract", desc: "Flavonoid found in onions and apples. Supports immune function and acts as a natural antihistamine. 95% purity by UV." },
+  { id: 6, name: "Andrographolide 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 130, img: "andrographolide-crystal", desc: "Bitter lactone from Andrographis paniculata. Used in liver protection and immune support formulations across Asia." },
+
+  // Oils
+  { id: 7, name: "Neem Oil (Cold Pressed)", category: "oils", catLabel: "Oils", price: 12, img: "neem-oil-bottle-dark", desc: "Cold-pressed virgin neem oil. Rich in azadirachtin. Used in agriculture, cosmetics, and traditional medicine. Unrefined and pure." },
+  { id: 8, name: "Eucalyptus Oil", category: "oils", catLabel: "Oils", price: 18, img: "eucalyptus-oil-clear", desc: "Steam-distilled from Eucalyptus globulus leaves. High eucalyptol content. Used in pharmaceuticals, aromatherapy, and topical applications." },
+  { id: 9, name: "Tea Tree Oil", category: "oils", catLabel: "Oils", price: 45, img: "tea-tree-oil-small", desc: "Australian tea tree oil (Melaleuca alternifolia). Terpinen-4-ol >38%. Premium grade for cosmetics and antiseptic formulations." },
+  { id: 10, name: "Rosemary Oil", category: "oils", catLabel: "Oils", price: 35, img: "rosemary-oil-herbal", desc: "Steam-distilled rosemary essential oil. Used in hair care, cognitive support blends, and natural preservative systems in cosmetics." },
+  { id: 11, name: "Lavender Oil", category: "oils", catLabel: "Oils", price: 55, img: "lavender-oil-purple", desc: "Premium Lavandula angustifolia oil. Linalool and linalyl acetate rich. Sourced from high-altitude farms. Perfect for aromatherapy and personal care." },
+  { id: 12, name: "Peppermint Oil", category: "oils", catLabel: "Oils", price: 28, img: "peppermint-oil-fresh", desc: "Mentha piperita essential oil. Menthol content >50%. Used in oral care, digestive aids, cooling formulations, and pharmaceutical preparations." },
+
+  // Extracts
+  { id: 13, name: "Ashwagandha Extract 5%", category: "extracts", catLabel: "Extracts", price: 25, img: "ashwagandha-brown-powder", desc: "Root extract standardized to 5% withanolides. KSM-66 equivalent quality. Adaptogenic herb for stress relief and vitality." },
+  { id: 14, name: "Turmeric Extract 95%", category: "extracts", catLabel: "Extracts", price: 30, img: "turmeric-extract-orange", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Enhanced bioavailability version available. COA provided." },
+  { id: 15, name: "Ginseng Extract 20%", category: "extracts", catLabel: "Extracts", price: 65, img: "ginseng-extract-beige", desc: "Panax ginseng root extract standardized to 20% ginsenosides. Korean origin. Used in energy and cognitive enhancement supplements." },
+  { id: 16, name: "Moringa Leaf Extract 10:1", category: "extracts", catLabel: "Extracts", price: 22, img: "moringa-green-extract", desc: "Concentrated moringa oleifera leaf extract. Rich in nutrients, antioxidants, and anti-inflammatory compounds. 10:1 concentration ratio." },
+  { id: 17, name: "Green Tea Extract 50%", category: "extracts", catLabel: "Extracts", price: 40, img: "green-tea-extract-powder", desc: "EGCG 50% standardized green tea extract. Powerful antioxidant for weight management and cardiovascular support. Decaffeinated option available." },
+  { id: 18, name: "Amla Extract 40%", category: "extracts", catLabel: "Extracts", price: 18, img: "amla-extract-tan", desc: "Indian gooseberry (Emblica officinalis) extract standardized to 40% vitamin C. Natural antioxidant for skin and hair care formulations." },
+
+  // Mushrooms & Fungi
+  { id: 19, name: "Reishi Mushroom Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 75, img: "reishi-mushroom-red", desc: "Ganoderma lucidum dual extract. Polysaccharide and triterpene rich. The 'king of mushrooms' for immune modulation and longevity." },
+  { id: 20, name: "Lion's Mane Extract 30%", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 85, img: "lions-mane-white-fungi", desc: "Hericium erinaceus standardized to 30% beta-glucans. Nerve growth factor stimulator. Used for cognitive enhancement and nerve health." },
+  { id: 21, name: "Cordyceps CS-4 Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, img: "cordyceps-dried-orange", desc: "Fermented Cordyceps sinensis CS-4 strain. Cordycepin and adenosine rich. Premium performance and energy enhancement mushroom." },
+  { id: 22, name: "Shiitake Mushroom Powder", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 35, img: "shiitake-brown-mushroom", desc: "Lentinula edodes fruiting body powder. Lentinan content for immune support. Also used in culinary and functional food applications." },
+  { id: 23, name: "Chaga Mushroom Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 65, img: "chaga-dark-fungus", desc: "Inonotus obliquus birch-grown chaga extract. Extremely high ORAC value antioxidant. Wild-harvested from Siberian birch forests." },
+  { id: 24, name: "Turkey Tail Extract 30%", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, img: "turkey-tail-colorful", desc: "Trametes versicolor standardized to 30% polysaccharides. PSK/PSP rich. Most researched mushroom for immune support and adjunct cancer therapy." },
+
+  // Raw Herbs, Roots & Botanicals
+  { id: 25, name: "Moringa Leaf (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 8, img: "moringa-dried-leaves", desc: "Sun-dried moringa oleifera leaves. Cut & sifted. Retains full nutritional profile. Ideal for teas, smoothies, and food fortification." },
+  { id: 26, name: "Senna Leaf (Cut & Sifted)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 6, img: "senna-leaf-dried-green", desc: "Cassia angustifolia leaves. Standardized sennoside content. Widely used in laxative and detox formulations. Pharmacopoeial grade." },
+  { id: 27, name: "Ginger Root (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 5, img: "ginger-root-dried-spice", desc: "Dried Zingiber officinale rhizome. High gingerol content. Used in digestive aids, anti-nausea formulations, and culinary applications." },
+  { id: 28, name: "Turmeric Root (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 7, img: "turmeric-root-dried-golden", desc: "Whole dried turmeric rhizomes. High curcumin content variety. Used in spice blends, traditional medicine, and as raw material for extraction." },
+  { id: 29, name: "Licorice Root (Cut)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, img: "licorice-root-yellow-cut", desc: "Glycyrrhiza glabra root pieces. Glycyrrhizin rich. Used as natural sweetener, throat sooother, and in traditional Chinese and Ayurvedic medicine." },
+  { id: 30, name: "Brahmi Leaves (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, img: "brahmi-leaves-green-herb", desc: "Bacopa monnieri dried leaves. Bacoside rich. The premier Ayurvedic brain tonic for memory, focus, and cognitive enhancement." },
+];
+
+let cart = [];
+let currentCategory = 'all';
+let currentSort = 'name';
+let currentModalProduct = null;
+
+// ==================== RENDER PRODUCTS ====================
+function renderProducts(items) {
+  const grid = document.getElementById('productGrid');
+  const noResults = document.getElementById('noResults');
+  const countEl = document.getElementById('productCount');
+
+  if (items.length === 0) {
+    grid.innerHTML = '';
+    noResults.classList.remove('hidden');
+    countEl.textContent = '0 products';
+    return;
+  }
+
+  noResults.classList.add('hidden');
+  countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
+
+  grid.innerHTML = items.map((p, i) => `
+    <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.05}s forwards; opacity: 0;">
+      <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+        <img src="https://picsum.photos/seed/${p.img}/400/300.jpg" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700">
+        <div class="absolute top-3 left-3">
+          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Herb' : p.category.charAt(0).toUpperCase() + p.category.slice(1)}</span>
+        </div>
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
+        </div>
+      </div>
+      <div class="p-5">
+        <p class="text-[10px] text-brand font-medium uppercase tracking-widest mb-1">${p.catLabel}</p>
+        <h3 class="text-base font-semibold tracking-tight mb-1 cursor-pointer hover:text-brand transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+        <p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xl font-semibold text-txt-main">$${p.price}</span>
+            <span class="text-xs text-txt-third ml-1">/kg</span>
+          </div>
+          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300 group/btn">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+function getFilteredProducts() {
+  let items = currentCategory === 'all' ? [...products] : products.filter(p => p.category === currentCategory);
+
+  switch (currentSort) {
+    case 'name': items.sort((a, b) => a.name.localeCompare(b.name)); break;
+    case 'price-asc': items.sort((a, b) => a.price - b.price); break;
+    case 'price-desc': items.sort((a, b) => b.price - a.price); break;
+  }
+
+  return items;
+}
+
+function filterCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cat === cat);
+  });
+  renderProducts(getFilteredProducts());
+}
+
+function sortProducts() {
+  currentSort = document.getElementById('sortSelect').value;
+  renderProducts(getFilteredProducts());
+}
+
+// ==================== CART ====================
+function addToCart(id, qty = 1) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+
+  const existing = cart.find(item => item.id === id);
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({ ...product, qty });
+  }
+
+  updateCartUI();
+  showToast(`${product.name} added to cart`);
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(item => item.id !== id);
+  updateCartUI();
+}
+
+function updateQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  updateCartUI();
+}
+
+function clearCart() {
+  cart = [];
+  updateCartUI();
+  showToast('Cart cleared', 'info');
+}
+
+function updateCartUI() {
+  const countEl = document.getElementById('cartCount');
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  if (totalItems > 0) {
+    countEl.classList.remove('hidden');
+    countEl.classList.add('flex');
+    countEl.textContent = totalItems;
+  } else {
+    countEl.classList.add('hidden');
+    countEl.classList.remove('flex');
+  }
+
+  document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
+  document.getElementById('cartTotal').textContent = `$${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+  const cartItemsEl = document.getElementById('cartItems');
+  const emptyCart = document.getElementById('emptyCart');
+  const cartFooter = document.getElementById('cartFooter');
+
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-center">
+        <i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i>
+        <p class="text-txt-sub font-medium">Your cart is empty</p>
+        <p class="text-sm text-txt-third mt-1">Browse products and add items</p>
+      </div>`;
+    cartFooter.classList.add('hidden');
+    lucide.createIcons();
+    return;
+  }
+
+  cartFooter.classList.remove('hidden');
+
+  cartItemsEl.innerHTML = cart.map(item => `
+    <div class="flex gap-4 py-4 border-b border-border-main last:border-0">
+      <img src="https://picsum.photos/seed/${item.img}/100/100.jpg" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <h4 class="text-sm font-medium truncate">${item.name}</h4>
+          <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i>
+          </button>
+        </div>
+        <p class="text-xs text-txt-third mt-0.5">$${item.price}/kg</p>
+        <div class="flex items-center justify-between mt-2">
+          <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
+            <button onclick="updateQty(${item.id}, -1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-3 h-3"></i></button>
+            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">${item.qty} kg</span>
+            <button onclick="updateQty(${item.id}, 1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-3 h-3"></i></button>
+          </div>
+          <span class="text-sm font-semibold">$${(item.price * item.qty).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+function openCart() {
+  const overlay = document.getElementById('cartOverlay');
+  const panel = document.getElementById('cartPanel');
+  overlay.classList.remove('hidden');
+  document.body.classList.add('overlay-open');
+  requestAnimationFrame(() => {
+    panel.style.transform = 'translateX(0)';
+  });
+}
+
+function closeCart() {
+  const overlay = document.getElementById('cartOverlay');
+  const panel = document.getElementById('cartPanel');
+  panel.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    document.body.classList.remove('overlay-open');
+  }, 300);
+}
+
+function checkout() {
+  if (cart.length === 0) return;
+  const items = cart.map(i => `${i.name} (${i.qty}kg)`).join(', ');
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  showToast(`Inquiry sent for ${cart.length} items — $${total.toLocaleString()}`, 'success');
+  cart = [];
+  updateCartUI();
+  closeCart();
+  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== MODAL ====================
+function openModal(id) {
+  const p = products.find(pr => pr.id === id);
+  if (!p) return;
+  currentModalProduct = p;
+
+  document.getElementById('modalImg').src = `https://picsum.photos/seed/${p.img}/800/400.jpg`;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalCat').textContent = p.catLabel;
+  document.getElementById('modalPrice').textContent = `$${p.price}`;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category.charAt(0).toUpperCase() + p.category.slice(1);
+  document.getElementById('modalQty').value = 1;
+
+  const modal = document.getElementById('productModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.classList.add('overlay-open');
+
+  document.getElementById('modalAddBtn').onclick = () => {
+    const qty = parseInt(document.getElementById('modalQty').value) || 1;
+    addToCart(p.id, qty);
+    closeModal();
+  };
+
+  lucide.createIcons();
+}
+
+function closeModal() {
+  const modal = document.getElementById('productModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.classList.remove('overlay-open');
+  currentModalProduct = null;
+}
+
+function modalQtyChange(delta) {
+  const input = document.getElementById('modalQty');
+  input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+}
+
+// ==================== SEARCH ====================
+function toggleSearch() {
+  const bar = document.getElementById('searchBar');
+  bar.classList.toggle('hidden');
+  if (!bar.classList.contains('hidden')) {
+    document.getElementById('searchInput').focus();
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  const q = this.value.toLowerCase().trim();
+  const resultsEl = document.getElementById('searchResults');
+
+  if (q.length < 2) {
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  const matches = products.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.catLabel.toLowerCase().includes(q) ||
+    p.desc.toLowerCase().includes(q)
+  ).slice(0, 6);
+
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>';
+    return;
+  }
+
+  resultsEl.innerHTML = matches.map(p => `
+    <button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl transition-colors text-left">
+      <img src="https://picsum.photos/seed/${p.img}/60/60.jpg" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">${p.name}</p>
+        <p class="text-xs text-txt-third">${p.catLabel}</p>
+      </div>
+      <span class="text-sm font-semibold text-brand flex-shrink-0">$${p.price}</span>
+    </button>
+  `).join('');
+});
+
+// ==================== TOAST ====================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  const icon = type === 'success' ? 'check-circle' : type === 'info' ? 'info' : 'alert-circle';
+  const color = type === 'success' ? 'text-brand' : 'text-blue-500';
+
+  toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';
+  toast.innerHTML = `
+    <i data-lucide="${icon}" class="w-5 h-5 ${color} flex-shrink-0"></i>
+    <span class="text-sm font-medium">${message}</span>
+  `;
+
+  container.appendChild(toast);
+  lucide.createIcons();
+
+  setTimeout(() => {
+    toast.classList.remove('toast-enter');
+    toast.classList.add('toast-exit');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ==================== MOBILE MENU ====================
+function closeMobile() {
+  const overlay = document.getElementById('mobileOverlay');
+  const panel = document.getElementById('mobilePanel');
+  panel.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    document.body.classList.remove('overlay-open');
+  }, 300);
+}
+
+// ==================== CONTACT FORM ====================
+function submitForm(e) {
+  e.preventDefault();
+  const msg = document.getElementById('formMsg');
+  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
+  msg.classList.remove('hidden');
+  e.target.reset();
+  setTimeout(() => msg.classList.add('hidden'), 5000);
+}
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('cartToggle').addEventListener('click', openCart);
+document.getElementById('cartOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeCart();
+});
+document.getElementById('searchToggle').addEventListener('click', toggleSearch);
+document.getElementById('searchClose').addEventListener('click', toggleSearch);
+document.getElementById('productModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+document.getElementById('mobileMenu').addEventListener('click', () => {
+  const overlay = document.getElementById('mobileOverlay');
+  const panel = document.getElementById('mobilePanel');
+  overlay.classList.remove('hidden');
+  document.body.classList.add('overlay-open');
+  requestAnimationFrame(() => {
+    panel.style.transform = 'translateX(0)';
+  });
+});
+document.getElementById('mobileClose').addEventListener('click', closeMobile);
+document.getElementById('mobileOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeMobile();
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 100) {
+    nav.style.boxShadow = '0 1px 2px 0 rgba(0,0,0,0.05)';
+    nav.style.borderBottom = '1px solid rgba(231,229,228,0.5)';
+  } else {
+    nav.style.boxShadow = 'none';
+    nav.style.borderBottom = 'none';
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeCart();
+    closeModal();
+    closeMobile();
+    document.getElementById('searchBar').classList.add('hidden');
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    toggleSearch();
+  }
+});
+
+// ==================== INIT ====================
+renderProducts(products);
+lucide.createIcons();
+</script>
+</body>
+</html>
