@@ -32,7 +32,6 @@
   <style>
     ::-webkit-scrollbar { width: 0px; background: transparent; }
     ::selection { background: #A3B14B; color: white; }
-    html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; }
 
     @keyframes fadeInUp {
@@ -44,44 +43,30 @@
     .anim-d2 { animation-delay: 0.2s; }
     .anim-d3 { animation-delay: 0.3s; }
     .anim-d4 { animation-delay: 0.4s; }
-    .anim-d5 { animation-delay: 0.5s; }
 
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    .cart-badge { animation: fadeInUp 0.3s ease-out; }
-
-    .toast-enter {
-      animation: slideInRight 0.4s ease-out forwards;
-    }
+    .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
     @keyframes slideInRight {
       from { opacity: 0; transform: translateX(100%); }
       to { opacity: 1; transform: translateX(0); }
     }
-    .toast-exit {
-      animation: slideOutRight 0.3s ease-in forwards;
-    }
+    .toast-exit { animation: slideOutRight 0.3s ease-in forwards; }
     @keyframes slideOutRight {
       from { opacity: 1; transform: translateX(0); }
       to { opacity: 0; transform: translateX(100%); }
     }
 
-    .product-card:hover .product-img {
-      transform: scale(1.05);
-    }
-
-    .cat-btn.active {
-      background: #1C1917;
-      color: #FAFAF9;
-    }
-
+    .product-card:hover .product-img { transform: scale(1.05); }
+    .cat-btn.active { background: #1C1917; color: #FAFAF9; }
     .overlay-open { overflow: hidden; }
 
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   </style>
 </head>
@@ -96,21 +81,19 @@
         </div>
         <span class="text-xl font-semibold tracking-tight">NaturaBotanica</span>
       </a>
-
       <div class="hidden md:flex items-center gap-8">
         <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Products</a>
         <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Categories</a>
         <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors">About</a>
         <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Contact</a>
       </div>
-
       <div class="flex items-center gap-4">
         <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors">
           <i data-lucide="search" class="w-5 h-5"></i>
         </button>
         <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative">
           <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full flex items-center justify-center cart-badge">0</span>
+          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span>
         </button>
         <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors">
           <i data-lucide="menu" class="w-5 h-5"></i>
@@ -124,7 +107,7 @@
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="relative">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
-        <input id="searchInput" type="text" placeholder="Search products... (e.g. Curcumin, Neem Oil, Reishi)" class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+        <input id="searchInput" type="text" placeholder="Search products... (e.g. Paclitaxel, Agarwood, Chirata)" class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
         <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2">
           <i data-lucide="x" class="w-5 h-5 text-txt-third hover:text-txt-main transition-colors"></i>
         </button>
@@ -154,24 +137,22 @@
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
     <div class="absolute inset-0">
-      <img src="https://picsum.photos/seed/botanical-herbs-green/1920/1080.jpg" class="w-full h-full object-cover opacity-30">
+      <img src="https://picsum.photos/seed/himalayan-botanical-wild-herbs/1920/1080.jpg" class="w-full h-full object-cover opacity-30">
       <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
     </div>
-    <!-- Decorative orb -->
     <div class="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
-
     <div class="relative max-w-7xl mx-auto px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-16 items-center w-full">
       <div>
         <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8">
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
-          <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Wholesale Available</span>
+          <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Himalayan & Rare Botanicals</span>
         </div>
         <h1 class="anim-up anim-d1 text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">
-          Premium<br><span class="text-brand">Botanical</span><br>Ingredients
+          Premium<br><span class="text-brand">Natural</span><br>Ingredients
         </h1>
         <p class="anim-up anim-d2 text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-10">
-          APIs, Oils, Extracts, Mushrooms & Raw Herbs — sourced globally, delivered reliably.
+          APIs, Essential Oils, Extracts, Mushrooms & Raw Herbs — sourced from the Himalayas and beyond.
         </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
           <a href="#products" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
@@ -184,13 +165,13 @@
         </div>
         <div class="anim-up anim-d4 flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
           <div>
-            <div class="text-3xl font-semibold text-white">500+</div>
+            <div class="text-3xl font-semibold text-white">32</div>
             <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div>
           </div>
           <div class="w-px h-10 bg-white/10"></div>
           <div>
-            <div class="text-3xl font-semibold text-white">50+</div>
-            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Countries</div>
+            <div class="text-3xl font-semibold text-white">5</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div>
           </div>
           <div class="w-px h-10 bg-white/10"></div>
           <div>
@@ -200,57 +181,55 @@
         </div>
       </div>
     </div>
-
-    <!-- Scroll indicator -->
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce" style="animation-duration:2s">
       <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
       <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
     </div>
   </section>
 
-  <!-- CATEGORIES STRIP -->
+  <!-- CATEGORIES -->
   <section id="categories" class="py-16 bg-white border-b border-border-main">
     <div class="max-w-7xl mx-auto px-6">
       <div class="text-center mb-10">
         <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p>
         <h2 class="text-3xl md:text-4xl font-medium tracking-tight">Five Pillars of Nature</h2>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <button onclick="filterCategory('all')" class="cat-btn active group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="grid-3x3" class="w-6 h-6 text-brand"></i>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        <button onclick="filterCategory('all')" class="cat-btn active group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="grid-3x3" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">All Products</span>
+          <span class="text-xs font-medium">All (32)</span>
         </button>
-        <button onclick="filterCategory('api')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="api">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="flask-conical" class="w-6 h-6 text-brand"></i>
+        <button onclick="filterCategory('api')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="api">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="flask-conical" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">APIs</span>
+          <span class="text-xs font-medium">APIs (3)</span>
         </button>
-        <button onclick="filterCategory('oils')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="oils">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="droplets" class="w-6 h-6 text-brand"></i>
+        <button onclick="filterCategory('oils')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="oils">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="droplets" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">Oils</span>
+          <span class="text-xs font-medium">Oils (6)</span>
         </button>
-        <button onclick="filterCategory('extracts')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="extracts">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="beaker" class="w-6 h-6 text-brand"></i>
+        <button onclick="filterCategory('extracts')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="extracts">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="beaker" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">Extracts</span>
+          <span class="text-xs font-medium">Extracts (11)</span>
         </button>
-        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="cloud-fog" class="w-6 h-6 text-brand"></i>
+        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="cloud-fog" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">Mushrooms</span>
+          <span class="text-xs font-medium">Mushrooms (5)</span>
         </button>
-        <button onclick="filterCategory('herbs')" class="cat-btn group col-span-2 md:col-span-1 p-6 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
-            <i data-lucide="sprout" class="w-6 h-6 text-brand"></i>
+        <button onclick="filterCategory('herbs')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="sprout" class="w-5 h-5 text-brand"></i>
           </div>
-          <span class="text-sm font-medium">Raw Herbs</span>
+          <span class="text-xs font-medium">Herbs (7)</span>
         </button>
       </div>
     </div>
@@ -266,7 +245,7 @@
           <p class="text-txt-sub mt-3 text-lg font-light">All prices per kilogram (1 kg). Bulk discounts available.</p>
         </div>
         <div class="flex items-center gap-3 mt-6 md:mt-0">
-          <span class="text-sm text-txt-third" id="productCount">30 products</span>
+          <span class="text-sm text-txt-third" id="productCount">32 products</span>
           <select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="name">Sort by Name</option>
             <option value="price-asc">Price: Low → High</option>
@@ -274,9 +253,7 @@
           </select>
         </div>
       </div>
-      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Products injected by JS -->
-      </div>
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       <div id="noResults" class="hidden text-center py-20">
         <i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i>
         <p class="text-lg text-txt-sub">No products found matching your criteria.</p>
@@ -291,9 +268,9 @@
       <div class="grid lg:grid-cols-2 gap-16 items-center">
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p>
-          <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Trusted Source for Natural Ingredients</h2>
+          <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Trusted Source for Himalayan & Rare Botanicals</h2>
           <p class="text-lg font-light text-white/60 leading-relaxed mb-8">
-            With over 15 years in the botanical supply industry, we connect manufacturers, formulators, and brands with the highest quality natural ingredients from sustainable sources worldwide.
+            Specializing in rare Himalayan medicinal plants, high-value APIs, and premium essential oils. We work directly with harvesters and cultivators across Nepal, India, and Southeast Asia to deliver the finest natural ingredients.
           </p>
           <div class="grid grid-cols-2 gap-6">
             <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
@@ -307,9 +284,9 @@
               <p class="text-sm text-white/50">50+ countries served</p>
             </div>
             <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
-              <i data-lucide="recycle" class="w-6 h-6 text-brand mb-3"></i>
-              <h4 class="text-white font-medium mb-1">Sustainable</h4>
-              <p class="text-sm text-white/50">Ethically sourced</p>
+              <i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Himalayan Source</h4>
+              <p class="text-sm text-white/50">Wild-crafted & cultivated</p>
             </div>
             <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
               <i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i>
@@ -319,7 +296,7 @@
           </div>
         </div>
         <div class="relative">
-          <img src="https://picsum.photos/seed/herbal-lab-workspace/800/600.jpg" class="w-full h-[500px] object-cover rounded-3xl opacity-80">
+          <img src="https://picsum.photos/seed/himalayan-herbs-drying-racks/800/600.jpg" class="w-full h-[500px] object-cover rounded-3xl opacity-80">
           <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div>
         </div>
       </div>
@@ -352,7 +329,7 @@
               </div>
               <div>
                 <p class="text-sm text-txt-third">Phone</p>
-                <p class="text-sm font-medium">+91 98765 43210</p>
+                <p class="text-sm font-medium">+977 98012 34567</p>
               </div>
             </div>
             <div class="flex items-center gap-4">
@@ -361,7 +338,7 @@
               </div>
               <div>
                 <p class="text-sm text-txt-third">Location</p>
-                <p class="text-sm font-medium">Mumbai, India</p>
+                <p class="text-sm font-medium">Kathmandu, Nepal</p>
               </div>
             </div>
           </div>
@@ -395,7 +372,7 @@
             </div>
             <span class="text-white font-semibold">NaturaBotanica</span>
           </div>
-          <p class="text-sm text-white/40 leading-relaxed">Premium botanical & pharmaceutical ingredients for the global market.</p>
+          <p class="text-sm text-white/40 leading-relaxed">Premium Himalayan & botanical ingredients for the global market.</p>
         </div>
         <div>
           <h4 class="text-sm font-medium text-white mb-4">Categories</h4>
@@ -429,15 +406,9 @@
       <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
         <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
         <div class="flex items-center gap-4">
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i>
-          </a>
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <i data-lucide="twitter" class="w-4 h-4 text-white/50"></i>
-          </a>
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <i data-lucide="instagram" class="w-4 h-4 text-white/50"></i>
-          </a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a>
         </div>
       </div>
     </div>
@@ -454,13 +425,7 @@
         </div>
         <button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <div id="cartItems" class="flex-1 overflow-y-auto p-6">
-        <div id="emptyCart" class="flex flex-col items-center justify-center h-full text-center">
-          <i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i>
-          <p class="text-txt-sub font-medium">Your cart is empty</p>
-          <p class="text-sm text-txt-third mt-1">Browse products and add items</p>
-        </div>
-      </div>
+      <div id="cartItems" class="flex-1 overflow-y-auto p-6"></div>
       <div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-txt-sub">Subtotal</span>
@@ -484,13 +449,12 @@
     <div class="bg-bg-light rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="relative">
         <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl">
-        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
         <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
       </div>
       <div class="p-8">
-        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-2"></h3>
+        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-1"></h3>
+        <p id="modalSci" class="text-sm text-txt-third italic mb-4"></p>
         <p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
         <div class="flex items-center gap-4 mb-6">
           <span id="modalPrice" class="text-3xl font-semibold text-brand"></span>
@@ -504,11 +468,11 @@
           </div>
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">MOQ</p>
-            <p class="text-sm text-white font-medium">25 kg</p>
+            <p id="modalMoq" class="text-sm text-white font-medium">25 kg</p>
           </div>
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">Lead Time</p>
-            <p class="text-sm text-white font-medium">7-14 days</p>
+            <p id="modalLead" class="text-sm text-white font-medium">7-14 days</p>
           </div>
         </div>
         <div class="flex gap-3">
@@ -527,47 +491,49 @@
   </div>
 
 <script>
-// ==================== PRODUCT DATA ====================
+// ==================== EXACT PRODUCT DATA FROM YOUR LIST ====================
 const products = [
-  // Active Pharmaceutical Ingredients
-  { id: 1, name: "Curcumin 95%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 85, img: "curcumin-powder-golden", desc: "High-purity curcumin extracted from turmeric rhizomes. Widely used in anti-inflammatory formulations, dietary supplements, and nutraceuticals. Minimum 95% curcuminoids by HPLC." },
-  { id: 2, name: "Piperine 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 120, img: "piperine-white-crystals", desc: "Bioavailability enhancer extracted from black pepper. Used to increase absorption of curcumin, resveratrol, and other compounds. 98% purity guaranteed." },
-  { id: 3, name: "Berberine HCl", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 95, img: "berberine-yellow-powder", desc: "Alkaloid extract from Berberis species. Known for blood sugar management and antimicrobial properties. Pharmaceutical grade HCl form." },
-  { id: 4, name: "Resveratrol 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 150, img: "resveratrol-fine-powder", desc: "Polyphenol from Japanese knotweed. Powerful antioxidant used in anti-aging and cardiovascular health supplements. Trans-resveratrol 98%." },
-  { id: 5, name: "Quercetin 95%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 110, img: "quercetin-yellow-extract", desc: "Flavonoid found in onions and apples. Supports immune function and acts as a natural antihistamine. 95% purity by UV." },
-  { id: 6, name: "Andrographolide 98%", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 130, img: "andrographolide-crystal", desc: "Bitter lactone from Andrographis paniculata. Used in liver protection and immune support formulations across Asia." },
+  // ── Active Pharmaceutical Ingredients ──
+  { id: 1, name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "dab-iii-white-powder-lab", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%. Critical intermediate in oncology drug manufacturing." },
+  { id: 2, name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 12000, moq: "100 g", lead: "21-30 days", img: "paclitaxel-crystal-pharma", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available. Supplied with full COA and stability data." },
+  { id: 3, name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 8500, moq: "100 g", lead: "21-30 days", img: "docetaxel-white-powder-oncology", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers. Pharmaceutical grade with complete documentation." },
 
-  // Oils
-  { id: 7, name: "Neem Oil (Cold Pressed)", category: "oils", catLabel: "Oils", price: 12, img: "neem-oil-bottle-dark", desc: "Cold-pressed virgin neem oil. Rich in azadirachtin. Used in agriculture, cosmetics, and traditional medicine. Unrefined and pure." },
-  { id: 8, name: "Eucalyptus Oil", category: "oils", catLabel: "Oils", price: 18, img: "eucalyptus-oil-clear", desc: "Steam-distilled from Eucalyptus globulus leaves. High eucalyptol content. Used in pharmaceuticals, aromatherapy, and topical applications." },
-  { id: 9, name: "Tea Tree Oil", category: "oils", catLabel: "Oils", price: 45, img: "tea-tree-oil-small", desc: "Australian tea tree oil (Melaleuca alternifolia). Terpinen-4-ol >38%. Premium grade for cosmetics and antiseptic formulations." },
-  { id: 10, name: "Rosemary Oil", category: "oils", catLabel: "Oils", price: 35, img: "rosemary-oil-herbal", desc: "Steam-distilled rosemary essential oil. Used in hair care, cognitive support blends, and natural preservative systems in cosmetics." },
-  { id: 11, name: "Lavender Oil", category: "oils", catLabel: "Oils", price: 55, img: "lavender-oil-purple", desc: "Premium Lavandula angustifolia oil. Linalool and linalyl acetate rich. Sourced from high-altitude farms. Perfect for aromatherapy and personal care." },
-  { id: 12, name: "Peppermint Oil", category: "oils", catLabel: "Oils", price: 28, img: "peppermint-oil-fresh", desc: "Mentha piperita essential oil. Menthol content >50%. Used in oral care, digestive aids, cooling formulations, and pharmaceutical preparations." },
+  // ── Oils ──
+  { id: 4, name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 280, moq: "1 kg", lead: "10-15 days", img: "jatamansi-oil-dark-amber", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine for insomnia and anxiety. Wild-harvested from Nepal Himalayas." },
+  { id: 5, name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 5500, moq: "10 g", lead: "14-21 days", img: "agarwood-oud-oil-dark-luxury", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery. One of the most expensive essential oils in the world. CITES certified." },
+  { id: 6, name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "sandalwood-white-oil-warm", desc: "Premium East Indian sandalwood essential oil. Steam-distilled from heartwood of sustainably grown Santalum album. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+  { id: 7, name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 120, moq: "1 kg", lead: "10-14 days", img: "timur-oil-nepali-pepper", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care. Also valued in niche perfumery for its distinctive top note." },
+  { id: 8, name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 65, moq: "1 kg", lead: "7-10 days", img: "cardamom-oil-green-aromatic", desc: "True green cardamom essential oil from Kerala, India. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring, aromatherapy, digestive formulations, and premium perfumery." },
+  { id: 9, name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 45, moq: "1 kg", lead: "7-10 days", img: "cinnamon-oil-verum-golden", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark of Cinnamomum verum. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil. Used in flavoring, oral care, and antimicrobial formulations." },
 
-  // Extracts
-  { id: 13, name: "Ashwagandha Extract 5%", category: "extracts", catLabel: "Extracts", price: 25, img: "ashwagandha-brown-powder", desc: "Root extract standardized to 5% withanolides. KSM-66 equivalent quality. Adaptogenic herb for stress relief and vitality." },
-  { id: 14, name: "Turmeric Extract 95%", category: "extracts", catLabel: "Extracts", price: 30, img: "turmeric-extract-orange", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Enhanced bioavailability version available. COA provided." },
-  { id: 15, name: "Ginseng Extract 20%", category: "extracts", catLabel: "Extracts", price: 65, img: "ginseng-extract-beige", desc: "Panax ginseng root extract standardized to 20% ginsenosides. Korean origin. Used in energy and cognitive enhancement supplements." },
-  { id: 16, name: "Moringa Leaf Extract 10:1", category: "extracts", catLabel: "Extracts", price: 22, img: "moringa-green-extract", desc: "Concentrated moringa oleifera leaf extract. Rich in nutrients, antioxidants, and anti-inflammatory compounds. 10:1 concentration ratio." },
-  { id: 17, name: "Green Tea Extract 50%", category: "extracts", catLabel: "Extracts", price: 40, img: "green-tea-extract-powder", desc: "EGCG 50% standardized green tea extract. Powerful antioxidant for weight management and cardiovascular support. Decaffeinated option available." },
-  { id: 18, name: "Amla Extract 40%", category: "extracts", catLabel: "Extracts", price: 18, img: "amla-extract-tan", desc: "Indian gooseberry (Emblica officinalis) extract standardized to 40% vitamin C. Natural antioxidant for skin and hair care formulations." },
+  // ── Extracts ──
+  { id: 10, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "kutki-root-extract-bitter", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations. Wild-harvested from high-altitude Himalayan meadows (3,000-5,000m). Extremely rare and precious." },
+  { id: 11, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "reishi-extract-dual-polysaccharide", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation, longevity, and stress adaptation. Both water and ethanol extraction for full spectrum." },
+  { id: 12, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "rhodiola-extract-golden-root", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance, fatigue reduction, and stress resilience. Sourced from high-altitude populations." },
+  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "colchicine-extract-pharma-yellow", desc: "Pharmaceutical-grade colchicine extracted from Colchicum autumnale or Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. Strict quality control with HPLC assay >99%." },
+  { id: 14, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "turmeric-extract-curcumin-orange", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements, functional foods, and pharmaceutical formulations. Enhanced bioavailability options available." },
+  { id: 15, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "ginger-extract-spice-pungent", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support. Available in multiple standardization levels. GRAS status." },
+  { id: 16, name: "Zedoary Root Extract", sci: "Curcuma zedoaria (Kachur)", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "zedoary-kachur-extract-cream", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory. Contains curcumenol and other bioactive sesquiterpenes." },
+  { id: 17, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "chirita-extract-rare-himalayan", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids and glycosides. Limited supply from wild Himalayan populations." },
+  { id: 18, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "green-tea-extract-egcg-powder", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support. Decaffeinated option available. Water-extracted, spray-dried." },
+  { id: 19, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "coffee-bean-extract-brown-powder", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations. Also available as roasted coffee extract for flavoring applications." },
+  { id: 20, name: "Coleus Extract", sci: "Coleus forskohlii (Ghanti ful)", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "coleus-forskohlii-extract-forskolin", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator. Cultivated under controlled conditions for consistent quality." },
 
-  // Mushrooms & Fungi
-  { id: 19, name: "Reishi Mushroom Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 75, img: "reishi-mushroom-red", desc: "Ganoderma lucidum dual extract. Polysaccharide and triterpene rich. The 'king of mushrooms' for immune modulation and longevity." },
-  { id: 20, name: "Lion's Mane Extract 30%", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 85, img: "lions-mane-white-fungi", desc: "Hericium erinaceus standardized to 30% beta-glucans. Nerve growth factor stimulator. Used for cognitive enhancement and nerve health." },
-  { id: 21, name: "Cordyceps CS-4 Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, img: "cordyceps-dried-orange", desc: "Fermented Cordyceps sinensis CS-4 strain. Cordycepin and adenosine rich. Premium performance and energy enhancement mushroom." },
-  { id: 22, name: "Shiitake Mushroom Powder", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 35, img: "shiitake-brown-mushroom", desc: "Lentinula edodes fruiting body powder. Lentinan content for immune support. Also used in culinary and functional food applications." },
-  { id: 23, name: "Chaga Mushroom Extract", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 65, img: "chaga-dark-fungus", desc: "Inonotus obliquus birch-grown chaga extract. Extremely high ORAC value antioxidant. Wild-harvested from Siberian birch forests." },
-  { id: 24, name: "Turkey Tail Extract 30%", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, img: "turkey-tail-colorful", desc: "Trametes versicolor standardized to 30% polysaccharides. PSK/PSP rich. Most researched mushroom for immune support and adjunct cancer therapy." },
+  // ── Mushrooms & Fungi ──
+  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-a-premium", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from the high Himalayas of Nepal and Tibet (4,000-5,500m). Whole, intact specimens with optimal caterpillar-to-fungus ratio. The most prized medicinal fungus in TCM. CITES regulated." },
+  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-b-good", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A at a more accessible price point. Wild-harvested from Himalayan alpine meadows." },
+  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-c-broken", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display. Still wild-harvested with authentic bioactive compounds (cordycepin, adenosine). Most cost-effective option." },
+  { id: 24, name: "Reishi Mushroom", sci: "Ganoderma lucidum (Rato Chyau)", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "reishi-mushroom-rato-chyau-dried", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Can be used for tea, tinctures, or as raw material for extraction. Rich in beta-glucans, triterpenes, and ganoderic acids." },
+  { id: 25, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "morel-mushroom-wild-honeycomb", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests of Nepal. Dried whole for extended shelf life. Prized in gourmet cuisine worldwide. Rich in vitamins, minerals, and unique umami flavor." },
 
-  // Raw Herbs, Roots & Botanicals
-  { id: 25, name: "Moringa Leaf (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 8, img: "moringa-dried-leaves", desc: "Sun-dried moringa oleifera leaves. Cut & sifted. Retains full nutritional profile. Ideal for teas, smoothies, and food fortification." },
-  { id: 26, name: "Senna Leaf (Cut & Sifted)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 6, img: "senna-leaf-dried-green", desc: "Cassia angustifolia leaves. Standardized sennoside content. Widely used in laxative and detox formulations. Pharmacopoeial grade." },
-  { id: 27, name: "Ginger Root (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 5, img: "ginger-root-dried-spice", desc: "Dried Zingiber officinale rhizome. High gingerol content. Used in digestive aids, anti-nausea formulations, and culinary applications." },
-  { id: 28, name: "Turmeric Root (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 7, img: "turmeric-root-dried-golden", desc: "Whole dried turmeric rhizomes. High curcumin content variety. Used in spice blends, traditional medicine, and as raw material for extraction." },
-  { id: 29, name: "Licorice Root (Cut)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, img: "licorice-root-yellow-cut", desc: "Glycyrrhiza glabra root pieces. Glycyrrhizin rich. Used as natural sweetener, throat sooother, and in traditional Chinese and Ayurvedic medicine." },
-  { id: 30, name: "Brahmi Leaves (Dried)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, img: "brahmi-leaves-green-herb", desc: "Bacopa monnieri dried leaves. Bacoside rich. The premier Ayurvedic brain tonic for memory, focus, and cognitive enhancement." },
+  // ── Raw Herbs, Roots & Botanicals ──
+  { id: 26, name: "Himalayan Wild Garlic", sci: "Allium wallichii (Ban Lasun)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "himalayan-wild-garlic-ban-lasun", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at 2,500-4,000m altitude. Smaller but more potent than cultivated garlic. Higher allicin content. Used in traditional medicine for heart health, cholesterol management, and as an antimicrobial." },
+  { id: 27, name: "Himalayan Paris", sci: "Paris polyphylla (Satuwa)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "paris-polyphylla-satuwa-root-rare", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties. Key ingredient in traditional Chinese and Nepali medicine. Wild-harvested from high-altitude forests. CITES Appendix listed." },
+  { id: 28, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum (Khiraula)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "polygonatum-khiraula-root-dried", desc: "Dried rhizomes of Khiraula from the Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions. Rich in polysaccharides and steroidal saponins. Wild-crafted from clean mountain environments." },
+  { id: 29, name: "Himalayan Larkspur", sci: "Delphinium denudatum (Nirmasi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "delphinium-nirmasi-dried-root", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions. Contains diterpenoid alkaloids. Sourced from Himalayan alpine and sub-alpine zones." },
+  { id: 30, name: "Wild Asparagus", sci: "Asparagus racemosus (Shatavari)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "wild-asparagus-shatavari-root-dried", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV). Used for reproductive health, lactation support, and as a general rejuvenative. Wild-crafted from forest margins." },
+  { id: 31, name: "Large Cardamom", sci: "Amomum subulatum (Alaichi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "large-cardamom-alaichi-dried-pods", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in the eastern Himalayan foothills (Ilam, Taplejung). Smoky, camphoraceous flavor distinct from green cardamom. Essential in masala blends, chai, and South Asian cuisine. Also used medicinally for digestive issues." },
+  { id: 32, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "chirata-swertia-dried-bitter-herb", desc: "Whole dried Chirata herb (Bhunimba). Extremely bitter Swertia species from the Himalayas. Primary source of amarogentin — one of the most bitter compounds known. Used for liver disorders, malaria, fever, and as a digestive bitter tonic." },
 ];
 
 let cart = [];
@@ -575,7 +541,7 @@ let currentCategory = 'all';
 let currentSort = 'name';
 let currentModalProduct = null;
 
-// ==================== RENDER PRODUCTS ====================
+// ==================== RENDER ====================
 function renderProducts(items) {
   const grid = document.getElementById('productGrid');
   const noResults = document.getElementById('noResults');
@@ -587,31 +553,32 @@ function renderProducts(items) {
     countEl.textContent = '0 products';
     return;
   }
-
   noResults.classList.add('hidden');
   countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
 
   grid.innerHTML = items.map((p, i) => `
-    <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.05}s forwards; opacity: 0;">
+    <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="https://picsum.photos/seed/${p.img}/400/300.jpg" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700">
         <div class="absolute top-3 left-3">
-          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Herb' : p.category.charAt(0).toUpperCase() + p.category.slice(1)}</span>
+          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : 'Extract'}</span>
         </div>
+        ${p.price >= 1000 ? '<div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>' : ''}
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
           <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
         </div>
       </div>
       <div class="p-5">
         <p class="text-[10px] text-brand font-medium uppercase tracking-widest mb-1">${p.catLabel}</p>
-        <h3 class="text-base font-semibold tracking-tight mb-1 cursor-pointer hover:text-brand transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+        <h3 class="text-base font-semibold tracking-tight mb-0.5 cursor-pointer hover:text-brand transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+        <p class="text-[11px] text-txt-third italic mb-3">${p.sci}</p>
         <p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p>
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-xl font-semibold text-txt-main">$${p.price}</span>
+            <span class="text-xl font-semibold text-txt-main">$${p.price.toLocaleString()}</span>
             <span class="text-xs text-txt-third ml-1">/kg</span>
           </div>
-          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300 group/btn">
+          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             Add
           </button>
@@ -619,27 +586,22 @@ function renderProducts(items) {
       </div>
     </div>
   `).join('');
-
   lucide.createIcons();
 }
 
 function getFilteredProducts() {
   let items = currentCategory === 'all' ? [...products] : products.filter(p => p.category === currentCategory);
-
   switch (currentSort) {
     case 'name': items.sort((a, b) => a.name.localeCompare(b.name)); break;
     case 'price-asc': items.sort((a, b) => a.price - b.price); break;
     case 'price-desc': items.sort((a, b) => b.price - a.price); break;
   }
-
   return items;
 }
 
 function filterCategory(cat) {
   currentCategory = cat;
-  document.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.cat === cat);
-  });
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.cat === cat));
   renderProducts(getFilteredProducts());
 }
 
@@ -650,24 +612,15 @@ function sortProducts() {
 
 // ==================== CART ====================
 function addToCart(id, qty = 1) {
-  const product = products.find(p => p.id === id);
-  if (!product) return;
-
+  const p = products.find(x => x.id === id);
+  if (!p) return;
   const existing = cart.find(item => item.id === id);
-  if (existing) {
-    existing.qty += qty;
-  } else {
-    cart.push({ ...product, qty });
-  }
-
+  if (existing) { existing.qty += qty; } else { cart.push({ ...p, qty }); }
   updateCartUI();
-  showToast(`${product.name} added to cart`);
+  showToast(`${p.name} added to cart`);
 }
 
-function removeFromCart(id) {
-  cart = cart.filter(item => item.id !== id);
-  updateCartUI();
-}
+function removeFromCart(id) { cart = cart.filter(item => item.id !== id); updateCartUI(); }
 
 function updateQty(id, delta) {
   const item = cart.find(i => i.id === id);
@@ -676,58 +629,41 @@ function updateQty(id, delta) {
   updateCartUI();
 }
 
-function clearCart() {
-  cart = [];
-  updateCartUI();
-  showToast('Cart cleared', 'info');
-}
+function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared', 'info'); }
 
 function updateCartUI() {
   const countEl = document.getElementById('cartCount');
-  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-  if (totalItems > 0) {
-    countEl.classList.remove('hidden');
-    countEl.classList.add('flex');
-    countEl.textContent = totalItems;
-  } else {
-    countEl.classList.add('hidden');
-    countEl.classList.remove('flex');
-  }
+  if (totalItems > 0) { countEl.classList.remove('hidden'); countEl.classList.add('flex'); countEl.textContent = totalItems; }
+  else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
 
   document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
   document.getElementById('cartTotal').textContent = `$${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   const cartItemsEl = document.getElementById('cartItems');
-  const emptyCart = document.getElementById('emptyCart');
   const cartFooter = document.getElementById('cartFooter');
 
   if (cart.length === 0) {
-    cartItemsEl.innerHTML = `
-      <div class="flex flex-col items-center justify-center h-full text-center">
-        <i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i>
-        <p class="text-txt-sub font-medium">Your cart is empty</p>
-        <p class="text-sm text-txt-third mt-1">Browse products and add items</p>
-      </div>`;
+    cartItemsEl.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div>`;
     cartFooter.classList.add('hidden');
     lucide.createIcons();
     return;
   }
-
   cartFooter.classList.remove('hidden');
-
   cartItemsEl.innerHTML = cart.map(item => `
     <div class="flex gap-4 py-4 border-b border-border-main last:border-0">
       <img src="https://picsum.photos/seed/${item.img}/100/100.jpg" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
-          <h4 class="text-sm font-medium truncate">${item.name}</h4>
-          <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i>
-          </button>
+          <div>
+            <h4 class="text-sm font-medium truncate">${item.name}</h4>
+            <p class="text-[11px] text-txt-third italic">${item.sci}</p>
+          </div>
+          <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
         </div>
-        <p class="text-xs text-txt-third mt-0.5">$${item.price}/kg</p>
+        <p class="text-xs text-txt-third mt-1">$${item.price.toLocaleString()}/kg</p>
         <div class="flex items-center justify-between mt-2">
           <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
             <button onclick="updateQty(${item.id}, -1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-3 h-3"></i></button>
@@ -739,119 +675,87 @@ function updateCartUI() {
       </div>
     </div>
   `).join('');
-
   lucide.createIcons();
 }
 
 function openCart() {
   const overlay = document.getElementById('cartOverlay');
-  const panel = document.getElementById('cartPanel');
   overlay.classList.remove('hidden');
   document.body.classList.add('overlay-open');
-  requestAnimationFrame(() => {
-    panel.style.transform = 'translateX(0)';
-  });
+  requestAnimationFrame(() => document.getElementById('cartPanel').style.transform = 'translateX(0)');
 }
 
 function closeCart() {
-  const overlay = document.getElementById('cartOverlay');
-  const panel = document.getElementById('cartPanel');
-  panel.style.transform = 'translateX(100%)';
-  setTimeout(() => {
-    overlay.classList.add('hidden');
-    document.body.classList.remove('overlay-open');
-  }, 300);
+  document.getElementById('cartPanel').style.transform = 'translateX(100%)';
+  setTimeout(() => { document.getElementById('cartOverlay').classList.add('hidden'); document.body.classList.remove('overlay-open'); }, 300);
 }
 
 function checkout() {
   if (cart.length === 0) return;
-  const items = cart.map(i => `${i.name} (${i.qty}kg)`).join(', ');
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  showToast(`Inquiry sent for ${cart.length} items — $${total.toLocaleString()}`, 'success');
+  showToast(`Inquiry sent for ${cart.length} items — Total: $${total.toLocaleString()}`, 'success');
   cart = [];
   updateCartUI();
   closeCart();
-  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }), 400);
 }
 
 // ==================== MODAL ====================
 function openModal(id) {
-  const p = products.find(pr => pr.id === id);
+  const p = products.find(x => x.id === id);
   if (!p) return;
   currentModalProduct = p;
-
   document.getElementById('modalImg').src = `https://picsum.photos/seed/${p.img}/800/400.jpg`;
   document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalSci').textContent = p.sci;
   document.getElementById('modalCat').textContent = p.catLabel;
-  document.getElementById('modalPrice').textContent = `$${p.price}`;
+  document.getElementById('modalPrice').textContent = `$${p.price.toLocaleString()}`;
   document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category.charAt(0).toUpperCase() + p.category.slice(1);
+  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : 'Extract';
+  document.getElementById('modalMoq').textContent = p.moq;
+  document.getElementById('modalLead').textContent = p.lead;
   document.getElementById('modalQty').value = 1;
-
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
   const modal = document.getElementById('productModal');
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
   document.body.classList.add('overlay-open');
-
-  document.getElementById('modalAddBtn').onclick = () => {
-    const qty = parseInt(document.getElementById('modalQty').value) || 1;
-    addToCart(p.id, qty);
-    closeModal();
-  };
-
   lucide.createIcons();
 }
 
 function closeModal() {
   const modal = document.getElementById('productModal');
-  modal.classList.add('hidden');
-  modal.classList.remove('flex');
+  modal.classList.add('hidden'); modal.classList.remove('flex');
   document.body.classList.remove('overlay-open');
   currentModalProduct = null;
 }
 
-function modalQtyChange(delta) {
+function modalQtyChange(d) {
   const input = document.getElementById('modalQty');
-  input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+  input.value = Math.max(1, (parseInt(input.value) || 1) + d);
 }
 
 // ==================== SEARCH ====================
-function toggleSearch() {
+document.getElementById('searchToggle').addEventListener('click', () => {
   const bar = document.getElementById('searchBar');
   bar.classList.toggle('hidden');
-  if (!bar.classList.contains('hidden')) {
-    document.getElementById('searchInput').focus();
-  }
-}
+  if (!bar.classList.contains('hidden')) document.getElementById('searchInput').focus();
+});
+document.getElementById('searchClose').addEventListener('click', () => document.getElementById('searchBar').classList.add('hidden'));
 
 document.getElementById('searchInput').addEventListener('input', function () {
   const q = this.value.toLowerCase().trim();
-  const resultsEl = document.getElementById('searchResults');
-
-  if (q.length < 2) {
-    resultsEl.innerHTML = '';
-    return;
-  }
-
-  const matches = products.filter(p =>
-    p.name.toLowerCase().includes(q) ||
-    p.catLabel.toLowerCase().includes(q) ||
-    p.desc.toLowerCase().includes(q)
-  ).slice(0, 6);
-
-  if (matches.length === 0) {
-    resultsEl.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>';
-    return;
-  }
-
-  resultsEl.innerHTML = matches.map(p => `
+  const el = document.getElementById('searchResults');
+  if (q.length < 2) { el.innerHTML = ''; return; }
+  const matches = products.filter(p => p.name.toLowerCase().includes(q) || p.sci.toLowerCase().includes(q) || p.catLabel.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) { el.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; }
+  el.innerHTML = matches.map(p => `
     <button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl transition-colors text-left">
       <img src="https://picsum.photos/seed/${p.img}/60/60.jpg" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium truncate">${p.name}</p>
-        <p class="text-xs text-txt-third">${p.catLabel}</p>
+        <p class="text-[11px] text-txt-third italic">${p.sci}</p>
       </div>
-      <span class="text-sm font-semibold text-brand flex-shrink-0">$${p.price}</span>
+      <span class="text-sm font-semibold text-brand flex-shrink-0">$${p.price.toLocaleString()}</span>
     </button>
   `).join('');
 });
@@ -860,37 +764,43 @@ document.getElementById('searchInput').addEventListener('input', function () {
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
-  const icon = type === 'success' ? 'check-circle' : type === 'info' ? 'info' : 'alert-circle';
-  const color = type === 'success' ? 'text-brand' : 'text-blue-500';
-
+  const icon = type === 'success' ? 'check-circle' : 'info';
   toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';
-  toast.innerHTML = `
-    <i data-lucide="${icon}" class="w-5 h-5 ${color} flex-shrink-0"></i>
-    <span class="text-sm font-medium">${message}</span>
-  `;
-
+  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 text-brand flex-shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
   container.appendChild(toast);
   lucide.createIcons();
-
-  setTimeout(() => {
-    toast.classList.remove('toast-enter');
-    toast.classList.add('toast-exit');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  setTimeout(() => { toast.classList.remove('toast-enter'); toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// ==================== MOBILE MENU ====================
+// ==================== MOBILE ====================
 function closeMobile() {
-  const overlay = document.getElementById('mobileOverlay');
-  const panel = document.getElementById('mobilePanel');
-  panel.style.transform = 'translateX(100%)';
-  setTimeout(() => {
-    overlay.classList.add('hidden');
-    document.body.classList.remove('overlay-open');
-  }, 300);
+  document.getElementById('mobilePanel').style.transform = 'translateX(100%)';
+  setTimeout(() => { document.getElementById('mobileOverlay').classList.add('hidden'); document.body.classList.remove('overlay-open'); }, 300);
 }
+document.getElementById('mobileMenu').addEventListener('click', () => {
+  document.getElementById('mobileOverlay').classList.remove('hidden');
+  document.body.classList.add('overlay-open');
+  requestAnimationFrame(() => document.getElementById('mobilePanel').style.transform = 'translateX(0)');
+});
+document.getElementById('mobileClose').addEventListener('click', closeMobile);
+document.getElementById('mobileOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeMobile(); });
 
-// ==================== CONTACT FORM ====================
+// ==================== EVENTS ====================
+document.getElementById('cartToggle').addEventListener('click', openCart);
+document.getElementById('cartOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCart(); });
+document.getElementById('productModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 100) { nav.style.boxShadow = '0 1px 2px 0 rgba(0,0,0,0.05)'; nav.style.borderBottom = '1px solid rgba(231,229,228,0.5)'; }
+  else { nav.style.boxShadow = 'none'; nav.style.borderBottom = 'none'; }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeCart(); closeModal(); closeMobile(); document.getElementById('searchBar').classList.add('hidden'); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchToggle').click(); }
+});
+
 function submitForm(e) {
   e.preventDefault();
   const msg = document.getElementById('formMsg');
@@ -899,57 +809,6 @@ function submitForm(e) {
   e.target.reset();
   setTimeout(() => msg.classList.add('hidden'), 5000);
 }
-
-// ==================== EVENT LISTENERS ====================
-document.getElementById('cartToggle').addEventListener('click', openCart);
-document.getElementById('cartOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeCart();
-});
-document.getElementById('searchToggle').addEventListener('click', toggleSearch);
-document.getElementById('searchClose').addEventListener('click', toggleSearch);
-document.getElementById('productModal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeModal();
-});
-
-document.getElementById('mobileMenu').addEventListener('click', () => {
-  const overlay = document.getElementById('mobileOverlay');
-  const panel = document.getElementById('mobilePanel');
-  overlay.classList.remove('hidden');
-  document.body.classList.add('overlay-open');
-  requestAnimationFrame(() => {
-    panel.style.transform = 'translateX(0)';
-  });
-});
-document.getElementById('mobileClose').addEventListener('click', closeMobile);
-document.getElementById('mobileOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeMobile();
-});
-
-// Navbar scroll effect
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navbar');
-  if (window.scrollY > 100) {
-    nav.style.boxShadow = '0 1px 2px 0 rgba(0,0,0,0.05)';
-    nav.style.borderBottom = '1px solid rgba(231,229,228,0.5)';
-  } else {
-    nav.style.boxShadow = 'none';
-    nav.style.borderBottom = 'none';
-  }
-});
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeCart();
-    closeModal();
-    closeMobile();
-    document.getElementById('searchBar').classList.add('hidden');
-  }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    toggleSearch();
-  }
-});
 
 // ==================== INIT ====================
 renderProducts(products);
