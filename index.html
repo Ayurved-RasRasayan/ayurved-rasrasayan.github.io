@@ -68,6 +68,14 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* Fallback backgrounds if images are missing */
+    .hero-bg-fallback {
+      background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
+    }
+    .about-bg-fallback {
+      background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%);
+    }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -136,8 +144,8 @@
 
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    <div class="absolute inset-0">
-      <img src="https://picsum.photos/seed/himalayan-botanical-wild-herbs/1920/1080.jpg" class="w-full h-full object-cover opacity-30">
+    <div class="absolute inset-0 hero-bg-fallback">
+      <img src="images/hero-bg.jpg" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
       <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
     </div>
@@ -296,7 +304,9 @@
           </div>
         </div>
         <div class="relative">
-          <img src="https://picsum.photos/seed/himalayan-herbs-drying-racks/800/600.jpg" class="w-full h-[500px] object-cover rounded-3xl opacity-80">
+          <div class="about-bg-fallback w-full h-[500px] rounded-3xl overflow-hidden">
+            <img src="images/about-bg.jpg" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'">
+          </div>
           <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div>
         </div>
       </div>
@@ -448,7 +458,7 @@
   <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-6" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="relative">
-        <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl">
+        <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl" onerror="this.style.display='none'">
         <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
         <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
       </div>
@@ -491,49 +501,49 @@
   </div>
 
 <script>
-// ==================== EXACT PRODUCT DATA FROM YOUR LIST ====================
+// ==================== ALL 32 PRODUCTS — EXACT YOUR FILENAMES ====================
 const products = [
   // ── Active Pharmaceutical Ingredients ──
-  { id: 1, name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "dab-iii-white-powder-lab", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%. Critical intermediate in oncology drug manufacturing." },
-  { id: 2, name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 12000, moq: "100 g", lead: "21-30 days", img: "paclitaxel-crystal-pharma", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available. Supplied with full COA and stability data." },
-  { id: 3, name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 8500, moq: "100 g", lead: "21-30 days", img: "docetaxel-white-powder-oncology", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers. Pharmaceutical grade with complete documentation." },
+  { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%. Critical intermediate in oncology drug manufacturing." },
+  { id: 2,  name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 12000, moq: "100 g", lead: "21-30 days", img: "images/paclitaxel.jpg", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available. Supplied with full COA and stability data." },
+  { id: 3,  name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 8500, moq: "100 g", lead: "21-30 days", img: "images/docetaxel.jpg", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers. Pharmaceutical grade with complete documentation." },
 
   // ── Oils ──
-  { id: 4, name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 280, moq: "1 kg", lead: "10-15 days", img: "jatamansi-oil-dark-amber", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine for insomnia and anxiety. Wild-harvested from Nepal Himalayas." },
-  { id: 5, name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 5500, moq: "10 g", lead: "14-21 days", img: "agarwood-oud-oil-dark-luxury", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery. One of the most expensive essential oils in the world. CITES certified." },
-  { id: 6, name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "sandalwood-white-oil-warm", desc: "Premium East Indian sandalwood essential oil. Steam-distilled from heartwood of sustainably grown Santalum album. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
-  { id: 7, name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 120, moq: "1 kg", lead: "10-14 days", img: "timur-oil-nepali-pepper", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care. Also valued in niche perfumery for its distinctive top note." },
-  { id: 8, name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 65, moq: "1 kg", lead: "7-10 days", img: "cardamom-oil-green-aromatic", desc: "True green cardamom essential oil from Kerala, India. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring, aromatherapy, digestive formulations, and premium perfumery." },
-  { id: 9, name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 45, moq: "1 kg", lead: "7-10 days", img: "cinnamon-oil-verum-golden", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark of Cinnamomum verum. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil. Used in flavoring, oral care, and antimicrobial formulations." },
+  { id: 4,  name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 280, moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine for insomnia and anxiety. Wild-harvested from Nepal Himalayas." },
+  { id: 5,  name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 5500, moq: "10 g", lead: "14-21 days", img: "images/agarwood-oil.jpg", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery. One of the most expensive essential oils in the world. CITES certified." },
+  { id: 6,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Steam-distilled from heartwood of sustainably grown Santalum album. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+  { id: 7,  name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 120, moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care. Also valued in niche perfumery for its distinctive top note." },
+  { id: 8,  name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 65, moq: "1 kg", lead: "7-10 days", img: "images/cardamom-oil.jpg", desc: "True green cardamom essential oil from Kerala, India. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring, aromatherapy, digestive formulations, and premium perfumery." },
+  { id: 9,  name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 45, moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark of Cinnamomum verum. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil. Used in flavoring, oral care, and antimicrobial formulations." },
 
   // ── Extracts ──
-  { id: 10, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "kutki-root-extract-bitter", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations. Wild-harvested from high-altitude Himalayan meadows (3,000-5,000m). Extremely rare and precious." },
-  { id: 11, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "reishi-extract-dual-polysaccharide", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation, longevity, and stress adaptation. Both water and ethanol extraction for full spectrum." },
-  { id: 12, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "rhodiola-extract-golden-root", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance, fatigue reduction, and stress resilience. Sourced from high-altitude populations." },
-  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "colchicine-extract-pharma-yellow", desc: "Pharmaceutical-grade colchicine extracted from Colchicum autumnale or Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. Strict quality control with HPLC assay >99%." },
-  { id: 14, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "turmeric-extract-curcumin-orange", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements, functional foods, and pharmaceutical formulations. Enhanced bioavailability options available." },
-  { id: 15, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "ginger-extract-spice-pungent", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support. Available in multiple standardization levels. GRAS status." },
-  { id: 16, name: "Zedoary Root Extract", sci: "Curcuma zedoaria (Kachur)", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "zedoary-kachur-extract-cream", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory. Contains curcumenol and other bioactive sesquiterpenes." },
-  { id: 17, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "chirita-extract-rare-himalayan", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids and glycosides. Limited supply from wild Himalayan populations." },
-  { id: 18, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "green-tea-extract-egcg-powder", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support. Decaffeinated option available. Water-extracted, spray-dried." },
-  { id: 19, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "coffee-bean-extract-brown-powder", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations. Also available as roasted coffee extract for flavoring applications." },
-  { id: 20, name: "Coleus Extract", sci: "Coleus forskohlii (Ghanti ful)", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "coleus-forskohlii-extract-forskolin", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator. Cultivated under controlled conditions for consistent quality." },
+  { id: 10, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "images/kutki-root-extract.jpg", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations. Wild-harvested from high-altitude Himalayan meadows (3,000-5,000m). Extremely rare and precious." },
+  { id: 11, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "images/reishi-mushroom-extract.jpg", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation, longevity, and stress adaptation. Both water and ethanol extraction for full spectrum." },
+  { id: 12, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "images/rhodiola-extract.jpg", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance, fatigue reduction, and stress resilience. Sourced from high-altitude populations." },
+  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "images/colchicine.jpg", desc: "Pharmaceutical-grade colchicine extracted from Colchicum autumnale or Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. Strict quality control with HPLC assay >99%." },
+  { id: 14, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "images/turmeric-extract.jpg", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements, functional foods, and pharmaceutical formulations. Enhanced bioavailability options available." },
+  { id: 15, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "images/ginger-extract.jpg", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support. Available in multiple standardization levels. GRAS status." },
+  { id: 16, name: "Zedoary Root Extract", sci: "Curcuma zedoaria (Kachur)", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "images/zedoary-root-extract.jpg", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory. Contains curcumenol and other bioactive sesquiterpenes." },
+  { id: 17, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids and glycosides. Limited supply from wild Himalayan populations." },
+  { id: 18, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "images/green-tea-extract.jpg", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support. Decaffeinated option available. Water-extracted, spray-dried." },
+  { id: 19, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations. Also available as roasted coffee extract for flavoring applications." },
+  { id: 20, name: "Coleus Extract", sci: "Coleus forskohlii (Ghanti ful)", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "images/coleus-extract.jpg", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator. Cultivated under controlled conditions for consistent quality." },
 
   // ── Mushrooms & Fungi ──
-  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-a-premium", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from the high Himalayas of Nepal and Tibet (4,000-5,500m). Whole, intact specimens with optimal caterpillar-to-fungus ratio. The most prized medicinal fungus in TCM. CITES regulated." },
-  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-b-good", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A at a more accessible price point. Wild-harvested from Himalayan alpine meadows." },
-  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "cordyceps-sinensis-grade-c-broken", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display. Still wild-harvested with authentic bioactive compounds (cordycepin, adenosine). Most cost-effective option." },
-  { id: 24, name: "Reishi Mushroom", sci: "Ganoderma lucidum (Rato Chyau)", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "reishi-mushroom-rato-chyau-dried", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Can be used for tea, tinctures, or as raw material for extraction. Rich in beta-glucans, triterpenes, and ganoderic acids." },
-  { id: 25, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "morel-mushroom-wild-honeycomb", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests of Nepal. Dried whole for extended shelf life. Prized in gourmet cuisine worldwide. Rich in vitamins, minerals, and unique umami flavor." },
+  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-a.jpg", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from the high Himalayas of Nepal and Tibet (4,000-5,500m). Whole, intact specimens with optimal caterpillar-to-fungus ratio. The most prized medicinal fungus in TCM. CITES regulated." },
+  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-b.jpg", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A at a more accessible price point. Wild-harvested from Himalayan alpine meadows." },
+  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-c.jpg", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display. Still wild-harvested with authentic bioactive compounds (cordycepin, adenosine). Most cost-effective option." },
+  { id: 24, name: "Reishi Mushroom", sci: "Ganoderma lucidum (Rato Chyau)", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "images/reishi-mushroom.jpg", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Can be used for tea, tinctures, or as raw material for extraction. Rich in beta-glucans, triterpenes, and ganoderic acids." },
+  { id: 25, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "images/morel-mushroom.jpg", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests of Nepal. Dried whole for extended shelf life. Prized in gourmet cuisine worldwide. Rich in vitamins, minerals, and unique umami flavor." },
 
   // ── Raw Herbs, Roots & Botanicals ──
-  { id: 26, name: "Himalayan Wild Garlic", sci: "Allium wallichii (Ban Lasun)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "himalayan-wild-garlic-ban-lasun", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at 2,500-4,000m altitude. Smaller but more potent than cultivated garlic. Higher allicin content. Used in traditional medicine for heart health, cholesterol management, and as an antimicrobial." },
-  { id: 27, name: "Himalayan Paris", sci: "Paris polyphylla (Satuwa)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "paris-polyphylla-satuwa-root-rare", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties. Key ingredient in traditional Chinese and Nepali medicine. Wild-harvested from high-altitude forests. CITES Appendix listed." },
-  { id: 28, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum (Khiraula)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "polygonatum-khiraula-root-dried", desc: "Dried rhizomes of Khiraula from the Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions. Rich in polysaccharides and steroidal saponins. Wild-crafted from clean mountain environments." },
-  { id: 29, name: "Himalayan Larkspur", sci: "Delphinium denudatum (Nirmasi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "delphinium-nirmasi-dried-root", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions. Contains diterpenoid alkaloids. Sourced from Himalayan alpine and sub-alpine zones." },
-  { id: 30, name: "Wild Asparagus", sci: "Asparagus racemosus (Shatavari)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "wild-asparagus-shatavari-root-dried", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV). Used for reproductive health, lactation support, and as a general rejuvenative. Wild-crafted from forest margins." },
-  { id: 31, name: "Large Cardamom", sci: "Amomum subulatum (Alaichi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "large-cardamom-alaichi-dried-pods", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in the eastern Himalayan foothills (Ilam, Taplejung). Smoky, camphoraceous flavor distinct from green cardamom. Essential in masala blends, chai, and South Asian cuisine. Also used medicinally for digestive issues." },
-  { id: 32, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "chirata-swertia-dried-bitter-herb", desc: "Whole dried Chirata herb (Bhunimba). Extremely bitter Swertia species from the Himalayas. Primary source of amarogentin — one of the most bitter compounds known. Used for liver disorders, malaria, fever, and as a digestive bitter tonic." },
+  { id: 26, name: "Himalayan Wild Garlic", sci: "Allium wallichii (Ban Lasun)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/himalayan-wild-garlic.jpg", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at 2,500-4,000m altitude. Smaller but more potent than cultivated garlic. Higher allicin content. Used in traditional medicine for heart health, cholesterol management, and as an antimicrobial." },
+  { id: 27, name: "Himalayan Paris", sci: "Paris polyphylla (Satuwa)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "images/himalayan-paris.jpg", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties. Key ingredient in traditional Chinese and Nepali medicine. Wild-harvested from high-altitude forests. CITES Appendix listed." },
+  { id: 28, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum (Khiraula)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/solomons-seal.jpg", desc: "Dried rhizomes of Khiraula from the Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions. Rich in polysaccharides and steroidal saponins. Wild-crafted from clean mountain environments." },
+  { id: 29, name: "Himalayan Larkspur", sci: "Delphinium denudatum (Nirmasi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "images/himalayan-larkspur.jpg", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions. Contains diterpenoid alkaloids. Sourced from Himalayan alpine and sub-alpine zones." },
+  { id: 30, name: "Wild Asparagus", sci: "Asparagus racemosus (Shatavari)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/wild-asparagus.jpg", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV). Used for reproductive health, lactation support, and as a general rejuvenative. Wild-crafted from forest margins." },
+  { id: 31, name: "Large Cardamom", sci: "Amomum subulatum (Alaichi)", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/large-cardamom.jpg", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in the eastern Himalayan foothills (Ilam, Taplejung). Smoky, camphoraceous flavor distinct from green cardamom. Essential in masala blends, chai, and South Asian cuisine. Also used medicinally for digestive issues." },
+  { id: 32, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "images/chirata.jpg", desc: "Whole dried Chirata herb (Bhunimba). Extremely bitter Swertia species from the Himalayas. Primary source of amarogentin — one of the most bitter compounds known. Used for liver disorders, malaria, fever, and as a digestive bitter tonic." },
 ];
 
 let cart = [];
@@ -559,7 +569,7 @@ function renderProducts(items) {
   grid.innerHTML = items.map((p, i) => `
     <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-        <img src="https://picsum.photos/seed/${p.img}/400/300.jpg" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700">
+        <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
         <div class="absolute top-3 left-3">
           <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : 'Extract'}</span>
         </div>
@@ -646,7 +656,7 @@ function updateCartUI() {
   const cartFooter = document.getElementById('cartFooter');
 
   if (cart.length === 0) {
-    cartItemsEl.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div>`;
+    cartItemsEl.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div>';
     cartFooter.classList.add('hidden');
     lucide.createIcons();
     return;
@@ -654,7 +664,7 @@ function updateCartUI() {
   cartFooter.classList.remove('hidden');
   cartItemsEl.innerHTML = cart.map(item => `
     <div class="flex gap-4 py-4 border-b border-border-main last:border-0">
-      <img src="https://picsum.photos/seed/${item.img}/100/100.jpg" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
+      <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
           <div>
@@ -679,8 +689,7 @@ function updateCartUI() {
 }
 
 function openCart() {
-  const overlay = document.getElementById('cartOverlay');
-  overlay.classList.remove('hidden');
+  document.getElementById('cartOverlay').classList.remove('hidden');
   document.body.classList.add('overlay-open');
   requestAnimationFrame(() => document.getElementById('cartPanel').style.transform = 'translateX(0)');
 }
@@ -705,7 +714,7 @@ function openModal(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentModalProduct = p;
-  document.getElementById('modalImg').src = `https://picsum.photos/seed/${p.img}/800/400.jpg`;
+  document.getElementById('modalImg').src = p.img;
   document.getElementById('modalName').textContent = p.name;
   document.getElementById('modalSci').textContent = p.sci;
   document.getElementById('modalCat').textContent = p.catLabel;
@@ -750,7 +759,7 @@ document.getElementById('searchInput').addEventListener('input', function () {
   if (!matches.length) { el.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; }
   el.innerHTML = matches.map(p => `
     <button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl transition-colors text-left">
-      <img src="https://picsum.photos/seed/${p.img}/60/60.jpg" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+      <img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium truncate">${p.name}</p>
         <p class="text-[11px] text-txt-third italic">${p.sci}</p>
