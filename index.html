@@ -24,7 +24,6 @@
             'txt-sub': '#57534E',
             'txt-third': '#78716C',
             'border-main': '#E7E5E4',
-            // Payment Colors
             'esewa': '#5EBC5D',
             'khalti': '#5C2D91',
           }
@@ -74,7 +73,13 @@
 
     /* Payment Tab Active State */
     .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
+    
+    /* Currency Toggle State */
+    .currency-btn.active-curr { background-color: #1C1917; color: white; }
 
+    /* Error Input State */
+    .input-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
+    
     /* Fallback backgrounds if images are missing */
     .hero-bg-fallback {
       background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
@@ -196,9 +201,8 @@
         </div>
       </div>
 
-      <!-- RIGHT SIDE IMAGE: Integrated into black background -->
+      <!-- RIGHT SIDE IMAGE -->
       <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0">
-        <!-- Using drop-shadow to blend with the dark background -->
         <img src="images/jeM6q.jpg" alt="Chakra Energy" class="relative z-10 max-h-[600px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'">
       </div>
     </div>
@@ -216,7 +220,6 @@
         <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p>
         <h2 class="text-3xl md:text-4xl font-medium tracking-tight">Our Collections</h2>
       </div>
-      <!-- Grid updated to xl:grid-cols-8 to accommodate 8 category buttons -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
         <button onclick="filterCategory('all')" class="cat-btn active group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all">
           <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
@@ -264,7 +267,6 @@
           <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
             <i data-lucide="hexagon" class="w-5 h-5 text-brand"></i>
           </div>
-          <!-- Updated Count -->
           <span class="text-xs font-medium">Namak (14)</span>
         </button>
       </div>
@@ -278,10 +280,9 @@
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
           <h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2>
-          <p class="text-txt-sub mt-3 text-lg font-light">All prices per kilogram (1 kg). Bulk discounts available.</p>
+          <p class="text-txt-sub mt-3 text-lg font-light">Prices per kilogram (1 kg). Bulk discounts available.</p>
         </div>
         <div class="flex items-center gap-3 mt-6 md:mt-0">
-          <!-- Updated Count -->
           <span class="text-sm text-txt-third" id="productCount">57 products</span>
           <select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="name">Sort by Name</option>
@@ -506,21 +507,60 @@
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
 
   <!-- PAYMENT MODAL -->
-  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl max-w-lg w-full my-8 shadow-2xl relative">
       <button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
       
       <div class="p-6 md:p-8">
         <h3 class="text-2xl font-semibold tracking-tight mb-2">Complete Payment</h3>
-        <p class="text-txt-sub text-sm mb-6">Scan the QR code to pay securely.</p>
+        <p class="text-txt-sub text-sm mb-6">Scan the QR code and enter your details.</p>
         
-        <!-- Order Summary -->
+        <!-- Client Details Form -->
+        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-6">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-txt-sub mb-3">Client Details</h4>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-txt-main mb-1">Full Name <span class="text-red-500">*</span></label>
+              <input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-txt-main mb-1">Phone No. <span class="text-red-500">*</span></label>
+                <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+              </div>
+              <div>
+                <!-- ADDED: Email Optional Field -->
+                <label class="block text-xs font-medium text-txt-main mb-1">Email (Optional)</label>
+                <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-txt-main mb-1">Address (Optional)</label>
+              <textarea id="clientAddress" rows="2" placeholder="Street, City, Country..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary & Currency Toggle -->
         <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-6">
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
-            <span id="paymentTotal" class="text-xl font-bold text-brand">$0.00</span>
+            <!-- Dynamic Total Display -->
+            <div class="text-right">
+              <span id="paymentTotal" class="text-xl font-bold text-brand">$0.00</span>
+              <span id="paymentTotalSub" class="block text-[10px] text-txt-sub font-medium">NPR 0.00</span>
+            </div>
           </div>
           <div class="text-xs text-txt-third" id="paymentItemsCount">0 items in cart</div>
+          
+          <!-- Currency Toggle -->
+          <div class="mt-3 pt-3 border-t border-gray-200">
+            <label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label>
+            <div class="flex bg-gray-200 p-1 rounded-lg">
+              <button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold transition-all">NPR (Rs.)</button>
+              <button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold transition-all">USD ($)</button>
+            </div>
+          </div>
         </div>
 
         <!-- Payment Tabs -->
@@ -531,7 +571,7 @@
 
         <!-- QR Display Area -->
         <div class="flex flex-col items-center justify-center mb-8">
-          <div class="w-64 h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner">
+          <div class="w-64 h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
             <!-- eSewa QR -->
             <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
             <!-- Khalti QR -->
@@ -563,8 +603,11 @@
         <p id="modalSci" class="text-sm text-txt-third italic mb-4"></p>
         <p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
         <div class="flex items-center gap-4 mb-6">
-          <span id="modalPrice" class="text-3xl font-semibold text-brand"></span>
-          <span class="text-sm text-txt-third">per kg</span>
+          <div>
+            <span id="modalPrice" class="text-3xl font-semibold text-brand"></span>
+            <span class="text-sm text-txt-third">per kg</span>
+            <div id="modalPriceNpr" class="text-xs text-txt-sub font-medium">NPR 0.00 / kg</div>
+          </div>
         </div>
         <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
         <div class="grid grid-cols-3 gap-4 mb-8">
@@ -598,8 +641,8 @@
 
 <script>
 // ==================== CONFIGURATION ====================
-// IMPORTANT: Replace this URL with your actual Render.com Backend URL
-const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com';
+const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com'; 
+const USD_TO_NPR = 133; // Exchange Rate
 
 // ==================== ALL 57 PRODUCTS (ASCENDING ORDER) ====================
 const products = [
@@ -658,7 +701,7 @@ const products = [
   { id: 42, name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 75, moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
   { id: 43, name: "Singraf", sci: "Cinnabar / Red Sulphide", category: "rasa", catLabel: "Rasa Uparasa", price: 130, moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders." },
 
-  // ── Namak (Salts) - SORTED ASCENDING (A-Z) WITH NEW ITEMS ──
+  // ── Namak (Salts) ──
   { id: 44, name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak (Salts)", price: 40, moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery." },
   { id: 45, name: "Jawa Khar", sci: "Alum (Jawa)", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying." },
   { id: 46, name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak (Salts)", price: 5, moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda." },
@@ -680,6 +723,7 @@ let currentCategory = 'all';
 let currentSort = 'name';
 let currentModalProduct = null;
 let selectedPaymentMethod = 'esewa';
+let selectedPaymentCurrency = 'npr'; // 'npr' or 'usd'
 
 // ==================== RENDER ====================
 function renderProducts(items) {
@@ -696,7 +740,9 @@ function renderProducts(items) {
   noResults.classList.add('hidden');
   countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
 
-  grid.innerHTML = items.map((p, i) => `
+  grid.innerHTML = items.map((p, i) => {
+    const priceNPR = Math.round(p.price * USD_TO_NPR);
+    return `
     <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
@@ -716,7 +762,7 @@ function renderProducts(items) {
         <div class="flex items-center justify-between">
           <div>
             <span class="text-xl font-semibold text-txt-main">$${p.price.toLocaleString()}</span>
-            <span class="text-xs text-txt-third ml-1">/kg</span>
+            <span class="text-xs text-txt-sub block font-medium">NPR ${priceNPR.toLocaleString()}/kg</span>
           </div>
           <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
@@ -725,7 +771,7 @@ function renderProducts(items) {
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
   lucide.createIcons();
 }
 
@@ -774,13 +820,14 @@ function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared', 'inf
 function updateCartUI() {
   const countEl = document.getElementById('cartCount');
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
-  const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalPriceUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalPriceNPR = Math.round(totalPriceUSD * USD_TO_NPR);
 
   if (totalItems > 0) { countEl.classList.remove('hidden'); countEl.classList.add('flex'); countEl.textContent = totalItems; }
   else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
 
   document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
-  document.getElementById('cartTotal').textContent = `$${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  document.getElementById('cartTotal').textContent = `$${totalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} (NPR ${totalPriceNPR.toLocaleString()})`;
 
   const cartItemsEl = document.getElementById('cartItems');
   const cartFooter = document.getElementById('cartFooter');
@@ -792,7 +839,10 @@ function updateCartUI() {
     return;
   }
   cartFooter.classList.remove('hidden');
-  cartItemsEl.innerHTML = cart.map(item => `
+  cartItemsEl.innerHTML = cart.map(item => {
+    const pTotal = item.price * item.qty;
+    const pTotalNPR = Math.round(pTotal * USD_TO_NPR);
+    return `
     <div class="flex gap-4 py-4 border-b border-border-main last:border-0">
       <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
@@ -810,11 +860,12 @@ function updateCartUI() {
             <span class="px-3 py-1 text-xs font-medium border-x border-border-main">${item.qty} kg</span>
             <button onclick="updateQty(${item.id}, 1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-3 h-3"></i></button>
           </div>
-          <span class="text-sm font-semibold">$${(item.price * item.qty).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <span class="text-sm font-semibold">$${pTotal.toLocaleString()}</span>
         </div>
+        <div class="text-[10px] text-txt-sub text-right">NPR ${pTotalNPR.toLocaleString()}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
   lucide.createIcons();
 }
 
@@ -834,16 +885,16 @@ function proceedToInquiry() {
   if (cart.length === 0) return;
   closeCart();
   
-  // Auto-fill contact message with cart details
   const contactSection = document.getElementById('contact');
   const messageBox = document.getElementById('contactMessage');
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalNPR = Math.round(totalUSD * USD_TO_NPR);
   
   let cartSummary = "\n\n--- Inquiry for Cart Items ---\n";
   cart.forEach(item => {
     cartSummary += `- ${item.name} (${item.qty} kg @ $${item.price})\n`;
   });
-  cartSummary += `Total Amount: $${total.toLocaleString()}\n------------------------------`;
+  cartSummary += `Total Amount: $${totalUSD.toLocaleString()} (NPR ${totalNPR.toLocaleString()})\n------------------------------`;
   
   messageBox.value = messageBox.value + cartSummary;
   
@@ -854,9 +905,8 @@ function proceedToInquiry() {
 // ==================== PAYMENT MODAL ====================
 function openPaymentModal(method) {
   selectedPaymentMethod = method;
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  document.getElementById('paymentTotal').textContent = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  document.getElementById('paymentItemsCount').textContent = `${cart.length} items in cart`;
+  const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalNPR = Math.round(totalUSD * USD_TO_NPR);
   
   // Set Tabs
   document.querySelectorAll('.pay-tab').forEach(btn => btn.classList.remove('active'));
@@ -873,11 +923,37 @@ function openPaymentModal(method) {
     document.getElementById('qr-khalti').classList.remove('hidden');
   }
 
+  updatePaymentTotals(totalUSD, totalNPR);
+
   const modal = document.getElementById('paymentModal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   document.body.classList.add('overlay-open');
   lucide.createIcons();
+}
+
+function setPaymentCurrency(curr) {
+  selectedPaymentCurrency = curr;
+  const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalNPR = Math.round(totalUSD * USD_TO_NPR);
+  
+  document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active-curr'));
+  document.getElementById(curr === 'npr' ? 'btnNPR' : 'btnUSD').classList.add('active-curr');
+  
+  updatePaymentTotals(totalUSD, totalNPR);
+}
+
+function updatePaymentTotals(usd, npr) {
+  const mainEl = document.getElementById('paymentTotal');
+  const subEl = document.getElementById('paymentTotalSub');
+  
+  if (selectedPaymentCurrency === 'npr') {
+    mainEl.textContent = `NPR ${npr.toLocaleString()}`;
+    subEl.textContent = `($${usd.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
+  } else {
+    mainEl.textContent = `$${usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    subEl.textContent = `(NPR ${npr.toLocaleString()})`;
+  }
 }
 
 function closePaymentModal() {
@@ -889,28 +965,65 @@ function closePaymentModal() {
 
 function switchPaymentTab(method) {
   selectedPaymentMethod = method;
-  openPaymentModal(method); // Reuse open logic
+  openPaymentModal(method);
 }
 
 async function submitOrderToBackend() {
   const btn = document.getElementById('confirmPayBtn');
-  const originalText = btn.innerHTML;
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const nameInput = document.getElementById('clientName');
+  const phoneInput = document.getElementById('clientPhone');
+  const emailInput = document.getElementById('clientEmail'); // NEW
+  const addressInput = document.getElementById('clientAddress');
+  
+  // Validation
+  let isValid = true;
+  if (!nameInput.value.trim()) {
+    nameInput.classList.add('input-error');
+    isValid = false;
+  } else {
+    nameInput.classList.remove('input-error');
+  }
+  
+  if (!phoneInput.value.trim()) {
+    phoneInput.classList.add('input-error');
+    isValid = false;
+  } else {
+    phoneInput.classList.remove('input-error');
+  }
 
-  // Optimistic UI update
+  if (!isValid) {
+    showToast('Please fill in Name and Phone number', 'error');
+    return;
+  }
+
+  const originalText = btn.innerHTML;
+  const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const totalNPR = Math.round(totalUSD * USD_TO_NPR);
+  
+  const finalAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD;
+  const currencySymbol = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD';
+
   btn.disabled = true;
   btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Verifying...`;
   lucide.createIcons();
 
   const orderData = {
     items: cart,
-    total: total,
+    totalUSD: totalUSD,
+    totalNPR: totalNPR,
+    paidAmount: finalAmount,
+    currency: currencySymbol,
     paymentMethod: selectedPaymentMethod,
+    clientDetails: {
+      name: nameInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      email: emailInput.value.trim() || 'N/A', // CAPTURED
+      address: addressInput.value.trim() || 'N/A'
+    },
     timestamp: new Date().toISOString()
   };
 
   try {
-    // Check if user has setup their backend URL
     if(RENDER_BACKEND_URL.includes('your-app-name')) {
       alert("Please update RENDER_BACKEND_URL in script section with your actual Render URL!");
       btn.disabled = false;
@@ -918,7 +1031,6 @@ async function submitOrderToBackend() {
       return;
     }
 
-    // Send to Render Backend
     const response = await fetch(`${RENDER_BACKEND_URL}/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -928,6 +1040,10 @@ async function submitOrderToBackend() {
     if (response.ok) {
       showToast('Order placed successfully! We will verify your payment.', 'success');
       cart = [];
+      nameInput.value = '';
+      phoneInput.value = '';
+      emailInput.value = ''; // CLEARED
+      addressInput.value = '';
       updateCartUI();
       closePaymentModal();
     } else {
@@ -935,9 +1051,12 @@ async function submitOrderToBackend() {
     }
   } catch (error) {
     console.error('Backend Error:', error);
-    // Fallback: Since this might be a demo or backend is offline, we succeed locally anyway
     showToast('Order saved locally! (Backend unreachable)', 'success');
     cart = [];
+    nameInput.value = '';
+    phoneInput.value = '';
+    emailInput.value = ''; // CLEARED
+    addressInput.value = '';
     updateCartUI();
     closePaymentModal();
   } finally {
@@ -952,11 +1071,14 @@ function openModal(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentModalProduct = p;
+  const priceNPR = Math.round(p.price * USD_TO_NPR);
+  
   document.getElementById('modalImg').src = p.img;
   document.getElementById('modalName').textContent = p.name;
   document.getElementById('modalSci').textContent = p.sci;
   document.getElementById('modalCat').textContent = p.catLabel;
   document.getElementById('modalPrice').textContent = `$${p.price.toLocaleString()}`;
+  document.getElementById('modalPriceNpr').textContent = `NPR ${priceNPR.toLocaleString()} / kg`;
   document.getElementById('modalDesc').textContent = p.desc;
   document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
   document.getElementById('modalMoq').textContent = p.moq;
@@ -1011,9 +1133,9 @@ document.getElementById('searchInput').addEventListener('input', function () {
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
-  const icon = type === 'success' ? 'check-circle' : 'info';
+  const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
   toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';
-  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 text-brand flex-shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
+  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'error' ? 'text-red-500' : 'text-brand'} flex-shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
   container.appendChild(toast);
   lucide.createIcons();
   setTimeout(() => { toast.classList.remove('toast-enter'); toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 3000);
