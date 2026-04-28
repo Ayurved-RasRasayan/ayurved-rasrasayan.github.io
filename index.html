@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NaturaBotanica — Premium Botanical & Pharmaceutical Ingredients</title>
+  <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -14,51 +13,82 @@
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
-            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917',
-            'card-dark': '#132316', 'txt-main': '#1C1917', 'txt-sub': '#57534E',
-            'txt-third': '#78716C', 'border-main': '#E7E5E4',
-            'khalti': '#5C2D91', 'esewa': '#60BB46',
+            brand: '#A3B14B',
+            'brand-hover': '#8f9c40',
+            'brand-dark': '#5e6629',
+            'bg-light': '#FAFAF9',
+            'bg-dark': '#050A06',
+            'bg-dark2': '#1C1917',
+            'card-dark': '#132316',
+            'txt-main': '#1C1917',
+            'txt-sub': '#57534E',
+            'txt-third': '#78716C',
+            'border-main': '#E7E5E4',
           }
         }
       }
     }
   </script>
   <style>
-    ::-webkit-scrollbar{width:0;background:transparent}
-    ::selection{background:#A3B14B;color:#fff}
-    body{font-family:'Inter',sans-serif}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-    .anim-up{opacity:0;animation:fadeInUp .8s ease-out forwards}
-    .anim-d1{animation-delay:.1s}.anim-d2{animation-delay:.2s}.anim-d3{animation-delay:.3s}.anim-d4{animation-delay:.4s}
-    .toast-enter{animation:slideInRight .4s ease-out forwards}
-    @keyframes slideInRight{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
-    .toast-exit{animation:slideOutRight .3s ease-in forwards}
-    @keyframes slideOutRight{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100%)}}
-    .product-card:hover .product-img{transform:scale(1.05)}
-    .cat-btn.active{background:#1C1917;color:#FAFAF9}
-    .overlay-open{overflow:hidden}
-    input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
-    .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .hero-bg-fallback{background:linear-gradient(135deg,#050A06 0%,#132316 40%,#1C1917 70%,#050A06 100%)}
-    .about-bg-fallback{background:linear-gradient(135deg,#132316 0%,#1C1917 50%,#050A06 100%)}
-    .pay-option{transition:all .3s}
-    .pay-option.selected{border-color:#A3B14B;background:rgba(163,177,75,.05);box-shadow:0 0 0 3px rgba(163,177,75,.15)}
-    .pay-option:hover:not(.selected){border-color:#a8a29e}
-    @keyframes successPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-    .success-pulse{animation:successPulse 1.5s ease-in-out infinite}
-    @keyframes checkDraw{from{stroke-dashoffset:50}to{stroke-dashoffset:0}}
-    .check-animate{stroke-dasharray:50;stroke-dashoffset:50;animation:checkDraw .6s ease-out .3s forwards}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .spinner{animation:spin .8s linear infinite}
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
+    ::selection { background: #A3B14B; color: white; }
+    body { font-family: 'Inter', sans-serif; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-up { opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
+    .anim-d1 { animation-delay: 0.1s; }
+    .anim-d2 { animation-delay: 0.2s; }
+    .anim-d3 { animation-delay: 0.3s; }
+    .anim-d4 { animation-delay: 0.4s; }
+
+    .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .toast-exit { animation: slideOutRight 0.3s ease-in forwards; }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    .product-card:hover .product-img { transform: scale(1.05); }
+    .cat-btn.active { background: #1C1917; color: #FAFAF9; }
+    .overlay-open { overflow: hidden; }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Fallback backgrounds if images are missing */
+    .hero-bg-fallback {
+      background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
+    }
+    .about-bg-fallback {
+      background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%);
+    }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
 
   <!-- NAVBAR -->
-  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background:rgba(250,250,249,.8);backdrop-filter:blur(12px)">
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
     <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-5 h-5 text-white"></i></div><span class="text-xl font-semibold tracking-tight">NaturaBotanica</span></a>
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center">
+          <i data-lucide="leaf" class="w-5 h-5 text-white"></i>
+        </div>
+        <span class="text-xl font-semibold tracking-tight">NaturaBotanica</span>
+      </a>
       <div class="hidden md:flex items-center gap-8">
         <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Products</a>
         <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Categories</a>
@@ -66,9 +96,16 @@
         <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Contact</a>
       </div>
       <div class="flex items-center gap-4">
-        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
-        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span></button>
-        <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </button>
+        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span>
+        </button>
+        <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
       </div>
     </div>
   </nav>
@@ -78,8 +115,10 @@
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="relative">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
-        <input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
-        <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third hover:text-txt-main"></i></button>
+        <input id="searchInput" type="text" placeholder="Search products... (e.g. Paclitaxel, Agarwood, Kala Namak)" class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+        <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2">
+          <i data-lucide="x" class="w-5 h-5 text-txt-third hover:text-txt-main transition-colors"></i>
+        </button>
       </div>
       <div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div>
     </div>
@@ -89,12 +128,15 @@
   <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
     <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
       <div class="p-6">
-        <div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+        <div class="flex items-center justify-between mb-8">
+          <span class="text-lg font-semibold">Menu</span>
+          <button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
         <div class="flex flex-col gap-4">
-          <a href="#products" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Products</a>
-          <a href="#categories" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Categories</a>
-          <a href="#about" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">About</a>
-          <a href="#contact" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Contact</a>
+          <a href="#products" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Products</a>
+          <a href="#categories" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Categories</a>
+          <a href="#about" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">About</a>
+          <a href="#contact" class="text-base text-txt-sub hover:text-txt-main transition-colors py-2 border-b border-border-main" onclick="closeMobile()">Contact</a>
         </div>
       </div>
     </div>
@@ -108,51 +150,145 @@
       <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
     </div>
     <div class="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
+    
     <div class="relative max-w-7xl mx-auto px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-16 items-center w-full">
       <div>
-        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Himalayan & Rare Botanicals</span></div>
-        <h1 class="anim-up anim-d1 text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand">Natural</span><br>Ingredients</h1>
-        <p class="anim-up anim-d2 text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-10">APIs, Essential Oils, Extracts, Mushrooms & Raw Herbs — sourced from the Himalayas and beyond.</p>
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8">
+          <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
+          <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, APIs, Rasa Shastra & Salts</span>
+        </div>
+        <h1 class="anim-up anim-d1 text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">
+          Premium<br><span class="text-brand">Natural</span><br>Ingredients
+        </h1>
+        <p class="anim-up anim-d2 text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-10">
+          APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.
+        </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#products" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300" style="box-shadow:0 0 20px rgba(163,177,75,.3)">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
-          <a href="#contact" class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300">Get Quote</a>
+          <a href="#products" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
+            Browse Catalog
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="#contact" class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300">
+            Get Quote
+          </a>
         </div>
         <div class="anim-up anim-d4 flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
-          <div><div class="text-3xl font-semibold text-white">32</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
+          <div>
+            <div class="text-3xl font-semibold text-white">57</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div>
+          </div>
           <div class="w-px h-10 bg-white/10"></div>
-          <div><div class="text-3xl font-semibold text-white">5</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
+          <div>
+            <div class="text-3xl font-semibold text-white">7</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div>
+          </div>
           <div class="w-px h-10 bg-white/10"></div>
-          <div><div class="text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div>
+          <div>
+            <div class="text-3xl font-semibold text-white">15yr</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div>
+          </div>
         </div>
       </div>
+
+      <!-- RIGHT SIDE IMAGE: Integrated into black background -->
+      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0">
+        <!-- Using drop-shadow to blend with the dark background -->
+        <img src="images/jeM6q.jpg" alt="Chakra Energy" class="relative z-10 max-h-[600px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'">
+      </div>
     </div>
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce" style="animation-duration:2s"><span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span><i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i></div>
+    
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce" style="animation-duration:2s">
+      <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
+      <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
+    </div>
   </section>
 
   <!-- CATEGORIES -->
   <section id="categories" class="py-16 bg-white border-b border-border-main">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="text-center mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-3xl md:text-4xl font-medium tracking-tight">Five Pillars of Nature</h2></div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-        <button onclick="filterCategory('all')" class="cat-btn active group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="grid-3x3" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">All (32)</span></button>
-        <button onclick="filterCategory('api')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="api"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="flask-conical" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">APIs (3)</span></button>
-        <button onclick="filterCategory('oils')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="oils"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="droplets" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">Oils (6)</span></button>
-        <button onclick="filterCategory('extracts')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="extracts"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="beaker" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">Extracts (11)</span></button>
-        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="cloud-fog" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">Mushrooms (5)</span></button>
-        <button onclick="filterCategory('herbs')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="sprout" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium">Herbs (7)</span></button>
+      <div class="text-center mb-10">
+        <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p>
+        <h2 class="text-3xl md:text-4xl font-medium tracking-tight">Our Collections</h2>
+      </div>
+      <!-- Grid updated to xl:grid-cols-8 to accommodate 8 category buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
+        <button onclick="filterCategory('all')" class="cat-btn active group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="all">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="grid-3x3" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">All (57)</span>
+        </button>
+        <button onclick="filterCategory('api')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="api">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="flask-conical" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">APIs (3)</span>
+        </button>
+        <button onclick="filterCategory('oils')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="oils">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="droplets" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">Oils (6)</span>
+        </button>
+        <button onclick="filterCategory('extracts')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="extracts">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="beaker" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">Extracts (11)</span>
+        </button>
+        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="cloud-fog" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">Mushrooms (5)</span>
+        </button>
+        <button onclick="filterCategory('herbs')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="sprout" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">Herbs (7)</span>
+        </button>
+        <button onclick="filterCategory('rasa')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="rasa">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="gem" class="w-5 h-5 text-brand"></i>
+          </div>
+          <span class="text-xs font-medium">Rasa Uparasa (11)</span>
+        </button>
+        <button onclick="filterCategory('namak')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="namak">
+          <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+            <i data-lucide="hexagon" class="w-5 h-5 text-brand"></i>
+          </div>
+          <!-- Updated Count -->
+          <span class="text-xs font-medium">Namak (14)</span>
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- PRODUCTS -->
+  <!-- PRODUCTS GRID -->
   <section id="products" class="py-24 md:py-32">
     <div class="max-w-7xl mx-auto px-6">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-        <div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2><p class="text-txt-sub mt-3 text-lg font-light">All prices per kilogram (1 kg). Bulk discounts available.</p></div>
-        <div class="flex items-center gap-3 mt-6 md:mt-0"><span class="text-sm text-txt-third" id="productCount">32 products</span><select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div>
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
+          <h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <p class="text-txt-sub mt-3 text-lg font-light">All prices per kilogram (1 kg). Bulk discounts available.</p>
+        </div>
+        <div class="flex items-center gap-3 mt-6 md:mt-0">
+          <!-- Updated Count -->
+          <span class="text-sm text-txt-third" id="productCount">57 products</span>
+          <select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand">
+            <option value="name">Sort by Name</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
       </div>
       <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
+      <div id="noResults" class="hidden text-center py-20">
+        <i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i>
+        <p class="text-lg text-txt-sub">No products found matching your criteria.</p>
+      </div>
     </div>
   </section>
 
@@ -163,16 +299,39 @@
       <div class="grid lg:grid-cols-2 gap-16 items-center">
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p>
-          <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Trusted Source for Himalayan & Rare Botanicals</h2>
-          <p class="text-lg font-light text-white/60 leading-relaxed mb-8">Specializing in rare Himalayan medicinal plants, high-value APIs, and premium essential oils across Nepal, India, and Southeast Asia.</p>
+          <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2>
+          <p class="text-lg font-light text-white/60 leading-relaxed mb-8">
+            We specialize in rare Himalayan medicinal plants, high-value APIs, premium essential oils, authentic Rasa Shastra minerals, and traditional Salts (Namak). We work directly with harvesters, cultivators, and traditional alchemists across Nepal and India.
+          </p>
           <div class="grid grid-cols-2 gap-6">
-            <div class="p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1">Quality Tested</h4><p class="text-sm text-white/50">COA with every order</p></div>
-            <div class="p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1">Global Shipping</h4><p class="text-sm text-white/50">50+ countries served</p></div>
-            <div class="p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1">Himalayan Source</h4><p class="text-sm text-white/50">Wild-crafted & cultivated</p></div>
-            <div class="p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1">Expert Support</h4><p class="text-sm text-white/50">Dedicated account mgr</p></div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Quality Tested</h4>
+              <p class="text-sm text-white/50">COA with every order</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Global Shipping</h4>
+              <p class="text-sm text-white/50">50+ countries served</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Himalayan Source</h4>
+              <p class="text-sm text-white/50">Wild-crafted & cultivated</p>
+            </div>
+            <div class="p-5 rounded-2xl border border-white/10 bg-white/5">
+              <i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i>
+              <h4 class="text-white font-medium mb-1">Expert Support</h4>
+              <p class="text-sm text-white/50">Dedicated account mgr</p>
+            </div>
           </div>
         </div>
-        <div class="relative"><div class="about-bg-fallback w-full h-[500px] rounded-3xl overflow-hidden"><img src="images/about-bg.jpg" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'"></div><div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div></div>
+        <div class="relative">
+          <div class="about-bg-fallback w-full h-[500px] rounded-3xl overflow-hidden">
+            <img src="images/about-bg.jpg" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'">
+          </div>
+          <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -184,19 +343,51 @@
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p>
           <h2 class="text-3xl md:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2>
-          <p class="text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p>
+          <p class="text-lg font-light text-txt-sub leading-relaxed mb-8">
+            Need bulk pricing, custom specifications, or documentation? Our team responds within 24 hours.
+          </p>
           <div class="space-y-4">
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm font-medium">sales@naturabotanica.com</p></div></div>
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Phone</p><p class="text-sm font-medium">+977 98012 34567</p></div></div>
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Location</p><p class="text-sm font-medium">Kathmandu, Nepal</p></div></div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="mail" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Email</p>
+                <p class="text-sm font-medium">sales@naturabotanica.com</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="phone" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Phone</p>
+                <p class="text-sm font-medium">+977 98012 34567</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                <i data-lucide="map-pin" class="w-5 h-5 text-brand"></i>
+              </div>
+              <div>
+                <p class="text-sm text-txt-third">Location</p>
+                <p class="text-sm font-medium">Kathmandu, Nepal</p>
+              </div>
+            </div>
           </div>
         </div>
         <form id="contactForm" onsubmit="submitForm(event)" class="space-y-5">
-          <div class="grid grid-cols-2 gap-5"><input type="text" placeholder="First Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" placeholder="Last Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <input type="email" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          <input type="text" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          <textarea placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea>
-          <button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button>
+          <div class="grid grid-cols-2 gap-5">
+            <input type="text" placeholder="First Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+            <input type="text" placeholder="Last Name" required class="px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          </div>
+          <input type="email" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <input type="text" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <textarea placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
+          <button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
+            Send Inquiry
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
           <div id="formMsg" class="hidden text-center text-sm text-brand font-medium py-2"></div>
         </form>
       </div>
@@ -208,17 +399,52 @@
     <div class="max-w-7xl mx-auto px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
         <div class="col-span-2 md:col-span-1">
-          <div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-white"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div>
-          <p class="text-sm text-white/40 leading-relaxed">Premium Himalayan & botanical ingredients.</p>
-          <div class="flex items-center gap-3 mt-4"><span class="text-[10px] text-white/30 uppercase tracking-wider">Pay via</span><span class="px-2 py-1 rounded bg-khalti/20 text-khalti text-[10px] font-semibold">Khalti</span><span class="px-2 py-1 rounded bg-esewa/20 text-esewa text-[10px] font-semibold">eSewa</span><span class="px-2 py-1 rounded bg-white/10 text-white/60 text-[10px] font-semibold">Bank</span></div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center">
+              <i data-lucide="leaf" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="text-white font-semibold">NaturaBotanica</span>
+          </div>
+          <p class="text-sm text-white/40 leading-relaxed">Premium Himalayan, botanical, and mineral ingredients for the global market.</p>
         </div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('api');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">APIs</a><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Extracts</a><a href="#" onclick="filterCategory('mushrooms');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Mushrooms</a><a href="#" onclick="filterCategory('herbs');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Raw Herbs</a></div></div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white">Contact</a><a href="#" class="block text-sm text-white/40 hover:text-white">Certifications</a></div></div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white">Terms of Service</a><a href="#" class="block text-sm text-white/40 hover:text-white">Shipping Policy</a></div></div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Categories</h4>
+          <div class="space-y-2">
+            <a href="#" onclick="filterCategory('api');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">APIs</a>
+            <a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a>
+            <a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a>
+            <a href="#" onclick="filterCategory('mushrooms');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Mushrooms</a>
+            <a href="#" onclick="filterCategory('herbs');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Raw Herbs</a>
+            <a href="#" onclick="filterCategory('rasa');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Rasa Uparasa</a>
+            <a href="#" onclick="filterCategory('namak');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white transition-colors">Namak</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Company</h4>
+          <div class="space-y-2">
+            <a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a>
+            <a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Certifications</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Careers</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-white mb-4">Legal</h4>
+          <div class="space-y-2">
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Shipping Policy</a>
+            <a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Return Policy</a>
+          </div>
+        </div>
       </div>
       <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
         <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
-        <div class="flex items-center gap-4"><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a></div>
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a>
+        </div>
       </div>
     </div>
   </footer>
@@ -226,352 +452,430 @@
   <!-- CART SIDEBAR -->
   <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
     <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-      <div class="p-6 border-b border-border-main flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="p-6 border-b border-border-main flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <h3 class="text-lg font-semibold">Your Cart</h3>
+          <span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span>
+        </div>
+        <button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
       <div id="cartItems" class="flex-1 overflow-y-auto p-6"></div>
       <div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4">
-        <div class="flex items-center justify-between"><span class="text-txt-sub">Subtotal</span><span id="cartTotal" class="text-xl font-semibold">$0.00</span></div>
-        <p class="text-xs text-txt-third">Secure payment via Khalti, eSewa, or Bank Transfer.</p>
-        <button onclick="openPayment()" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2" style="box-shadow:0 0 20px rgba(163,177,75,.3)">Proceed to Payment <i data-lucide="credit-card" class="w-4 h-4"></i></button>
+        <div class="flex items-center justify-between">
+          <span class="text-txt-sub">Subtotal</span>
+          <span id="cartTotal" class="text-xl font-semibold">$0.00</span>
+        </div>
+        <p class="text-xs text-txt-third">Shipping & taxes calculated at checkout. Bulk discounts applied for orders over 100 kg.</p>
+        <button onclick="checkout()" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
+          Proceed to Inquiry
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
         <button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 transition-colors">Clear Cart</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST -->
+  <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
 
-  <!-- ==================== PAYMENT MODAL ==================== -->
-  <div id="paymentModal" class="fixed inset-0 z-[60] bg-black/60 hidden items-center justify-center p-4" style="backdrop-filter:blur(6px)">
-    <div class="bg-bg-light rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-
-      <!-- STEP 1: Customer Info + Method -->
-      <div id="payStep1">
-        <div class="p-6 border-b border-border-main flex items-center justify-between">
-          <div><h3 class="text-lg font-semibold">Checkout</h3><p class="text-xs text-txt-third mt-0.5">Your details & payment method</p></div>
-          <button onclick="closePayment()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <div class="p-6 space-y-5">
-          <!-- Order Summary -->
-          <div class="p-4 rounded-xl bg-stone-50 border border-border-main">
-            <div class="flex items-center justify-between mb-2"><span class="text-sm text-txt-sub">Order Total</span><span id="payOrderTotal" class="text-lg font-semibold">$0.00</span></div>
-            <div id="payOrderItems" class="text-xs text-txt-third"></div>
-          </div>
-          <!-- Customer Info -->
-          <div class="space-y-3">
-            <p class="text-xs font-medium uppercase tracking-widest text-txt-third">Your Details</p>
-            <input id="payName" type="text" placeholder="Full Name *" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-            <input id="payEmail" type="email" placeholder="Email Address *" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-            <input id="payPhone" type="tel" placeholder="Phone Number *" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          </div>
-          <!-- Payment Methods -->
-          <div class="space-y-3">
-            <p class="text-xs font-medium uppercase tracking-widest text-txt-third">Payment Method</p>
-            <button onclick="selectPayment('khalti')" class="pay-option w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-border-main cursor-pointer" data-method="khalti"><div class="w-12 h-12 rounded-xl bg-khalti flex items-center justify-center flex-shrink-0"><span class="text-white font-bold text-lg">K</span></div><div class="text-left flex-1"><p class="text-sm font-semibold">Khalti</p><p class="text-xs text-txt-third">Scan QR with Khalti app</p></div><i data-lucide="chevron-right" class="w-5 h-5 text-txt-third"></i></button>
-            <button onclick="selectPayment('esewa')" class="pay-option w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-border-main cursor-pointer" data-method="esewa"><div class="w-12 h-12 rounded-xl bg-esewa flex items-center justify-center flex-shrink-0"><span class="text-white font-bold text-lg">e</span></div><div class="text-left flex-1"><p class="text-sm font-semibold">eSewa</p><p class="text-xs text-txt-third">Scan QR with eSewa app</p></div><i data-lucide="chevron-right" class="w-5 h-5 text-txt-third"></i></button>
-            <button onclick="selectPayment('bank')" class="pay-option w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-border-main cursor-pointer" data-method="bank"><div class="w-12 h-12 rounded-xl bg-txt-main flex items-center justify-center flex-shrink-0"><i data-lucide="landmark" class="w-5 h-5 text-white"></i></div><div class="text-left flex-1"><p class="text-sm font-semibold">Bank Transfer</p><p class="text-xs text-txt-third">Direct bank deposit</p></div><i data-lucide="chevron-right" class="w-5 h-5 text-txt-third"></i></button>
-          </div>
-          <p id="payError" class="hidden text-xs text-red-500 text-center"></p>
-        </div>
-      </div>
-
-      <!-- STEP 2: QR -->
-      <div id="payStep2" class="hidden">
-        <div class="p-6 border-b border-border-main flex items-center gap-3">
-          <button onclick="goBackStep1()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-          <div class="flex-1"><h3 id="payMethodTitle" class="text-lg font-semibold">Khalti Payment</h3><p class="text-xs text-txt-third">Scan QR or use details below</p></div>
-          <button onclick="closePayment()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <div class="p-6">
-          <div class="text-center mb-6"><p class="text-xs text-txt-third uppercase tracking-widest mb-1">Amount to Pay</p><p id="payAmount" class="text-4xl font-semibold">$0.00</p></div>
-          <div id="qrContainer" class="flex justify-center mb-6"></div>
-          <div id="payDetails" class="p-4 rounded-xl bg-stone-50 border border-border-main space-y-3 mb-6"></div>
-          <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 mb-6"><i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><p class="text-xs text-amber-800">This is a demo QR code. Replace with your actual merchant QR.</p></div>
-          <button onclick="confirmPayment()" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2" style="box-shadow:0 0 20px rgba(163,177,75,.3)"><i data-lucide="check-circle" class="w-4 h-4"></i>I've Completed the Payment</button>
-        </div>
-      </div>
-
-      <!-- STEP 3: Processing -->
-      <div id="payStep3" class="hidden">
-        <div class="p-12 text-center">
-          <div class="w-12 h-12 border-3 border-brand/30 border-t-brand rounded-full spinner mx-auto mb-6" style="border-width:3px"></div>
-          <h3 class="text-xl font-semibold mb-2">Processing Payment...</h3>
-          <p class="text-sm text-txt-sub">Sending confirmation emails. Please wait.</p>
-        </div>
-      </div>
-
-      <!-- STEP 4: Success -->
-      <div id="payStep4" class="hidden">
-        <div class="p-10 text-center">
-          <div class="success-pulse w-20 h-20 mx-auto mb-6 rounded-full bg-brand/10 flex items-center justify-center">
-            <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#A3B14B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline class="check-animate" points="6 12 10 16 18 8"></polyline></svg>
-          </div>
-          <h3 class="text-2xl font-semibold mb-2">Payment Confirmed!</h3>
-          <p class="text-sm text-txt-sub mb-1">Thank you for your order.</p>
-          <p id="paySuccessMethod" class="text-xs text-txt-third mb-2">Paid via Khalti</p>
-          <p id="paySuccessEmail" class="text-xs text-brand font-medium mb-6"></p>
-          <div id="paySuccessSummary" class="p-4 rounded-xl bg-stone-50 border border-border-main text-left mb-6"></div>
-          <button onclick="closePaymentSuccess()" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300">Continue Shopping</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PRODUCT MODAL -->
+  <!-- PRODUCT DETAIL MODAL -->
   <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-6" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-      <div class="relative"><img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl" onerror="this.style.display='none'"><button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button><div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div></div>
+      <div class="relative">
+        <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-3xl" onerror="this.style.display='none'">
+        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
+      </div>
       <div class="p-8">
-        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-1"></h3><p id="modalSci" class="text-sm text-txt-third italic mb-4"></p><p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
-        <div class="flex items-center gap-4 mb-6"><span id="modalPrice" class="text-3xl font-semibold text-brand"></span><span class="text-sm text-txt-third">per kg</span></div>
+        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-1"></h3>
+        <p id="modalSci" class="text-sm text-txt-third italic mb-4"></p>
+        <p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
+        <div class="flex items-center gap-4 mb-6">
+          <span id="modalPrice" class="text-3xl font-semibold text-brand"></span>
+          <span class="text-sm text-txt-third">per kg</span>
+        </div>
         <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
-        <div class="grid grid-cols-3 gap-4 mb-8"><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Unit</p><p class="text-sm text-white font-medium">1 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">MOQ</p><p id="modalMoq" class="text-sm text-white font-medium">25 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Lead Time</p><p id="modalLead" class="text-sm text-white font-medium">7-14 days</p></div></div>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">Unit</p>
+            <p class="text-sm text-white font-medium">1 kg</p>
+          </div>
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">MOQ</p>
+            <p id="modalMoq" class="text-sm text-white font-medium">25 kg</p>
+          </div>
+          <div class="p-3 rounded-xl bg-bg-dark2 text-center">
+            <p class="text-xs text-white/50 mb-1">Lead Time</p>
+            <p id="modalLead" class="text-sm text-white font-medium">7-14 days</p>
+          </div>
+        </div>
         <div class="flex gap-3">
-          <div class="flex items-center border border-border-main rounded-xl overflow-hidden"><button onclick="modalQtyChange(-1)" class="px-4 py-3 hover:bg-black/5"><i data-lucide="minus" class="w-4 h-4"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-16 text-center py-3 text-sm font-medium border-x border-border-main focus:outline-none"><button onclick="modalQtyChange(1)" class="px-4 py-3 hover:bg-black/5"><i data-lucide="plus" class="w-4 h-4"></i></button></div>
-          <button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i>Add to Cart</button>
+          <div class="flex items-center border border-border-main rounded-xl overflow-hidden">
+            <button onclick="modalQtyChange(-1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
+            <input id="modalQty" type="number" value="1" min="1" class="w-16 text-center py-3 text-sm font-medium border-x border-border-main focus:outline-none">
+            <button onclick="modalQtyChange(1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          </div>
+          <button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// ⬇️  EMAILJS CONFIG — REPLACE THESE 4 VALUES  ⬇️
-// Get them from: https://dashboard.emailjs.com
-// ══════════════════════════════════════════════════════════════
-const EMAILJS_PUBLIC_KEY       = 'YOUR_PUBLIC_KEY_HERE';
-const EMAILJS_SERVICE_ID       = 'YOUR_SERVICE_ID_HERE';
-const EMAILJS_ADMIN_TEMPLATE   = 'YOUR_ADMIN_TEMPLATE_ID';
-const EMAILJS_CUSTOMER_TEMPLATE = 'YOUR_CUSTOMER_TEMPLATE_ID';
-// ══════════════════════════════════════════════════════════════
-
-// Initialize EmailJS
-if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY_HERE') {
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-}
-
-// ==================== PRODUCTS ====================
+// ==================== ALL 57 PRODUCTS (ASCENDING ORDER) ====================
 const products = [
-  {id:1,name:"10-DAB-III",sci:"10-Deacetylbaccatin III",category:"api",catLabel:"Active Pharmaceutical Ingredients",price:3500,moq:"1 kg",lead:"14-21 days",img:"images/10-dab-iii.jpg",desc:"Key precursor for Paclitaxel and Docetaxel. HPLC purity >98%."},
-  {id:2,name:"Paclitaxel",sci:"Paclitaxel (Taxol)",category:"api",catLabel:"Active Pharmaceutical Ingredients",price:12000,moq:"100 g",lead:"21-30 days",img:"images/paclitaxel.jpg",desc:"Premium anti-cancer drug. USP/EP grade with full COA."},
-  {id:3,name:"Docetaxel",sci:"Docetaxel (Taxotere)",category:"api",catLabel:"Active Pharmaceutical Ingredients",price:8500,moq:"100 g",lead:"21-30 days",img:"images/docetaxel.jpg",desc:"Semi-synthetic taxane for breast, prostate, gastric cancers."},
-  {id:4,name:"Jatamansi Oil",sci:"Nardostachys jatamansi",category:"oils",catLabel:"Oils",price:280,moq:"1 kg",lead:"10-15 days",img:"images/jatamansi-oil.jpg",desc:"Rare Himalayan spikenard. Wild-harvested from Nepal."},
-  {id:5,name:"Agarwood Oil",sci:"Aquilaria malaccensis",category:"oils",catLabel:"Oils",price:5500,moq:"10 g",lead:"14-21 days",img:"images/agarwood-oil.jpg",desc:"Ultra-premium Oud oil. CITES certified."},
-  {id:6,name:"White Sandalwood Oil",sci:"Santalum album",category:"oils",catLabel:"Oils",price:3500,moq:"100 g",lead:"14-21 days",img:"images/white-sandalwood-oil.jpg",desc:"East Indian sandalwood for luxury perfumery."},
-  {id:7,name:"Timur Oil",sci:"Zanthoxylum piperitum",category:"oils",catLabel:"Oils",price:120,moq:"1 kg",lead:"10-14 days",img:"images/timur-oil.jpg",desc:"Nepali Szechuan pepper oil. Unique numbing citrusy aroma."},
-  {id:8,name:"Cardamom Oil",sci:"Elettaria cardamomum",category:"oils",catLabel:"Oils",price:65,moq:"1 kg",lead:"7-10 days",img:"images/cardamom-oil.jpg",desc:"Green cardamom. Warm spicy-sweet with eucalyptol notes."},
-  {id:9,name:"True Cinnamon Oil",sci:"Cinnamomum verum",category:"oils",catLabel:"Oils",price:45,moq:"1 kg",lead:"7-10 days",img:"images/true-cinnamon-oil.jpg",desc:"Ceylon cinnamon bark oil. Superior to cassia."},
-  {id:10,name:"Kutki Root Extract",sci:"Picrorhiza kurroa",category:"extracts",catLabel:"Extracts",price:150,moq:"5 kg",lead:"10-14 days",img:"images/kutki-root-extract.jpg",desc:"Himalayan hepatoprotective from 3,000-5,000m."},
-  {id:11,name:"Reishi Mushroom Extract",sci:"Ganoderma lucidum",category:"extracts",catLabel:"Extracts",price:120,moq:"5 kg",lead:"10-14 days",img:"images/reishi-mushroom-extract.jpg",desc:"Dual-extracted for immune modulation and longevity."},
-  {id:12,name:"Rhodiola Extract",sci:"Rhodiola rosea",category:"extracts",catLabel:"Extracts",price:85,moq:"5 kg",lead:"10-14 days",img:"images/rhodiola-extract.jpg",desc:"3% rosavins standardized. Premier adaptogen."},
-  {id:13,name:"Colchicine Extract",sci:"Colchicine",category:"extracts",catLabel:"Extracts",price:1800,moq:"100 g",lead:"14-21 days",img:"images/colchicine.jpg",desc:"Pharmaceutical-grade for gout. HPLC >99%."},
-  {id:14,name:"Turmeric Extract",sci:"Curcuma longa",category:"extracts",catLabel:"Extracts",price:28,moq:"25 kg",lead:"7-10 days",img:"images/turmeric-extract.jpg",desc:"95% curcuminoids. Leading anti-inflammatory."},
-  {id:15,name:"Ginger Extract",sci:"Zingiber officinale",category:"extracts",catLabel:"Extracts",price:22,moq:"25 kg",lead:"7-10 days",img:"images/ginger-extract.jpg",desc:"Standardized gingerol content. GRAS status."},
-  {id:16,name:"Zedoary Root Extract",sci:"Curcuma zedoaria (Kachur)",category:"extracts",catLabel:"Extracts",price:35,moq:"10 kg",lead:"10-14 days",img:"images/zedoary-root-extract.jpg",desc:"Kachur for digestive and anti-inflammatory use."},
-  {id:17,name:"Chirita Extract",sci:"Chirita spp.",category:"extracts",catLabel:"Extracts",price:95,moq:"5 kg",lead:"14-21 days",img:"images/chirita-extract.jpg",desc:"Rare Himalayan Chirita with unique flavonoids."},
-  {id:18,name:"Green Tea Extract",sci:"Camellia sinensis",category:"extracts",catLabel:"Extracts",price:38,moq:"25 kg",lead:"7-10 days",img:"images/green-tea-extract.jpg",desc:"50% EGCG. Powerful antioxidant extract."},
-  {id:19,name:"Coffee Bean Extract",sci:"Coffea spp.",category:"extracts",catLabel:"Extracts",price:32,moq:"25 kg",lead:"7-10 days",img:"images/coffee-bean-extract.jpg",desc:"50% chlorogenic acids for weight management."},
-  {id:20,name:"Coleus Extract",sci:"Coleus forskohlii (Ghanti ful)",category:"extracts",catLabel:"Extracts",price:55,moq:"10 kg",lead:"10-14 days",img:"images/coleus-extract.jpg",desc:"Forskolin standardized for weight management."},
-  {id:21,name:"Caterpillar Fungus Grade A",sci:"Ophiocordyceps sinensis",category:"mushrooms",catLabel:"Mushrooms & Fungi",price:28000,moq:"100 g",lead:"7-14 days",img:"images/caterpillar-fungus-grade-a.jpg",desc:"Premium Yarsagumba from 4,000-5,500m. CITES regulated."},
-  {id:22,name:"Caterpillar Fungus Grade B",sci:"Ophiocordyceps sinensis",category:"mushrooms",catLabel:"Mushrooms & Fungi",price:15000,moq:"100 g",lead:"7-14 days",img:"images/caterpillar-fungus-grade-b.jpg",desc:"Grade B with full potency at accessible price."},
-  {id:23,name:"Caterpillar Fungus Grade C",sci:"Ophiocordyceps sinensis",category:"mushrooms",catLabel:"Mushrooms & Fungi",price:6000,moq:"250 g",lead:"7-14 days",img:"images/caterpillar-fungus-grade-c.jpg",desc:"Grade C fragments for extraction. Most cost-effective."},
-  {id:24,name:"Reishi Mushroom",sci:"Ganoderma lucidum (Rato Chyau)",category:"mushrooms",catLabel:"Mushrooms & Fungi",price:45,moq:"10 kg",lead:"10-14 days",img:"images/reishi-mushroom.jpg",desc:"Whole dried Rato Chyau from Nepal hardwood logs."},
-  {id:25,name:"Morel Mushroom",sci:"Morchella esculenta",category:"mushrooms",catLabel:"Mushrooms & Fungi",price:180,moq:"1 kg",lead:"7-10 days",img:"images/morel-mushroom.jpg",desc:"Wild Himalayan Guchi for gourmet cuisine."},
-  {id:26,name:"Himalayan Wild Garlic",sci:"Allium wallichii (Ban Lasun)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:12,moq:"25 kg",lead:"7-10 days",img:"images/himalayan-wild-garlic.jpg",desc:"Wild Ban Lasun. Higher allicin than cultivated."},
-  {id:27,name:"Himalayan Paris",sci:"Paris polyphylla (Satuwa)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:85,moq:"5 kg",lead:"14-21 days",img:"images/himalayan-paris.jpg",desc:"Satuwa — anticancer saponins. CITES listed."},
-  {id:28,name:"Whorled Solomon's Seal",sci:"Polygonatum verticillatum (Khiraula)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:25,moq:"10 kg",lead:"10-14 days",img:"images/solomons-seal.jpg",desc:"Khiraula for joint health and rejuvenation."},
-  {id:29,name:"Himalayan Larkspur",sci:"Delphinium denudatum (Nirmasi)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:40,moq:"5 kg",lead:"10-14 days",img:"images/himalayan-larkspur.jpg",desc:"Nirmasi roots for joint pain and neuro conditions."},
-  {id:30,name:"Wild Asparagus",sci:"Asparagus racemosus (Shatavari)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:15,moq:"25 kg",lead:"7-10 days",img:"images/wild-asparagus.jpg",desc:"Wild Shatavari — premier Ayurvedic female tonic."},
-  {id:31,name:"Large Cardamom",sci:"Amomum subulatum (Alaichi)",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:10,moq:"25 kg",lead:"7-10 days",img:"images/large-cardamom.jpg",desc:"Nepali Alaichi from eastern Himalayan foothills."},
-  {id:32,name:"Chirata",sci:"Swertia chirayita",category:"herbs",catLabel:"Raw Herbs, Roots & Botanicals",price:18,moq:"25 kg",lead:"7-10 days",img:"images/chirata.jpg",desc:"Extremely bitter — primary source of amarogentin."},
+  // ── Active Pharmaceutical Ingredients ──
+  { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
+  { id: 2,  name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 12000, moq: "100 g", lead: "21-30 days", img: "images/paclitaxel.jpg", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available." },
+  { id: 3,  name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 8500, moq: "100 g", lead: "21-30 days", img: "images/docetaxel.jpg", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers." },
+
+  // ── Oils ──
+  { id: 4,  name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 5500, moq: "10 g", lead: "14-21 days", img: "images/agarwood-oil.jpg", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery." },
+  { id: 5,  name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 65, moq: "1 kg", lead: "7-10 days", img: "images/cardamom-oil.jpg", desc: "True green cardamom essential oil. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring and aromatherapy." },
+  { id: 6,  name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 280, moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine." },
+  { id: 7,  name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 120, moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care." },
+  { id: 8,  name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 45, moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil." },
+  { id: 9,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+
+  // ── Extracts ──
+  { id: 10, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids." },
+  { id: 11, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations." },
+  { id: 12, name: "Coleus Extract", sci: "Coleus forskohlii", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "images/coleus-extract.jpg", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator." },
+  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "images/colchicine.jpg", desc: "Pharmaceutical-grade colchicine extracted from Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. HPLC assay >99%." },
+  { id: 14, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "images/ginger-extract.jpg", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support." },
+  { id: 15, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "images/green-tea-extract.jpg", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support." },
+  { id: 16, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "images/kutki-root-extract.jpg", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations." },
+  { id: 17, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "images/reishi-mushroom-extract.jpg", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity." },
+  { id: 18, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "images/rhodiola-extract.jpg", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance and stress resilience." },
+  { id: 19, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "images/turmeric-extract.jpg", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements and pharmaceutical formulations." },
+  { id: 20, name: "Zedoary Root Extract", sci: "Curcuma zedoaria", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "images/zedoary-root-extract.jpg", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory." },
+
+  // ── Mushrooms & Fungi ──
+  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-a.jpg", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from high Himalayas. Whole, intact specimens with optimal ratio." },
+  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-b.jpg", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A." },
+  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-c.jpg", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display." },
+  { id: 24, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "images/morel-mushroom.jpg", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests. Dried whole for extended shelf life. Prized in gourmet cuisine." },
+  { id: 25, name: "Reishi Mushroom", sci: "Ganoderma lucidum", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "images/reishi-mushroom.jpg", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids." },
+
+  // ── Raw Herbs, Roots & Botanicals ──
+  { id: 26, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "images/chirata.jpg", desc: "Whole dried Chirita herb (Bhunimba). Extremely bitter Swertia species from Himalayas. Used for liver disorders, malaria, and fever." },
+  { id: 27, name: "Himalayan Larkspur", sci: "Delphinium denudatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "images/himalayan-larkspur.jpg", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions." },
+  { id: 28, name: "Himalayan Paris", sci: "Paris polyphylla", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "images/himalayan-paris.jpg", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties." },
+  { id: 29, name: "Himalayan Wild Garlic", sci: "Allium wallichii", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/himalayan-wild-garlic.jpg", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at high altitude. Smaller but more potent than cultivated garlic." },
+  { id: 30, name: "Large Cardamom", sci: "Amomum subulatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/large-cardamom.jpg", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in eastern Himalayan foothills. Smoky, camphoraceous flavor distinct from green cardamom." },
+  { id: 31, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/solomons-seal.jpg", desc: "Dried rhizomes of Khiraula from Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions." },
+  { id: 32, name: "Wild Asparagus", sci: "Asparagus racemosus", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/wild-asparagus.jpg", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV)." },
+
+  // ── Rasa Uparasa (Minerals & Metals) ──
+  { id: 33, name: "Amlasar Gandhak", sci: "Sulphur processed in Amla", category: "rasa", catLabel: "Rasa Uparasa", price: 60, moq: "5 kg", lead: "10-14 days", img: "images/amlasar-gandhak.jpg", desc: "Sulphur processed in Indian Gooseberry (Amla) juice. Used primarily for skin diseases, itching, and respiratory ailments due to its heating and purifying properties." },
+  { id: 34, name: "Danda Gandhak", sci: "Crystalline Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 45, moq: "5 kg", lead: "10-14 days", img: "images/danda-gandhak.jpg", desc: "Crude Sulphur in stick/crystal form. Requires extensive purification (Shodhana) before internal use. Effective in fungal infections and arthritis." },
+  { id: 35, name: "Darchikna", sci: "Arsenic Trisulfide", category: "rasa", catLabel: "Rasa Uparasa", price: 180, moq: "1 kg", lead: "14-21 days", img: "images/darchikna.jpg", desc: "Yellow Orpiment (Harital). Used in treating skin diseases, fevers, and asthma. Highly toxic and requires rigorous purification processes in Rasa Shastra." },
+  { id: 36, name: "Hartal Hariyawal", sci: "Arsenic Disulfide (Green)", category: "rasa", catLabel: "Rasa Uparasa", price: 160, moq: "1 kg", lead: "14-21 days", img: "images/hartal-hariyawal.jpg", desc: "A specific green variety of Realgar (Manahshila). Used in traditional formulations for respiratory conditions, fever, and blood disorders after detoxification." },
+  { id: 37, name: "Hartal Patri", sci: "Arsenic Disulfide (Leaf)", category: "rasa", catLabel: "Rasa Uparasa", price: 170, moq: "1 kg", lead: "14-21 days", img: "images/hartal-patri.jpg", desc: "Leaf-like formation of Hartal. Used externally in skin pastes and internally (after Samskara) for chronic asthma and cough. Requires expert handling." },
+  { id: 38, name: "Mansil", sci: "Cinnabar (Vermilion)", category: "rasa", catLabel: "Rasa Uparasa", price: 120, moq: "1 kg", lead: "14-21 days", img: "images/mansil.jpg", desc: "Mercuric Sulphide ore. The primary source of Parada (Mercury) in Rasa Shastra. Used in nervine tonics and for enhancing immune function." },
+  { id: 39, name: "Neela", sci: "Lapis Lazuli", category: "rasa", catLabel: "Rasa Uparasa", price: 90, moq: "5 kg", lead: "10-14 days", img: "images/neela.jpg", desc: "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas." },
+  { id: 40, name: "Para", sci: "Mercury (Elemental)", category: "rasa", catLabel: "Rasa Uparasa", price: 650, moq: "100 g", lead: "21-28 days", img: "images/para.jpg", desc: "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed." },
+  { id: 41, name: "Raskapoor", sci: "Sublimed Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 55, moq: "5 kg", lead: "10-14 days", img: "images/raskapoor.jpg", desc: "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics." },
+  { id: 42, name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 75, moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
+  { id: 43, name: "Singraf", sci: "Cinnabar / Red Sulphide", category: "rasa", catLabel: "Rasa Uparasa", price: 130, moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders." },
+
+  // ── Namak (Salts) - SORTED ASCENDING (A-Z) WITH NEW ITEMS ──
+  { id: 44, name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak (Salts)", price: 40, moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery." },
+  { id: 45, name: "Jawa Khar", sci: "Alum (Jawa)", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying." },
+  { id: 46, name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak (Salts)", price: 5, moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda." },
+  { id: 47, name: "Kala Sajji Khar", sci: "Black Alum", category: "namak", catLabel: "Namak (Salts)", price: 14, moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties." },
+  { id: 48, name: "Kalmi Shora", sci: "Sodium Carbonate", category: "namak", catLabel: "Namak (Salts)", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/kalmi-shora.jpg", desc: "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties." },
+  { id: 49, name: "Mithi Soda", sci: "Sodium Bicarbonate", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/mithi-soda.jpg", desc: "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies." },
+  { id: 50, name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 20, moq: "10 kg", lead: "10-14 days", img: "images/nausadar-fali.jpg", desc: "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones." },
+  { id: 51, name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin." },
+  { id: 52, name: "Red Phatkri", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/red-phatkri.jpg", desc: "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects." },
+  { id: 53, name: "Safed Sajji Khar", sci: "White Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/safed-sajji-khar.jpg", desc: "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments." },
+  { id: 54, name: "Samudri Namak", sci: "Sea Salt", category: "namak", catLabel: "Namak (Salts)", price: 2, moq: "50 kg", lead: "5-7 days", img: "images/samudri-namak.jpg", desc: "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy." },
+  { id: 55, name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 3, moq: "50 kg", lead: "7-10 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
+  { id: 56, name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 16, moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties." },
+  { id: 57, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
 ];
 
-let cart=[],currentCategory='all',currentSort='name',currentModalProduct=null,selectedPayMethod=null;
-
-// ==================== DEMO QR ====================
-function generateDemoQR(color,label){
-  const corners=[[0,0],[1,0],[2,0],[0,1],[0,2],[1,1],[2,1],[1,2],[2,2],[18,0],[19,0],[20,0],[18,1],[18,2],[19,1],[20,1],[19,2],[20,2],[0,18],[0,19],[0,20],[1,18],[2,18],[1,19],[2,19],[1,20],[2,20]];
-  let seed=0;for(let i=0;i<label.length;i++)seed+=label.charCodeAt(i)*(i+1);
-  const r=(i)=>((seed*1103515245+12345+i*7919)>>>0)%100;
-  let cells='';
-  for(let y=0;y<21;y++)for(let x=0;x<21;x++){
-    const isC=corners.some(c=>c[0]===x&&c[1]===y);
-    const isB=(x===0||x===20||y===0||y===20)&&!isC;
-    if(isC)cells+=`<rect x="${x*5}" y="${y*5}" width="5" height="5" fill="${color}"/>`;
-    else if(isB)cells+=`<rect x="${x*5}" y="${y*5}" width="5" height="5" fill="${color}" opacity="0.3"/>`;
-    else if(r(y*21+x)>45)cells+=`<rect x="${x*5}" y="${y*5}" width="5" height="5" fill="${color}" opacity="${0.5+(r(y*x)%50)/100}"/>`;
-  }
-  return `<svg viewBox="0 0 105 105" xmlns="http://www.w3.org/2000/svg" class="w-48 h-48 md:w-56 md:h-56"><rect width="105" height="105" fill="white" rx="8"/>${cells}<text x="52.5" y="53" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="${color}" opacity="0.25">DEMO</text></svg>`;
-}
-
-const paymentConfig={
-  khalti:{title:'Khalti Payment',color:'#5C2D91',name:'Khalti',details:[{label:'Khalti ID',value:'98XXXX123'},{label:'Merchant',value:'NaturaBotanica Pvt. Ltd.'},{label:'QR Label',value:'Scan with Khalti app'}]},
-  esewa:{title:'eSewa Payment',color:'#60BB46',name:'eSewa',details:[{label:'eSewa ID',value:'98XXXX456'},{label:'Merchant',value:'NaturaBotanica Pvt. Ltd.'},{label:'QR Label',value:'Scan with eSewa app'}]},
-  bank:{title:'Bank Transfer',color:'#1C1917',name:'Bank Transfer',details:[{label:'Bank',value:'Nepal Investment Mega Bank'},{label:'Account',value:'NaturaBotanica Pvt. Ltd.'},{label:'Acc Number',value:'XXXXXXXXXXXXXX'},{label:'Branch',value:'Kathmandu, Durbar Marg'},{label:'Swift',value:'NIMBNPKT'},{label:'QR Label',value:'Scan for bank details'}]}
-};
-
-// ==================== PAYMENT FLOW ====================
-function openPayment(){
-  if(!cart.length)return;closeCart();selectedPayMethod=null;
-  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  document.getElementById('payOrderTotal').textContent=`$${total.toLocaleString('en-US',{minimumFractionDigits:2})}`;
-  document.getElementById('payOrderItems').textContent=cart.map(i=>`${i.name} × ${i.qty}kg`).join(' · ');
-  document.getElementById('payName').value='';document.getElementById('payEmail').value='';document.getElementById('payPhone').value='';
-  document.getElementById('payError').classList.add('hidden');
-  document.getElementById('payStep1').classList.remove('hidden');
-  document.getElementById('payStep2').classList.add('hidden');
-  document.getElementById('payStep3').classList.add('hidden');
-  document.getElementById('payStep4').classList.add('hidden');
-  document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('selected'));
-  const m=document.getElementById('paymentModal');m.classList.remove('hidden');m.classList.add('flex');document.body.classList.add('overlay-open');lucide.createIcons();
-}
-
-function selectPayment(method){
-  selectedPayMethod=method;
-  document.querySelectorAll('.pay-option').forEach(o=>o.classList.toggle('selected',o.dataset.method===method));
-  const name=document.getElementById('payName').value.trim();
-  const email=document.getElementById('payEmail').value.trim();
-  const phone=document.getElementById('payPhone').value.trim();
-  if(!name||!email||!phone){document.getElementById('payError').textContent='Please fill in all your details above.';document.getElementById('payError').classList.remove('hidden');return;}
-  document.getElementById('payError').classList.add('hidden');
-
-  const config=paymentConfig[method];
-  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  document.getElementById('payMethodTitle').textContent=config.title;
-  document.getElementById('payAmount').textContent=`$${total.toLocaleString('en-US',{minimumFractionDigits:2})}`;
-  document.getElementById('qrContainer').innerHTML=generateDemoQR(config.color,config.name);
-  document.getElementById('payDetails').innerHTML=config.details.map(d=>`<div class="flex items-center justify-between"><span class="text-xs text-txt-third">${d.label}</span><span class="text-sm font-medium">${d.value}</span></div>`).join('');
-  document.getElementById('payStep1').classList.add('hidden');document.getElementById('payStep2').classList.remove('hidden');lucide.createIcons();
-}
-
-function goBackStep1(){document.getElementById('payStep1').classList.remove('hidden');document.getElementById('payStep2').classList.add('hidden');}
-
-async function confirmPayment(){
-  if(!selectedPayMethod)return;
-  const config=paymentConfig[selectedPayMethod];
-  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  const items=cart.map(i=>`${i.name} × ${i.qty}kg = $${(i.price*i.qty).toLocaleString()}`).join('\n');
-  const customerName=document.getElementById('payName').value.trim();
-  const customerEmail=document.getElementById('payEmail').value.trim();
-  const customerPhone=document.getElementById('payPhone').value.trim();
-
-  // Show processing step
-  document.getElementById('payStep1').classList.add('hidden');document.getElementById('payStep2').classList.add('hidden');
-  document.getElementById('payStep3').classList.remove('hidden');document.getElementById('payStep4').classList.add('hidden');
-
-  // Email template variables
-  const templateData={
-    to_name: customerName,
-    to_email: customerEmail,
-    from_name: customerName,
-    from_email: customerEmail,
-    from_phone: customerPhone,
-    method: config.name,
-    total: `$${total.toLocaleString('en-US',{minimumFractionDigits:2})}`,
-    items: items,
-    date: new Date().toLocaleString(),
-    order_id: 'NB-' + Date.now().toString(36).toUpperCase()
-  };
-
-  // Try sending emails (won't block if EmailJS not configured)
-  let emailSent = false;
-  if(EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY_HERE'){
-    try{
-      // Send admin notification
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ADMIN_TEMPLATE, templateData);
-      // Send customer confirmation
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE, templateData);
-      emailSent = true;
-    }catch(err){
-      console.log('EmailJS error:', err);
-    }
-  }
-
-  // Show success after brief delay
-  setTimeout(()=>{
-    document.getElementById('paySuccessMethod').textContent=`Paid via ${config.name}`;
-    document.getElementById('paySuccessEmail').textContent = emailSent
-      ? `✉️ Confirmation sent to ${customerEmail}`
-      : `📧 ${customerEmail} (save your order details below)`;
-
-    document.getElementById('paySuccessSummary').innerHTML=`
-      <div class="flex items-center justify-between mb-2"><span class="text-sm text-txt-sub">Order ID</span><span class="text-sm font-medium font-mono">${templateData.order_id}</span></div>
-      <div class="flex items-center justify-between mb-2"><span class="text-sm text-txt-sub">Items</span><span class="text-sm font-medium">${cart.length} product${cart.length>1?'s':''}</span></div>
-      <div class="flex items-center justify-between mb-2"><span class="text-sm text-txt-sub">Total Qty</span><span class="text-sm font-medium">${cart.reduce((s,i)=>s+i.qty,0)} kg</span></div>
-      <div class="flex items-center justify-between mb-2"><span class="text-sm text-txt-sub">Payment</span><span class="text-sm font-medium">${config.name}</span></div>
-      <div class="border-t border-border-main pt-2 mt-2 flex items-center justify-between"><span class="text-sm font-medium">Amount Paid</span><span class="text-sm font-semibold text-brand">$${total.toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>
-    `;
-
-    document.getElementById('payStep1').classList.add('hidden');document.getElementById('payStep2').classList.add('hidden');
-    document.getElementById('payStep3').classList.add('hidden');document.getElementById('payStep4').classList.remove('hidden');
-    lucide.createIcons();
-  }, emailSent ? 1500 : 800);
-}
-
-function closePaymentSuccess(){cart=[];updateCartUI();closePayment();window.scrollTo({top:0,behavior:'smooth'});}
-function closePayment(){const m=document.getElementById('paymentModal');m.classList.add('hidden');m.classList.remove('flex');document.body.classList.remove('overlay-open');}
+let cart = [];
+let currentCategory = 'all';
+let currentSort = 'name';
+let currentModalProduct = null;
 
 // ==================== RENDER ====================
-function renderProducts(items){
-  const grid=document.getElementById('productGrid'),noR=document.getElementById('noResults'),cnt=document.getElementById('productCount');
-  if(!items.length){grid.innerHTML='';noR.classList.remove('hidden');cnt.textContent='0 products';return;}
-  noR.classList.add('hidden');cnt.textContent=`${items.length} product${items.length!==1?'s':''}`;
-  grid.innerHTML=items.map((p,i)=>`<div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation:fadeInUp .6s ease-out ${i*.04}s forwards;opacity:0"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})"><img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Oil':'Extract'}</span></div>${p.price>=1000?'<div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>':''}<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center"><span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span></div></div><div class="p-5"><p class="text-[10px] text-brand font-medium uppercase tracking-widest mb-1">${p.catLabel}</p><h3 class="text-base font-semibold tracking-tight mb-0.5 cursor-pointer hover:text-brand transition-colors" onclick="openModal(${p.id})">${p.name}</h3><p class="text-[11px] text-txt-third italic mb-3">${p.sci}</p><p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p><div class="flex items-center justify-between"><div><span class="text-xl font-semibold">$${p.price.toLocaleString()}</span><span class="text-xs text-txt-third ml-1">/kg</span></div><button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Add</button></div></div></div>`).join('');
+function renderProducts(items) {
+  const grid = document.getElementById('productGrid');
+  const noResults = document.getElementById('noResults');
+  const countEl = document.getElementById('productCount');
+
+  if (items.length === 0) {
+    grid.innerHTML = '';
+    noResults.classList.remove('hidden');
+    countEl.textContent = '0 products';
+    return;
+  }
+  noResults.classList.add('hidden');
+  countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
+
+  grid.innerHTML = items.map((p, i) => `
+    <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
+      <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+        <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
+        <div class="absolute top-3 left-3">
+          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
+        </div>
+        ${p.price >= 1000 ? '<div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>' : ''}
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
+        </div>
+      </div>
+      <div class="p-5">
+        <p class="text-[10px] text-brand font-medium uppercase tracking-widest mb-1">${p.catLabel}</p>
+        <h3 class="text-base font-semibold tracking-tight mb-0.5 cursor-pointer hover:text-brand transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+        <p class="text-[11px] text-txt-third italic mb-3">${p.sci}</p>
+        <p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xl font-semibold text-txt-main">$${p.price.toLocaleString()}</span>
+            <span class="text-xs text-txt-third ml-1">/kg</span>
+          </div>
+          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
   lucide.createIcons();
 }
 
-function getFilteredProducts(){let items=currentCategory==='all'?[...products]:products.filter(p=>p.category===currentCategory);switch(currentSort){case'name':items.sort((a,b)=>a.name.localeCompare(b.name));break;case'price-asc':items.sort((a,b)=>a.price-b.price);break;case'price-desc':items.sort((a,b)=>b.price-a.price);break;}return items;}
-function filterCategory(c){currentCategory=c;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));renderProducts(getFilteredProducts());}
-function sortProducts(){currentSort=document.getElementById('sortSelect').value;renderProducts(getFilteredProducts());}
+function getFilteredProducts() {
+  let items = currentCategory === 'all' ? [...products] : products.filter(p => p.category === currentCategory);
+  switch (currentSort) {
+    case 'name': items.sort((a, b) => a.name.localeCompare(b.name)); break;
+    case 'price-asc': items.sort((a, b) => a.price - b.price); break;
+    case 'price-desc': items.sort((a, b) => b.price - a.price); break;
+  }
+  return items;
+}
+
+function filterCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.cat === cat));
+  renderProducts(getFilteredProducts());
+}
+
+function sortProducts() {
+  currentSort = document.getElementById('sortSelect').value;
+  renderProducts(getFilteredProducts());
+}
 
 // ==================== CART ====================
-function addToCart(id,q=1){const p=products.find(x=>x.id===id);if(!p)return;const e=cart.find(i=>i.id===id);if(e)e.qty+=q;else cart.push({...p,qty:q});updateCartUI();showToast(`${p.name} added to cart`);}
-function removeFromCart(id){cart=cart.filter(i=>i.id!==id);updateCartUI();}
-function updateQty(id,d){const i=cart.find(x=>x.id===id);if(i){i.qty=Math.max(1,i.qty+d);updateCartUI();}}
-function clearCart(){cart=[];updateCartUI();showToast('Cart cleared','info');}
-function updateCartUI(){
-  const c=document.getElementById('cartCount'),ti=cart.reduce((s,i)=>s+i.qty,0),tp=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  if(ti>0){c.classList.remove('hidden');c.classList.add('flex');c.textContent=ti;}else{c.classList.add('hidden');c.classList.remove('flex');}
-  document.getElementById('cartItemCount').textContent=`(${ti} item${ti!==1?'s':''})`;
-  document.getElementById('cartTotal').textContent=`$${tp.toLocaleString('en-US',{minimumFractionDigits:2})}`;
-  const el=document.getElementById('cartItems'),ft=document.getElementById('cartFooter');
-  if(!cart.length){el.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p></div>';ft.classList.add('hidden');lucide.createIcons();return;}
-  ft.classList.remove('hidden');
-  el.innerHTML=cart.map(i=>`<div class="flex gap-4 py-4 border-b border-border-main last:border-0"><img src="${i.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><div><h4 class="text-sm font-medium truncate">${i.name}</h4><p class="text-[11px] text-txt-third italic">${i.sci}</p></div><button onclick="removeFromCart(${i.id})" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button></div><p class="text-xs text-txt-third mt-1">$${i.price.toLocaleString()}/kg</p><div class="flex items-center justify-between mt-2"><div class="flex items-center border border-border-main rounded-lg overflow-hidden"><button onclick="updateQty(${i.id},-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="px-3 py-1 text-xs font-medium border-x border-border-main">${i.qty} kg</span><button onclick="updateQty(${i.id},1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><span class="text-sm font-semibold">$${(i.price*i.qty).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div></div></div>`).join('');
+function addToCart(id, qty = 1) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const existing = cart.find(item => item.id === id);
+  if (existing) { existing.qty += qty; } else { cart.push({ ...p, qty }); }
+  updateCartUI();
+  showToast(`${p.name} added to cart`);
+}
+
+function removeFromCart(id) { cart = cart.filter(item => item.id !== id); updateCartUI(); }
+
+function updateQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  updateCartUI();
+}
+
+function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared', 'info'); }
+
+function updateCartUI() {
+  const countEl = document.getElementById('cartCount');
+  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+  if (totalItems > 0) { countEl.classList.remove('hidden'); countEl.classList.add('flex'); countEl.textContent = totalItems; }
+  else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
+
+  document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
+  document.getElementById('cartTotal').textContent = `$${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+  const cartItemsEl = document.getElementById('cartItems');
+  const cartFooter = document.getElementById('cartFooter');
+
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div>';
+    cartFooter.classList.add('hidden');
+    lucide.createIcons();
+    return;
+  }
+  cartFooter.classList.remove('hidden');
+  cartItemsEl.innerHTML = cart.map(item => `
+    <div class="flex gap-4 py-4 border-b border-border-main last:border-0">
+      <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h4 class="text-sm font-medium truncate">${item.name}</h4>
+            <p class="text-[11px] text-txt-third italic">${item.sci}</p>
+          </div>
+          <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
+        </div>
+        <p class="text-xs text-txt-third mt-1">$${item.price.toLocaleString()}/kg</p>
+        <div class="flex items-center justify-between mt-2">
+          <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
+            <button onclick="updateQty(${item.id}, -1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-3 h-3"></i></button>
+            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">${item.qty} kg</span>
+            <button onclick="updateQty(${item.id}, 1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-3 h-3"></i></button>
+          </div>
+          <span class="text-sm font-semibold">$${(item.price * item.qty).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
   lucide.createIcons();
 }
-function openCart(){document.getElementById('cartOverlay').classList.remove('hidden');document.body.classList.add('overlay-open');requestAnimationFrame(()=>document.getElementById('cartPanel').style.transform='translateX(0)');}
-function closeCart(){document.getElementById('cartPanel').style.transform='translateX(100%)';setTimeout(()=>{document.getElementById('cartOverlay').classList.add('hidden');document.body.classList.remove('overlay-open');},300);}
 
-// ==================== PRODUCT MODAL ====================
-function openModal(id){const p=products.find(x=>x.id===id);if(!p)return;currentModalProduct=p;document.getElementById('modalImg').src=p.img;document.getElementById('modalName').textContent=p.name;document.getElementById('modalSci').textContent=p.sci;document.getElementById('modalCat').textContent=p.catLabel;document.getElementById('modalPrice').textContent=`$${p.price.toLocaleString()}`;document.getElementById('modalDesc').textContent=p.desc;document.getElementById('modalBadge').textContent=p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Essential Oil':'Extract';document.getElementById('modalMoq').textContent=p.moq;document.getElementById('modalLead').textContent=p.lead;document.getElementById('modalQty').value=1;document.getElementById('modalAddBtn').onclick=()=>{addToCart(p.id,parseInt(document.getElementById('modalQty').value)||1);closeModal();};const m=document.getElementById('productModal');m.classList.remove('hidden');m.classList.add('flex');document.body.classList.add('overlay-open');lucide.createIcons();}
-function closeModal(){const m=document.getElementById('productModal');m.classList.add('hidden');m.classList.remove('flex');document.body.classList.remove('overlay-open');}
-function modalQtyChange(d){const i=document.getElementById('modalQty');i.value=Math.max(1,(parseInt(i.value)||1)+d);}
+function openCart() {
+  document.getElementById('cartOverlay').classList.remove('hidden');
+  document.body.classList.add('overlay-open');
+  requestAnimationFrame(() => document.getElementById('cartPanel').style.transform = 'translateX(0)');
+}
+
+function closeCart() {
+  document.getElementById('cartPanel').style.transform = 'translateX(100%)';
+  setTimeout(() => { document.getElementById('cartOverlay').classList.add('hidden'); document.body.classList.remove('overlay-open'); }, 300);
+}
+
+function checkout() {
+  if (cart.length === 0) return;
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  showToast(`Inquiry sent for ${cart.length} items — Total: $${total.toLocaleString()}`, 'success');
+  cart = [];
+  updateCartUI();
+  closeCart();
+  setTimeout(() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }), 400);
+}
+
+// ==================== MODAL ====================
+function openModal(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  currentModalProduct = p;
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalSci').textContent = p.sci;
+  document.getElementById('modalCat').textContent = p.catLabel;
+  document.getElementById('modalPrice').textContent = `$${p.price.toLocaleString()}`;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
+  document.getElementById('modalMoq').textContent = p.moq;
+  document.getElementById('modalLead').textContent = p.lead;
+  document.getElementById('modalQty').value = 1;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  const modal = document.getElementById('productModal');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  document.body.classList.add('overlay-open');
+  lucide.createIcons();
+}
+
+function closeModal() {
+  const modal = document.getElementById('productModal');
+  modal.classList.add('hidden'); modal.classList.remove('flex');
+  document.body.classList.remove('overlay-open');
+  currentModalProduct = null;
+}
+
+function modalQtyChange(d) {
+  const input = document.getElementById('modalQty');
+  input.value = Math.max(1, (parseInt(input.value) || 1) + d);
+}
 
 // ==================== SEARCH ====================
-document.getElementById('searchToggle').addEventListener('click',()=>{const b=document.getElementById('searchBar');b.classList.toggle('hidden');if(!b.classList.contains('hidden'))document.getElementById('searchInput').focus();});
-document.getElementById('searchClose').addEventListener('click',()=>document.getElementById('searchBar').classList.add('hidden'));
-document.getElementById('searchInput').addEventListener('input',function(){const q=this.value.toLowerCase().trim(),el=document.getElementById('searchResults');if(q.length<2){el.innerHTML='';return;}const m=products.filter(p=>p.name.toLowerCase().includes(q)||p.sci.toLowerCase().includes(q)||p.catLabel.toLowerCase().includes(q)).slice(0,8);if(!m.length){el.innerHTML='<p class="text-sm text-txt-third py-4 text-center">No products found</p>';return;}el.innerHTML=m.map(p=>`<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl transition-colors text-left"><img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${p.name}</p><p class="text-[11px] text-txt-third italic">${p.sci}</p></div><span class="text-sm font-semibold text-brand flex-shrink-0">$${p.price.toLocaleString()}</span></button>`).join('');});
+document.getElementById('searchToggle').addEventListener('click', () => {
+  const bar = document.getElementById('searchBar');
+  bar.classList.toggle('hidden');
+  if (!bar.classList.contains('hidden')) document.getElementById('searchInput').focus();
+});
+document.getElementById('searchClose').addEventListener('click', () => document.getElementById('searchBar').classList.add('hidden'));
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  const q = this.value.toLowerCase().trim();
+  const el = document.getElementById('searchResults');
+  if (q.length < 2) { el.innerHTML = ''; return; }
+  const matches = products.filter(p => p.name.toLowerCase().includes(q) || p.sci.toLowerCase().includes(q) || p.catLabel.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) { el.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; }
+  el.innerHTML = matches.map(p => `
+    <button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl transition-colors text-left">
+      <img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">${p.name}</p>
+        <p class="text-[11px] text-txt-third italic">${p.sci}</p>
+      </div>
+      <span class="text-sm font-semibold text-brand flex-shrink-0">$${p.price.toLocaleString()}</span>
+    </button>
+  `).join('');
+});
 
 // ==================== TOAST ====================
-function showToast(msg,type='success'){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';t.innerHTML=`<i data-lucide="${type==='success'?'check-circle':'info'}" class="w-5 h-5 text-brand flex-shrink-0"></i><span class="text-sm font-medium">${msg}</span>`;c.appendChild(t);lucide.createIcons();setTimeout(()=>{t.classList.remove('toast-enter');t.classList.add('toast-exit');setTimeout(()=>t.remove(),300);},3000);}
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  const icon = type === 'success' ? 'check-circle' : 'info';
+  toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';
+  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 text-brand flex-shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
+  container.appendChild(toast);
+  lucide.createIcons();
+  setTimeout(() => { toast.classList.remove('toast-enter'); toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
 
 // ==================== MOBILE ====================
-function closeMobile(){document.getElementById('mobilePanel').style.transform='translateX(100%)';setTimeout(()=>{document.getElementById('mobileOverlay').classList.add('hidden');document.body.classList.remove('overlay-open');},300);}
-document.getElementById('mobileMenu').addEventListener('click',()=>{document.getElementById('mobileOverlay').classList.remove('hidden');document.body.classList.add('overlay-open');requestAnimationFrame(()=>document.getElementById('mobilePanel').style.transform='translateX(0)');});
-document.getElementById('mobileClose').addEventListener('click',closeMobile);
-document.getElementById('mobileOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMobile();});
+function closeMobile() {
+  document.getElementById('mobilePanel').style.transform = 'translateX(100%)';
+  setTimeout(() => { document.getElementById('mobileOverlay').classList.add('hidden'); document.body.classList.remove('overlay-open'); }, 300);
+}
+document.getElementById('mobileMenu').addEventListener('click', () => {
+  document.getElementById('mobileOverlay').classList.remove('hidden');
+  document.body.classList.add('overlay-open');
+  requestAnimationFrame(() => document.getElementById('mobilePanel').style.transform = 'translateX(0)');
+});
+document.getElementById('mobileClose').addEventListener('click', closeMobile);
+document.getElementById('mobileOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeMobile(); });
 
 // ==================== EVENTS ====================
-document.getElementById('cartToggle').addEventListener('click',openCart);
-document.getElementById('cartOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCart();});
-document.getElementById('productModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-document.getElementById('paymentModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePayment();});
-window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>100){n.style.boxShadow='0 1px 2px 0 rgba(0,0,0,.05)';n.style.borderBottom='1px solid rgba(231,229,228,.5)';}else{n.style.boxShadow='none';n.style.borderBottom='none';}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeModal();closeMobile();closePayment();document.getElementById('searchBar').classList.add('hidden');}if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('searchToggle').click();}});
-function submitForm(e){e.preventDefault();const m=document.getElementById('formMsg');m.textContent='✓ Thank you! Your inquiry has been sent.';m.classList.remove('hidden');e.target.reset();setTimeout(()=>m.classList.add('hidden'),5000);}
+document.getElementById('cartToggle').addEventListener('click', openCart);
+document.getElementById('cartOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeCart(); });
+document.getElementById('productModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
-renderProducts(products);lucide.createIcons();
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 100) { nav.style.boxShadow = '0 1px 2px 0 rgba(0,0,0,0.05)'; nav.style.borderBottom = '1px solid rgba(231,229,228,0.5)'; }
+  else { nav.style.boxShadow = 'none'; nav.style.borderBottom = 'none'; }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeCart(); closeModal(); closeMobile(); document.getElementById('searchBar').classList.add('hidden'); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchToggle').click(); }
+});
+
+function submitForm(e) {
+  e.preventDefault();
+  const msg = document.getElementById('formMsg');
+  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
+  msg.classList.remove('hidden');
+  e.target.reset();
+  setTimeout(() => msg.classList.add('hidden'), 5000);
+}
+
+// ==================== INIT ====================
+renderProducts(products);
+lucide.createIcons();
 </script>
 </body>
 </html>
