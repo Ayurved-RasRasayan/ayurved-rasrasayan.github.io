@@ -11,15 +11,14 @@ app.use(express.json());
 app.use(cors());
 
 // --- EMAIL CONFIGURATION ---
-// Using manual SMTP for better stability
-// NEW BLOCK (Fixed for Render)
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,           // Changed from 465 to 587
-  secure: false,          // Changed from true to false (Required for 587)
+  port: 587,
+  secure: false, 
   auth: {
-    user: process.env.sales.naturabotanica20@gmail.com,
-    pass: process.env.wqeh bmye rybo fenf
+    // Use these exact KEY NAMES:
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS
   }
 });
 
