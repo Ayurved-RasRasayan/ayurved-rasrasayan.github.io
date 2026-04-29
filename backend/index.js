@@ -10,12 +10,12 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// --- EMAIL CONFIGURATION (Gmail Automatic) ---
+// --- EMAIL CONFIGURATION (OUTLOOK FIX) ---
 const transporter = nodemailer.createTransport({
-  service: 'gmail', 
+  service: 'outlook', // Using Outlook instead of Gmail
   auth: {
-    user: process.env.EMAIL_USER, // e.g., 'yourname@gmail.com'
-    pass: process.env.EMAIL_PASS  // Your 16-char App Password
+    user: process.env.EMAIL_USER, // Must be your new @outlook.com email
+    pass: process.env.EMAIL_PASS  // Must be your Outlook App Password
   }
 });
 
