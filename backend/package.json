@@ -1,13 +1,14 @@
+
 {
-  "name": "ayurveda-backend",
+  "name": "natura-backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "mongoose": "^8.0.3"
+    "pg": "^8.11.0"
   }
 }
