@@ -12,13 +12,14 @@ app.use(cors());
 
 // --- EMAIL CONFIGURATION ---
 // Using manual SMTP for better stability
+// NEW BLOCK (Fixed for Render)
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, 
+  port: 587,           // Changed from 465 to 587
+  secure: false,          // Changed from true to false (Required for 587)
   auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASS  // Your App Password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
