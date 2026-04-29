@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const nodemailer = require('nodemailer'); // <--- 1. Import Nodemailer
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,6 +9,16 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// 2. Configure Email Transporter
+// We use Environment Variables for security (You will set this in Render)
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // You can change this to 'outlook' or use custom host settings
+  auth: {
+    user: process.env.EMAIL_USER, // Your email (e.g., 'yourname@gmail.com')
+    pass: process.env.EMAIL_PASS  // Your App Password (NOT your login password)
+  }
+});
 
 // Database Connection
 const pool = new Pool({
@@ -26,7 +37,7 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// 1. Create Table if it doesn't exist
+// Create Table
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
@@ -39,24 +50,21 @@ const createTableQuery = `
     client_name VARCHAR,
     client_phone VARCHAR,
     client_email VARCHAR,
+    status VARCHAR DEFAULT 'Pending',
     timestamp TIMESTAMP
   );
 `;
 
 pool.query(createTableQuery, (err, res) => {
   if (err) console.error("❌ Error creating table", err);
-  else console.log("📊 Table 'orders' structure verified.");
+  else console.log("📊 Table 'orders' is ready");
 });
 
-// 2. FIX: Add 'status' column if it is missing (CRITICAL FOR OLD TABLES)
+// Fix: Add status column if missing
 const alterTableQuery = `ALTER TABLE orders ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'Pending';`;
 pool.query(alterTableQuery, (err, res) => {
-    if (err) {
-        // If error is something other than "already exists", log it
-        console.error("❌ Error updating table schema:", err);
-    } else {
-        console.log("🔧 Database updated: 'status' column is now available.");
-    }
+    if (err) console.error("❌ Error updating table schema:", err);
+    else console.log("🔧 Database updated: 'status' column is now available.");
 });
 
 // --- ROUTE 1: Receive Order ---
@@ -74,12 +82,51 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// --- ROUTE 2: Update Order Status ---
+// --- ROUTE 2: Update Order Status & SEND EMAIL ---
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
-    // This query will now work because the column exists
+
+    // 1. Update the Status in Database
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
+
+    // 2. Fetch Order Details (to get the email)
+    const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+    const order = orderResult.rows[0];
+
+    // 3. Send Email if Email exists
+    if (order && order.client_email) {
+      try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: order.client_email,
+          subject: `Order #${id} Status Update`,
+          html: `
+            <h2>NaturaBotanica - Order Update</h2>
+            <p>Hi <strong>${order.client_name}</strong>,</p>
+            <p>Your order status has been updated to:</p>
+            <h3 style="color: ${status === 'Rejected' ? 'red' : 'green'}; background: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block;">
+              ${status}
+            </h3>
+            <p><strong>Order Details:</strong></p>
+            <ul>
+                <li>Total: $${order.total_usd} (${order.total_npr} NPR)</li>
+                <li>Items: ${order.items ? JSON.parse(order.items).length : 0}</li>
+            </ul>
+            <p>Thank you for shopping with NaturaBotanica!</p>
+            <hr>
+            <small>Contact us at sales@naturabotanica.com if you have questions.</small>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Email sent to ${order.client_email} for Order #${id}`);
+      } catch (emailError) {
+        console.error('❌ Error sending email:', emailError.message);
+        // We don't crash the app if email fails, status is still saved!
+      }
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('❌ Error updating status:', error);
@@ -98,33 +145,17 @@ app.get('/view-orders', async (req, res) => {
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; margin-bottom: 30px; }
         h1 { color: #1f2937; }
-        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         th { background: #1f2937; color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
         td { padding: 15px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
-        
-        /* Dropdown Styling */
-        select.status-select {
-          padding: 8px 12px;
-          border-radius: 6px;
-          border: 1px solid #d1d5db;
-          font-size: 13px;
-          font-weight: 500;
-          cursor: pointer;
-          outline: none;
-          transition: all 0.2s;
-          width: 140px;
-        }
+        select.status-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; transition: all 0.2s; width: 140px; }
         select.status-select:focus { border-color: #A3B14B; box-shadow: 0 0 0 2px rgba(163, 177, 75, 0.2); }
-        
-        /* Status Colors */
         .status-Pending { background-color: #fff7ed; color: #b45309; border-color: #fcd34d; }
         .status-Shipping { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
         .status-Completed { background-color: #f0fdf4; color: #15803d; border-color: #86efac; }
         .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
         .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; }
-        
         .price { font-weight: bold; font-family: monospace; }
         .client-email { color: #6b7280; font-size: 13px; }
       </style>
@@ -157,29 +188,16 @@ app.get('/view-orders', async (req, res) => {
         let itemsCount = 0;
         try { if(row.items) itemsCount = JSON.parse(row.items).length; } 
         catch(e) { /* ignore */ }
-
-        // Handle potential null status by defaulting to Pending
         let currentStatus = row.status || 'Pending';
         let currentStatusClass = `status-${currentStatus}`;
 
         html += `
           <tr>
             <td><strong>#${row.id}</strong></td>
+            <td><div>${new Date(row.timestamp).toLocaleDateString()}</div><small style="color:#9ca3af">${new Date(row.timestamp).toLocaleTimeString()}</small></td>
+            <td><div style="font-weight:600">${row.client_name || 'Guest'}</div><div class="client-email">${row.client_phone || ''}</div><div class="client-email">${row.client_email || ''}</div></td>
+            <td><div class="price">$${row.total_usd}</div><small style="color:#6b7280">${row.total_npr} NPR</small></td>
             <td>
-              <div>${new Date(row.timestamp).toLocaleDateString()}</div>
-              <small style="color:#9ca3af">${new Date(row.timestamp).toLocaleTimeString()}</small>
-            </td>
-            <td>
-              <div style="font-weight:600">${row.client_name || 'Guest'}</div>
-              <div class="client-email">${row.client_phone || ''}</div>
-              <div class="client-email">${row.client_email || ''}</div>
-            </td>
-            <td>
-              <div class="price">$${row.total_usd}</div>
-              <small style="color:#6b7280">${row.total_npr} NPR</small>
-            </td>
-            <td>
-              <!-- INTERACTIVE DROPDOWN -->
               <select onchange="updateStatus(${row.id}, this.value)" class="status-select ${currentStatusClass}">
                 <option value="Pending" ${currentStatus === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
                 <option value="Shipping" ${currentStatus === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
@@ -196,18 +214,11 @@ app.get('/view-orders', async (req, res) => {
     html += `
             </table>
           </div>
-
           <script>
             async function updateStatus(id, newStatus) {
               const selectElement = event.target;
-              
               try {
-                const response = await fetch('/update-status', {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ id: id, status: newStatus })
-                });
-                
+                const response = await fetch('/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: newStatus }) });
                 const data = await response.json();
                 if(data.success) {
                   selectElement.className = 'status-select status-' + newStatus;
@@ -225,7 +236,6 @@ app.get('/view-orders', async (req, res) => {
       </html>
     `;
     res.send(html);
-
   } catch (err) {
     console.error('Full Error:', err);
     res.status(500).send(`<div style="color:red; padding:20px;"><h3>Error retrieving orders</h3><p>${err.message}</p></div>`);
