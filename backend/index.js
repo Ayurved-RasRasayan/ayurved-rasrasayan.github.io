@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({
   port: 587,           // Changed from 465 to 587
   secure: false,          // Changed from true to false (Required for 587)
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.sales.naturabotanica20@gmail.com,
+    pass: process.env.wqeh bmye rybo fenf
   }
 });
 
