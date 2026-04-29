@@ -10,15 +10,12 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// --- EMAIL CONFIGURATION ---
+// --- EMAIL CONFIGURATION (Gmail Automatic) ---
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, 
+  service: 'gmail', 
   auth: {
-    // Use these exact KEY NAMES:
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER, // e.g., 'yourname@gmail.com'
+    pass: process.env.EMAIL_PASS  // Your 16-char App Password
   }
 });
 
