@@ -100,7 +100,7 @@ app.put('/update-status', async (req, res) => {
     if (order && order.client_email) {
       try {
         const mailOptions = {
-          from: process.env.EMAIL_USER,
+          from: 'sales.herb4mktm@outlook.com', // Your sender email
           to: order.client_email,
           subject: `Order #${id} Status Update: ${status}`,
           html: `
