@@ -13,7 +13,7 @@ app.use(cors());
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // Required for Render Postgres
+    rejectUnauthorized: false
   }
 });
 
@@ -26,7 +26,7 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// Create Table if it doesn't exist
+// Create Table if it doesn't exist (Added status column)
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
@@ -39,153 +39,186 @@ const createTableQuery = `
     client_name VARCHAR,
     client_phone VARCHAR,
     client_email VARCHAR,
+    status VARCHAR DEFAULT 'Pending',
     timestamp TIMESTAMP
   );
 `;
 
 pool.query(createTableQuery, (err, res) => {
   if (err) console.error("❌ Error creating table", err);
-  else console.log("📊 Table 'orders' is ready to accept data");
+  else console.log("📊 Table 'orders' is ready with interactive status");
 });
 
-// --- ROUTE 1: Receive Order (Frontend -> Backend) ---
+// --- ROUTE 1: Receive Order ---
 app.post('/order', async (req, res) => {
   try {
-    const { 
-      items, 
-      totalUSD, 
-      totalNPR, 
-      paidAmount, 
-      currency, 
-      paymentMethod, 
-      clientDetails,
-      timestamp 
-    } = req.body;
-
-    // Insert into Database
-    const query = `
-      INSERT INTO orders (
-        items, total_usd, total_npr, paid_amount, currency, 
-        payment_method, client_name, client_phone, client_email, timestamp
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING id;
-    `;
-
-    const values = [
-      JSON.stringify(items),
-      totalUSD,
-      totalNPR,
-      paidAmount,
-      currency,
-      paymentMethod,
-      clientDetails.name,
-      clientDetails.phone,
-      clientDetails.email,
-      timestamp
-    ];
-
+    const { items, totalUSD, totalNPR, paidAmount, currency, paymentMethod, clientDetails, timestamp } = req.body;
+    const query = `INSERT INTO orders (items, total_usd, total_npr, paid_amount, currency, payment_method, client_name, client_phone, client_email, timestamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id;`;
+    const values = [JSON.stringify(items), totalUSD, totalNPR, paidAmount, currency, paymentMethod, clientDetails.name, clientDetails.phone, clientDetails.email, timestamp];
     const result = await pool.query(query, values);
-    
     console.log(`📝 New Order #${result.rows[0].id} from ${clientDetails.name}`);
-    
-    res.status(200).json({ 
-      success: true, 
-      orderId: result.rows[0].id,
-      message: 'Order saved successfully' 
-    });
-
+    res.status(200).json({ success: true, orderId: result.rows[0].id });
   } catch (error) {
     console.error('❌ Error saving order:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// --- ROUTE 2: View Orders (Admin Dashboard) ---
+// --- ROUTE 2: Update Order Status ---
+app.put('/update-status', async (req, res) => {
+  try {
+    const { id, status } = req.body;
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ success: false });
+  }
+});
+
+// --- ROUTE 3: View Orders (Interactive Dashboard) ---
 app.get('/view-orders', async (req, res) => {
   try {
-    // Fetch orders, newest first
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
     
-    // Create an HTML Table to display orders
+    // CSS Styles for Dashboard
+    const styles = `
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background: #f3f4f6; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #1f2937; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        th { background: #1f2937; color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 15px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Dropdown Styling */
+        select.status-select {
+          padding: 6px 12px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          outline: none;
+          transition: all 0.2s;
+        }
+        select.status-select:focus { border-color: #A3B14B; box-shadow: 0 0 0 2px rgba(163, 177, 75, 0.2); }
+        
+        /* Status Colors */
+        .status-Pending { background-color: #fffbeb; color: #b45309; border-color: #fcd34d; }
+        .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; }
+        .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        
+        .price { font-weight: bold; font-family: monospace; }
+        .client-email { color: #6b7280; font-size: 13px; }
+      </style>
+    `;
+
     let html = `
       <html>
-        <head>
-          <title>Order List</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-            table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-            th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-            th { background-color: #333; color: white; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .amount { color: green; font-weight: bold; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .error { color: red; }
-          </style>
-        </head>
+        <head><title>Order Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">${styles}</head>
         <body>
-          <div class="header">
-            <h1>📦 NaturaBotanica Orders</h1>
-            <p>Latest transactions from database</p>
-          </div>
-          <table>
-            <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Method</th>
-              <th>Currency</th>
-              <th>Amount</th>
-              <th>Items Count</th>
-            </tr>
+          <div class="container">
+            <div class="header">
+              <h1>📦 NaturaBotanica Orders</h1>
+              <p>Select status to update order state</p>
+            </div>
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Client Info</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+              </tr>
     `;
 
     if (result.rows.length === 0) {
-      html += `<tr><td colspan="9" style="text-align:center">No orders found yet.</td></tr>`;
+      html += `<tr><td colspan="5" style="text-align:center; padding: 40px; color: #9ca3af;">No orders found.</td></tr>`;
     } else {
       result.rows.forEach(row => {
-        // --- SAFE PARSING FIX ---
-        // We check if items is valid JSON, if not, we show 0 instead of crashing
         let itemsCount = 0;
-        try {
-            if (row.items) {
-                const parsedItems = JSON.parse(row.items);
-                itemsCount = parsedItems ? parsedItems.length : 0;
-            }
-        } catch (e) {
-            console.warn(`Skipping bad JSON in Order #${row.id}`);
-        }
+        try { if(row.items) itemsCount = JSON.parse(row.items).length; } 
+        catch(e) { /* ignore */ }
+
+        // Ensure current status has a class, default to Pending
+        let currentStatusClass = `status-${row.status || 'Pending'}`;
 
         html += `
           <tr>
-            <td><strong>${row.id}</strong></td>
-            <td>${new Date(row.timestamp).toLocaleString()}</td>
-            <td>${row.client_name || '-'}</td>
-            <td>${row.client_email || '-'}</td>
-            <td>${row.client_phone || '-'}</td>
-            <td>${row.payment_method || '-'}</td>
-            <td>${row.currency || '-'}</td>
-            <td class="amount">$${row.total_usd} (${row.total_npr})</td>
-            <td>${itemsCount}</td>
+            <td><strong>#${row.id}</strong></td>
+            <td>
+              <div>${new Date(row.timestamp).toLocaleDateString()}</div>
+              <small style="color:#9ca3af">${new Date(row.timestamp).toLocaleTimeString()}</small>
+            </td>
+            <td>
+              <div style="font-weight:600">${row.client_name || 'Guest'}</div>
+              <div class="client-email">${row.client_phone || ''}</div>
+              <div class="client-email">${row.client_email || ''}</div>
+            </td>
+            <td>
+              <div class="price">$${row.total_usd}</div>
+              <small style="color:#6b7280">${row.total_npr} NPR</small>
+            </td>
+            <td>
+              <!-- INTERACTIVE DROPDOWN -->
+              <select onchange="updateStatus(${row.id}, this.value)" class="status-select ${currentStatusClass}">
+                <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                <option value="Success" ${row.status === 'Success' ? 'selected' : ''}>✅ Success</option>
+                <option value="Rejected" ${row.status === 'Rejected' ? 'selected' : ''}>🚫 Rejected</option>
+              </select>
+            </td>
           </tr>
         `;
       });
     }
 
-    html += `</table></body></html>`;
+    html += `
+            </table>
+          </div>
+
+          <script>
+            async function updateStatus(id, newStatus) {
+              // Show visual feedback
+              const selectElement = event.target;
+              
+              try {
+                const response = await fetch('/update-status', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ id: id, status: newStatus })
+                });
+                
+                const data = await response.json();
+                if(data.success) {
+                  // Update the class of the dropdown immediately (Colors change without reload)
+                  selectElement.className = 'status-select status-' + newStatus;
+                  console.log('Order #' + id + ' updated to ' + newStatus);
+                } else {
+                  alert('Failed to update status');
+                }
+              } catch (error) {
+                console.error(error);
+                alert('Error connecting to server');
+              }
+            }
+          </script>
+        </body>
+      </html>
+    `;
     res.send(html);
 
   } catch (err) {
-    // Log the full error object to console so we can debug later
     console.error('Full Error:', err);
-    // Send detailed error to screen
-    res.status(500).send(`<div class="error"><h3>Error retrieving orders</h3><p>${err.message}</p><pre>${JSON.stringify(err)}</pre></div>`);
+    res.status(500).send(`<div style="color:red; padding:20px;"><h3>Error retrieving orders</h3><p>${err.message}</p></div>`);
   }
 });
 
-// Root Endpoint (Health Check)
+// Root Endpoint
 app.get('/', (req, res) => {
   res.send('NaturaBotanica Backend is Running ✅');
 });
