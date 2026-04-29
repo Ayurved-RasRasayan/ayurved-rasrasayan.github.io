@@ -120,6 +120,7 @@ app.get('/view-orders', async (req, res) => {
             tr:nth-child(even) { background-color: #f9f9f9; }
             .amount { color: green; font-weight: bold; }
             .header { text-align: center; margin-bottom: 20px; }
+            .error { color: red; }
           </style>
         </head>
         <body>
@@ -137,7 +138,7 @@ app.get('/view-orders', async (req, res) => {
               <th>Method</th>
               <th>Currency</th>
               <th>Amount</th>
-              <th>Items</th>
+              <th>Items Count</th>
             </tr>
     `;
 
@@ -145,18 +146,27 @@ app.get('/view-orders', async (req, res) => {
       html += `<tr><td colspan="9" style="text-align:center">No orders found yet.</td></tr>`;
     } else {
       result.rows.forEach(row => {
-        // Count items in the JSON array
-        const itemsCount = JSON.parse(row.items).length;
-        
+        // --- SAFE PARSING FIX ---
+        // We check if items is valid JSON, if not, we show 0 instead of crashing
+        let itemsCount = 0;
+        try {
+            if (row.items) {
+                const parsedItems = JSON.parse(row.items);
+                itemsCount = parsedItems ? parsedItems.length : 0;
+            }
+        } catch (e) {
+            console.warn(`Skipping bad JSON in Order #${row.id}`);
+        }
+
         html += `
           <tr>
             <td><strong>${row.id}</strong></td>
             <td>${new Date(row.timestamp).toLocaleString()}</td>
-            <td>${row.client_name}</td>
-            <td>${row.client_email}</td>
-            <td>${row.client_phone}</td>
-            <td>${row.payment_method}</td>
-            <td>${row.currency}</td>
+            <td>${row.client_name || '-'}</td>
+            <td>${row.client_email || '-'}</td>
+            <td>${row.client_phone || '-'}</td>
+            <td>${row.payment_method || '-'}</td>
+            <td>${row.currency || '-'}</td>
             <td class="amount">$${row.total_usd} (${row.total_npr})</td>
             <td>${itemsCount}</td>
           </tr>
@@ -168,7 +178,10 @@ app.get('/view-orders', async (req, res) => {
     res.send(html);
 
   } catch (err) {
-    res.status(500).send("Error retrieving orders: " + err.message);
+    // Log the full error object to console so we can debug later
+    console.error('Full Error:', err);
+    // Send detailed error to screen
+    res.status(500).send(`<div class="error"><h3>Error retrieving orders</h3><p>${err.message}</p><pre>${JSON.stringify(err)}</pre></div>`);
   }
 });
 
