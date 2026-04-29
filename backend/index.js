@@ -26,7 +26,7 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// Create Table if it doesn't exist (Added status column)
+// Create Table if it doesn't exist
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
@@ -46,7 +46,7 @@ const createTableQuery = `
 
 pool.query(createTableQuery, (err, res) => {
   if (err) console.error("❌ Error creating table", err);
-  else console.log("📊 Table 'orders' is ready with interactive status");
+  else console.log("📊 Table 'orders' is ready");
 });
 
 // --- ROUTE 1: Receive Order ---
@@ -81,7 +81,7 @@ app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
     
-    // CSS Styles for Dashboard
+    // CSS Styles
     const styles = `
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background: #f3f4f6; }
@@ -96,7 +96,7 @@ app.get('/view-orders', async (req, res) => {
         
         /* Dropdown Styling */
         select.status-select {
-          padding: 6px 12px;
+          padding: 8px 12px;
           border-radius: 6px;
           border: 1px solid #d1d5db;
           font-size: 13px;
@@ -104,13 +104,16 @@ app.get('/view-orders', async (req, res) => {
           cursor: pointer;
           outline: none;
           transition: all 0.2s;
+          width: 140px;
         }
         select.status-select:focus { border-color: #A3B14B; box-shadow: 0 0 0 2px rgba(163, 177, 75, 0.2); }
         
         /* Status Colors */
-        .status-Pending { background-color: #fffbeb; color: #b45309; border-color: #fcd34d; }
-        .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; }
-        .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .status-Pending { background-color: #fff7ed; color: #b45309; border-color: #fcd34d; } /* Yellow */
+        .status-Shipping { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* Blue */
+        .status-Completed { background-color: #f0fdf4; color: #15803d; border-color: #86efac; } /* Dark Green */
+        .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; } /* Red */
+        .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; } /* Green */
         
         .price { font-weight: bold; font-family: monospace; }
         .client-email { color: #6b7280; font-size: 13px; }
@@ -125,7 +128,7 @@ app.get('/view-orders', async (req, res) => {
           <div class="container">
             <div class="header">
               <h1>📦 NaturaBotanica Orders</h1>
-              <p>Select status to update order state</p>
+              <p>Manage sales, shipping, and fulfillment</p>
             </div>
             <table>
               <tr>
@@ -145,7 +148,7 @@ app.get('/view-orders', async (req, res) => {
         try { if(row.items) itemsCount = JSON.parse(row.items).length; } 
         catch(e) { /* ignore */ }
 
-        // Ensure current status has a class, default to Pending
+        // Determine current status class
         let currentStatusClass = `status-${row.status || 'Pending'}`;
 
         html += `
@@ -168,7 +171,9 @@ app.get('/view-orders', async (req, res) => {
               <!-- INTERACTIVE DROPDOWN -->
               <select onchange="updateStatus(${row.id}, this.value)" class="status-select ${currentStatusClass}">
                 <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
-                <option value="Success" ${row.status === 'Success' ? 'selected' : ''}>✅ Success</option>
+                <option value="Shipping" ${row.status === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+                <option value="Completed" ${row.status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                <option value="Success" ${row.status === 'Success' ? 'selected' : ''}>Success</option>
                 <option value="Rejected" ${row.status === 'Rejected' ? 'selected' : ''}>🚫 Rejected</option>
               </select>
             </td>
@@ -183,7 +188,6 @@ app.get('/view-orders', async (req, res) => {
 
           <script>
             async function updateStatus(id, newStatus) {
-              // Show visual feedback
               const selectElement = event.target;
               
               try {
@@ -195,7 +199,7 @@ app.get('/view-orders', async (req, res) => {
                 
                 const data = await response.json();
                 if(data.success) {
-                  // Update the class of the dropdown immediately (Colors change without reload)
+                  // Update the class (Color) of the dropdown immediately
                   selectElement.className = 'status-select status-' + newStatus;
                   console.log('Order #' + id + ' updated to ' + newStatus);
                 } else {
