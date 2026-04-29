@@ -10,12 +10,14 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// --- EMAIL CONFIGURATION (OUTLOOK FIX) ---
+// --- EMAIL CONFIGURATION (Outlook Manual) ---
 const transporter = nodemailer.createTransport({
-  service: 'outlook', // Using Outlook instead of Gmail
+  host: 'smtp.office365.com', // Updated to latest Outlook server
+  port: 587,
+  secure: false, 
   auth: {
-    user: process.env.EMAIL_USER, // Must be your new @outlook.com email
-    pass: process.env.EMAIL_PASS  // Must be your Outlook App Password
+    user: process.env.EMAIL_USER, // sales.herb4mktm@outlook.com
+    pass: process.env.EMAIL_PASS
   }
 });
 
