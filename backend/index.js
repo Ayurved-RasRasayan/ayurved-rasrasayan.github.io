@@ -10,13 +10,13 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// --- EMAIL CONFIGURATION (Outlook Manual) ---
+// --- EMAIL CONFIGURATION (Outlook Plan B) ---
 const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com', // Updated to latest Outlook server
-  port: 587,
-  secure: false, 
+  host: 'smtp.office365.com',
+  port: 465,       // Try SSL port
+  secure: true,     // TRUE for 465
   auth: {
-    user: process.env.EMAIL_USER, // sales.herb4mktm@outlook.com
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
 });
