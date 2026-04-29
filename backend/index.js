@@ -26,7 +26,7 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// Create Table if it doesn't exist
+// 1. Create Table if it doesn't exist
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
@@ -39,14 +39,24 @@ const createTableQuery = `
     client_name VARCHAR,
     client_phone VARCHAR,
     client_email VARCHAR,
-    status VARCHAR DEFAULT 'Pending',
     timestamp TIMESTAMP
   );
 `;
 
 pool.query(createTableQuery, (err, res) => {
   if (err) console.error("❌ Error creating table", err);
-  else console.log("📊 Table 'orders' is ready");
+  else console.log("📊 Table 'orders' structure verified.");
+});
+
+// 2. FIX: Add 'status' column if it is missing (CRITICAL FOR OLD TABLES)
+const alterTableQuery = `ALTER TABLE orders ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'Pending';`;
+pool.query(alterTableQuery, (err, res) => {
+    if (err) {
+        // If error is something other than "already exists", log it
+        console.error("❌ Error updating table schema:", err);
+    } else {
+        console.log("🔧 Database updated: 'status' column is now available.");
+    }
 });
 
 // --- ROUTE 1: Receive Order ---
@@ -68,10 +78,11 @@ app.post('/order', async (req, res) => {
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
+    // This query will now work because the column exists
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error updating status:', error);
+    console.error('❌ Error updating status:', error);
     res.status(500).json({ success: false });
   }
 });
@@ -81,7 +92,6 @@ app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
     
-    // CSS Styles
     const styles = `
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background: #f3f4f6; }
@@ -109,11 +119,11 @@ app.get('/view-orders', async (req, res) => {
         select.status-select:focus { border-color: #A3B14B; box-shadow: 0 0 0 2px rgba(163, 177, 75, 0.2); }
         
         /* Status Colors */
-        .status-Pending { background-color: #fff7ed; color: #b45309; border-color: #fcd34d; } /* Yellow */
-        .status-Shipping { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* Blue */
-        .status-Completed { background-color: #f0fdf4; color: #15803d; border-color: #86efac; } /* Dark Green */
-        .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; } /* Red */
-        .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; } /* Green */
+        .status-Pending { background-color: #fff7ed; color: #b45309; border-color: #fcd34d; }
+        .status-Shipping { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+        .status-Completed { background-color: #f0fdf4; color: #15803d; border-color: #86efac; }
+        .status-Rejected { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .status-Success { background-color: #dcfce7; color: #15803d; border-color: #86efac; }
         
         .price { font-weight: bold; font-family: monospace; }
         .client-email { color: #6b7280; font-size: 13px; }
@@ -148,8 +158,9 @@ app.get('/view-orders', async (req, res) => {
         try { if(row.items) itemsCount = JSON.parse(row.items).length; } 
         catch(e) { /* ignore */ }
 
-        // Determine current status class
-        let currentStatusClass = `status-${row.status || 'Pending'}`;
+        // Handle potential null status by defaulting to Pending
+        let currentStatus = row.status || 'Pending';
+        let currentStatusClass = `status-${currentStatus}`;
 
         html += `
           <tr>
@@ -170,11 +181,11 @@ app.get('/view-orders', async (req, res) => {
             <td>
               <!-- INTERACTIVE DROPDOWN -->
               <select onchange="updateStatus(${row.id}, this.value)" class="status-select ${currentStatusClass}">
-                <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
-                <option value="Shipping" ${row.status === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
-                <option value="Completed" ${row.status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
-                <option value="Success" ${row.status === 'Success' ? 'selected' : ''}>Success</option>
-                <option value="Rejected" ${row.status === 'Rejected' ? 'selected' : ''}>🚫 Rejected</option>
+                <option value="Pending" ${currentStatus === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                <option value="Shipping" ${currentStatus === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+                <option value="Completed" ${currentStatus === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                <option value="Success" ${currentStatus === 'Success' ? 'selected' : ''}>Success</option>
+                <option value="Rejected" ${currentStatus === 'Rejected' ? 'selected' : ''}>🚫 Rejected</option>
               </select>
             </td>
           </tr>
@@ -199,11 +210,10 @@ app.get('/view-orders', async (req, res) => {
                 
                 const data = await response.json();
                 if(data.success) {
-                  // Update the class (Color) of the dropdown immediately
                   selectElement.className = 'status-select status-' + newStatus;
                   console.log('Order #' + id + ' updated to ' + newStatus);
                 } else {
-                  alert('Failed to update status');
+                  alert('Server rejected update (Check logs)');
                 }
               } catch (error) {
                 console.error(error);
