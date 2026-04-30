@@ -2,6 +2,7 @@ import os
 import time
 import smtplib
 import threading
+import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -10,19 +11,18 @@ import psycopg2
 from dotenv import load_dotenv
 from flask import Flask
 
-# Load environment variables
+# ─── CONFIGURATION ─────────────────────────────────────────────────────────────
+# Load environment variables (works locally and on Render)
 load_dotenv()
 
 app = Flask(__name__)
 
-# ─── CONFIGURATION ─────────────────────────────────────────────────────────────
-DB_URL = os.environ.get('DATABASE_URL')
-EMAIL_USER = os.environ.get('EMAIL_USER')
-EMAIL_PASS = os.environ.get('EMAIL_PASS')
+DB_URL = os.environ.get("DATABASE_URL")
+EMAIL_USER = os.environ.get("EMAIL_USER")
+EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
 def build_email_html(order, status):
-    # Color mapping matching the original Node design
     status_colors = {
         'Pending':   {'bg': '#fff7ed', 'text': '#b45309', 'border': '#fcd34d'},
         'Shipping':  {'bg': '#eff6ff', 'text': '#1e40af', 'border': '#bfdbfe'},
@@ -36,7 +36,6 @@ def build_email_html(order, status):
     items_html = "<ul>"
     try:
         # If items is stored as string, parse it, otherwise assume dict/list
-        import json
         items = json.loads(order['items']) if isinstance(order['items'], str) else order['items']
         for item in items:
             items_html += f"<li>{item.get('name', 'Product')} (x{item.get('quantity', 1)})</li>"
@@ -73,7 +72,7 @@ def build_email_html(order, status):
     </div>
     """
 
-# ─── DATABASE & EMAIL WORKER ───────────────────────────────────────────────────
+# ─── EMAIL & DATABASE WORKER ───────────────────────────────────────────────────
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
@@ -93,16 +92,18 @@ def send_email(to_email, subject, html_body):
         return False
 
 def check_orders_and_send_emails():
-    print("🚀 Python Email Worker Started...")
+    print("🚀 Python Email Worker Started (Polling Database)...")
+    
     while True:
         conn = None
         try:
             # Connect to DB
+            # Note: We use sslmode='require' which is standard for cloud DBs like Render/Heroku
             conn = psycopg2.connect(DB_URL, sslmode='require')
             cursor = conn.cursor()
 
-            # 1. Find orders where email_sent is FALSE and status is NOT Pending
-            # (We usually don't email on 'Pending', only on status changes like Shipping/Completed)
+            # 1. Find orders needing emails
+            # Logic: email_sent is FALSE AND status is NOT Pending AND client_email exists
             query = """
                 SELECT id, client_email, client_name, status, total_usd, total_npr, items 
                 FROM orders 
@@ -115,13 +116,13 @@ def check_orders_and_send_emails():
             if orders:
                 print(f"📝 Found {len(orders)} orders requiring emails.")
                 
-                # Get column names from cursor description to map to dict
+                # Map column names to values
                 col_names = [desc[0] for desc in cursor.description]
 
                 for row in orders:
                     order = dict(zip(col_names, row))
                     
-                    # Send Email
+                    # 2. Send Email
                     html_content = build_email_html(order, order['status'])
                     success = send_email(
                         order['client_email'],
@@ -129,7 +130,7 @@ def check_orders_and_send_emails():
                         html_content
                     )
 
-                    # 2. Update DB to prevent re-sending
+                    # 3. Update DB to mark email as sent
                     if success:
                         update_query = "UPDATE orders SET email_sent = TRUE WHERE id = %s"
                         cursor.execute(update_query, (order['id'],))
@@ -138,22 +139,33 @@ def check_orders_and_send_emails():
         except Exception as e:
             print(f"❌ Worker Error: {e}")
         finally:
-            if conn: conn.close()
+            if conn: 
+                conn.close()
 
         # Sleep for 10 seconds before checking again
         time.sleep(10)
 
-# ─── FLASK ROUTES (For Health Check) ────────────────────────────────────────────
+# ─── FLASK ROUTES (Health Check) ────────────────────────────────────────────────
 @app.route('/')
 def home():
     return "🐍 Python Email Worker is Running"
 
-# Start worker in background thread
-if __name__ == '__main__':
-    # Start the email loop in a separate thread so Flask can run simultaneously
+# ─── INITIALIZATION (Gunicorn Compatibility) ───────────────────────────────────
+# When Gunicorn runs this app (via 'gunicorn app:app'), it imports this file.
+# It does NOT run the code inside 'if __name__ == "__main__"'.
+# Therefore, we must start the thread here in the global scope.
+# 
+# We use a simple check to ensure we don't start it if FLASK is reloading in debug mode,
+# though in production (Gunicorn), this condition is always valid.
+
+if not os.environ.get("FLASK_DEBUG"):
+    print("🔧 Initializing background thread for Gunicorn...")
     worker_thread = threading.Thread(target=check_orders_and_send_emails)
+    # Daemon=True ensures the thread dies when the main Gunicorn worker process dies/restarts
     worker_thread.daemon = True
     worker_thread.start()
 
-    # Run Flask (Default port 5000)
+# ─── LOCAL RUNNER (Only runs if you type 'python app.py' locally) ─────────────
+if __name__ == '__main__':
+    # This block is ignored by Gunicorn
     app.run(host='0.0.0.0', port=5000, use_reloader=False)
