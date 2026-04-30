@@ -25,9 +25,9 @@ API_SECRET = os.environ.get("API_SECRET", "change_me_to_something_secure")
 # ─── DATABASE CONNECTION (ROBUST FIX) ─────────────────────────────────────────
 def get_db_connection():
     try:
-        # connect_timeout=5: Prevents hanging. If DB is busy, fail fast.
-        # sslmode='allow': Prevents SSL handshake crashes on low-traffic instances.
         print("  📍 Attempting DB Connection...")
+        # connect_timeout=5: Prevents hanging
+        # sslmode='allow': Prevents SSL handshake crashes on Render
         conn = psycopg2.connect(
             DB_URL,
             sslmode='allow',
@@ -88,7 +88,7 @@ def build_email_html(order, status):
     </div>
     """
 
-# ─── EMAIL SENDER ──────────────────────────────────────────────────────────────
+# ─── EMAIL SENDER (FIXED TO PORT 587) ────────────────────────────────────────
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
@@ -97,9 +97,14 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        print(f"  📍 Connecting to Gmail SMTP...")
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10) as server:
-            print(f"  📍 SMTP Connected")
+        print(f"  📍 Connecting to Gmail SMTP (Port 587)...")
+        
+        # FIX: Using Port 587 with starttls() to fix "Network Unreachable" errors
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as server:
+            print(f"  📍 SMTP Connected. Starting TLS...")
+            server.starttls()
+            
+            print(f"  📍 Logging in...")
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
 
@@ -112,10 +117,12 @@ def send_email(to_email, subject, html_body):
 # ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────────────
 @app.route('/send-email', methods=['POST'])
 def trigger_instant_email():
+    # 1. Security Check
     secret = request.headers.get('X-API-SECRET')
     if secret != API_SECRET:
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
+    # 2. Get Order ID
     data = request.json
     order_id = data.get('id')
 
@@ -126,7 +133,6 @@ def trigger_instant_email():
     try:
         print(f"🔔 [WEBHOOK] Trigger for Order #{order_id}")
         
-        # Connect with safety wrapper
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -171,7 +177,6 @@ def check_orders_and_send_emails():
     while True:
         conn = None
         try:
-            # Connect with safety wrapper
             conn = get_db_connection()
             cursor = conn.cursor()
 
