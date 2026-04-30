@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 import psycopg2
+import psycopg2.extras  # Add this line
 from dotenv import load_dotenv
 from flask import Flask
 
