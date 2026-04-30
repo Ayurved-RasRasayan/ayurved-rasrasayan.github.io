@@ -1,16 +1,16 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const axios = require('axios'); // 1. Import Axios (must be in package.json)
+const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
-app.use(express.json());
+// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────────────
+app.use(express.json({ limit: '10mb' })); // Increased limit for images
 app.use(cors());
 
-// ─── DATABASE CONNECTION ──────────────────────────────────────────────────────
+// ─── DATABASE CONNECTION ──────────────────────────────────────────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
@@ -22,22 +22,23 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// ─── TABLE SETUP ──────────────────────────────────────────────────────────────
+// ─── TABLE SETUP ──────────────────────────────────────────────────────────────────────
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
-    id              SERIAL PRIMARY KEY,
-    items           JSONB,
-    total_usd       DECIMAL,
-    total_npr       DECIMAL,
-    paid_amount     DECIMAL,
-    currency        VARCHAR,
-    payment_method  VARCHAR,
-    client_name     VARCHAR,
-    client_phone    VARCHAR,
-    client_email    VARCHAR,
-    status          VARCHAR DEFAULT 'Pending',
-    email_sent      BOOLEAN DEFAULT FALSE,
-    timestamp       TIMESTAMP
+    id                  SERIAL PRIMARY KEY,
+    items               JSONB,
+    total_usd           DECIMAL,
+    total_npr           DECIMAL,
+    paid_amount         DECIMAL,
+    currency            VARCHAR,
+    payment_method      VARCHAR,
+    client_name         VARCHAR,
+    client_phone        VARCHAR,
+    client_email        VARCHAR,
+    payment_screenshot TEXT, -- NEW COLUMN FOR IMAGE
+    status              VARCHAR DEFAULT 'Pending',
+    email_sent          BOOLEAN DEFAULT FALSE,
+    timestamp           TIMESTAMP
   );
 `;
 
@@ -57,18 +58,24 @@ pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS email_sent BOOLEAN DEFAU
   else console.log("🔧 'email_sent' column verified");
 });
 
+pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_screenshot TEXT;`, (err) => {
+  if (err) console.error('❌ Error updating payment_screenshot column:', err);
+  else console.log("🔧 'payment_screenshot' column verified");
+});
+
 // ─── ROUTE 1: Receive New Order ───────────────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
     const {
       items, totalUSD, totalNPR, paidAmount,
-      currency, paymentMethod, clientDetails, timestamp
+      currency, paymentMethod, clientDetails, timestamp,
+      paymentScreenshot // NEW FIELD
     } = req.body;
 
     const query = `
       INSERT INTO orders
         (items, total_usd, total_npr, paid_amount, currency,
-         payment_method, client_name, client_phone, client_email, timestamp)
+         payment_method, client_name, client_phone, client_email, payment_screenshot, timestamp)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING id;
     `;
@@ -76,6 +83,7 @@ app.post('/order', async (req, res) => {
       JSON.stringify(items), totalUSD, totalNPR, paidAmount,
       currency, paymentMethod,
       clientDetails.name, clientDetails.phone, clientDetails.email,
+      paymentScreenshot, // STORE IMAGE
       timestamp
     ];
 
@@ -103,11 +111,9 @@ app.put('/update-status', async (req, res) => {
 
     // 2. Trigger Instant Email to Python (Webhook)
     const pythonUrl = 'https://ayurved-rasrasayan-github-io-1.onrender.com/send-email'; 
-    // Use ENV variable if set, otherwise fallback string
     const apiSecret = process.env.API_SECRET || 'change_this_to_a_random_string';
 
     try {
-        // Send request to Python
         const response = await axios.post(pythonUrl, 
             { id: id }, 
             { 
@@ -115,7 +121,7 @@ app.put('/update-status', async (req, res) => {
                     'X-API-SECRET': apiSecret,
                     'Content-Type': 'application/json'
                 },
-                timeout: 5000 // Wait max 5 seconds for Python to respond
+                timeout: 5000
             }
         );
 
@@ -123,8 +129,6 @@ app.put('/update-status', async (req, res) => {
             console.log(`📧 [Instant] Email dispatched for Order #${id}`);
         }
     } catch (emailError) {
-        // If Python is sleeping (Cold Start), this might fail.
-        // That's okay! The background thread will catch it shortly.
         console.log(`⚠️ Python Webhook failed (Server sleeping?): ${emailError.message}. Background worker will retry.`);
     }
 
@@ -178,7 +182,7 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
+// ─── ROUTE 5: Admin Order Dashboard (UPDATED WITH IMAGE VIEW) ──────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -241,11 +245,30 @@ app.get('/view-orders', async (req, res) => {
           }
           .btn-delete-single:hover { background: #fca5a5; }
           .btn-delete-single:disabled { opacity: 0.4; cursor: not-allowed; }
+          
+          /* Image Styles */
+          .screenshot-thumb {
+            width: 40px; height: 40px; object-fit: cover;
+            border-radius: 4px; border: 1px solid #eee;
+            cursor: pointer;
+            transition: transform 0.2s;
+          }
+          .screenshot-thumb:hover { transform: scale(2); z-index: 10; }
+          
           #toast {
             position: fixed; bottom: 20px; right: 20px;
             background: #333; color: #fff; padding: 12px 24px;
             border-radius: 4px; display: none; z-index: 999;
           }
+          
+          /* Modal for viewing full image */
+          #imgModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+          }
+          #imgModal img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+          .close-img { position: absolute; top: 20px; right: 20px; color: white; cursor: pointer; font-size: 40px; }
         </style>
       </head>
       <body>
@@ -268,8 +291,8 @@ app.get('/view-orders', async (req, res) => {
                   <th>ID</th>
                   <th>Client</th>
                   <th>Amount</th>
+                  <th>Payment</th>
                   <th>Status</th>
-                  <th>Email Sent</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -289,6 +312,11 @@ app.get('/view-orders', async (req, res) => {
                     </td>
                     <td>$${row.total_usd}</td>
                     <td>
+                      ${row.payment_screenshot ? 
+                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Screenshot" title="Click to view screenshot">` : 
+                        '<span style="color:#ccc; font-size:12px;">No Proof</span>'}
+                    </td>
+                    <td>
                       <select
                         onchange="updateStatus(${row.id}, this.value, this)"
                         class="status-select status-${status}"
@@ -300,7 +328,6 @@ app.get('/view-orders', async (req, res) => {
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
                     </td>
-                    <td>${row.email_sent ? '✅ Yes' : '⏳ Queued'}</td>
                     <td>
                       <button class="btn-delete-single"
                         onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button>
@@ -314,6 +341,12 @@ app.get('/view-orders', async (req, res) => {
         </div>
 
         <div id="toast"></div>
+        
+        <!-- Full Image Modal -->
+        <div id="imgModal" onclick="this.style.display='none'">
+          <span class="close-img">&times;</span>
+          <img id="fullImage" src="" alt="Full Payment Proof" onclick="event.stopPropagation()">
+        </div>
 
         <script>
           function showToast(msg) {
@@ -321,6 +354,13 @@ app.get('/view-orders', async (req, res) => {
             t.textContent = msg;
             t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3000);
+          }
+
+          function openImage(src) {
+            const m = document.getElementById('imgModal');
+            const img = document.getElementById('fullImage');
+            img.src = src;
+            m.style.display = 'flex';
           }
 
           function getCheckedIds() {
