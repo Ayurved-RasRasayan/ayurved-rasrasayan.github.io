@@ -21,14 +21,15 @@ DB_URL     = os.environ.get("DATABASE_URL")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
-# ─── DATABASE CONNECTION ───────────────────────────────────────────────────────
+# ─── DATABASE CONNECTION (FIXED) ───────────────────────────────────────────────
+# We pass sslmode and timeout as separate arguments.
+# This is more reliable than modifying the URL string.
 def get_db_connection():
-    url = DB_URL
-    if "sslmode=" not in url:
-        url += "?sslmode=require&connect_timeout=10"
-    else:
-        url += "&connect_timeout=10"
-    return psycopg2.connect(url)
+    return psycopg2.connect(
+        DB_URL,
+        sslmode='require',
+        connect_timeout=10
+    )
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
 def build_email_html(order, status):
@@ -88,6 +89,7 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
+        # Using SMTP_SSL (Port 465) for stability
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
@@ -101,6 +103,8 @@ def send_email(to_email, subject, html_body):
 # ─── BACKGROUND WORKER ─────────────────────────────────────────────────────────
 def check_orders_and_send_emails():
     print("🚀 Email Worker Started...")
+    
+    # Print initial config for debugging
     print(f"🔍 DB_URL     = {DB_URL}")
     print(f"🔍 EMAIL_USER = {EMAIL_USER}")
     print(f"🔍 EMAIL_PASS = {'set ✅' if EMAIL_PASS else 'NOT SET ❌'}")
@@ -172,6 +176,7 @@ def home():
     return "🐍 NaturaBotanica Email Worker is Running"
 
 # ─── START BACKGROUND THREAD ───────────────────────────────────────────────────
+# Only start the thread if not in debug mode (to prevent duplicate threads)
 _debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
 
 if not _debug_mode:
