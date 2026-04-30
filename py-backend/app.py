@@ -4,6 +4,7 @@ import smtplib
 import threading
 import json
 import traceback
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -26,8 +27,6 @@ API_SECRET = os.environ.get("API_SECRET", "change_me_to_something_secure")
 def get_db_connection():
     try:
         print("  📍 Attempting DB Connection...")
-        # connect_timeout=5: Prevents hanging
-        # sslmode='allow': Prevents SSL handshake crashes on Render
         conn = psycopg2.connect(
             DB_URL,
             sslmode='allow',
@@ -88,7 +87,7 @@ def build_email_html(order, status):
     </div>
     """
 
-# ─── EMAIL SENDER (FIXED TO PORT 587) ────────────────────────────────────────
+# ─── EMAIL SENDER (FORCE IPv4 FIX) ────────────────────────────────────────────
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
@@ -97,13 +96,28 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        print(f"  📍 Connecting to Gmail SMTP (Port 587)...")
+        print(f"  📍 Resolving Gmail IPv4 Address...")
         
-        # FIX: Using Port 587 with starttls() to fix "Network Unreachable" errors
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as server:
-            print(f"  📍 SMTP Connected. Starting TLS...")
+        # FIX: Force IPv4 connection to avoid "Network Unreachable" on Render
+        smtp_host = "smtp.gmail.com"
+        smtp_port = 587
+        
+        # Get IPv4 address info (AF_INET)
+        # getaddrinfo returns a list of tuples. [0] takes the first IPv4 result.
+        ai = socket.getaddrinfo(smtp_host, smtp_port, socket.AF_INET)[0]
+        
+        # Create the socket manually
+        raw_socket = socket.socket(ai[0], ai[1], ai[2])
+        raw_socket.settimeout(10)
+        
+        print(f"  📍 Connecting to {ai[4][0]} (IPv4) on port {smtp_port}...")
+        raw_socket.connect(ai[4])
+        
+        print(f"  📍 Socket Connected. Initializing SMTP...")
+        # Pass the connected socket to smtplib
+        with smtplib.SMTP(raw_socket) as server:
+            print(f"  📍 Starting TLS...")
             server.starttls()
-            
             print(f"  📍 Logging in...")
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
@@ -117,12 +131,10 @@ def send_email(to_email, subject, html_body):
 # ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────────────
 @app.route('/send-email', methods=['POST'])
 def trigger_instant_email():
-    # 1. Security Check
     secret = request.headers.get('X-API-SECRET')
     if secret != API_SECRET:
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    # 2. Get Order ID
     data = request.json
     order_id = data.get('id')
 
