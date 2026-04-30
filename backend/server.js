@@ -112,7 +112,7 @@ app.put('/update-status', async (req, res) => {
   }
 });
 
-// ─── ROUTE 3: Delete Order ────────────────────────────────────────────────────
+// ─── ROUTE 3: Delete Single Order ────────────────────────────────────────────
 app.delete('/delete-order/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -130,7 +130,30 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
-// ─── ROUTE 4: Admin Order Dashboard ──────────────────────────────────────────
+// ─── ROUTE 4: Delete Multiple Orders ─────────────────────────────────────────
+app.delete('/delete-orders', async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'No order IDs provided' });
+    }
+
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(',');
+    const result = await pool.query(
+      `DELETE FROM orders WHERE id = ANY(ARRAY[${placeholders}]::int[]) RETURNING id`,
+      ids
+    );
+
+    console.log(`🗑️ Deleted ${result.rowCount} order(s): ${ids.join(', ')}`);
+    res.json({ success: true, deleted: result.rows.map(r => r.id) });
+  } catch (error) {
+    console.error('❌ Error deleting orders:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -143,13 +166,40 @@ app.get('/view-orders', async (req, res) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>NaturaBotanica — Orders</title>
         <style>
+          * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
           .container { max-width: 1200px; margin: 0 auto; }
           h1 { color: #2d4a22; }
-          .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .toolbar {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px; flex-wrap: wrap;
+          }
+          .btn {
+            padding: 8px 16px; border-radius: 4px; border: none;
+            font-weight: bold; cursor: pointer; font-size: 14px;
+            transition: opacity 0.2s;
+          }
+          .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+          .btn-danger {
+            background: #fee2e2; color: #991b1b;
+            border: 1px solid #fca5a5;
+          }
+          .btn-danger:hover:not(:disabled) { background: #fca5a5; }
+          .btn-secondary {
+            background: #f3f4f6; color: #374151;
+            border: 1px solid #d1d5db;
+          }
+          .btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
+          .selected-count { color: #6b7280; font-size: 14px; }
+          .table-wrap {
+            background: #fff; border-radius: 8px;
+            overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
           table { width: 100%; border-collapse: collapse; }
           th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; }
           th { background: #2d4a22; color: white; }
+          tr.selected { background: #fef9c3; }
+          input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
           select.status-select {
             padding: 6px; border-radius: 4px; border: 1px solid #ccc;
             font-weight: bold; cursor: pointer;
@@ -159,14 +209,13 @@ app.get('/view-orders', async (req, res) => {
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
-          .btn-delete {
+          .btn-delete-single {
             background: #fee2e2; color: #991b1b;
             border: 1px solid #fca5a5; border-radius: 4px;
-            padding: 6px 12px; cursor: pointer; font-weight: bold;
-            transition: background 0.2s;
+            padding: 5px 10px; cursor: pointer; font-weight: bold;
           }
-          .btn-delete:hover { background: #fca5a5; }
-          .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+          .btn-delete-single:hover { background: #fca5a5; }
+          .btn-delete-single:disabled { opacity: 0.4; cursor: not-allowed; }
           #toast {
             position: fixed; bottom: 20px; right: 20px;
             background: #333; color: #fff; padding: 12px 24px;
@@ -177,10 +226,20 @@ app.get('/view-orders', async (req, res) => {
       <body>
         <div class="container">
           <h1>📦 NaturaBotanica Orders</h1>
+
+          <div class="toolbar">
+            <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
+            <button class="btn btn-danger" id="btn-delete-selected" disabled onclick="deleteSelected()">
+              🗑️ Delete Selected
+            </button>
+            <span class="selected-count" id="selected-count"></span>
+          </div>
+
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th>ID</th>
                   <th>Client</th>
                   <th>Amount</th>
@@ -194,6 +253,10 @@ app.get('/view-orders', async (req, res) => {
                   const status = row.status || 'Pending';
                   return `
                   <tr id="row-${row.id}">
+                    <td>
+                      <input type="checkbox" class="row-chk" value="${row.id}"
+                        onchange="onCheckboxChange()"/>
+                    </td>
                     <td>#${row.id}</td>
                     <td>
                       <strong>${row.client_name || 'Guest'}</strong><br>
@@ -214,10 +277,8 @@ app.get('/view-orders', async (req, res) => {
                     </td>
                     <td>${row.email_sent ? '✅ Yes' : '⏳ Queued'}</td>
                     <td>
-                      <button
-                        class="btn-delete"
-                        onclick="deleteOrder(${row.id}, this)"
-                      >🗑️ Delete</button>
+                      <button class="btn-delete-single"
+                        onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button>
                     </td>
                   </tr>
                   `;
@@ -235,6 +296,35 @@ app.get('/view-orders', async (req, res) => {
             t.textContent = msg;
             t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3000);
+          }
+
+          function getCheckedIds() {
+            return [...document.querySelectorAll('.row-chk:checked')].map(c => parseInt(c.value));
+          }
+
+          function onCheckboxChange() {
+            const ids = getCheckedIds();
+            const total = document.querySelectorAll('.row-chk').length;
+            document.getElementById('btn-delete-selected').disabled = ids.length === 0;
+            document.getElementById('selected-count').textContent =
+              ids.length > 0 ? ids.length + ' order(s) selected' : '';
+            document.getElementById('chk-all').checked = ids.length === total;
+
+            // Highlight selected rows
+            document.querySelectorAll('.row-chk').forEach(chk => {
+              const row = document.getElementById('row-' + chk.value);
+              if (chk.checked) row.classList.add('selected');
+              else row.classList.remove('selected');
+            });
+          }
+
+          function toggleSelectAll() {
+            const chkAll = document.getElementById('chk-all');
+            const checkboxes = document.querySelectorAll('.row-chk');
+            // If triggered by toolbar button, toggle based on current state
+            const anyUnchecked = [...checkboxes].some(c => !c.checked);
+            checkboxes.forEach(c => { c.checked = anyUnchecked; });
+            onCheckboxChange();
           }
 
           async function updateStatus(id, newStatus, selectEl) {
@@ -259,16 +349,17 @@ app.get('/view-orders', async (req, res) => {
             }
           }
 
-          async function deleteOrder(id, btn) {
-            if (!confirm('Are you sure you want to delete order #' + id + '? This cannot be undone.')) return;
+          async function deleteSingle(id, btn) {
+            if (!confirm('Delete order #' + id + '? This cannot be undone.')) return;
             btn.disabled = true;
-            btn.textContent = '⏳ Deleting...';
+            btn.textContent = '⏳...';
             try {
-              const response = await fetch('/delete-order/' + id, { method: 'DELETE' });
-              const data = await response.json();
+              const res = await fetch('/delete-order/' + id, { method: 'DELETE' });
+              const data = await res.json();
               if (data.success) {
                 document.getElementById('row-' + id).remove();
                 showToast('🗑️ Order #' + id + ' deleted');
+                onCheckboxChange();
               } else {
                 showToast('❌ Delete failed');
                 btn.disabled = false;
@@ -278,6 +369,40 @@ app.get('/view-orders', async (req, res) => {
               showToast('❌ Network error');
               btn.disabled = false;
               btn.textContent = '🗑️ Delete';
+            }
+          }
+
+          async function deleteSelected() {
+            const ids = getCheckedIds();
+            if (ids.length === 0) return;
+            if (!confirm('Delete ' + ids.length + ' selected order(s)? This cannot be undone.')) return;
+
+            const btn = document.getElementById('btn-delete-selected');
+            btn.disabled = true;
+            btn.textContent = '⏳ Deleting...';
+
+            try {
+              const res = await fetch('/delete-orders', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+              });
+              const data = await res.json();
+              if (data.success) {
+                data.deleted.forEach(id => {
+                  const row = document.getElementById('row-' + id);
+                  if (row) row.remove();
+                });
+                showToast('🗑️ Deleted ' + data.deleted.length + ' order(s)');
+                onCheckboxChange();
+              } else {
+                showToast('❌ Delete failed');
+              }
+            } catch (err) {
+              showToast('❌ Network error');
+            } finally {
+              btn.textContent = '🗑️ Delete Selected';
+              onCheckboxChange();
             }
           }
         </script>
