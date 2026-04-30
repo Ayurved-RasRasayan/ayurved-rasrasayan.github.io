@@ -35,7 +35,7 @@ const createTableQuery = `
     client_phone    VARCHAR,
     client_email    VARCHAR,
     status          VARCHAR DEFAULT 'Pending',
-    email_sent      BOOLEAN DEFAULT FALSE, -- New column to track email status
+    email_sent      BOOLEAN DEFAULT FALSE,
     timestamp       TIMESTAMP
   );
 `;
@@ -45,7 +45,6 @@ pool.query(createTableQuery, (err) => {
   else console.log("📊 Table 'orders' is ready");
 });
 
-// Ensure columns exist (Safe migration)
 pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'Pending';`, (err) => {
   if (err) console.error('❌ Error updating status column:', err);
   else console.log("🔧 'status' column verified");
@@ -89,21 +88,14 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status (Email handled by Python) ────────────────────────
+// ─── ROUTE 2: Update Status ───────────────────────────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
 
-    // 1. Update status in DB AND reset email_sent to FALSE
-    // This tells Python: "Hey, the status changed, please send a new email."
-    const query = `
-      UPDATE orders 
-      SET status = $1, email_sent = FALSE 
-      WHERE id = $2
-    `;
+    const query = `UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`;
     await pool.query(query, [status, id]);
 
-    // 2. Fetch full order details to confirm update
     const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
     const order = orderResult.rows[0];
 
@@ -112,11 +104,7 @@ app.put('/update-status', async (req, res) => {
     }
 
     console.log(`🔄 Order #${id} status updated to '${status}'. Email queued for Python.`);
-
-    res.json({ 
-      success: true, 
-      message: `Status updated to ${status}. Email processing delegated to Python.` 
-    });
+    res.json({ success: true, message: `Status updated to ${status}.` });
 
   } catch (error) {
     console.error('❌ Error updating status:', error);
@@ -124,20 +112,28 @@ app.put('/update-status', async (req, res) => {
   }
 });
 
-// ─── ROUTE 3: Admin Order Dashboard ──────────────────────────────────────────
-// (Kept mostly the same, just removed email-specific logic from the UI feedback)
+// ─── ROUTE 3: Delete Order ────────────────────────────────────────────────────
+app.delete('/delete-order/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM orders WHERE id = $1 RETURNING id', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    console.log(`🗑️ Order #${id} deleted`);
+    res.json({ success: true, message: `Order #${id} deleted` });
+  } catch (error) {
+    console.error('❌ Error deleting order:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ─── ROUTE 4: Admin Order Dashboard ──────────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
-
-    // --- Simplified Styles for Dashboard ---
-    const statusColors = {
-      Pending:   '#fff7ed',
-      Shipping:  '#eff6ff',
-      Completed: '#f0fdf4',
-      Success:   '#dcfce7',
-      Rejected:  '#fee2e2'
-    };
 
     const html = `
       <!DOCTYPE html>
@@ -149,6 +145,7 @@ app.get('/view-orders', async (req, res) => {
         <style>
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
           .container { max-width: 1200px; margin: 0 auto; }
+          h1 { color: #2d4a22; }
           .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
           table { width: 100%; border-collapse: collapse; }
           th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; }
@@ -157,15 +154,23 @@ app.get('/view-orders', async (req, res) => {
             padding: 6px; border-radius: 4px; border: 1px solid #ccc;
             font-weight: bold; cursor: pointer;
           }
-          .status-Pending { background: #fff7ed; color: #b45309; }
-          .status-Shipping { background: #eff6ff; color: #1e40af; }
+          .status-Pending   { background: #fff7ed; color: #b45309; }
+          .status-Shipping  { background: #eff6ff; color: #1e40af; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
-          .status-Success { background: #dcfce7; color: #15803d; }
-          .status-Rejected { background: #fee2e2; color: #991b1b; }
+          .status-Success   { background: #dcfce7; color: #15803d; }
+          .status-Rejected  { background: #fee2e2; color: #991b1b; }
+          .btn-delete {
+            background: #fee2e2; color: #991b1b;
+            border: 1px solid #fca5a5; border-radius: 4px;
+            padding: 6px 12px; cursor: pointer; font-weight: bold;
+            transition: background 0.2s;
+          }
+          .btn-delete:hover { background: #fca5a5; }
+          .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
           #toast {
             position: fixed; bottom: 20px; right: 20px;
             background: #333; color: #fff; padding: 12px 24px;
-            border-radius: 4px; display: none;
+            border-radius: 4px; display: none; z-index: 999;
           }
         </style>
       </head>
@@ -181,13 +186,14 @@ app.get('/view-orders', async (req, res) => {
                   <th>Amount</th>
                   <th>Status</th>
                   <th>Email Sent</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
                   return `
-                  <tr>
+                  <tr id="row-${row.id}">
                     <td>#${row.id}</td>
                     <td>
                       <strong>${row.client_name || 'Guest'}</strong><br>
@@ -207,6 +213,12 @@ app.get('/view-orders', async (req, res) => {
                       </select>
                     </td>
                     <td>${row.email_sent ? '✅ Yes' : '⏳ Queued'}</td>
+                    <td>
+                      <button
+                        class="btn-delete"
+                        onclick="deleteOrder(${row.id}, this)"
+                      >🗑️ Delete</button>
+                    </td>
                   </tr>
                   `;
                 }).join('')}
@@ -236,7 +248,7 @@ app.get('/view-orders', async (req, res) => {
               const data = await response.json();
               if (data.success) {
                 selectEl.className = 'status-select status-' + newStatus;
-                showToast('✅ Status updated (Email queued)');
+                showToast('✅ Status updated — email queued');
               } else {
                 showToast('❌ Update failed');
               }
@@ -244,6 +256,28 @@ app.get('/view-orders', async (req, res) => {
               showToast('❌ Network error');
             } finally {
               selectEl.disabled = false;
+            }
+          }
+
+          async function deleteOrder(id, btn) {
+            if (!confirm('Are you sure you want to delete order #' + id + '? This cannot be undone.')) return;
+            btn.disabled = true;
+            btn.textContent = '⏳ Deleting...';
+            try {
+              const response = await fetch('/delete-order/' + id, { method: 'DELETE' });
+              const data = await response.json();
+              if (data.success) {
+                document.getElementById('row-' + id).remove();
+                showToast('🗑️ Order #' + id + ' deleted');
+              } else {
+                showToast('❌ Delete failed');
+                btn.disabled = false;
+                btn.textContent = '🗑️ Delete';
+              }
+            } catch (err) {
+              showToast('❌ Network error');
+              btn.disabled = false;
+              btn.textContent = '🗑️ Delete';
             }
           }
         </script>
