@@ -23,9 +23,10 @@ EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
 # ─── DATABASE CONNECTION ───────────────────────────────────────────────────────
 def get_db_connection():
-    if "sslmode=" in DB_URL:
-        return psycopg2.connect(DB_URL)
-    return psycopg2.connect(DB_URL, sslmode='require')
+    url = DB_URL
+    if "sslmode=" not in url:
+        url += "?sslmode=require"
+    return psycopg2.connect(url)
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
 def build_email_html(order, status):
@@ -98,11 +99,17 @@ def send_email(to_email, subject, html_body):
 # ─── BACKGROUND WORKER ─────────────────────────────────────────────────────────
 def check_orders_and_send_emails():
     print("🚀 Email Worker Started...")
+    print(f"🔍 DB_URL     = {DB_URL}")
+    print(f"🔍 EMAIL_USER = {EMAIL_USER}")
+    print(f"🔍 EMAIL_PASS = {'set ✅' if EMAIL_PASS else 'NOT SET ❌'}")
 
     while True:
         conn = None
         try:
+            print("🔌 Attempting DB connection...")
             conn = get_db_connection()
+            print("✅ DB connected!")
+
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -154,6 +161,7 @@ def check_orders_and_send_emails():
                 except:
                     pass
 
+        print("😴 Sleeping 10s...")
         time.sleep(10)
 
 # ─── FLASK HEALTH CHECK ────────────────────────────────────────────────────────
