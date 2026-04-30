@@ -11,8 +11,6 @@ import psycopg2
 from dotenv import load_dotenv
 from flask import Flask
 
-# ─── CONFIGURATION ─────────────────────────────────────────────────────────────
-# Load environment variables (works locally and on Render)
 load_dotenv()
 
 app = Flask(__name__)
@@ -32,10 +30,8 @@ def build_email_html(order, status):
     }
     color = status_colors.get(status, {'bg': '#f3f4f6', 'text': '#374151', 'border': '#d1d5db'})
 
-    # Parse items safely
     items_html = "<ul>"
     try:
-        # If items is stored as string, parse it, otherwise assume dict/list
         items = json.loads(order['items']) if isinstance(order['items'], str) else order['items']
         for item in items:
             items_html += f"<li>{item.get('name', 'Product')} (x{item.get('quantity', 1)})</li>"
@@ -52,19 +48,15 @@ def build_email_html(order, status):
       <div style="padding: 32px;">
         <p style="color: #374151; font-size: 16px;">Hello <strong>{order['client_name']}</strong>,</p>
         <p style="color: #6b7280;">Your order status has been updated.</p>
-        
         <div style="background: {color['bg']}; border: 1px solid {color['border']}; border-radius: 8px; padding: 16px; text-align: center; margin: 24px 0;">
           <span style="color: {color['text']}; font-size: 20px; font-weight: 700;">{status}</span>
         </div>
-
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
           <tr><td style="padding:8px; color:#6b7280;">Order ID</td><td style="padding:8px; text-align:right; font-weight:bold;">#{order['id']}</td></tr>
           <tr><td style="padding:8px; color:#6b7280;">Total (USD)</td><td style="padding:8px; text-align:right; font-weight:bold;">${order['total_usd']}</td></tr>
           <tr><td style="padding:8px; color:#6b7280;">Total (NPR)</td><td style="padding:8px; text-align:right; font-weight:bold;">Rs. {order['total_npr']}</td></tr>
         </table>
-
         {items_html}
-
         <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
           © {datetime.now().year} NaturaBotanica. All rights reserved.
         </p>
@@ -72,7 +64,7 @@ def build_email_html(order, status):
     </div>
     """
 
-# ─── EMAIL & DATABASE WORKER ───────────────────────────────────────────────────
+# ─── EMAIL SENDER ──────────────────────────────────────────────────────────────
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
@@ -91,81 +83,91 @@ def send_email(to_email, subject, html_body):
         print(f"❌ Email failed to {to_email}: {e}")
         return False
 
+# ─── DATABASE CONNECTION HELPER ────────────────────────────────────────────────
+def get_db_connection():
+    """
+    Connects to the database safely.
+    Avoids duplicate sslmode by only adding it if not already in the URL.
+    """
+    if "sslmode=" in DB_URL:
+        return psycopg2.connect(DB_URL)
+    else:
+        return psycopg2.connect(DB_URL, sslmode='require')
+
+# ─── BACKGROUND WORKER ─────────────────────────────────────────────────────────
 def check_orders_and_send_emails():
-    print("🚀 Python Email Worker Started (Polling Database)...")
-    
+    print("🚀 Email Worker Started...")
+
     while True:
         conn = None
         try:
-            # Connect to DB
-            # Note: We use sslmode='require' which is standard for cloud DBs like Render/Heroku
-            conn = psycopg2.connect(DB_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn = get_db_connection()
+            # Use RealDictCursor so rows are dicts — no manual zip needed
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-            # 1. Find orders needing emails
-            # Logic: email_sent is FALSE AND status is NOT Pending AND client_email exists
-            query = """
+            cursor.execute("""
                 SELECT id, client_email, client_name, status, total_usd, total_npr, items 
                 FROM orders 
-                WHERE email_sent = FALSE AND status != 'Pending' AND client_email IS NOT NULL
-                LIMIT 5;
-            """
-            cursor.execute(query)
+                WHERE email_sent = FALSE 
+                  AND status != 'Pending' 
+                  AND client_email IS NOT NULL
+                  AND client_email != ''
+                LIMIT 10
+            """)
             orders = cursor.fetchall()
 
-            if orders:
-                print(f"📝 Found {len(orders)} orders requiring emails.")
-                
-                # Map column names to values
-                col_names = [desc[0] for desc in cursor.description]
+            if not orders:
+                print("✅ No pending emails.")
+            else:
+                print(f"📝 Found {len(orders)} order(s) to email.")
 
-                for row in orders:
-                    order = dict(zip(col_names, row))
-                    
-                    # 2. Send Email
-                    html_content = build_email_html(order, order['status'])
-                    success = send_email(
-                        order['client_email'],
-                        f"Order #{order['id']} Status: {order['status']}",
-                        html_content
+            for order in orders:
+                print(f"  → Processing order #{order['id']} ({order['status']}) for {order['client_email']}")
+                html_content = build_email_html(order, order['status'])
+                success = send_email(
+                    order['client_email'],
+                    f"NaturaBotanica — Order #{order['id']} is now {order['status']}",
+                    html_content
+                )
+
+                if success:
+                    cursor.execute(
+                        "UPDATE orders SET email_sent = TRUE WHERE id = %s",
+                        (order['id'],)
                     )
-
-                    # 3. Update DB to mark email as sent
-                    if success:
-                        update_query = "UPDATE orders SET email_sent = TRUE WHERE id = %s"
-                        cursor.execute(update_query, (order['id'],))
-                        conn.commit()
+                    conn.commit()
+                    print(f"  ✔ DB updated for order #{order['id']}")
+                else:
+                    print(f"  ⚠ Skipping DB update for order #{order['id']} (email failed)")
 
         except Exception as e:
             print(f"❌ Worker Error: {e}")
+            import traceback
+            traceback.print_exc()  # Full stack trace for easier debugging
         finally:
-            if conn: 
-                conn.close()
+            if conn:
+                try:
+                    conn.close()
+                except:
+                    pass
 
-        # Sleep for 10 seconds before checking again
         time.sleep(10)
 
-# ─── FLASK ROUTES (Health Check) ────────────────────────────────────────────────
+# ─── FLASK HEALTH CHECK ────────────────────────────────────────────────────────
 @app.route('/')
 def home():
-    return "🐍 Python Email Worker is Running"
+    return "🐍 NaturaBotanica Email Worker is Running"
 
-# ─── INITIALIZATION (Gunicorn Compatibility) ───────────────────────────────────
-# When Gunicorn runs this app (via 'gunicorn app:app'), it imports this file.
-# It does NOT run the code inside 'if __name__ == "__main__"'.
-# Therefore, we must start the thread here in the global scope.
-# 
-# We use a simple check to ensure we don't start it if FLASK is reloading in debug mode,
-# though in production (Gunicorn), this condition is always valid.
+# ─── START BACKGROUND THREAD ───────────────────────────────────────────────────
+# FIX: Only skip thread if FLASK_DEBUG is explicitly "true" (not just set)
+_debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
 
-if not os.environ.get("FLASK_DEBUG"):
-    print("🔧 Initializing background thread for Gunicorn...")
-    worker_thread = threading.Thread(target=check_orders_and_send_emails)
-    # Daemon=True ensures the thread dies when the main Gunicorn worker process dies/restarts
-    worker_thread.daemon = True
+if not _debug_mode:
+    print("🔧 Starting background email worker thread...")
+    worker_thread = threading.Thread(target=check_orders_and_send_emails, daemon=True)
     worker_thread.start()
+else:
+    print("⚠️  FLASK_DEBUG is active — background worker NOT started. Set FLASK_DEBUG=0 in production.")
 
-# ─── LOCAL RUNNER (Only runs if you type 'python app.py' locally) ─────────────
 if __name__ == '__main__':
-    # This block is ignored by Gunicorn
     app.run(host='0.0.0.0', port=5000, use_reloader=False)
