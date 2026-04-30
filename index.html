@@ -112,7 +112,7 @@
         </button>
         <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative">
           <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span>
+          <span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full flex items-center justify-center">0</span>
         </button>
         <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors">
           <i data-lucide="menu" class="w-5 h-5"></i>
@@ -412,7 +412,7 @@
             </div>
             <span class="text-white font-semibold">NaturaBotanica</span>
           </div>
-          <p class="text-sm text-white/40 leading-relaxed">Premium Himalayan, botanical, and mineral ingredients for the global market.</p>
+          <p class="text-sm text-white/40 leading-relaxed">Premium Himalayan, botanical, and mineral ingredients for global market.</p>
         </div>
         <div>
           <h4 class="text-sm font-medium text-white mb-4">Categories</h4>
@@ -506,86 +506,97 @@
   <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
 
-  <!-- PAYMENT MODAL -->
+  <!-- PAYMENT MODAL (MOBILE OPTIMIZED) -->
   <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl max-w-lg w-full my-8 shadow-2xl relative">
+    <!-- Increased max width to accommodate 2-column grid -->
+    <div class="bg-white rounded-3xl max-w-4xl w-full my-8 shadow-2xl relative">
       <button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
       
       <div class="p-6 md:p-8">
         <h3 class="text-2xl font-semibold tracking-tight mb-2">Complete Payment</h3>
-        <p class="text-txt-sub text-sm mb-6">Scan the QR code and enter your details.</p>
+        <p class="text-txt-sub text-sm mb-6">Scan QR code and enter your details.</p>
         
-        <!-- Client Details Form -->
-        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-6">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-txt-sub mb-3">Client Details</h4>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs font-medium text-txt-main mb-1">Full Name <span class="text-red-500">*</span></label>
-              <input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-medium text-txt-main mb-1">Phone No. <span class="text-red-500">*</span></label>
-                <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
-              </div>
-              <div>
-                <!-- ADDED: Email Optional Field -->
-                <label class="block text-xs font-medium text-txt-main mb-1">Email (Optional)</label>
-                <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-txt-main mb-1">Address (Optional)</label>
-              <textarea id="clientAddress" rows="2" placeholder="Street, City, Country..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all resize-none"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order Summary & Currency Toggle -->
-        <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-6">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
-            <!-- Dynamic Total Display -->
-            <div class="text-right">
-              <span id="paymentTotal" class="text-xl font-bold text-brand">$0.00</span>
-              <span id="paymentTotalSub" class="block text-[10px] text-txt-sub font-medium">NPR 0.00</span>
-            </div>
-          </div>
-          <div class="text-xs text-txt-third" id="paymentItemsCount">0 items in cart</div>
-          
-          <!-- Currency Toggle -->
-          <div class="mt-3 pt-3 border-t border-gray-200">
-            <label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label>
-            <div class="flex bg-gray-200 p-1 rounded-lg">
-              <button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold transition-all">NPR (Rs.)</button>
-              <button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold transition-all">USD ($)</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Payment Tabs -->
+        <!-- PAYMENT TABS (Moved Up) -->
         <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
           <button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium transition-all border border-transparent hover:bg-white">eSewa</button>
           <button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium transition-all border border-transparent hover:bg-white">Khalti</button>
         </div>
 
-        <!-- QR Display Area -->
-        <div class="flex flex-col items-center justify-center mb-8">
-          <div class="w-64 h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
-            <!-- eSewa QR -->
-            <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
-            <!-- Khalti QR -->
-            <img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" alt="Khalti QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload khalti-qr.png to images folder</span>'">
-          </div>
-          <p class="mt-4 text-sm font-medium text-txt-main">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span> App</p>
-        </div>
+        <!-- RESPONSIVE GRID: Form (Top/Left) + QR (Bottom/Right) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start mb-6">
+          
+          <!-- LEFT COLUMN (MOBILE TOP): Client Details Form -->
+          <div class="space-y-4">
+            <div class="bg-gray-50 p-4 rounded-xl border border-border-main">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-txt-sub mb-3">Client Details</h4>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-txt-main mb-1">Full Name <span class="text-red-500">*</span></label>
+                  <!-- Increased padding for mobile touch -->
+                  <input type="text" id="clientName" placeholder="John Doe" class="w-full px-4 py-3 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-txt-main mb-1">Phone No. <span class="text-red-500">*</span></label>
+                    <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-4 py-3 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-txt-main mb-1">Email (Optional)</label>
+                    <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-4 py-3 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-txt-main mb-1">Address (Optional)</label>
+                  <textarea id="clientAddress" rows="2" placeholder="Street, City, Country..." class="w-full px-4 py-3 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all resize-none"></textarea>
+                </div>
+              </div>
+            </div>
 
-        <!-- Confirm Button -->
-        <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
-          I have made the payment
-          <i data-lucide="check" class="w-4 h-4"></i>
-        </button>
-        <p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p>
+            <!-- Confirm Button (Moved to Left Col on Desktop) -->
+            <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
+              I have made the payment
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <p class="text-center text-xs text-txt-third">Your order will be processed after verification.</p>
+          </div>
+
+          <!-- RIGHT COLUMN (MOBILE BOTTOM): Order Summary & QR -->
+          <div class="space-y-4">
+            <!-- Order Summary & Currency Toggle -->
+            <div class="bg-bg-light p-5 rounded-xl border border-border-main">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
+                <!-- Dynamic Total Display -->
+                <div class="text-right">
+                  <span id="paymentTotal" class="text-xl font-bold text-brand">$0.00</span>
+                  <span id="paymentTotalSub" class="block text-[10px] text-txt-sub font-medium">NPR 0.00</span>
+                </div>
+              </div>
+              <div class="text-xs text-txt-third mb-3" id="paymentItemsCount">0 items in cart</div>
+              
+              <!-- Currency Toggle -->
+              <div class="pt-3 border-t border-gray-200">
+                <label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label>
+                <div class="flex bg-gray-200 p-1 rounded-lg">
+                  <button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold transition-all">NPR (Rs.)</button>
+                  <button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold transition-all">USD ($)</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- QR Display Area -->
+            <div class="flex flex-col items-center justify-center">
+              <div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
+                <!-- eSewa QR -->
+                <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
+                <!-- Khalti QR -->
+                <img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" alt="Khalti QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload khalti-qr.png to images folder</span>'">
+              </div>
+              <p class="mt-4 text-sm font-medium text-txt-main">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span> App</p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -1084,7 +1095,7 @@ function openModal(id) {
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
   document.getElementById('modalQty').value = 1;
-  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) ||1); closeModal(); };
   const modal = document.getElementById('productModal');
   modal.classList.remove('hidden'); modal.classList.add('flex');
   document.body.classList.add('overlay-open');
@@ -1100,7 +1111,7 @@ function closeModal() {
 
 function modalQtyChange(d) {
   const input = document.getElementById('modalQty');
-  input.value = Math.max(1, (parseInt(input.value) || 1) + d);
+  input.value = Math.max(1, (parseInt(input.value) ||1) + d);
 }
 
 // ==================== SEARCH ====================
@@ -1174,7 +1185,7 @@ document.addEventListener('keydown', e => {
 function submitForm(e) {
   e.preventDefault();
   const msg = document.getElementById('formMsg');
-  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
+  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within24 hours.';
   msg.classList.remove('hidden');
   e.target.reset();
   setTimeout(() => msg.classList.add('hidden'), 5000);
