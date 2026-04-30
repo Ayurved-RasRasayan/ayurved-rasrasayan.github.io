@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const axios = require('axios'); // 1. Import Axios (must be in package.json)
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -45,6 +46,7 @@ pool.query(createTableQuery, (err) => {
   else console.log("📊 Table 'orders' is ready");
 });
 
+// Ensure columns exist
 pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'Pending';`, (err) => {
   if (err) console.error('❌ Error updating status column:', err);
   else console.log("🔧 'status' column verified");
@@ -88,22 +90,45 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status ───────────────────────────────────────────────────
+// ─── ROUTE 2: Update Status & Trigger Python Email ─────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
 
+    // 1. Update Database (Reset email_sent flag)
     const query = `UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`;
     await pool.query(query, [status, id]);
 
-    const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
-    const order = orderResult.rows[0];
+    console.log(`🔄 Order #${id} status updated to '${status}'.`);
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+    // 2. Trigger Instant Email to Python (Webhook)
+    const pythonUrl = 'https://ayurved-rasrasayan-github-io-1.onrender.com/send-email'; 
+    // Use ENV variable if set, otherwise fallback string
+    const apiSecret = process.env.API_SECRET || 'change_this_to_a_random_string';
+
+    try {
+        // Send request to Python
+        const response = await axios.post(pythonUrl, 
+            { id: id }, 
+            { 
+                headers: { 
+                    'X-API-SECRET': apiSecret,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 5000 // Wait max 5 seconds for Python to respond
+            }
+        );
+
+        if (response.data.success) {
+            console.log(`📧 [Instant] Email dispatched for Order #${id}`);
+        }
+    } catch (emailError) {
+        // If Python is sleeping (Cold Start), this might fail.
+        // That's okay! The background thread will catch it shortly.
+        console.log(`⚠️ Python Webhook failed (Server sleeping?): ${emailError.message}. Background worker will retry.`);
     }
 
-    console.log(`🔄 Order #${id} status updated to '${status}'. Email queued for Python.`);
+    // 3. Respond to Admin Immediately
     res.json({ success: true, message: `Status updated to ${status}.` });
 
   } catch (error) {
@@ -310,7 +335,6 @@ app.get('/view-orders', async (req, res) => {
               ids.length > 0 ? ids.length + ' order(s) selected' : '';
             document.getElementById('chk-all').checked = ids.length === total;
 
-            // Highlight selected rows
             document.querySelectorAll('.row-chk').forEach(chk => {
               const row = document.getElementById('row-' + chk.value);
               if (chk.checked) row.classList.add('selected');
@@ -321,7 +345,6 @@ app.get('/view-orders', async (req, res) => {
           function toggleSelectAll() {
             const chkAll = document.getElementById('chk-all');
             const checkboxes = document.querySelectorAll('.row-chk');
-            // If triggered by toolbar button, toggle based on current state
             const anyUnchecked = [...checkboxes].some(c => !c.checked);
             checkboxes.forEach(c => { c.checked = anyUnchecked; });
             onCheckboxChange();
