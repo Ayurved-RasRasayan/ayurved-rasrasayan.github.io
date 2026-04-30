@@ -20,16 +20,24 @@ app = Flask(__name__)
 DB_URL     = os.environ.get("DATABASE_URL")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
-# Security Key to verify requests come from your Node server
 API_SECRET = os.environ.get("API_SECRET", "change_me_to_something_secure")
 
-# ─── DATABASE CONNECTION (FIXED) ───────────────────────────────────────────────
+# ─── DATABASE CONNECTION (ROBUST FIX) ─────────────────────────────────────────
 def get_db_connection():
-    return psycopg2.connect(
-        DB_URL,
-        sslmode='require',
-        connect_timeout=10
-    )
+    try:
+        # connect_timeout=5: Prevents hanging. If DB is busy, fail fast.
+        # sslmode='allow': Prevents SSL handshake crashes on low-traffic instances.
+        print("  📍 Attempting DB Connection...")
+        conn = psycopg2.connect(
+            DB_URL,
+            sslmode='allow',
+            connect_timeout=5
+        )
+        print("  📍 DB Connected Successfully")
+        return conn
+    except Exception as e:
+        print(f"  ❌ DB Connection Failed: {e}")
+        raise e
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
 def build_email_html(order, status):
@@ -89,26 +97,25 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        print(f"  📍 Connecting to Gmail SMTP...")
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10) as server:
+            print(f"  📍 SMTP Connected")
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
 
         print(f"📧 Email sent to {to_email}")
         return True
     except Exception as e:
-        print(f"❌ Email failed to {to_email}: {e}")
+        print(f"  ❌ Email failed to {to_email}: {e}")
         return False
 
 # ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────────────
 @app.route('/send-email', methods=['POST'])
 def trigger_instant_email():
-    # 1. Verify Security
     secret = request.headers.get('X-API-SECRET')
     if secret != API_SECRET:
-        print("⚠️ [WEBHOOK] Unauthorized attempt blocked.")
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    # 2. Get Order ID
     data = request.json
     order_id = data.get('id')
 
@@ -117,11 +124,12 @@ def trigger_instant_email():
 
     conn = None
     try:
-        print(f"🔔 [WEBHOOK] Instant email trigger for Order #{order_id}")
+        print(f"🔔 [WEBHOOK] Trigger for Order #{order_id}")
+        
+        # Connect with safety wrapper
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 3. Fetch Order
         cursor.execute("""
             SELECT id, client_email, client_name, status, total_usd, total_npr, items
             FROM orders WHERE id = %s
@@ -134,7 +142,6 @@ def trigger_instant_email():
         col_names = [desc[0] for desc in cursor.description]
         order = dict(zip(col_names, row))
 
-        # 4. Send Email
         html_content = build_email_html(order, order['status'])
         success = send_email(
             order['client_email'],
@@ -143,16 +150,15 @@ def trigger_instant_email():
         )
 
         if success:
-            # 5. Mark as sent (Prevents double sending by background worker)
             cursor.execute("UPDATE orders SET email_sent = TRUE WHERE id = %s", (order['id'],))
             conn.commit()
-            print(f"✅ [WEBHOOK] Instant email sent successfully for #{order_id}")
+            print(f"✅ [WEBHOOK] Success")
             return jsonify({"success": True, "message": "Email sent"})
         else:
             return jsonify({"success": False, "message": "SMTP error"}), 500
 
     except Exception as e:
-        print(f"❌ [WEBHOOK] Error: {e}")
+        print(f"❌ [WEBHOOK] Critical Error: {e}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
@@ -160,15 +166,15 @@ def trigger_instant_email():
 
 # ─── ROUTE 2: BACKGROUND WORKER (FALLBACK) ───────────────────────────────────
 def check_orders_and_send_emails():
-    print("🚀 Background Worker Started (Fallback Mode)...")
+    print("🚀 Background Worker Started...")
     
     while True:
         conn = None
         try:
+            # Connect with safety wrapper
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # Look for orders that the Webhook might have missed (e.g. during Cold Start)
             cursor.execute("""
                 SELECT id, client_email, client_name, status, total_usd, total_npr, items
                 FROM orders
@@ -181,7 +187,7 @@ def check_orders_and_send_emails():
             col_names = [desc[0] for desc in cursor.description]
 
             if orders:
-                print(f"🔙 [WORKER] Found {len(orders)} missed orders. Processing...")
+                print(f"🔙 [WORKER] Found {len(orders)} missed orders.")
                 for row in orders:
                     order = dict(zip(col_names, row))
                     
@@ -203,7 +209,7 @@ def check_orders_and_send_emails():
         finally:
             if conn: conn.close()
 
-        # Check every 10 seconds
+        print("😴 Sleeping 10s...")
         time.sleep(10)
 
 # ─── ROUTE 3: HEALTH CHECK ────────────────────────────────────────────────────
@@ -214,13 +220,10 @@ def home():
 # ─── STARTUP ───────────────────────────────────────────────────────────────────
 _debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
 
-# Start background thread (Fallback)
 if not _debug_mode:
     print("🔧 Starting background worker thread...")
     worker_thread = threading.Thread(target=check_orders_and_send_emails, daemon=True)
     worker_thread.start()
-else:
-    print("⚠️  FLASK_DEBUG is active — worker NOT started.")
 
 # ─── LOCAL RUNNER ──────────────────────────────────────────────────────────────
 if __name__ == '__main__':
