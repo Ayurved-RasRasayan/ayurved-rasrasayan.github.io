@@ -3,22 +3,29 @@ import time
 import smtplib
 import threading
 import json
+import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 import psycopg2
-import psycopg2.extras  # Add this line
 from dotenv import load_dotenv
 from flask import Flask
 
+# ─── CONFIGURATION ─────────────────────────────────────────────────────────────
 load_dotenv()
 
 app = Flask(__name__)
 
-DB_URL = os.environ.get("DATABASE_URL")
+DB_URL    = os.environ.get("DATABASE_URL")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
+
+# ─── DATABASE CONNECTION ───────────────────────────────────────────────────────
+def get_db_connection():
+    if "sslmode=" in DB_URL:
+        return psycopg2.connect(DB_URL)
+    return psycopg2.connect(DB_URL, sslmode='require')
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
 def build_email_html(order, status):
@@ -49,15 +56,19 @@ def build_email_html(order, status):
       <div style="padding: 32px;">
         <p style="color: #374151; font-size: 16px;">Hello <strong>{order['client_name']}</strong>,</p>
         <p style="color: #6b7280;">Your order status has been updated.</p>
+
         <div style="background: {color['bg']}; border: 1px solid {color['border']}; border-radius: 8px; padding: 16px; text-align: center; margin: 24px 0;">
           <span style="color: {color['text']}; font-size: 20px; font-weight: 700;">{status}</span>
         </div>
+
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
           <tr><td style="padding:8px; color:#6b7280;">Order ID</td><td style="padding:8px; text-align:right; font-weight:bold;">#{order['id']}</td></tr>
           <tr><td style="padding:8px; color:#6b7280;">Total (USD)</td><td style="padding:8px; text-align:right; font-weight:bold;">${order['total_usd']}</td></tr>
           <tr><td style="padding:8px; color:#6b7280;">Total (NPR)</td><td style="padding:8px; text-align:right; font-weight:bold;">Rs. {order['total_npr']}</td></tr>
         </table>
+
         {items_html}
+
         <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
           © {datetime.now().year} NaturaBotanica. All rights reserved.
         </p>
@@ -69,8 +80,8 @@ def build_email_html(order, status):
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
-        msg['From'] = f"NaturaBotanica <{EMAIL_USER}>"
-        msg['To'] = to_email
+        msg['From']    = f"NaturaBotanica <{EMAIL_USER}>"
+        msg['To']      = to_email
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
@@ -78,22 +89,12 @@ def send_email(to_email, subject, html_body):
             server.starttls()
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
+
         print(f"📧 Email sent to {to_email}")
         return True
     except Exception as e:
         print(f"❌ Email failed to {to_email}: {e}")
         return False
-
-# ─── DATABASE CONNECTION HELPER ────────────────────────────────────────────────
-def get_db_connection():
-    """
-    Connects to the database safely.
-    Avoids duplicate sslmode by only adding it if not already in the URL.
-    """
-    if "sslmode=" in DB_URL:
-        return psycopg2.connect(DB_URL)
-    else:
-        return psycopg2.connect(DB_URL, sslmode='require')
 
 # ─── BACKGROUND WORKER ─────────────────────────────────────────────────────────
 def check_orders_and_send_emails():
@@ -103,48 +104,49 @@ def check_orders_and_send_emails():
         conn = None
         try:
             conn = get_db_connection()
-            # Use RealDictCursor so rows are dicts — no manual zip needed
-            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cursor = conn.cursor()
 
             cursor.execute("""
-                SELECT id, client_email, client_name, status, total_usd, total_npr, items 
-                FROM orders 
-                WHERE email_sent = FALSE 
-                  AND status != 'Pending' 
+                SELECT id, client_email, client_name, status, total_usd, total_npr, items
+                FROM orders
+                WHERE email_sent = FALSE
+                  AND status != 'Pending'
                   AND client_email IS NOT NULL
                   AND client_email != ''
                 LIMIT 10
             """)
             orders = cursor.fetchall()
+            col_names = [desc[0] for desc in cursor.description]
 
             if not orders:
                 print("✅ No pending emails.")
             else:
                 print(f"📝 Found {len(orders)} order(s) to email.")
 
-            for order in orders:
-                print(f"  → Processing order #{order['id']} ({order['status']}) for {order['client_email']}")
-                html_content = build_email_html(order, order['status'])
-                success = send_email(
-                    order['client_email'],
-                    f"NaturaBotanica — Order #{order['id']} is now {order['status']}",
-                    html_content
-                )
+                for row in orders:
+                    order = dict(zip(col_names, row))
+                    print(f"  → Order #{order['id']} ({order['status']}) → {order['client_email']}")
 
-                if success:
-                    cursor.execute(
-                        "UPDATE orders SET email_sent = TRUE WHERE id = %s",
-                        (order['id'],)
+                    html_content = build_email_html(order, order['status'])
+                    success = send_email(
+                        order['client_email'],
+                        f"NaturaBotanica — Order #{order['id']} is now {order['status']}",
+                        html_content
                     )
-                    conn.commit()
-                    print(f"  ✔ DB updated for order #{order['id']}")
-                else:
-                    print(f"  ⚠ Skipping DB update for order #{order['id']} (email failed)")
+
+                    if success:
+                        cursor.execute(
+                            "UPDATE orders SET email_sent = TRUE WHERE id = %s",
+                            (order['id'],)
+                        )
+                        conn.commit()
+                        print(f"  ✔ DB updated for order #{order['id']}")
+                    else:
+                        print(f"  ⚠ Email failed — DB not updated for order #{order['id']}")
 
         except Exception as e:
             print(f"❌ Worker Error: {e}")
-            import traceback
-            traceback.print_exc()  # Full stack trace for easier debugging
+            traceback.print_exc()
         finally:
             if conn:
                 try:
@@ -160,7 +162,6 @@ def home():
     return "🐍 NaturaBotanica Email Worker is Running"
 
 # ─── START BACKGROUND THREAD ───────────────────────────────────────────────────
-# FIX: Only skip thread if FLASK_DEBUG is explicitly "true" (not just set)
 _debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
 
 if not _debug_mode:
@@ -168,7 +169,8 @@ if not _debug_mode:
     worker_thread = threading.Thread(target=check_orders_and_send_emails, daemon=True)
     worker_thread.start()
 else:
-    print("⚠️  FLASK_DEBUG is active — background worker NOT started. Set FLASK_DEBUG=0 in production.")
+    print("⚠️  FLASK_DEBUG is active — worker NOT started.")
 
+# ─── LOCAL RUNNER ──────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, use_reloader=False)
