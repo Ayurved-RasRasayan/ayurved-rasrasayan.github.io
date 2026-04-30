@@ -25,7 +25,9 @@ EMAIL_PASS = os.environ.get("EMAIL_PASS")
 def get_db_connection():
     url = DB_URL
     if "sslmode=" not in url:
-        url += "?sslmode=require"
+        url += "?sslmode=require&connect_timeout=10"
+    else:
+        url += "&connect_timeout=10"
     return psycopg2.connect(url)
 
 # ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────────────
