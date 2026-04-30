@@ -17,7 +17,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-DB_URL    = os.environ.get("DATABASE_URL")
+DB_URL     = os.environ.get("DATABASE_URL")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
 
@@ -85,8 +85,7 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
 
@@ -113,6 +112,7 @@ def check_orders_and_send_emails():
                   AND status != 'Pending'
                   AND client_email IS NOT NULL
                   AND client_email != ''
+                  AND client_email != 'N/A'
                 LIMIT 10
             """)
             orders = cursor.fetchall()
