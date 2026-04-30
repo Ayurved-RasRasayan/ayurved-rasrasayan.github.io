@@ -10,7 +10,7 @@ from datetime import datetime
 
 import psycopg2
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request, jsonify
 
 # ─── CONFIGURATION ─────────────────────────────────────────────────────────────
 load_dotenv()
@@ -20,10 +20,10 @@ app = Flask(__name__)
 DB_URL     = os.environ.get("DATABASE_URL")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
+# Security Key to verify requests come from your Node server
+API_SECRET = os.environ.get("API_SECRET", "change_me_to_something_secure")
 
 # ─── DATABASE CONNECTION (FIXED) ───────────────────────────────────────────────
-# We pass sslmode and timeout as separate arguments.
-# This is more reliable than modifying the URL string.
 def get_db_connection():
     return psycopg2.connect(
         DB_URL,
@@ -89,7 +89,6 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        # Using SMTP_SSL (Port 465) for stability
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_USER, EMAIL_PASS)
             server.send_message(msg)
@@ -100,46 +99,92 @@ def send_email(to_email, subject, html_body):
         print(f"❌ Email failed to {to_email}: {e}")
         return False
 
-# ─── BACKGROUND WORKER ─────────────────────────────────────────────────────────
-def check_orders_and_send_emails():
-    print("🚀 Email Worker Started...")
-    
-    # Print initial config for debugging
-    print(f"🔍 DB_URL     = {DB_URL}")
-    print(f"🔍 EMAIL_USER = {EMAIL_USER}")
-    print(f"🔍 EMAIL_PASS = {'set ✅' if EMAIL_PASS else 'NOT SET ❌'}")
+# ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────────────
+@app.route('/send-email', methods=['POST'])
+def trigger_instant_email():
+    # 1. Verify Security
+    secret = request.headers.get('X-API-SECRET')
+    if secret != API_SECRET:
+        print("⚠️ [WEBHOOK] Unauthorized attempt blocked.")
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
 
+    # 2. Get Order ID
+    data = request.json
+    order_id = data.get('id')
+
+    if not order_id:
+        return jsonify({"success": False, "message": "Missing order ID"}), 400
+
+    conn = None
+    try:
+        print(f"🔔 [WEBHOOK] Instant email trigger for Order #{order_id}")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 3. Fetch Order
+        cursor.execute("""
+            SELECT id, client_email, client_name, status, total_usd, total_npr, items
+            FROM orders WHERE id = %s
+        """, (order_id,))
+        
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"success": False, "message": "Order not found"}), 404
+
+        col_names = [desc[0] for desc in cursor.description]
+        order = dict(zip(col_names, row))
+
+        # 4. Send Email
+        html_content = build_email_html(order, order['status'])
+        success = send_email(
+            order['client_email'],
+            f"NaturaBotanica — Order #{order['id']} is now {order['status']}",
+            html_content
+        )
+
+        if success:
+            # 5. Mark as sent (Prevents double sending by background worker)
+            cursor.execute("UPDATE orders SET email_sent = TRUE WHERE id = %s", (order['id'],))
+            conn.commit()
+            print(f"✅ [WEBHOOK] Instant email sent successfully for #{order_id}")
+            return jsonify({"success": True, "message": "Email sent"})
+        else:
+            return jsonify({"success": False, "message": "SMTP error"}), 500
+
+    except Exception as e:
+        print(f"❌ [WEBHOOK] Error: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        if conn: conn.close()
+
+# ─── ROUTE 2: BACKGROUND WORKER (FALLBACK) ───────────────────────────────────
+def check_orders_and_send_emails():
+    print("🚀 Background Worker Started (Fallback Mode)...")
+    
     while True:
         conn = None
         try:
-            print("🔌 Attempting DB connection...")
             conn = get_db_connection()
-            print("✅ DB connected!")
-
             cursor = conn.cursor()
 
+            # Look for orders that the Webhook might have missed (e.g. during Cold Start)
             cursor.execute("""
                 SELECT id, client_email, client_name, status, total_usd, total_npr, items
                 FROM orders
                 WHERE email_sent = FALSE
                   AND status != 'Pending'
                   AND client_email IS NOT NULL
-                  AND client_email != ''
-                  AND client_email != 'N/A'
                 LIMIT 10
             """)
             orders = cursor.fetchall()
             col_names = [desc[0] for desc in cursor.description]
 
-            if not orders:
-                print("✅ No pending emails.")
-            else:
-                print(f"📝 Found {len(orders)} order(s) to email.")
-
+            if orders:
+                print(f"🔙 [WORKER] Found {len(orders)} missed orders. Processing...")
                 for row in orders:
                     order = dict(zip(col_names, row))
-                    print(f"  → Order #{order['id']} ({order['status']}) → {order['client_email']}")
-
+                    
                     html_content = build_email_html(order, order['status'])
                     success = send_email(
                         order['client_email'],
@@ -148,39 +193,30 @@ def check_orders_and_send_emails():
                     )
 
                     if success:
-                        cursor.execute(
-                            "UPDATE orders SET email_sent = TRUE WHERE id = %s",
-                            (order['id'],)
-                        )
+                        cursor.execute("UPDATE orders SET email_sent = TRUE WHERE id = %s", (order['id'],))
                         conn.commit()
-                        print(f"  ✔ DB updated for order #{order['id']}")
-                    else:
-                        print(f"  ⚠ Email failed — DB not updated for order #{order['id']}")
+                        print(f"  ✔ [WORKER] DB updated for order #{order['id']}")
 
         except Exception as e:
-            print(f"❌ Worker Error: {e}")
+            print(f"❌ [WORKER] Error: {e}")
             traceback.print_exc()
         finally:
-            if conn:
-                try:
-                    conn.close()
-                except:
-                    pass
+            if conn: conn.close()
 
-        print("😴 Sleeping 10s...")
+        # Check every 10 seconds
         time.sleep(10)
 
-# ─── FLASK HEALTH CHECK ────────────────────────────────────────────────────────
+# ─── ROUTE 3: HEALTH CHECK ────────────────────────────────────────────────────
 @app.route('/')
 def home():
     return "🐍 NaturaBotanica Email Worker is Running"
 
-# ─── START BACKGROUND THREAD ───────────────────────────────────────────────────
-# Only start the thread if not in debug mode (to prevent duplicate threads)
+# ─── STARTUP ───────────────────────────────────────────────────────────────────
 _debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("1", "true")
 
+# Start background thread (Fallback)
 if not _debug_mode:
-    print("🔧 Starting background email worker thread...")
+    print("🔧 Starting background worker thread...")
     worker_thread = threading.Thread(target=check_orders_and_send_emails, daemon=True)
     worker_thread.start()
 else:
