@@ -6,11 +6,11 @@ const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────────────
+// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' })); // Increased limit for images
 app.use(cors());
 
-// ─── DATABASE CONNECTION ──────────────────────────────────────────────────────────────
+// ─── DATABASE CONNECTION ──────────────────────────────────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
@@ -22,7 +22,8 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// ─── TABLE SETUP ──────────────────────────────────────────────────────────────────────
+// ─── TABLE SETUP ──────────────────────────────────────────────────────────────
+// We list columns explicitly to ensure the DB matches the code.
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id                  SERIAL PRIMARY KEY,
@@ -35,7 +36,7 @@ const createTableQuery = `
     client_name         VARCHAR,
     client_phone        VARCHAR,
     client_email        VARCHAR,
-    payment_screenshot TEXT, -- NEW COLUMN FOR IMAGE
+    payment_screenshot  TEXT,
     status              VARCHAR DEFAULT 'Pending',
     email_sent          BOOLEAN DEFAULT FALSE,
     timestamp           TIMESTAMP
@@ -47,22 +48,6 @@ pool.query(createTableQuery, (err) => {
   else console.log("📊 Table 'orders' is ready");
 });
 
-// Ensure columns exist
-pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'Pending';`, (err) => {
-  if (err) console.error('❌ Error updating status column:', err);
-  else console.log("🔧 'status' column verified");
-});
-
-pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS email_sent BOOLEAN DEFAULT FALSE;`, (err) => {
-  if (err) console.error('❌ Error updating email_sent column:', err);
-  else console.log("🔧 'email_sent' column verified");
-});
-
-pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_screenshot TEXT;`, (err) => {
-  if (err) console.error('❌ Error updating payment_screenshot column:', err);
-  else console.log("🔧 'payment_screenshot' column verified");
-});
-
 // ─── ROUTE 1: Receive New Order ───────────────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
@@ -72,18 +57,25 @@ app.post('/order', async (req, res) => {
       paymentScreenshot // NEW FIELD
     } = req.body;
 
+    // FIX: Explicitly list the columns to match the CREATE TABLE query
+    // Order matters: items, total_usd, total_npr, paid_amount, currency, payment_method, client_name, client_phone, client_email, payment_screenshot, status, email_sent, timestamp
     const query = `
-      INSERT INTO orders
+      INSERT INTO orders 
         (items, total_usd, total_npr, paid_amount, currency,
-         payment_method, client_name, client_phone, client_email, payment_screenshot, timestamp)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         payment_method, client_name, client_phone, client_email, payment_screenshot, 
+         status, email_sent, timestamp)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING id;
     `;
+
+    // FIX: Ensure we are sending 13 values to match the 13 columns
     const values = [
       JSON.stringify(items), totalUSD, totalNPR, paidAmount,
       currency, paymentMethod,
       clientDetails.name, clientDetails.phone, clientDetails.email,
       paymentScreenshot, // STORE IMAGE
+      'Pending',             // DEFAULT STATUS
+      false,                 // DEFAULT EMAIL_SENT
       timestamp
     ];
 
@@ -104,6 +96,7 @@ app.put('/update-status', async (req, res) => {
     const { id, status } = req.body;
 
     // 1. Update Database (Reset email_sent flag)
+    // Explicitly list columns for update as well to be safe
     const query = `UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`;
     await pool.query(query, [status, id]);
 
@@ -238,13 +231,6 @@ app.get('/view-orders', async (req, res) => {
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
-          .btn-delete-single {
-            background: #fee2e2; color: #991b1b;
-            border: 1px solid #fca5a5; border-radius: 4px;
-            padding: 5px 10px; cursor: pointer; font-weight: bold;
-          }
-          .btn-delete-single:hover { background: #fca5a5; }
-          .btn-delete-single:disabled { opacity: 0.4; cursor: not-allowed; }
           
           /* Image Styles */
           .screenshot-thumb {
