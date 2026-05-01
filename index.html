@@ -6,6 +6,7 @@
   <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -71,16 +72,10 @@
       overflow: hidden;
     }
 
-    /* Payment Tab Active State */
     .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
-    
-    /* Currency Toggle State */
     .currency-btn.active-curr { background-color: #1C1917; color: white; }
-
-    /* Error Input State */
     .input-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
     
-    /* Fallback backgrounds if images are missing */
     .hero-bg-fallback {
       background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
     }
@@ -474,7 +469,6 @@
           <span id="cartTotal" class="text-xl font-semibold">$0.00</span>
         </div>
         
-        <!-- OPTION 1: Proceed to Inquiry -->
         <button onclick="proceedToInquiry()" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
           Proceed to Inquiry
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -486,7 +480,6 @@
           <div class="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <!-- OPTION 2 & 3: Payment Buttons -->
         <div class="grid grid-cols-2 gap-3">
           <button onclick="openPaymentModal('esewa')" class="py-3 bg-esewa text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2">
             <i data-lucide="credit-card" class="w-4 h-4"></i>
@@ -506,9 +499,8 @@
   <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
 
-  <!-- PAYMENT MODAL (MOBILE OPTIMIZED) -->
+  <!-- PAYMENT MODAL (OPTIMIZED) -->
   <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
-    <!-- Increased max width to accommodate 2-column grid -->
     <div class="bg-white rounded-3xl max-w-4xl w-full my-8 shadow-2xl relative">
       <button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
       
@@ -516,7 +508,7 @@
         <h3 class="text-2xl font-semibold tracking-tight mb-2">Complete Payment</h3>
         <p class="text-txt-sub text-sm mb-6">Scan QR code and enter your details.</p>
         
-        <!-- PAYMENT TABS (Moved Up) -->
+        <!-- PAYMENT TABS -->
         <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
           <button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium transition-all border border-transparent hover:bg-white">eSewa</button>
           <button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium transition-all border border-transparent hover:bg-white">Khalti</button>
@@ -527,12 +519,12 @@
           
           <!-- LEFT COLUMN (MOBILE TOP): Client Details Form -->
           <div class="space-y-4">
+            <!-- Client Details Form -->
             <div class="bg-gray-50 p-4 rounded-xl border border-border-main">
               <h4 class="text-xs font-bold uppercase tracking-wider text-txt-sub mb-3">Client Details</h4>
               <div class="space-y-3">
                 <div>
                   <label class="block text-xs font-medium text-txt-main mb-1">Full Name <span class="text-red-500">*</span></label>
-                  <!-- Increased padding for mobile touch -->
                   <input type="text" id="clientName" placeholder="John Doe" class="w-full px-4 py-3 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -552,18 +544,26 @@
               </div>
             </div>
 
-            <!-- Confirm Button (Moved to Left Col on Desktop) -->
-            <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
-              I have made the payment
-              <i data-lucide="check" class="w-4 h-4"></i>
-            </button>
-            <p class="text-center text-xs text-txt-third">Your order will be processed after verification.</p>
-          </div>
+            <!-- PAYMENT PROOF UPLOAD (NEW) -->
+            <div class="bg-gray-50 p-4 rounded-xl border border-border-main">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-txt-sub mb-3">Payment Proof</h4>
+              
+              <input type="file" id="paymentScreenshot" accept="image/*" capture="environment" class="hidden">
+              
+              <div id="uploadArea" onclick="document.getElementById('paymentScreenshot').click()" class="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-brand transition-colors relative">
+                <img id="screenshotPreview" src="" class="hidden w-full h-full object-contain rounded-xl">
+                
+                <div id="uploadPlaceholder" class="text-center">
+                  <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-gray-400 mb-2"></i>
+                  <p class="text-xs font-medium text-txt-main">Tap to upload payment screenshot</p>
+                  <p class="text-[10px] text-txt-sub mt-1">(Camera access enabled on mobile)</p>
+                </div>
+              </div>
+              <p class="text-[10px] text-red-400 mt-2 text-right hidden" id="imageError">Image is too large.</p>
+            </div>
 
-          <!-- RIGHT COLUMN (MOBILE BOTTOM): Order Summary & QR -->
-          <div class="space-y-4">
             <!-- Order Summary & Currency Toggle -->
-            <div class="bg-bg-light p-5 rounded-xl border border-border-main">
+            <div class="bg-bg-light p-4 rounded-xl border border-border-main">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
                 <!-- Dynamic Total Display -->
@@ -584,18 +584,24 @@
               </div>
             </div>
 
-            <!-- QR Display Area -->
-            <div class="flex flex-col items-center justify-center">
-              <div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
-                <!-- eSewa QR -->
-                <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
-                <!-- Khalti QR -->
-                <img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" alt="Khalti QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload khalti-qr.png to images folder</span>'">
-              </div>
-              <p class="mt-4 text-sm font-medium text-txt-main">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span> App</p>
-            </div>
+            <!-- Confirm Button -->
+            <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
+              I have made the payment
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <p class="text-center text-xs text-txt-third">Your order will be processed after verification.</p>
           </div>
 
+          <!-- RIGHT COLUMN (MOBILE BOTTOM): QR Display -->
+          <div class="flex flex-col items-center justify-center">
+            <div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
+              <!-- eSewa QR -->
+              <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
+              <!-- Khalti QR -->
+              <img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" alt="Khalti QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload khalti-qr.png to images folder</span>'">
+            </div>
+            <p class="mt-4 text-sm font-medium text-txt-main">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span> App</p>
+          </div>
         </div>
       </div>
     </div>
@@ -671,62 +677,62 @@ const products = [
   { id: 9,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
 
   // ── Extracts ──
-  { id: 10, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids." },
-  { id: 11, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations." },
-  { id: 12, name: "Coleus Extract", sci: "Coleus forskohlii", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "images/coleus-extract.jpg", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator." },
-  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "images/colchicine.jpg", desc: "Pharmaceutical-grade colchicine extracted from Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. HPLC assay >99%." },
-  { id: 14, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "images/ginger-extract.jpg", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support." },
-  { id: 15, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "images/green-tea-extract.jpg", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support." },
-  { id: 16, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "images/kutki-root-extract.jpg", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations." },
-  { id: 17, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "images/reishi-mushroom-extract.jpg", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity." },
-  { id: 18, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "images/rhodiola-extract.jpg", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance and stress resilience." },
-  { id: 19, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "images/turmeric-extract.jpg", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements and pharmaceutical formulations." },
-  { id: 20, name: "Zedoary Root Extract", sci: "Curcuma zedoaria", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "images/zedoary-root-extract.jpg", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory." },
+  { id: 10,  name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids." },
+  { id: 11,  name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations." },
+  { id: 12,  name: "Coleus Extract", sci: "Coleus forskohlii", category: "extracts", catLabel: "Extracts", price: 55, moq: "10 kg", lead: "10-14 days", img: "images/coleus-extract.jpg", desc: "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator." },
+  { id: 13,  name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extracts", price: 1800, moq: "100 g", lead: "14-21 days", img: "images/colchicine.jpg", desc: "Pharmaceutical-grade colchicine extracted from Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. HPLC assay >99%." },
+  { id: 14,  name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extracts", price: 22, moq: "25 kg", lead: "7-10 days", img: "images/ginger-extract.jpg", desc: "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support." },
+  { id: 15,  name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extracts", price: 38, moq: "25 kg", lead: "7-10 days", img: "images/green-tea-extract.jpg", desc: "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support." },
+  { id: 16,  name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extracts", price: 150, moq: "5 kg", lead: "10-14 days", img: "images/kutki-root-extract.jpg", desc: "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations." },
+  { id: 17,  name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extracts", price: 120, moq: "5 kg", lead: "10-14 days", img: "images/reishi-mushroom-extract.jpg", desc: "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity." },
+  { id: 18,  name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extracts", price: 85, moq: "5 kg", lead: "10-14 days", img: "images/rhodiola-extract.jpg", desc: "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance and stress resilience." },
+  { id: 19,  name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extracts", price: 28, moq: "25 kg", lead: "7-10 days", img: "images/turmeric-extract.jpg", desc: "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements and pharmaceutical formulations." },
+  { id: 20,  name: "Zedoary Root Extract", sci: "Curcuma zedoaria", category: "extracts", catLabel: "Extracts", price: 35, moq: "10 kg", lead: "10-14 days", img: "images/zedoary-root-extract.jpg", desc: "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory." },
 
   // ── Mushrooms & Fungi ──
-  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-a.jpg", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from high Himalayas. Whole, intact specimens with optimal ratio." },
-  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-b.jpg", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A." },
-  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-c.jpg", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display." },
-  { id: 24, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "images/morel-mushroom.jpg", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests. Dried whole for extended shelf life. Prized in gourmet cuisine." },
-  { id: 25, name: "Reishi Mushroom", sci: "Ganoderma lucidum", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "images/reishi-mushroom.jpg", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids." },
+  { id: 21,  name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 28000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-a.jpg", desc: "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from high Himalayas. Whole, intact specimens with optimal ratio." },
+  { id: 22,  name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 15000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-b.jpg", desc: "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A." },
+  { id: 23,  name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 6000, moq: "250 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-c.jpg", desc: "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display." },
+  { id: 24,  name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 180, moq: "1 kg", lead: "7-10 days", img: "images/morel-mushroom.jpg", desc: "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests. Dried whole for extended shelf life. Prized in gourmet cuisine." },
+  { id: 25,  name: "Reishi Mushroom", sci: "Ganoderma lucidum", category: "mushrooms", catLabel: "Mushrooms & Fungi", price: 45, moq: "10 kg", lead: "10-14 days", img: "images/reishi-mushroom.jpg", desc: "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids." },
 
   // ── Raw Herbs, Roots & Botanicals ──
-  { id: 26, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "images/chirata.jpg", desc: "Whole dried Chirita herb (Bhunimba). Extremely bitter Swertia species from Himalayas. Used for liver disorders, malaria, and fever." },
-  { id: 27, name: "Himalayan Larkspur", sci: "Delphinium denudatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "images/himalayan-larkspur.jpg", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions." },
-  { id: 28, name: "Himalayan Paris", sci: "Paris polyphylla", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "images/himalayan-paris.jpg", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties." },
-  { id: 29, name: "Himalayan Wild Garlic", sci: "Allium wallichii", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/himalayan-wild-garlic.jpg", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at high altitude. Smaller but more potent than cultivated garlic." },
-  { id: 30, name: "Large Cardamom", sci: "Amomum subulatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/large-cardamom.jpg", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in eastern Himalayan foothills. Smoky, camphoraceous flavor distinct from green cardamom." },
-  { id: 31, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/solomons-seal.jpg", desc: "Dried rhizomes of Khiraula from Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions." },
-  { id: 32, name: "Wild Asparagus", sci: "Asparagus racemosus", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/wild-asparagus.jpg", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV)." },
+  { id: 26,  name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 18, moq: "25 kg", lead: "7-10 days", img: "images/chirata.jpg", desc: "Whole dried Chirita herb (Bhunimba). Extremely bitter Swertia species from Himalayas. Used for liver disorders, malaria, and fever." },
+  { id: 27,  name: "Himalayan Larkspur", sci: "Delphinium denudatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 40, moq: "5 kg", lead: "10-14 days", img: "images/himalayan-larkspur.jpg", desc: "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions." },
+  { id: 28,  name: "Himalayan Paris", sci: "Paris polyphylla", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 85, moq: "5 kg", lead: "14-21 days", img: "images/himalayan-paris.jpg", desc: "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties." },
+  { id: 29,  name: "Himalayan Wild Garlic", sci: "Allium wallichii", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/himalayan-wild-garlic.jpg", desc: "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at high altitude. Smaller but more potent than cultivated garlic." },
+  { id: 30,  name: "Large Cardamom", sci: "Amomum subulatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/large-cardamom.jpg", desc: "Dried pods of Nepali large cardamom (Alaichi). Grown in eastern Himalayan foothills. Smoky, camphoraceous flavor distinct from green cardamom." },
+  { id: 31,  name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/solomons-seal.jpg", desc: "Dried rhizomes of Khiraula from Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions." },
+  { id: 32,  name: "Wild Asparagus", sci: "Asparagus racemosus", category: "herbs", catLabel: "Raw Herbs, Roots & Botanicals", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/wild-asparagus.jpg", desc: "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV)." },
 
   // ── Rasa Uparasa (Minerals & Metals) ──
-  { id: 33, name: "Amlasar Gandhak", sci: "Sulphur processed in Amla", category: "rasa", catLabel: "Rasa Uparasa", price: 60, moq: "5 kg", lead: "10-14 days", img: "images/amlasar-gandhak.jpg", desc: "Sulphur processed in Indian Gooseberry (Amla) juice. Used primarily for skin diseases, itching, and respiratory ailments due to its heating and purifying properties." },
-  { id: 34, name: "Danda Gandhak", sci: "Crystalline Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 45, moq: "5 kg", lead: "10-14 days", img: "images/danda-gandhak.jpg", desc: "Crude Sulphur in stick/crystal form. Requires extensive purification (Shodhana) before internal use. Effective in fungal infections and arthritis." },
-  { id: 35, name: "Darchikna", sci: "Arsenic Trisulfide", category: "rasa", catLabel: "Rasa Uparasa", price: 180, moq: "1 kg", lead: "14-21 days", img: "images/darchikna.jpg", desc: "Yellow Orpiment (Harital). Used in treating skin diseases, fevers, and asthma. Highly toxic and requires rigorous purification processes in Rasa Shastra." },
-  { id: 36, name: "Hartal Hariyawal", sci: "Arsenic Disulfide (Green)", category: "rasa", catLabel: "Rasa Uparasa", price: 160, moq: "1 kg", lead: "14-21 days", img: "images/hartal-hariyawal.jpg", desc: "A specific green variety of Realgar (Manahshila). Used in traditional formulations for respiratory conditions, fever, and blood disorders after detoxification." },
-  { id: 37, name: "Hartal Patri", sci: "Arsenic Disulfide (Leaf)", category: "rasa", catLabel: "Rasa Uparasa", price: 170, moq: "1 kg", lead: "14-21 days", img: "images/hartal-patri.jpg", desc: "Leaf-like formation of Hartal. Used externally in skin pastes and internally (after Samskara) for chronic asthma and cough. Requires expert handling." },
-  { id: 38, name: "Mansil", sci: "Cinnabar (Vermilion)", category: "rasa", catLabel: "Rasa Uparasa", price: 120, moq: "1 kg", lead: "14-21 days", img: "images/mansil.jpg", desc: "Mercuric Sulphide ore. The primary source of Parada (Mercury) in Rasa Shastra. Used in nervine tonics and for enhancing immune function." },
-  { id: 39, name: "Neela", sci: "Lapis Lazuli", category: "rasa", catLabel: "Rasa Uparasa", price: 90, moq: "5 kg", lead: "10-14 days", img: "images/neela.jpg", desc: "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas." },
-  { id: 40, name: "Para", sci: "Mercury (Elemental)", category: "rasa", catLabel: "Rasa Uparasa", price: 650, moq: "100 g", lead: "21-28 days", img: "images/para.jpg", desc: "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed." },
-  { id: 41, name: "Raskapoor", sci: "Sublimed Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 55, moq: "5 kg", lead: "10-14 days", img: "images/raskapoor.jpg", desc: "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics." },
-  { id: 42, name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 75, moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
-  { id: 43, name: "Singraf", sci: "Cinnabar / Red Sulphide", category: "rasa", catLabel: "Rasa Uparasa", price: 130, moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders." },
+  { id: 33,  name: "Amlasar Gandhak", sci: "Sulphur processed in Amla", category: "rasa", catLabel: "Rasa Uparasa", price: 60, moq: "5 kg", lead: "10-14 days", img: "images/amlasar-gandhak.jpg", desc: "Sulphur processed in Indian Gooseberry (Amla) juice. Used primarily for skin diseases, itching, and respiratory ailments due to its heating and purifying properties." },
+  { id: 34,  name: "Danda Gandhak", sci: "Crystalline Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 45, moq: "5 kg", lead: "10-14 days", img: "images/danda-gandhak.jpg", desc: "Crude Sulphur in stick/crystal form. Requires extensive purification (Shodhana) before internal use. Effective in fungal infections and arthritis." },
+  { id: 35,  name: "Darchikna", sci: "Arsenic Trisulfide", category: "rasa", catLabel: "Rasa Uparasa", price: 180, moq: "1 kg", lead: "14-21 days", img: "images/darchikna.jpg", desc: "Yellow Orpiment (Harital). Used in treating skin diseases, fevers, and asthma. Highly toxic and requires rigorous purification processes in Rasa Shastra." },
+  { id: 36,  name: "Hartal Hariyawal", sci: "Arsenic Disulfide (Green)", category: "rasa", catLabel: "Rasa Uparasa", price: 160, moq: "1 kg", lead: "14-21 days", img: "images/hartal-hariyawal.jpg", desc: "A specific green variety of Realgar (Manahshila). Used in traditional formulations for respiratory conditions, fever, and blood disorders after detoxification." },
+  { id: 37,  name: "Hartal Patri", sci: "Arsenic Disulfide (Leaf)", category: "rasa", catLabel: "Rasa Uparasa", price: 170, moq: "1 kg", lead: "14-21 days", img: "images/hartal-patri.jpg", desc: "Leaf-like formation of Hartal. Used externally in skin pastes and internally (after Samskara) for chronic asthma and cough. Requires expert handling." },
+  { id: 38,  name: "Mansil", sci: "Cinnabar (Vermilion)", category: "rasa", catLabel: "Rasa Uparasa", price: 120, moq: "1 kg", lead: "14-21 days", img: "images/mansil.jpg", desc: "Mercuric Sulphide ore. The primary source of Parada (Mercury) in Rasa Shastra. Used in nervine tonics and for enhancing immune function." },
+  { id: 39,  name: "Neela", sci: "Lapis Lazuli", category: "rasa", catLabel: "Rasa Uparasa", price: 90, moq: "5 kg", lead: "10-14 days", img: "images/neela.jpg", desc: "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas." },
+  { id: 40,  name: "Para", sci: "Mercury (Elemental)", category: "rasa", catLabel: "Rasa Uparasa", price: 650, moq: "100 g", lead: "21-28 days", img: "images/para.jpg", desc: "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed." },
+  { id: 41,  name: "Raskapoor", sci: "Sublimed Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 55, moq: "5 kg", lead: "10-14 days", img: "images/raskapoor.jpg", desc: "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics." },
+  { id: 42,  name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 75, moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
+  { id: 43,  name: "Singraf", sci: "Cinnabar / Red Sulphide", category: "rasa", catLabel: "Rasa Uparasa", price: 130, moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders." },
 
   // ── Namak (Salts) ──
-  { id: 44, name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak (Salts)", price: 40, moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery." },
-  { id: 45, name: "Jawa Khar", sci: "Alum (Jawa)", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying." },
-  { id: 46, name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak (Salts)", price: 5, moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda." },
-  { id: 47, name: "Kala Sajji Khar", sci: "Black Alum", category: "namak", catLabel: "Namak (Salts)", price: 14, moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties." },
-  { id: 48, name: "Kalmi Shora", sci: "Sodium Carbonate", category: "namak", catLabel: "Namak (Salts)", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/kalmi-shora.jpg", desc: "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties." },
-  { id: 49, name: "Mithi Soda", sci: "Sodium Bicarbonate", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/mithi-soda.jpg", desc: "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies." },
-  { id: 50, name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 20, moq: "10 kg", lead: "10-14 days", img: "images/nausadar-fali.jpg", desc: "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones." },
-  { id: 51, name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin." },
-  { id: 52, name: "Red Phatkri", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/red-phatkri.jpg", desc: "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects." },
-  { id: 53, name: "Safed Sajji Khar", sci: "White Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/safed-sajji-khar.jpg", desc: "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments." },
-  { id: 54, name: "Samudri Namak", sci: "Sea Salt", category: "namak", catLabel: "Namak (Salts)", price: 2, moq: "50 kg", lead: "5-7 days", img: "images/samudri-namak.jpg", desc: "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy." },
-  { id: 55, name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 3, moq: "50 kg", lead: "7-10 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
-  { id: 56, name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 16, moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties." },
-  { id: 57, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
+  { id: 44,  name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak (Salts)", price: 40, moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery." },
+  { id: 45,  name: "Jawa Khar", sci: "Alum (Jawa)", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying." },
+  { id: 46,  name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak (Salts)", price: 5, moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda." },
+  { id: 47,  name: "Kala Sajji Khar", sci: "Black Alum", category: "namak", catLabel: "Namak (Salts)", price: 14, moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties." },
+  { id: 48,  name: "Kalmi Shora", sci: "Sodium Carbonate", category: "namak", catLabel: "Namak (Salts)", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/kalmi-shora.jpg", desc: "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties." },
+  { id: 49,  name: "Mithi Soda", sci: "Sodium Bicarbonate", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/mithi-soda.jpg", desc: "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies." },
+  { id: 50,  name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 20, moq: "10 kg", lead: "10-14 days", img: "images/nausadar-fali.jpg", desc: "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones." },
+  { id: 51,  name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin." },
+  { id: 52,  name: "Red Phatkri", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/red-phatkri.jpg", desc: "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects." },
+  { id: 53,  name: "Safed Sajji Khar", sci: "White Alum", category: "namak", catLabel: "Namak (Salts)", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/safed-sajji-khar.jpg", desc: "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments." },
+  { id: 54,  name: "Samudri Namak", sci: "Sea Salt", category: "namak", catLabel: "Namak (Salts)", price: 2, moq: "50 kg", lead: "5-7 days", img: "images/samudri-namak.jpg", desc: "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy." },
+  { id: 55,  name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 3, moq: "50 kg", lead: "7-10 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
+  { id: 56,  name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 16, moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties." },
+  { id: 57,  name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
 ];
 
 let cart = [];
@@ -735,6 +741,7 @@ let currentSort = 'name';
 let currentModalProduct = null;
 let selectedPaymentMethod = 'esewa';
 let selectedPaymentCurrency = 'npr'; // 'npr' or 'usd'
+let paymentScreenshotBase64 = null; // Store screenshot data
 
 // ==================== RENDER ====================
 function renderProducts(items) {
@@ -743,7 +750,7 @@ function renderProducts(items) {
   const countEl = document.getElementById('productCount');
 
   if (items.length === 0) {
-    grid.innerHTML = '';
+    grid.innerHTML = ''; 
     noResults.classList.remove('hidden');
     countEl.textContent = '0 products';
     return;
@@ -979,11 +986,45 @@ function switchPaymentTab(method) {
   openPaymentModal(method);
 }
 
+// ==================== IMAGE UPLOAD LOGIC ====================
+document.getElementById('paymentScreenshot').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  const preview = document.getElementById('screenshotPreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const errorMsg = document.getElementById('imageError');
+  
+  if (file) {
+    // Check size (Max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      errorMsg.classList.remove('hidden');
+      this.value = ''; // Reset input
+      preview.src = '';
+      preview.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+      paymentScreenshotBase64 = null;
+      return;
+    } else {
+      errorMsg.classList.add('hidden');
+    }
+
+    // Read file as Base64
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      paymentScreenshotBase64 = evt.target.result;
+      preview.src = evt.target.result;
+      preview.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// ==================== SUBMIT ORDER ====================
 async function submitOrderToBackend() {
   const btn = document.getElementById('confirmPayBtn');
   const nameInput = document.getElementById('clientName');
   const phoneInput = document.getElementById('clientPhone');
-  const emailInput = document.getElementById('clientEmail'); // NEW
+  const emailInput = document.getElementById('clientEmail');
   const addressInput = document.getElementById('clientAddress');
   
   // Validation
@@ -1015,7 +1056,7 @@ async function submitOrderToBackend() {
   const currencySymbol = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD';
 
   btn.disabled = true;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Verifying...`;
+  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading...`;
   lucide.createIcons();
 
   const orderData = {
@@ -1028,33 +1069,31 @@ async function submitOrderToBackend() {
     clientDetails: {
       name: nameInput.value.trim(),
       phone: phoneInput.value.trim(),
-      email: emailInput.value.trim() || 'N/A', // CAPTURED
+      email: emailInput.value.trim() || 'N/A',
       address: addressInput.value.trim() || 'N/A'
     },
+    paymentScreenshot: paymentScreenshotBase64, // SEND IMAGE
     timestamp: new Date().toISOString()
   };
 
   try {
-    if(RENDER_BACKEND_URL.includes('your-app-name')) {
-      alert("Please update RENDER_BACKEND_URL in script section with your actual Render URL!");
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-      return;
-    }
+    const response = await axios.post(`${RENDER_BACKEND_URL}/order`, orderData);
 
-    const response = await fetch(`${RENDER_BACKEND_URL}/order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
-    });
-
-    if (response.ok) {
+    if (response.data.success) {
       showToast('Order placed successfully! We will verify your payment.', 'success');
       cart = [];
       nameInput.value = '';
       phoneInput.value = '';
-      emailInput.value = ''; // CLEARED
+      emailInput.value = '';
       addressInput.value = '';
+      
+      // Reset Image
+      document.getElementById('paymentScreenshot').value = '';
+      document.getElementById('screenshotPreview').src = '';
+      document.getElementById('screenshotPreview').classList.add('hidden');
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      paymentScreenshotBase64 = null;
+
       updateCartUI();
       closePaymentModal();
     } else {
@@ -1066,7 +1105,7 @@ async function submitOrderToBackend() {
     cart = [];
     nameInput.value = '';
     phoneInput.value = '';
-    emailInput.value = ''; // CLEARED
+    emailInput.value = '';
     addressInput.value = '';
     updateCartUI();
     closePaymentModal();
@@ -1075,7 +1114,6 @@ async function submitOrderToBackend() {
     btn.innerHTML = originalText;
   }
 }
-
 
 // ==================== MODAL ====================
 function openModal(id) {
@@ -1185,7 +1223,7 @@ document.addEventListener('keydown', e => {
 function submitForm(e) {
   e.preventDefault();
   const msg = document.getElementById('formMsg');
-  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within24 hours.';
+  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
   msg.classList.remove('hidden');
   e.target.reset();
   setTimeout(() => msg.classList.add('hidden'), 5000);
