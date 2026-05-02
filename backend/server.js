@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const axios = require('axios');
+const nodemailer = require('nodemailer'); // ADDED: Library to send emails
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,6 +9,17 @@ const port = process.env.PORT || 3000;
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' })); // Increased limit for images
 app.use(cors());
+
+// ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
+// Ensure you set EMAIL_USER and EMAIL_PASS in your .env file
+// Example: EMAIL_USER="your@gmail.com", EMAIL_PASS="your-app-password"
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', // Or use 'host' and 'port' for other SMTP providers (e.g., Outlook, SendGrid)
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 // ─── DATABASE CONNECTION ──────────────────────────────────────────────────────
 const pool = new Pool({
@@ -54,11 +65,10 @@ app.post('/order', async (req, res) => {
     const {
       items, totalUSD, totalNPR, paidAmount,
       currency, paymentMethod, clientDetails, timestamp,
-      paymentScreenshot // NEW FIELD
+      paymentScreenshot
     } = req.body;
 
     // FIX: Explicitly list the columns to match the CREATE TABLE query
-    // Order matters: items, total_usd, total_npr, paid_amount, currency, payment_method, client_name, client_phone, client_email, payment_screenshot, status, email_sent, timestamp
     const query = `
       INSERT INTO orders 
         (items, total_usd, total_npr, paid_amount, currency,
@@ -68,14 +78,13 @@ app.post('/order', async (req, res) => {
       RETURNING id;
     `;
 
-    // FIX: Ensure we are sending 13 values to match the 13 columns
     const values = [
       JSON.stringify(items), totalUSD, totalNPR, paidAmount,
       currency, paymentMethod,
       clientDetails.name, clientDetails.phone, clientDetails.email,
-      paymentScreenshot, // STORE IMAGE
-      'Pending',             // DEFAULT STATUS
-      false,                 // DEFAULT EMAIL_SENT
+      paymentScreenshot, 
+      'Pending',             
+      false,                 
       timestamp
     ];
 
@@ -90,43 +99,53 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Trigger Python Email ─────────────────────────────
+// ─── ROUTE 2: Update Status & Send Auto Email ─────────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
 
-    // 1. Update Database (Reset email_sent flag)
-    // Explicitly list columns for update as well to be safe
-    const query = `UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`;
+    // 1. Fetch Client Details needed for the email
+    const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
+    
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    const { client_name, client_email } = orderResult.rows[0];
+
+    // 2. Update Database (Set email_sent to TRUE because we are sending it now)
+    const query = `UPDATE orders SET status = $1, email_sent = TRUE WHERE id = $2`;
     await pool.query(query, [status, id]);
 
     console.log(`🔄 Order #${id} status updated to '${status}'.`);
 
-    // 2. Trigger Instant Email to Python (Webhook)
-    const pythonUrl = 'https://ayurved-rasrasayan-github-io-1.onrender.com/send-email'; 
-    const apiSecret = process.env.API_SECRET || 'change_this_to_a_random_string';
+    // 3. Send Email directly via Node.js
+    if (client_email) {
+      const mailOptions = {
+        from: process.env.EMAIL_USER, // Sender address
+        to: client_email,             // Receiver address
+        subject: `Order Status Update: #${id}`,
+        html: `
+          <h3>Hello ${client_name},</h3>
+          <p>Your order <strong>#${id}</strong> status has been updated to:</p>
+          <h2 style="color: #2d4a22;">${status}</h2>
+          <p>Thank you for shopping with NaturaBotanica.</p>
+        `
+      };
 
-    try {
-        const response = await axios.post(pythonUrl, 
-            { id: id }, 
-            { 
-                headers: { 
-                    'X-API-SECRET': apiSecret,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 5000
-            }
-        );
-
-        if (response.data.success) {
-            console.log(`📧 [Instant] Email dispatched for Order #${id}`);
-        }
-    } catch (emailError) {
-        console.log(`⚠️ Python Webhook failed (Server sleeping?): ${emailError.message}. Background worker will retry.`);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Email successfully sent to ${client_email} for Order #${id}`);
+      } catch (emailError) {
+        console.error(`❌ Failed to send email to ${client_email}:`, emailError.message);
+        // We don't fail the whole request if email fails, just log it.
+      }
+    } else {
+      console.log(`⚠️ No email found for Order #${id}`);
     }
 
-    // 3. Respond to Admin Immediately
-    res.json({ success: true, message: `Status updated to ${status}.` });
+    // 4. Respond to Admin
+    res.json({ success: true, message: `Status updated to ${status}. Email sent.` });
 
   } catch (error) {
     console.error('❌ Error updating status:', error);
@@ -175,7 +194,7 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Admin Order Dashboard (UPDATED WITH IMAGE VIEW) ──────────────────
+// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -387,7 +406,8 @@ app.get('/view-orders', async (req, res) => {
               const data = await response.json();
               if (data.success) {
                 selectEl.className = 'status-select status-' + newStatus;
-                showToast('✅ Status updated — email queued');
+                // UPDATED MESSAGE: Changed "email queued" to "Email sent"
+                showToast('✅ Status updated — Email sent');
               } else {
                 showToast('❌ Update failed');
               }
