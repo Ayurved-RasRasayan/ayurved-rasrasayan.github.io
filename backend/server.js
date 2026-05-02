@@ -13,8 +13,8 @@ app.use(cors());
 // ─── EMAIL SENDING FUNCTION (HTTPS API) ──────────────────────────────────────────
 async function sendEmailViaAPI(toEmail, toName, orderId, status) {
   try {
-    // Determine Sender Address (Priority: EMAIL_FROM env var, then fallback to Login)
-    const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    // CHANGE: Strictly set sender to sales.naturabotanica20@gmail.com as requested
+    const senderEmail = 'sales.naturabotanica20@gmail.com';
     const senderName = 'NaturaBotanica';
 
     // DEBUG: Log exactly who is sending to who
@@ -32,7 +32,7 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status) {
         name: toName
       }],
       subject: `Order Status Update: #${orderId}`,
-      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${status}</strong>.</p>`
+      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${status}</strong>.</p><p>Thank you for shopping with NaturaBotanica.</p>`
     };
 
     const response = await axios.post(endpoint, data, {
@@ -152,6 +152,7 @@ app.put('/update-status', async (req, res) => {
     let emailStatusResult = 'Queue'; 
 
     if (client_email && client_email.includes('@')) {
+      // Send email using the fixed sender address and the client's email from the DB
       const success = await sendEmailViaAPI(client_email, client_name, id, status);
       
       if (success) {
