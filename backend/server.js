@@ -12,7 +12,6 @@ app.use(cors());
 
 // ─── SECURITY MIDDLEWARE (Basic Auth) ─────────────────────────────────────────
 function checkAuth(req, res, next) {
-  // Get the auth header from the request
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
@@ -20,17 +19,15 @@ function checkAuth(req, res, next) {
     return res.status(401).send('<h1>Authentication Required</h1>');
   }
 
-  // Decode the base64 credentials (username:password)
   const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
   const user = auth[0];
   const pass = auth[1];
 
-  // Check against environment variables
   const validUser = process.env.ADMIN_USER || 'admin';
   const validPass = process.env.ADMIN_PASSWORD || 'password123';
 
   if (user === validUser && pass === validPass) {
-    next(); // User is authenticated, proceed to the route
+    next(); 
   } else {
     res.setHeader('WWW-Authenticate', 'Basic realm="NaturaBotanica Admin"');
     return res.status(401).send('<h1>Access Denied</h1>');
@@ -117,7 +114,6 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    // Safe migration checks
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
@@ -164,7 +160,6 @@ app.post('/order', async (req, res) => {
 });
 
 // ─── ROUTE 2: Update Status (PROTECTED) ─────────────────────────────────────
-// Added checkAuth middleware here
 app.put('/update-status', checkAuth, async (req, res) => {
   try {
     const { id, status } = req.body;
@@ -243,7 +238,6 @@ app.post('/contact', async (req, res) => {
 });
 
 // ─── ROUTE 4: Delete Single Order (PROTECTED) ────────────────────────────
-// Added checkAuth middleware here
 app.delete('/delete-order/:id', checkAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -258,7 +252,6 @@ app.delete('/delete-order/:id', checkAuth, async (req, res) => {
 });
 
 // ─── ROUTE 5: Delete Multiple Orders (PROTECTED) ─────────────────────────
-// Added checkAuth middleware here
 app.delete('/delete-orders', checkAuth, async (req, res) => {
   try {
     const { ids } = req.body;
@@ -278,8 +271,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED) ────────────────────────────
-// Added checkAuth middleware here
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & RESPONSIVE) ────────────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -289,53 +281,168 @@ app.get('/view-orders', checkAuth, async (req, res) => {
       <html lang="en">
       <head>
         <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v9</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <title>NaturaBotanica — Mobile Orders</title>
         <style>
-          * { box-sizing: border-box; }
-          body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
+          /* ─── GLOBAL & RESET ───────────────────────────────────────────────────── */
+          * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; padding: 15px; margin: 0; color: #333; }
           .container { max-width: 1200px; margin: 0 auto; }
-          h1 { color: #2d4a22; }
-          .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-          .btn { padding: 8px 16px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; transition: opacity 0.2s; }
-          .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+          
+          h1 { color: #2d4a22; font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+          /* ─── TOOLBAR ───────────────────────────────────────────────────────── */
+          .toolbar { 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px; 
+            flex-wrap: wrap; background: #fff; padding: 10px; 
+            border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          }
+          .btn { 
+            padding: 10px 16px; border-radius: 6px; border: none; font-weight: 600; 
+            cursor: pointer; font-size: 14px; transition: opacity 0.2s, background 0.2s; 
+            display: inline-flex; align-items: center; justify-content: center;
+          }
+          .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
           .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-          .btn-danger:hover:not(:disabled) { background: #fca5a5; }
+          .btn-danger:hover:not(:disabled) { background: #fecaca; }
           .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
           .btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
-          .selected-count { color: #6b7280; font-size: 14px; }
-          
-          .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-          table { width: 100%; border-collapse: collapse; }
-          th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; }
-          th { background: #2d4a22; color: white; }
-          tr.selected { background: #fef9c3; }
-          
-          input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-          
-          select.status-select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; cursor: pointer; }
-          .status-Pending   { background: #fff7ed; color: #b45309; }
-          .status-Shipping  { background: #eff6ff; color: #1e40af; }
-          .status-Completed { background: #f0fdf4; color: #15803d; }
-          .status-Success   { background: #dcfce7; color: #15803d; }
-          .status-Rejected  { background: #fee2e2; color: #991b1b; }
-          
-          .badge-queue { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #b45309; background: #fff7ed; border: 1px solid #fdba74; }
-          .badge-sent  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #15803d; background: #f0fdf4; border: 1px solid #86efac; }
-          .badge-fail  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #dc2626; background: #fee2e2; border: 1px solid #fca5a5; }
+          .selected-count { color: #6b7280; font-size: 14px; margin-left: auto; font-weight: 500; }
 
-          .screenshot-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: pointer; transition: transform 0.2s; }
-          .screenshot-thumb:hover { transform: scale(2); z-index: 10; }
+          /* ─── DESKTOP TABLE VIEW ─────────────────────────────────────────────── */
+          .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+          th { background: #2d4a22; color: white; font-weight: 600; white-space: nowrap; }
+          tr.selected { background: #fef9c3; }
+          tr:hover { background-color: #fafafa; }
           
-          #toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 24px; border-radius: 4px; display: none; z-index: 999; }
-          #imgModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
-          #imgModal img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-          .close-img { position: absolute; top: 20px; right: 20px; color: white; cursor: pointer; font-size: 40px; }
+          /* Inputs & Selects in Table */
+          input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2d4a22; }
+          select.status-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; cursor: pointer; width: 100%; max-width: 180px; }
+          
+          /* Status Colors */
+          .status-Pending   { background: #fff7ed; color: #b45309; border-color: #fed7aa; }
+          .status-Shipping  { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+          .status-Completed { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+          .status-Success   { background: #dcfce7; color: #15803d; border-color: #86efac; }
+          .status-Rejected  { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+          
+          /* Email Badges */
+          .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+          .badge-queue { background: #fff7ed; color: #b45309; border: 1px solid #fdba74; }
+          .badge-sent  { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+          .badge-fail  { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+
+          /* Screenshot */
+          .screenshot-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .screenshot-thumb:hover { transform: scale(1.1); }
+
+          /* ─── MOBILE CARD VIEW (Responsive) ──────────────────────────────────── */
+          @media (max-width: 768px) {
+            body { padding: 10px; background: #eef2f6; }
+            .container { padding: 0; }
+            h1 { font-size: 1.25rem; margin-bottom: 10px; }
+            
+            /* Stack Toolbar */
+            .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .selected-count { margin-left: 0; text-align: center; margin-top: 5px; font-size: 13px; }
+            
+            /* Hide Table Header */
+            thead { display: none; }
+            
+            /* Convert Table to Grid of Cards */
+            table, tbody, tr, td { display: block; width: 100%; }
+            
+            tr {
+              background: #fff;
+              border-radius: 12px;
+              margin-bottom: 20px;
+              padding: 15px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+              border: 1px solid transparent;
+              position: relative;
+              overflow: hidden;
+            }
+            tr.selected { border-color: #facc15; background: #fff; box-shadow: 0 0 0 2px #facc15; }
+            
+            td {
+              padding: 10px 0 10px 0;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              text-align: right;
+              border-bottom: 1px solid #f3f4f6;
+              min-height: auto;
+              position: relative;
+              padding-left: 35%; /* Space for label */
+            }
+            
+            td:last-child { border-bottom: none; }
+
+            /* Add labels via CSS pseudo-elements */
+            td::before {
+              content: attr(data-label);
+              position: absolute;
+              left: 0;
+              width: 30%;
+              padding-right: 10px;
+              white-space: nowrap;
+              font-weight: 600;
+              color: #6b7280;
+              text-align: left;
+              font-size: 0.85rem;
+              display: flex;
+              align-items: center;
+            }
+
+            /* Mobile Specific Tweaks */
+            td:nth-child(1) { /* Checkbox */
+              position: absolute; top: 15px; right: 15px; width: auto; padding: 0; z-index: 10; background: transparent;
+            }
+            td:nth-child(1)::before { content: none; } /* No label for checkbox */
+            
+            td:nth-child(2) { /* ID */
+              font-size: 0.8rem; color: #9ca3af; order: -2; padding-top: 0; margin-bottom: -10px;
+            }
+            td:nth-child(2)::before { content: "Order #"; font-weight: 400; }
+
+            td:nth-child(3) { /* Client */
+              order: -3; 
+              padding-top: 0;
+              border-bottom: none;
+            }
+            td:nth-child(3)::before { content: none; } /* Client name acts as header */
+            td:nth-child(3) strong { display: block; font-size: 1.1rem; color: #111; }
+            td:nth-child(3) small { font-size: 0.85rem; color: #6b7280; display: block; margin-top: 2px; }
+
+            /* Screenshot & Status on Mobile */
+            td:nth-child(5) { justify-content: flex-end; } /* Payment */
+            
+            select.status-select { width: auto; min-width: 140px; font-size: 14px; }
+            
+            /* Action Button */
+            .btn-delete-single {
+              width: 100%; margin-top: 5px; background: #fff; border: 1px solid #fee2e2; color: #dc2626;
+              padding: 12px; border-radius: 8px; text-align: center;
+            }
+            .btn-delete-single:active { background: #fee2e2; }
+          }
+
+          /* ─── MODALS & TOASTS ────────────────────────────────────────────────── */
+          #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 30px; display: none; z-index: 2000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); font-size: 14px; text-align: center; min-width: 200px;}
+          
+          #imgModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+          #imgModal img { max-width: 95%; max-height: 95%; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+          .close-img { position: absolute; top: 20px; right: 20px; color: white; cursor: pointer; font-size: 40px; background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; user-select: none; }
+
+          /* ─── UTILS ──────────────────────────────────────────────────────────── */
+          .no-proof { color: #ccc; font-size: 12px; font-style: italic; }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>📦 NaturaBotanica Orders</h1>
+          <h1>📦 NaturaBotanica <span style="font-size:0.6em; opacity:0.6; font-weight:normal; margin-top:5px;">v10 Mobile</span></h1>
 
           <div class="toolbar">
             <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
@@ -347,12 +454,12 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             <table>
               <thead>
                 <tr>
-                  <th><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
+                  <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th>ID</th>
                   <th>Client</th>
                   <th>Amount</th>
-                  <th>Payment</th>
-                  <th>EMAIL STATUS</th>
+                  <th>Payment Proof</th>
+                  <th>Email Status</th>
                   <th>Order Status</th>
                   <th>Actions</th>
                 </tr>
@@ -360,29 +467,29 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  let emailBadge = `<span class="badge-queue">⏳ Queue</span>`;
+                  let emailBadge = `<span class="badge badge-queue">⏳ Queue</span>`;
                   if (row.email_status === 'Sent') {
-                    emailBadge = `<span class="badge-sent">✅ Sent</span>`;
+                    emailBadge = `<span class="badge badge-sent">✅ Sent</span>`;
                   } else if (row.email_status === 'Failed') {
-                    emailBadge = `<span class="badge-fail">❌ Failed</span>`;
+                    emailBadge = `<span class="badge badge-fail">❌ Failed</span>`;
                   }
 
                   return `
                   <tr id="row-${row.id}">
-                    <td><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
-                    <td>#${row.id}</td>
-                    <td>
+                    <td data-label="Select"><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
+                    <td data-label="Order">#${row.id}</td>
+                    <td data-label="Client">
                       <strong>${row.client_name || 'Guest'}</strong><br>
                       <small>${row.client_email || ''}</small>
                     </td>
-                    <td>$${row.total_usd}</td>
-                    <td>
+                    <td data-label="Amount">$${row.total_usd}</td>
+                    <td data-label="Payment Proof">
                       ${row.payment_screenshot ? 
-                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Screenshot">` : 
-                        '<span style="color:#ccc; font-size:12px;">No Proof</span>'}
+                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Proof">` : 
+                        '<span class="no-proof">No Proof</span>'}
                     </td>
-                    <td id="email-status-cell-${row.id}">${emailBadge}</td>
-                    <td>
+                    <td data-label="Email Status" id="email-status-cell-${row.id}">${emailBadge}</td>
+                    <td data-label="Order Status">
                       <select onchange="updateStatus(${row.id}, this.value, this)" class="status-select status-${status}">
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
@@ -391,7 +498,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
                     </td>
-                    <td><button class="btn-delete-single" onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button></td>
+                    <td data-label="Actions"><button class="btn btn-delete-single" onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button></td>
                   </tr>
                   `;
                 }).join('')}
@@ -439,11 +546,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             const cell = document.getElementById('email-status-cell-' + id);
             if (!cell) return;
             if (status === 'Sent') {
-                cell.innerHTML = '<span class="badge-sent">✅ Sent</span>';
+                cell.innerHTML = '<span class="badge badge-sent">✅ Sent</span>';
             } else if (status === 'Failed') {
-                cell.innerHTML = '<span class="badge-fail">❌ Failed</span>';
+                cell.innerHTML = '<span class="badge badge-fail">❌ Failed</span>';
             } else {
-                cell.innerHTML = '<span class="badge-queue">⏳ Queue</span>';
+                cell.innerHTML = '<span class="badge badge-queue">⏳ Queue</span>';
             }
           }
 
@@ -537,5 +644,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v9 (Secure Mode)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v10 (Mobile Secure Mode)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
