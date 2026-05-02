@@ -2,7 +2,7 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // ADDED: To ensure .env is loaded
+// REMOVED: require('dotenv').config(); (Render loads this automatically)
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP (UPDATED FOR SSL/PORT 465) ──────────────────────
+// ─── EMAIL TRANSPORTER SETUP (CONFIGURED FOR PORT 465) ──────────────────────
 // DEBUGGING: Print env vars to ensure they are loaded
 console.log(`[EMAIL CONFIG] Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}`);
 console.log(`[EMAIL CONFIG] User: ${process.env.EMAIL_USER}`);
@@ -30,7 +30,7 @@ const transporter = nodemailer.createTransport({
 transporter.verify(function (error, success) {
   if (error) {
     console.log("⚠️ Email Server Connection Failed.", error.message);
-    console.log("💡 Try ensuring your .env file has the correct PORT (465) and PASSWORD.");
+    console.log("💡 Ensure .env has EMAIL_PORT=465 and correct PASSWORD.");
   } else {
     console.log("✅ Email Server is ready to send messages (Brevo Connected)");
   }
@@ -72,6 +72,7 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
+    // Migrations
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
