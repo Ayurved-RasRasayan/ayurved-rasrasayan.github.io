@@ -271,7 +271,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & TIGHT MOBILE) ────────────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & TIDY MOBILE) ────────────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -343,10 +343,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-          /* ─── MOBILE RESPONSIVE VIEW (TIGHT & TIDY) ───────────────────── */
+          /* ─── MOBILE RESPONSIVE VIEW (The "Tidy" Fix) ───────────────────── */
           @media (max-width: 768px) {
-            body { background: #e5e7eb; } 
-            .container { padding: 10px; }
+            body { background: #e5e7eb; } /* Slightly darker bg to pop cards */
+            .container { padding: 12px; }
             
             /* 1. Layout Basics */
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
@@ -368,45 +368,46 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 4px rgba(45, 74, 34, 0.1); }
 
-            /* 3. Cell Styling - Reduced Margins for Tidiness */
+            /* 3. Cell Styling */
             td {
               display: flex;
               width: 100%;
               padding: 0;
               border: none;
-              align-items: center; 
-              margin-bottom: 4px; /* Reduced from 8px */
+              align-items: center; /* Center vertically by default */
+              margin-bottom: 8px; /* Vertical spacing between elements */
             }
-            td::before { display: none; } 
+            td::before { display: none; } /* Hide all pseudo-labels initially */
 
             /* 4. Specific Ordering & Styling */
             
-            /* Checkbox */
+            /* Checkbox: Absolute top right */
             td:nth-child(1) {
               position: absolute; top: 16px; right: 16px; width: auto; margin: 0; z-index: 10; padding: 4px; background: #fff; border-radius: 4px;
             }
             td:nth-child(1) input { width: 20px; height: 20px; }
 
-            /* Client Name */
+            /* Client Name: Big Bold Header */
             td:nth-child(3) {
-              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px;
+              order: 2;
+              flex-direction: column; align-items: flex-start; margin-bottom: 4px;
             }
             td:nth-child(3) strong { font-size: 1.2rem; color: #111827; display: block; margin-bottom: 2px; }
             td:nth-child(3) small { font-size: 0.85rem; color: #6b7280; font-weight: 400; }
 
-            /* Order ID */
+            /* Order ID: Small grey text below name */
             td:nth-child(2) {
-              order: 3; font-size: 0.8rem; color: #9ca3af; margin-top: -4px; margin-bottom: 8px;
+              order: 3; font-size: 0.8rem; color: #9ca3af; margin-top: -4px; margin-bottom: 12px;
             }
 
-            /* Amount - The Divider */
+            /* Amount: Make it stand out, maybe green */
             td:nth-child(4) {
-              order: 4; font-size: 1.1rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 10px 12px; border-radius: 6px; align-self: flex-start; margin-bottom: 12px;
+              order: 4; font-size: 1.1rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 8px 12px; border-radius: 6px; align-self: flex-start;
             }
 
-            /* ORDER STATUS (The Shipping Button) */
+            /* Order Status: Prominent Select Box */
             td:nth-child(7) {
-              order: 5; margin: 0 0 2px 0; /* Tight spacing */
+              order: 5; margin: 16px 0 8px 0;
             }
             td:nth-child(7) select {
               width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 15px; background: #fff;
@@ -414,14 +415,14 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto;
             }
 
-            /* EMAIL STATUS - Directly under Order Status */
+            /* Email Status: Subtle Badge Center */
             td:nth-child(6) {
-              order: 6; justify-content: flex-end; margin-bottom: 8px;
+              order: 6; justify-content: center; margin-bottom: 12px;
             }
             
-            /* PAYMENT PROOF - Directly under Email Status */
+            /* Payment Proof: Thumbnail + Label */
             td:nth-child(5) {
-              order: 7; justify-content: flex-start; background: #f9fafb; padding: 8px; border-radius: 6px; border: 1px dashed #d1d5db; margin-bottom: 4px;
+              order: 7; justify-content: flex-start; background: #f9fafb; padding: 8px; border-radius: 6px; border: 1px dashed #d1d5db;
             }
             td:nth-child(5)::before {
               display: inline; content: "Payment Proof"; font-size: 0.75rem; color: #6b7280; font-weight: 600; margin-right: 10px;
@@ -429,9 +430,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             td:nth-child(5) .no-proof { color: #9ca3af; font-size: 0.8rem; font-style: italic; }
             td:nth-child(5) img { border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-            /* ACTIONS/DELETE - Directly touching Payment Proof */
+            /* Actions/Delete: Full Width Button */
             td:nth-child(8) {
-              order: 8; margin-top: 0;
+              order: 8; margin-top: 12px;
             }
             td:nth-child(8) button {
               width: 100%; background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; font-weight: 600; border: 1px solid #fecaca;
@@ -453,7 +454,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
       </head>
       <body>
         <div class="container">
-          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">v12</span></h1>
+          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">v11</span></h1>
 
           <div class="toolbar">
             <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
@@ -535,6 +536,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             document.getElementById('fullImage').src = src;
             const modal = document.getElementById('imgModal');
             modal.style.display = 'flex';
+            // slight delay to allow display flex to apply before adding class for transition
             setTimeout(() => modal.classList.add('show'), 10);
           }
           function closeImage(e) {
@@ -564,7 +566,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           }
 
           function setBadge(id, status) {
-            const cell = document.getElementById('row-' + id).querySelector('td:nth-child(6)'); 
+            const cell = document.getElementById('row-' + id).querySelector('td:nth-child(6)'); // Email Status Column
             if (!cell) return;
             if (status === 'Sent') {
                 cell.innerHTML = '<span class="badge badge-sent">✅ Sent</span>';
@@ -578,7 +580,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true;
             const originalClass = selectEl.className;
-            selectEl.className = 'status-select'; 
+            selectEl.className = 'status-select'; // remove color
             
             try {
               const response = await fetch('/update-status', {
@@ -674,5 +676,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v12 (Tight Mobile)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v11 (Tidy Mobile)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
