@@ -103,6 +103,7 @@ const createTableQuery = `
     client_name         VARCHAR,
     client_phone        VARCHAR,
     client_email        VARCHAR,
+    client_address      TEXT,
     payment_screenshot  TEXT,
     status              VARCHAR DEFAULT 'Pending',
     email_status        VARCHAR DEFAULT 'Queue',
@@ -114,11 +115,21 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
+    
+    // Migration 1: Rename email_sent to email_status
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
+    
+    // Migration 2: Ensure email_status is text
     pool.query(`ALTER TABLE orders ALTER COLUMN email_status TYPE VARCHAR USING email_status::TEXT;`, (err) => {
         if(err) console.log("ℹ️ DB Migration checked.");
+    });
+
+    // Migration 3: Add Address Column (New Feature)
+    pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_address TEXT;`, (err) => {
+        if(err) console.log("⚠️ Error adding address column (might exist):", err.message);
+        else console.log("✅ 'client_address' column ensured.");
     });
   }
 });
@@ -135,16 +146,16 @@ app.post('/order', async (req, res) => {
     const query = `
       INSERT INTO orders 
         (items, total_usd, total_npr, paid_amount, currency,
-         payment_method, client_name, client_phone, client_email, payment_screenshot, 
+         payment_method, client_name, client_phone, client_email, client_address, payment_screenshot, 
          status, email_status, timestamp)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
       RETURNING id;
     `;
 
     const values = [
       JSON.stringify(items), totalUSD, totalNPR, paidAmount,
       currency, paymentMethod,
-      clientDetails.name, clientDetails.phone, clientDetails.email,
+      clientDetails.name, clientDetails.phone, clientDetails.email, clientDetails.address || '',
       paymentScreenshot, 
       'Pending',             
       'Queue',                
@@ -316,24 +327,21 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* ─── DESKTOP TABLE ────────────────────────────────────────────── */
           .table-wrap { background: #fff; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          table { width: 100%; border-collapse: collapse; min-width: 800px; }
+          table { width: 100%; border-collapse: collapse; min-width: 1100px; } /* Increased min-width for new columns */
           th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
           th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
           tr:hover { background: #fafafa; }
           tr.selected { background: #fffbeb; }
 
-          /* Desktop Inputs */
           input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2d4a22; }
           select.status-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; max-width: 160px; font-size: 13px; }
           
-          /* Status Colors (Desktop) */
           .status-Pending   { background: #fff7ed; color: #c2410c; }
           .status-Shipping  { background: #eff6ff; color: #1d4ed8; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fef2f2; color: #b91c1c; }
 
-          /* Badges (Desktop) */
           .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
           .badge-queue { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
           .badge-sent  { background: #ecfccb; color: #3f6212; border: 1px solid #bef264; }
@@ -342,28 +350,22 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: transform 0.2s; }
           .screenshot-thumb:hover { transform: scale(1.1); }
 
-
-                     /* ─── MOBILE RESPONSIVE VIEW (Vertical Stack - Samsung Optimized) ─── */
+          /* ─── MOBILE RESPONSIVE VIEW (Vertical Stack - Samsung Optimized) ─── */
           @media (max-width: 768px) {
-            /* 1. SYSTEM OPTIMIZATIONS (Roboto Font & Scrollbar) */
+            /* 1. SYSTEM OPTIMIZATIONS */
             body { 
               font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; 
               background: #e5e7eb; 
               -webkit-tap-highlight-color: transparent; 
             }
             html, body {
-              overflow-x: hidden;
+              overflow-x: hidden; /* No horizontal scroll */
               width: 100%;
               margin: 0;
             }
-            /* Hide scrollbars on Samsung/Chrome */
-            ::-webkit-scrollbar { display: none; }
+            ::-webkit-scrollbar { display: none; } /* Hide scrollbars */
             
-            /* Container Setup */
-            .container { 
-              padding: 8px 0; 
-              max-width: 100%;
-            }
+            .container { padding: 8px 0; max-width: 100%; }
 
             /* 1. Toolbar */
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; }
@@ -376,9 +378,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             /* 2. Flex Container: Vertical Column Layout */
             tbody {
               display: flex;
-              flex-direction: column; /* Stacks items vertically */
-              gap: 12px; /* Space between vertical orders */
-              padding: 0 8px; /* Side margins for the list */
+              flex-direction: column; /* Stacks 1, then 2, then 3... */
+              gap: 12px;
+              padding: 0 8px;
             }
 
             /* 3. The Card: Full Width */
@@ -389,96 +391,90 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               box-shadow: 0 2px 4px rgba(0,0,0,0.05);
               border: 1px solid #e5e7eb;
               position: relative;
-              
               display: flex;
               flex-direction: column;
-              
-              width: 100%; /* Full width of the column */
+              width: 100%;
               margin-bottom: 0;
-              
               box-sizing: border-box;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
-            /* 4. Cell Styling */
             td {
               display: flex;
               width: 100%;
               padding: 0;
               border: none;
               align-items: center;
-              margin-bottom: 8px; /* Slightly more vertical spacing since we have more width */
+              margin-bottom: 4px;
               word-break: break-word;
               box-sizing: border-box;
             }
             td::before { display: none; }
 
-            /* 5. Specific Internal Layout */
+            /* 5. Specific Internal Layout (Ordering Columns) */
             
-            /* Checkbox: Absolute top right */
+            /* 1. Checkbox (Child 1) */
             td:nth-child(1) {
               position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
             }
             td:nth-child(1) input { width: 20px; height: 20px; accent-color: #2d4a22; cursor: pointer; }
 
-            /* Client Name: Larger and cleaner */
+            /* 2. Client Name (Child 3) -> Order 2 */
             td:nth-child(3) {
-              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 4px; padding-right: 36px; /* Clear space for checkbox */
+              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 36px;
             }
             td:nth-child(3) strong { font-size: 1.1rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
-            td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+            td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; order: 5; margin-top: 4px; }
 
-            /* Order ID */
-            td:nth-child(2) {
-              order: 3; font-size: 0.75rem; color: #9e9e9e; margin-top: -4px; margin-bottom: 8px;
-            }
-
-            /* Amount: Green Badge */
+            /* 3. Phone (Child 4) -> Order 3 */
             td:nth-child(4) {
-              order: 4; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
+              order: 3; font-size: 0.85rem; color: #555; font-weight: 500; margin-bottom: 2px;
+            }
+            td:nth-child(4)::before { content: "📱"; margin-right: 6px; }
+
+            /* 4. Address (Child 5) -> Order 4 */
+            td:nth-child(5) {
+              order: 4; font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 4px;
+            }
+            td:nth-child(5)::before { content: "📍"; margin-right: 6px; font-style: normal; }
+
+            /* 5. Order ID (Child 2) -> Order 6 (Moved to bottom of header) */
+            td:nth-child(2) {
+              order: 6; font-size: 0.75rem; color: #9e9e9e; margin-top: 4px; margin-bottom: 8px; border-top: 1px solid #eee; padding-top: 4px;
             }
 
-            /* Order Status: Row Layout */
-            td:nth-child(7) {
-              order: 5; margin: 12px 0 8px 0;
+            /* 6. Amount (Child 6) -> Order 7 */
+            td:nth-child(6) {
+              order: 7; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
             }
-            td:nth-child(7) select {
+
+            /* 7. Screenshot (Child 7) -> Order 8 */
+            td:nth-child(7) {
+              order: 8; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee; min-height: 56px;
+            }
+            td:nth-child(7)::before { display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap; }
+            td:nth-child(7) img { height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; } /* Small Screenshot */
+
+            /* 8. Email Status (Child 8) -> Order 9 */
+            td:nth-child(8) { order: 9; justify-content: flex-start; margin-bottom: 8px; }
+            td:nth-child(8) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
+            
+            /* 9. Order Status (Child 9) -> Order 10 */
+            td:nth-child(9) { order: 10; margin: 12px 0 8px 0; }
+            td:nth-child(9) select {
               width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cfd8dc; font-size: 14px; background: #fff; color: #37474f;
               appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23455A64%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
               background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 14px auto;
             }
 
-            /* Email Status: Badge */
-            td:nth-child(6) {
-              order: 6; justify-content: flex-start; margin-bottom: 8px;
-            }
-            td:nth-child(6) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
-            
-            /* Payment Proof */
-            td:nth-child(5) {
-              order: 7; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee;
-              min-height: 56px;
-            }
-            td:nth-child(5)::before { 
-              display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap;
-            }
-            td:nth-child(5) img { 
-              height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; 
-            }
-
-            /* Actions: Button */
-            td:nth-child(8) {
-              order: 8; margin-top: 8px;
-            }
-            td:nth-child(8) button {
+            /* 10. Actions (Child 10) -> Order 11 */
+            td:nth-child(10) { order: 11; margin-top: 8px; }
+            td:nth-child(10) button {
               width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ffcdd2;
               display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 14px; text-transform: uppercase;
             }
           }
 
-          /* No Fallback needed since we are full width on all mobile screens */
-
-          /* ─── MODALS & TOASTS ───────────────────────────────────────────── */
           #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 2000; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 90%; text-align: center; }
           #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
           
@@ -492,7 +488,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
       </head>
       <body>
         <div class="container">
-          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">v12 (Grid)</span></h1>
+          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">Admin</span></h1>
 
           <div class="toolbar">
             <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
@@ -506,7 +502,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                 <tr>
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th>ID</th>
-                  <th>Client</th>
+                  <th>Client (Name/Email)</th>
+                  <th>Phone</th>
+                  <th>Address</th>
                   <th>Amount</th>
                   <th>Payment Proof</th>
                   <th>Email Status</th>
@@ -532,6 +530,8 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                       <strong>${row.client_name || 'Guest'}</strong><br>
                       <small>${row.client_email || ''}</small>
                     </td>
+                    <td data-label="Phone">${row.client_phone || '-'}</td>
+                    <td data-label="Address">${row.client_address || '-'}</td>
                     <td data-label="Amount">$${row.total_usd}</td>
                     <td data-label="Payment Proof">
                       ${row.payment_screenshot ? 
@@ -574,7 +574,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             document.getElementById('fullImage').src = src;
             const modal = document.getElementById('imgModal');
             modal.style.display = 'flex';
-            // slight delay to allow display flex to apply before adding class for transition
             setTimeout(() => modal.classList.add('show'), 10);
           }
           function closeImage(e) {
@@ -604,7 +603,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           }
 
           function setBadge(id, status) {
-            const cell = document.getElementById('row-' + id).querySelector('td:nth-child(6)'); // Email Status Column
+            const cell = document.getElementById('row-' + id).querySelector('td:nth-child(8)'); // Email Status Column
             if (!cell) return;
             if (status === 'Sent') {
                 cell.innerHTML = '<span class="badge badge-sent">✅ Sent</span>';
@@ -618,7 +617,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true;
             const originalClass = selectEl.className;
-            selectEl.className = 'status-select'; // remove color
+            selectEl.className = 'status-select'; 
             
             try {
               const response = await fetch('/update-status', {
@@ -714,5 +713,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v12 (Grid Mobile)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v13'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
