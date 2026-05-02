@@ -343,11 +343,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-                   /* ─── MOBILE RESPONSIVE VIEW (Samsung/Android Optimized) ─────────── */
+                     /* ─── MOBILE RESPONSIVE VIEW (Vertical Stack - Samsung Optimized) ─── */
           @media (max-width: 768px) {
             /* 1. SYSTEM OPTIMIZATIONS (Roboto Font & Scrollbar) */
             body { 
-              font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; /* Native Samsung Font */
+              font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; 
               background: #e5e7eb; 
               -webkit-tap-highlight-color: transparent; 
             }
@@ -355,11 +355,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               overflow-x: hidden;
               width: 100%;
               margin: 0;
-              /* Hide scrollbars on Samsung/Chrome */
             }
+            /* Hide scrollbars on Samsung/Chrome */
             ::-webkit-scrollbar { display: none; }
             
-            /* Full width utilization */
+            /* Container Setup */
             .container { 
               padding: 8px 0; 
               max-width: 100%;
@@ -373,19 +373,19 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             thead { display: none; } 
             table { display: block; width: 100%; margin: 0; border-spacing: 0; }
 
-            /* 2. Flex Container for the Grid */
+            /* 2. Flex Container: Vertical Column Layout */
             tbody {
               display: flex;
-              flex-wrap: wrap;
-              gap: 8px; /* Consistent gap for Galaxy layouts */
-              padding: 0 8px;
+              flex-direction: column; /* Stacks items vertically */
+              gap: 12px; /* Space between vertical orders */
+              padding: 0 8px; /* Side margins for the list */
             }
 
-            /* 3. The Card (Perfect Half Width) */
+            /* 3. The Card: Full Width */
             tr {
               background: #fff;
               border-radius: 8px;
-              padding: 10px;
+              padding: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.05);
               border: 1px solid #e5e7eb;
               position: relative;
@@ -393,11 +393,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               display: flex;
               flex-direction: column;
               
-              /* MATH: (100% - 8px Gap) / 2 = 50% - 4px */
-              width: calc(50% - 4px); 
+              width: 100%; /* Full width of the column */
               margin-bottom: 0;
               
-              box-sizing: border-box; /* Critical for Android rendering */
+              box-sizing: border-box;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
@@ -408,7 +407,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               padding: 0;
               border: none;
               align-items: center;
-              margin-bottom: 6px;
+              margin-bottom: 8px; /* Slightly more vertical spacing since we have more width */
               word-break: break-word;
               box-sizing: border-box;
             }
@@ -418,69 +417,66 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             /* Checkbox: Absolute top right */
             td:nth-child(1) {
-              position: absolute; top: 8px; right: 8px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
+              position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
             }
-            td:nth-child(1) input { width: 18px; height: 18px; accent-color: #2d4a22; cursor: pointer; }
+            td:nth-child(1) input { width: 20px; height: 20px; accent-color: #2d4a22; cursor: pointer; }
 
-            /* Client Name: Native Header Style */
+            /* Client Name: Larger and cleaner */
             td:nth-child(3) {
-              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 22px;
+              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 4px; padding-right: 36px; /* Clear space for checkbox */
             }
-            td:nth-child(3) strong { font-size: 0.9rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
-            td:nth-child(3) small { font-size: 0.7rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+            td:nth-child(3) strong { font-size: 1.1rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
+            td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
 
             /* Order ID */
             td:nth-child(2) {
-              order: 3; font-size: 0.65rem; color: #9e9e9e; margin-top: -2px; margin-bottom: 6px;
+              order: 3; font-size: 0.75rem; color: #9e9e9e; margin-top: -4px; margin-bottom: 8px;
             }
 
             /* Amount: Green Badge */
             td:nth-child(4) {
-              order: 4; font-size: 0.9rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; align-self: flex-start; border: 1px solid #c8e6c9;
+              order: 4; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
             }
 
-            /* Order Status: Material Design Select */
+            /* Order Status: Row Layout */
             td:nth-child(7) {
-              order: 5; margin: 8px 0 4px 0;
+              order: 5; margin: 12px 0 8px 0;
             }
             td:nth-child(7) select {
-              width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cfd8dc; font-size: 13px; background: #fff; color: #37474f;
+              width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cfd8dc; font-size: 14px; background: #fff; color: #37474f;
               appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23455A64%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-              background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 12px auto;
+              background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 14px auto;
             }
 
-            /* Email Status: Tiny Badge */
+            /* Email Status: Badge */
             td:nth-child(6) {
-              order: 6; justify-content: center; margin-bottom: 6px;
+              order: 6; justify-content: flex-start; margin-bottom: 8px;
             }
-            td:nth-child(6) .badge { font-size: 9px; padding: 2px 6px; border-radius: 12px; }
+            td:nth-child(6) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
             
             /* Payment Proof */
             td:nth-child(5) {
-              order: 7; justify-content: center; background: #fafafa; padding: 4px; border-radius: 4px; border: 1px solid #eeeeee;
-              min-height: 48px;
+              order: 7; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee;
+              min-height: 56px;
             }
-            td:nth-child(5)::before { display: none; }
+            td:nth-child(5)::before { 
+              display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap;
+            }
             td:nth-child(5) img { 
-              height: 40px; width: auto; max-width: 60px; object-fit: contain; border-radius: 2px; 
+              height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; 
             }
 
-            /* Actions: Material Button */
+            /* Actions: Button */
             td:nth-child(8) {
-              order: 8; margin-top: 2px;
+              order: 8; margin-top: 8px;
             }
             td:nth-child(8) button {
-              width: 100%; background: #ffebee; color: #c62828; padding: 8px; border-radius: 4px; font-weight: 600; border: 1px solid #ffcdd2;
-              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 12px; text-transform: uppercase;
+              width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ffcdd2;
+              display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 14px; text-transform: uppercase;
             }
           }
 
-          /* ─── FALLBACK FOR SMALL SAMSUNGS (Galaxy A, Fold Flip Cover Screen) ──────── */
-          @media (max-width: 380px) {
-            tr {
-              width: 100%; /* Revert to full width on compact devices */
-            }
-          }
+          /* No Fallback needed since we are full width on all mobile screens */
 
           /* ─── MODALS & TOASTS ───────────────────────────────────────────── */
           #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 2000; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 90%; text-align: center; }
