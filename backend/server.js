@@ -10,12 +10,25 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
+// ─── EMAIL TRANSPORTER SETUP (UPDATED FOR CLOUD COMPATIBILITY) ────────────────
+// We now use dynamic Host/Port settings to support Gmail, Brevo, or SendGrid.
+// Default to Gmail settings if ENV vars aren't set.
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.EMAIL_PORT || 587,
+  secure: (process.env.EMAIL_PORT || 587) == 465, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  }
+});
+
+// Test the connection immediately on startup
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("⚠️ Email Server Connection Failed (This is expected if you haven't updated .env yet):", error);
+  } else {
+    console.log("✅ Email Server is ready to send messages");
   }
 });
 
@@ -55,7 +68,6 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else console.log("📊 Table 'orders' is ready");
 });
-
 // ─── ROUTE 1: Receive New Order ───────────────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
