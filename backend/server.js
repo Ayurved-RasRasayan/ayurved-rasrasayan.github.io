@@ -92,12 +92,13 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     if (orderData.items && Array.isArray(orderData.items)) {
       orderData.items.forEach(item => {
         const name = item.name || item.product || 'Unknown Item';
-        const qty = item.quantity || 1;
+        // FIX: Explicitly parse quantity as integer to ensure correct display
+        const qty = parseInt(item.quantity) || 1; 
         const price = item.price || 0;
         itemsHtml += `
           <tr>
             <td style="border:1px solid #e5e7eb; padding:8px;">${name}</td>
-            <td style="border:1px solid #e5e7eb; padding:8px; text-align:center;">${qty}</td>
+            <td style="border:1px solid #e5e7eb; padding:8px; text-align:center; font-weight:bold;">${qty}</td>
             <td style="border:1px solid #e5e7eb; padding:8px; text-align:right;">$${price}</td>
           </tr>`;
       });
@@ -205,7 +206,7 @@ pool.query(createTableQuery, (err) => {
         if(err) console.log("ℹ️ DB Migration checked.");
     });
 
-    // Migration 3: Add Address Column (New Feature)
+    // Migration 3: Add Address Column
     pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_address TEXT;`, (err) => {
         if(err) console.log("⚠️ Error adding address column (might exist):", err.message);
         else console.log("✅ 'client_address' column ensured.");
@@ -244,7 +245,7 @@ app.post('/order', async (req, res) => {
     const result = await pool.query(query, values);
     const newOrderId = result.rows[0].id;
 
-    // 🚀 NEW: Send Admin Notification immediately after successful save
+    // Send Admin Notification immediately after successful save
     await sendAdminNotificationEmail(newOrderId, req.body);
 
     res.status(200).json({ success: true, orderId: newOrderId });
@@ -411,7 +412,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* ─── DESKTOP TABLE ────────────────────────────────────────────── */
           .table-wrap { background: #fff; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          table { width: 100%; border-collapse: collapse; min-width: 1100px; } 
+          table { width: 100%; border-collapse: collapse; min-width: 1200px; } 
           th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
           th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
           tr:hover { background: #fafafa; }
@@ -473,46 +474,63 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             }
             td::before { display: none; }
 
-            /* 5. Specific Internal Layout */
-            
+            /* 1. Checkbox (Child 1) */
             td:nth-child(1) {
               position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
             }
             td:nth-child(1) input { width: 20px; height: 20px; accent-color: #2d4a22; cursor: pointer; }
 
+            /* 2. Client Name (Child 3) -> Order 2 */
             td:nth-child(3) {
               order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 36px;
             }
             td:nth-child(3) strong { font-size: 1.1rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
             td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; order: 5; margin-top: 4px; }
 
+            /* 3. Phone (Child 4) -> Order 3 */
             td:nth-child(4) {
               order: 3; font-size: 0.85rem; color: #555; font-weight: 500; margin-bottom: 2px;
             }
             td:nth-child(4)::before { content: "📱"; margin-right: 6px; }
 
+            /* 4. Address (Child 5) -> Order 4 */
             td:nth-child(5) {
               order: 4; font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 4px;
             }
             td:nth-child(5)::before { content: "📍"; margin-right: 6px; font-style: normal; }
 
+            /* 5. Items List (Child 11) -> Order 5 (NEW) */
+            td:nth-child(11) {
+              order: 5; background: #f9fafb; border-radius: 6px; padding: 8px; margin-bottom: 8px; border: 1px solid #e5e7eb;
+            }
+            td:nth-child(11)::before {
+              display: block; content: "🛒 Order Items:"; font-size: 0.75rem; font-weight: 700; color: #374151; margin-bottom: 4px; text-transform: uppercase;
+            }
+            .item-list-row { font-size: 0.85rem; color: #555; margin-bottom: 2px; display: flex; justify-content: space-between; }
+            .item-qty { color: #059669; font-weight: 600; margin-left: 8px; }
+
+            /* 6. Order ID (Child 2) -> Order 6 */
             td:nth-child(2) {
               order: 6; font-size: 0.75rem; color: #9e9e9e; margin-top: 4px; margin-bottom: 8px; border-top: 1px solid #eee; padding-top: 4px;
             }
 
+            /* 7. Amount (Child 6) -> Order 7 */
             td:nth-child(6) {
               order: 7; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
             }
 
+            /* 8. Screenshot (Child 7) -> Order 8 */
             td:nth-child(7) {
               order: 8; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee; min-height: 56px;
             }
             td:nth-child(7)::before { display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap; }
             td:nth-child(7) img { height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; }
 
+            /* 9. Email Status (Child 8) -> Order 9 */
             td:nth-child(8) { order: 9; justify-content: flex-start; margin-bottom: 8px; }
             td:nth-child(8) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
             
+            /* 10. Order Status (Child 9) -> Order 10 */
             td:nth-child(9) { order: 10; margin: 12px 0 8px 0; }
             td:nth-child(9) select {
               width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cfd8dc; font-size: 14px; background: #fff; color: #37474f;
@@ -520,6 +538,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 14px auto;
             }
 
+            /* 11. Actions (Child 10) -> Order 11 */
             td:nth-child(10) { order: 11; margin-top: 8px; }
             td:nth-child(10) button {
               width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ffcdd2;
@@ -553,15 +572,16 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               <thead>
                 <tr>
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
-                  <th>ID</th>
+                  <th width="60">ID</th>
                   <th>Client (Name/Email)</th>
-                  <th>Phone</th>
+                  <th width="120">Phone</th>
                   <th>Address</th>
-                  <th>Amount</th>
-                  <th>Payment Proof</th>
-                  <th>Email Status</th>
-                  <th>Order Status</th>
-                  <th>Actions</th>
+                  <th width="300">Order Items</th>
+                  <th width="100">Amount</th>
+                  <th width="80">Proof</th>
+                  <th width="100">Email</th>
+                  <th width="120">Status</th>
+                  <th width="80">Actions</th>
                 </tr>
               </thead>
               <tbody id="orders-tbody">
@@ -574,6 +594,29 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     emailBadge = `<span class="badge badge-fail">❌ Failed</span>`;
                   }
 
+                  // Parse Items to show Quantities
+                  let itemsArray = [];
+                  let itemsHtmlDesktop = '<span style="color:#9ca3af; font-style:italic;">No items</span>';
+                  let itemsHtmlMobile = '<div style="color:#9ca3af;">No items data</div>';
+                  
+                  try {
+                    itemsArray = JSON.parse(row.items);
+                    if (Array.isArray(itemsArray) && itemsArray.length > 0) {
+                      // Desktop Summary
+                      itemsHtmlDesktop = itemsArray.map(i => `${i.name} (x${i.quantity || 1})`).join(', ');
+                      
+                      // Mobile List
+                      itemsHtmlMobile = itemsArray.map(i => `
+                        <div class="item-list-row">
+                          <span>${i.name}</span>
+                          <span class="item-qty">x${i.quantity || 1}</span>
+                        </div>
+                      `).join('');
+                    }
+                  } catch (e) {
+                    console.log('Error parsing items', e);
+                  }
+
                   return `
                   <tr id="row-${row.id}">
                     <td data-label="Select"><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
@@ -584,6 +627,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     </td>
                     <td data-label="Phone">${row.client_phone || '-'}</td>
                     <td data-label="Address">${row.client_address || '-'}</td>
+                    <td data-label="Items">${itemsHtmlDesktop}</td>
                     <td data-label="Amount">$${row.total_usd}</td>
                     <td data-label="Payment Proof">
                       ${row.payment_screenshot ? 
@@ -601,6 +645,8 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                       </select>
                     </td>
                     <td data-label="Actions"><button class="btn btn-delete-single" onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button></td>
+                    <!-- Hidden cell for mobile items list -->
+                    <td data-label="MobileItems" style="display:none;">${itemsHtmlMobile}</td>
                   </tr>
                   `;
                 }).join('')}
@@ -765,5 +811,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v14 (Auto-Email)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v15 (Qty Fix)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
