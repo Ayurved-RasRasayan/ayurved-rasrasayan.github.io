@@ -343,36 +343,42 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-                        /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
+                   /* ─── MOBILE RESPONSIVE VIEW (Samsung/Android Optimized) ─────────── */
           @media (max-width: 768px) {
-            /* 1. LOCK SCROLL & MAXIMIZE WIDTH */
+            /* 1. SYSTEM OPTIMIZATIONS (Roboto Font & Scrollbar) */
+            body { 
+              font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; /* Native Samsung Font */
+              background: #e5e7eb; 
+              -webkit-tap-highlight-color: transparent; 
+            }
             html, body {
-              overflow-x: hidden; /* Force disable horizontal scroll */
+              overflow-x: hidden;
               width: 100%;
               margin: 0;
+              /* Hide scrollbars on Samsung/Chrome */
             }
-            body { background: #e5e7eb; } 
+            ::-webkit-scrollbar { display: none; }
             
-            /* Remove side padding to utilize full screen width */
+            /* Full width utilization */
             .container { 
               padding: 8px 0; 
               max-width: 100%;
             }
 
             /* 1. Toolbar */
-            .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; }
-            .selected-count { margin: 0; text-align: center; font-size: 12px; }
-            .btn { width: calc(100% - 16px); justify-content: center; padding: 12px; margin: 0 8px; }
+            .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; }
+            .selected-count { margin: 0; text-align: center; font-size: 12px; color: #6b7280; }
+            .btn { width: calc(100% - 16px); justify-content: center; padding: 12px; margin: 0 8px; font-family: 'Roboto', sans-serif; font-weight: 500; letter-spacing: 0.5px; }
 
             thead { display: none; } 
-            table { display: block; width: 100%; margin: 0; }
+            table { display: block; width: 100%; margin: 0; border-spacing: 0; }
 
             /* 2. Flex Container for the Grid */
             tbody {
               display: flex;
               flex-wrap: wrap;
-              gap: 8px; /* 8px space between columns */
-              padding: 0 8px; /* Side padding applied here instead of container */
+              gap: 8px; /* Consistent gap for Galaxy layouts */
+              padding: 0 8px;
             }
 
             /* 3. The Card (Perfect Half Width) */
@@ -391,7 +397,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               width: calc(50% - 4px); 
               margin-bottom: 0;
               
-              box-sizing: border-box; /* Critical: ensures padding/border is inside this width */
+              box-sizing: border-box; /* Critical for Android rendering */
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
@@ -412,46 +418,46 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             /* Checkbox: Absolute top right */
             td:nth-child(1) {
-              position: absolute; top: 8px; right: 8px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.9); border-radius: 4px;
+              position: absolute; top: 8px; right: 8px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
             }
-            td:nth-child(1) input { width: 16px; height: 16px; }
+            td:nth-child(1) input { width: 18px; height: 18px; accent-color: #2d4a22; cursor: pointer; }
 
-            /* Client Name */
+            /* Client Name: Native Header Style */
             td:nth-child(3) {
               order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 22px;
             }
-            td:nth-child(3) strong { font-size: 0.9rem; color: #111827; display: block; line-height: 1.1; }
-            td:nth-child(3) small { font-size: 0.65rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+            td:nth-child(3) strong { font-size: 0.9rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
+            td:nth-child(3) small { font-size: 0.7rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
 
             /* Order ID */
             td:nth-child(2) {
-              order: 3; font-size: 0.6rem; color: #9ca3af; margin-top: -2px; margin-bottom: 6px;
+              order: 3; font-size: 0.65rem; color: #9e9e9e; margin-top: -2px; margin-bottom: 6px;
             }
 
-            /* Amount */
+            /* Amount: Green Badge */
             td:nth-child(4) {
-              order: 4; font-size: 0.9rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 4px 6px; border-radius: 4px; align-self: flex-start;
+              order: 4; font-size: 0.9rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; align-self: flex-start; border: 1px solid #c8e6c9;
             }
 
-            /* Order Status */
+            /* Order Status: Material Design Select */
             td:nth-child(7) {
               order: 5; margin: 8px 0 4px 0;
             }
             td:nth-child(7) select {
-              width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #d1d5db; font-size: 12px; background: #fff;
-              appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23374151%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-              background-repeat: no-repeat; background-position: right 6px top 50%; background-size: 10px auto;
+              width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cfd8dc; font-size: 13px; background: #fff; color: #37474f;
+              appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23455A64%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+              background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 12px auto;
             }
 
-            /* Email Status */
+            /* Email Status: Tiny Badge */
             td:nth-child(6) {
               order: 6; justify-content: center; margin-bottom: 6px;
             }
-            td:nth-child(6) .badge { font-size: 8px; padding: 2px 4px; }
+            td:nth-child(6) .badge { font-size: 9px; padding: 2px 6px; border-radius: 12px; }
             
             /* Payment Proof */
             td:nth-child(5) {
-              order: 7; justify-content: center; background: #f9fafb; padding: 4px; border-radius: 4px; border: 1px dashed #d1d5db;
+              order: 7; justify-content: center; background: #fafafa; padding: 4px; border-radius: 4px; border: 1px solid #eeeeee;
               min-height: 48px;
             }
             td:nth-child(5)::before { display: none; }
@@ -459,20 +465,20 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               height: 40px; width: auto; max-width: 60px; object-fit: contain; border-radius: 2px; 
             }
 
-            /* Actions */
+            /* Actions: Material Button */
             td:nth-child(8) {
               order: 8; margin-top: 2px;
             }
             td:nth-child(8) button {
-              width: 100%; background: #fee2e2; color: #b91c1c; padding: 6px; border-radius: 4px; font-weight: 600; border: 1px solid #fecaca;
-              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 11px;
+              width: 100%; background: #ffebee; color: #c62828; padding: 8px; border-radius: 4px; font-weight: 600; border: 1px solid #ffcdd2;
+              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 12px; text-transform: uppercase;
             }
           }
 
-          /* ─── FALLBACK FOR VERY SMALL SCREENS (iPhone SE) ──────────────── */
+          /* ─── FALLBACK FOR SMALL SAMSUNGS (Galaxy A, Fold Flip Cover Screen) ──────── */
           @media (max-width: 380px) {
             tr {
-              width: 100%; /* Revert to full width on tiny screens */
+              width: 100%; /* Revert to full width on compact devices */
             }
           }
 
