@@ -344,7 +344,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
 
           /* ─── MOBILE RESPONSIVE VIEW (TIGHT & TIDY) ───────────────────── */
-          @media (max-width: 768px) {
+          @media (max-width: 400px) {
             body { background: #e5e7eb; } 
             .container { padding: 10px; }
             
