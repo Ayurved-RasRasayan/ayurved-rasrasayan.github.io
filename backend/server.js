@@ -7,17 +7,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb' })); // Increased limit for Base64 screenshots
 app.use(cors());
 
 // ─── EMAIL SENDING FUNCTION (HTTPS API) ──────────────────────────────────────────
-async function sendEmailViaAPI(toEmail, toName, orderId, status) {
+async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOverride = null) {
   try {
-    // CHANGE: Strictly set sender to sales.naturabotanica20@gmail.com as requested
-    const senderEmail = 'sales.naturabotanica20@gmail.com';
+    // Default sender for Order Updates
+    const senderEmail = senderEmailOverride || 'sales.naturabotanica20@gmail.com';
     const senderName = 'NaturaBotanica';
 
-    // DEBUG: Log exactly who is sending to who
     console.log(`[EMAIL DEBUG] Sending from: ${senderEmail} -> To: ${toEmail}`);
 
     const endpoint = 'https://api.sendinblue.com/v3/smtp/email'; 
@@ -92,6 +91,7 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
+    // Safe migration checks
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
@@ -137,7 +137,7 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email ─────────────────────────────────────
+// ─── ROUTE 2: Update Status & Send Email to Customer ─────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
@@ -152,7 +152,6 @@ app.put('/update-status', async (req, res) => {
     let emailStatusResult = 'Queue'; 
 
     if (client_email && client_email.includes('@')) {
-      // Send email using the fixed sender address and the client's email from the DB
       const success = await sendEmailViaAPI(client_email, client_name, id, status);
       
       if (success) {
@@ -175,7 +174,49 @@ app.put('/update-status', async (req, res) => {
   }
 });
 
-// ─── ROUTE 3: Delete Single Order ────────────────────────────────────────────
+// ─── ROUTE 3: Handle Contact/Inquiry Form ─────────────────────────────────────
+app.post('/contact', async (req, res) => {
+  try {
+    const { firstName, lastName, email, company, message } = req.body;
+    const fullName = `${firstName} ${lastName}`;
+
+    // Send notification to the Sales Team
+    const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
+    const senderEmail = 'sales.naturabotanica20@gmail.com'; // The user sending (or noreply)
+    const senderName = 'NaturaBotanica Website';
+
+    const data = {
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }], // Destination
+      subject: `New Inquiry: ${fullName}`,
+      htmlContent: `
+        <h3>New Inquiry Received</h3>
+        <p><strong>Name:</strong> ${fullName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Company:</strong> ${company || 'N/A'}</p>
+        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+        <h4>Message:</h4>
+        <p style="white-space: pre-wrap;">${message}</p>
+      `
+    };
+
+    await axios.post(endpoint, data, {
+      headers: {
+        'api-key': process.env.EMAIL_PASS,
+        'content-type': 'application/json'
+      }
+    });
+
+    console.log(`✅ Inquiry sent from ${email} to Sales Team`);
+    res.status(200).json({ success: true });
+
+  } catch (error) {
+    console.error('❌ Error sending inquiry:', error.response ? error.response.data : error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ─── ROUTE 4: Delete Single Order ────────────────────────────────────────────
 app.delete('/delete-order/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -189,7 +230,7 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
-// ─── ROUTE 4: Delete Multiple Orders ─────────────────────────────────────────
+// ─── ROUTE 5: Delete Multiple Orders ─────────────────────────────────────────
 app.delete('/delete-orders', async (req, res) => {
   try {
     const { ids } = req.body;
@@ -209,7 +250,7 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
+// ─── ROUTE 6: Admin Order Dashboard ──────────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -220,7 +261,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v8</title>
+        <title>NaturaBotanica — Orders v9</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -467,5 +508,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v8 (API Mode)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v9 (API Mode)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
