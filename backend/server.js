@@ -343,100 +343,118 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-          /* ─── MOBILE RESPONSIVE VIEW (The "Tidy" Fix) ───────────────────── */
+          /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
           @media (max-width: 768px) {
-            body { background: #e5e7eb; } /* Slightly darker bg to pop cards */
-            .container { padding: 12px; }
+            body { background: #e5e7eb; } 
+            .container { padding: 10px; }
             
-            /* 1. Layout Basics */
+            /* 1. Toolbar */
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; }
             .btn { width: 100%; justify-content: center; padding: 12px; }
 
-            thead { display: none; } /* Hide Headers */
-            table, tbody, tr { display: block; width: 100%; }
+            thead { display: none; } 
+            table { display: block; width: 100%; }
 
-            /* 2. The Card */
+            /* 2. Flex Container for the Grid */
+            tbody {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 12px; /* Spacing between cards */
+            }
+
+            /* 3. The Card (Half Width) */
             tr {
               background: #fff;
               border-radius: 12px;
-              padding: 16px;
-              margin-bottom: 16px;
-              box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+              padding: 14px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
               border: 1px solid #e5e7eb;
               position: relative;
+              
+              /* Grid Logic: */
+              display: flex;
+              flex-direction: column;
+              width: calc(50% - 6px); /* 50% width minus half the gap */
+              margin-bottom: 0;
             }
-            tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 4px rgba(45, 74, 34, 0.1); }
+            tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
-            /* 3. Cell Styling */
+            /* 4. Cell Styling */
             td {
               display: flex;
               width: 100%;
               padding: 0;
               border: none;
-              align-items: center; /* Center vertically by default */
-              margin-bottom: 8px; /* Vertical spacing between elements */
+              align-items: center;
+              margin-bottom: 8px;
+              word-break: break-word; /* Prevent long text overflowing narrow cards */
             }
-            td::before { display: none; } /* Hide all pseudo-labels initially */
+            td::before { display: none; }
 
-            /* 4. Specific Ordering & Styling */
+            /* 5. Specific Internal Layout */
             
             /* Checkbox: Absolute top right */
             td:nth-child(1) {
-              position: absolute; top: 16px; right: 16px; width: auto; margin: 0; z-index: 10; padding: 4px; background: #fff; border-radius: 4px;
+              position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.8); border-radius: 4px;
             }
-            td:nth-child(1) input { width: 20px; height: 20px; }
+            td:nth-child(1) input { width: 18px; height: 18px; }
 
-            /* Client Name: Big Bold Header */
+            /* Client Name: Compact Header */
             td:nth-child(3) {
               order: 2;
-              flex-direction: column; align-items: flex-start; margin-bottom: 4px;
+              flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 24px; /* Room for checkbox */
             }
-            td:nth-child(3) strong { font-size: 1.2rem; color: #111827; display: block; margin-bottom: 2px; }
-            td:nth-child(3) small { font-size: 0.85rem; color: #6b7280; font-weight: 400; }
+            td:nth-child(3) strong { font-size: 1rem; color: #111827; display: block; line-height: 1.2; }
+            td:nth-child(3) small { font-size: 0.75rem; color: #6b7280; font-weight: 400; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
-            /* Order ID: Small grey text below name */
+            /* Order ID: Very Small */
             td:nth-child(2) {
-              order: 3; font-size: 0.8rem; color: #9ca3af; margin-top: -4px; margin-bottom: 12px;
+              order: 3; font-size: 0.7rem; color: #9ca3af; margin-top: -2px; margin-bottom: 8px;
             }
 
-            /* Amount: Make it stand out, maybe green */
+            /* Amount: Green Badge */
             td:nth-child(4) {
-              order: 4; font-size: 1.1rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 8px 12px; border-radius: 6px; align-self: flex-start;
+              order: 4; font-size: 1rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 6px 10px; border-radius: 6px; align-self: flex-start;
             }
 
-            /* Order Status: Prominent Select Box */
+            /* Order Status: Compact Select */
             td:nth-child(7) {
-              order: 5; margin: 16px 0 8px 0;
+              order: 5; margin: 10px 0 6px 0;
             }
             td:nth-child(7) select {
-              width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 15px; background: #fff;
+              width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; background: #fff;
               appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23374151%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-              background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto;
+              background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 10px auto;
             }
 
-            /* Email Status: Subtle Badge Center */
+            /* Email Status: Tiny Badge */
             td:nth-child(6) {
-              order: 6; justify-content: center; margin-bottom: 12px;
+              order: 6; justify-content: center; margin-bottom: 8px;
             }
+            td:nth-child(6) .badge { font-size: 9px; padding: 2px 6px; }
             
-            /* Payment Proof: Thumbnail + Label */
+            /* Payment Proof: Small Thumb */
             td:nth-child(5) {
-              order: 7; justify-content: flex-start; background: #f9fafb; padding: 8px; border-radius: 6px; border: 1px dashed #d1d5db;
+              order: 7; justify-content: center; background: #f9fafb; padding: 4px; border-radius: 4px; border: 1px dashed #d1d5db;
             }
-            td:nth-child(5)::before {
-              display: inline; content: "Payment Proof"; font-size: 0.75rem; color: #6b7280; font-weight: 600; margin-right: 10px;
-            }
-            td:nth-child(5) .no-proof { color: #9ca3af; font-size: 0.8rem; font-style: italic; }
-            td:nth-child(5) img { border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+            td:nth-child(5)::before { display: none; } /* Hide label on small cards */
+            td:nth-child(5) img { width: 100%; height: auto; max-width: 80px; border-radius: 2px; }
 
-            /* Actions/Delete: Full Width Button */
+            /* Actions: Compact Button */
             td:nth-child(8) {
-              order: 8; margin-top: 12px;
+              order: 8; margin-top: 4px;
             }
             td:nth-child(8) button {
-              width: 100%; background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; font-weight: 600; border: 1px solid #fecaca;
-              display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 15px;
+              width: 100%; background: #fee2e2; color: #b91c1c; padding: 8px; border-radius: 6px; font-weight: 600; border: 1px solid #fecaca;
+              display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px;
+            }
+          }
+
+          /* ─── FALLBACK FOR VERY SMALL SCREENS (iPhone SE) ──────────────── */
+          @media (max-width: 380px) {
+            tr {
+              width: 100%; /* Revert to full width on tiny screens */
             }
           }
 
@@ -454,7 +472,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
       </head>
       <body>
         <div class="container">
-          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">v11</span></h1>
+          <h1>🌿 NaturaBotanica <span style="font-size:0.6em; opacity:0.5; font-weight:400; margin-left:5px;">v12 (Grid)</span></h1>
 
           <div class="toolbar">
             <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
@@ -676,5 +694,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v11 (Tidy Mobile)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v12 (Grid Mobile)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
