@@ -7,13 +7,39 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' })); // Increased limit for Base64 screenshots
+app.use(express.json({ limit: '10mb' }));
 app.use(cors());
+
+// ─── SECURITY MIDDLEWARE (Basic Auth) ─────────────────────────────────────────
+function checkAuth(req, res, next) {
+  // Get the auth header from the request
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="NaturaBotanica Admin"');
+    return res.status(401).send('<h1>Authentication Required</h1>');
+  }
+
+  // Decode the base64 credentials (username:password)
+  const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  const user = auth[0];
+  const pass = auth[1];
+
+  // Check against environment variables
+  const validUser = process.env.ADMIN_USER || 'admin';
+  const validPass = process.env.ADMIN_PASSWORD || 'password123';
+
+  if (user === validUser && pass === validPass) {
+    next(); // User is authenticated, proceed to the route
+  } else {
+    res.setHeader('WWW-Authenticate', 'Basic realm="NaturaBotanica Admin"');
+    return res.status(401).send('<h1>Access Denied</h1>');
+  }
+}
 
 // ─── EMAIL SENDING FUNCTION (HTTPS API) ──────────────────────────────────────────
 async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOverride = null) {
   try {
-    // Default sender for Order Updates
     const senderEmail = senderEmailOverride || 'sales.naturabotanica20@gmail.com';
     const senderName = 'NaturaBotanica';
 
@@ -101,7 +127,7 @@ pool.query(createTableQuery, (err) => {
   }
 });
 
-// ─── ROUTE 1: Receive New Order ───────────────────────────────────────────────
+// ─── ROUTE 1: Receive New Order (PUBLIC) ────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
     const {
@@ -137,8 +163,9 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email to Customer ─────────────────────────
-app.put('/update-status', async (req, res) => {
+// ─── ROUTE 2: Update Status (PROTECTED) ─────────────────────────────────────
+// Added checkAuth middleware here
+app.put('/update-status', checkAuth, async (req, res) => {
   try {
     const { id, status } = req.body;
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
@@ -174,20 +201,19 @@ app.put('/update-status', async (req, res) => {
   }
 });
 
-// ─── ROUTE 3: Handle Contact/Inquiry Form ─────────────────────────────────────
+// ─── ROUTE 3: Handle Contact/Inquiry (PUBLIC) ─────────────────────────────
 app.post('/contact', async (req, res) => {
   try {
     const { firstName, lastName, email, company, message } = req.body;
     const fullName = `${firstName} ${lastName}`;
 
-    // Send notification to the Sales Team
     const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
-    const senderEmail = 'sales.naturabotanica20@gmail.com'; // The user sending (or noreply)
+    const senderEmail = 'sales.naturabotanica20@gmail.com';
     const senderName = 'NaturaBotanica Website';
 
     const data = {
       sender: { name: senderName, email: senderEmail },
-      to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }], // Destination
+      to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
       subject: `New Inquiry: ${fullName}`,
       htmlContent: `
         <h3>New Inquiry Received</h3>
@@ -216,8 +242,9 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-// ─── ROUTE 4: Delete Single Order ────────────────────────────────────────────
-app.delete('/delete-order/:id', async (req, res) => {
+// ─── ROUTE 4: Delete Single Order (PROTECTED) ────────────────────────────
+// Added checkAuth middleware here
+app.delete('/delete-order/:id', checkAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('DELETE FROM orders WHERE id = $1 RETURNING id', [id]);
@@ -230,8 +257,9 @@ app.delete('/delete-order/:id', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Delete Multiple Orders ─────────────────────────────────────────
-app.delete('/delete-orders', async (req, res) => {
+// ─── ROUTE 5: Delete Multiple Orders (PROTECTED) ─────────────────────────
+// Added checkAuth middleware here
+app.delete('/delete-orders', checkAuth, async (req, res) => {
   try {
     const { ids } = req.body;
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
@@ -250,8 +278,9 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard ──────────────────────────────────────────
-app.get('/view-orders', async (req, res) => {
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED) ────────────────────────────
+// Added checkAuth middleware here
+app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
 
@@ -508,5 +537,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v9 (API Mode)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v9 (Secure Mode)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
