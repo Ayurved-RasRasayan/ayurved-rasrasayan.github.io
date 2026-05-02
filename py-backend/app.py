@@ -188,8 +188,14 @@ def send_email(to_email, subject, html_body):
 @app.route('/send-email', methods=['POST'])
 def trigger_instant_email():
     # 1. Security check
-    secret = request.headers.get('X-API-SECRET')
-    if secret != API_SECRET:
+    secret = request.headers.get('X-API-SECRET', '').strip()
+    expected = (API_SECRET or '').strip()
+
+    print(f"🔑 Received secret : '{secret}'")
+    print(f"🔑 Expected secret : '{expected}'")
+    print(f"🔑 Match           : {secret == expected}")
+
+    if not secret or secret != expected:
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
     # 2. Get order ID
