@@ -1,4 +1,5 @@
 import os
+import requests # <--- NEW IMPORT
 import time
 import smtplib
 import threading
@@ -13,7 +14,7 @@ import psycopg2
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 
-# ─── CONFIGURATION ─────────────────────────────────────────────
+# ─── CONFIGURATION ─────────────────────────────────────
 load_dotenv()
 
 app = Flask(__name__)
@@ -28,10 +29,15 @@ EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS") # <--- REPLACE THIS WITH YOUR BREVO PASSWORD
 # Note: For Brevo, use port 587 and smtp-relay.brevo.com
 
+# NEW: Inventory API Configuration
+# Set this variable in your Render Dashboard or .env file
+# Example: https://api.your-inventory-provider.com/v1/stock
+INVENTORY_API_URL = os.environ.get("INVENTORY_API_URL")
+
 # API Secret for Security (Use a random string in your .env)
 API_SECRET = os.environ.get("API_SECRET", "change_me_to_something_secure")
 
-# ─── DATABASE CONNECTION (ROBUST FIX) ────────────────────────────────
+# ─── DATABASE CONNECTION (ROBUST FIX) ────────────────────────
 def get_db_connection():
     try:
         print("📍 Attempting DB Connection...")
@@ -46,14 +52,14 @@ def get_db_connection():
         print(f"❌ DB Connection Failed: {e}")
         raise e
 
-# ─── EMAIL HTML TEMPLATE ───────────────────────────────────────────────
+# ─── EMAIL HTML TEMPLATE ────────────────────────────────────────
 def build_email_html(order, status):
     status_colors = {
         'Pending':   {'bg': '#fff7ed', 'text': '#b45309', 'border': '#fcd34d'},
-        'Shipping':  {'bg': '#eff6ff', 'text': '#1e40af', 'border': '#bfdbfe'},
+        'Shipping': {'bg': '#eff6ff', 'text': '#1e40af', 'border': '#bfdbfe'},
         'Completed': {'bg': '#f0fdf4', 'text': '#15803d', 'border': '#86efac'},
         'Success':   {'bg': '#dcfce7', 'text': '#15803d', 'border': '#86efac'},
-        'Rejected':  {'bg': '#fee2e2', 'text': '#991b1b', 'border': '#fca5a5'}
+        'Rejected': {'bg': '#fee2e2', 'text': '#991b1b', 'border': '#fca5a5'}
     }
     color = status_colors.get(status, {'bg': '#f3f4f6', 'text': '#374151', 'border': '#d1d5db'})
 
@@ -112,7 +118,35 @@ def build_email_html(order, status):
     </div>
     """
 
-# ─── EMAIL SENDER (FORCE IPv4 FIX) ────────────────────────────────────
+# ─── HELPER: CHECK INVENTORY API ─────────────────────────────
+def check_inventory_api():
+    """
+    Checks if the external Inventory API is accessible.
+    Returns True if healthy, False otherwise.
+    """
+    try:
+        if not INVENTORY_API_URL:
+            print("⚠️ INVENTORY_API_URL is not configured.")
+            return False
+
+        print(f"🔍 Pinging Inventory API: {INVENTORY_API_URL}")
+        # Timeout of 5 seconds to prevent hanging
+        response = requests.get(INVENTORY_API_URL, timeout=5)
+        
+        if response.status_code == 200:
+            print(f"✅ Inventory API is Healthy. Status: {response.text}")
+            return True
+        else:
+            print(f"⚠️ Inventory API returned HTTP {response.status_code}")
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Inventory API Connection Error: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Inventory API Critical Error: {e}")
+        return False
+
+# ─── EMAIL SENDER (FORCE IPv4 FIX) ────────────────────────────
 def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart()
@@ -125,12 +159,12 @@ def send_email(to_email, subject, html_body):
         
         # FORCE IPv4 CONNECTION FIX
         # smtplib often defaults to IPv6 which might fail on some cloud providers.
-        # We use socket.getaddrinfo to get the IPv4 address explicitly.
+        # We use socket.getaddrinfo to get IPv4 address explicitly.
         smtp_host = "smtp-relay.brevo.com"
         smtp_port = 587
         
         # Get IPv4 address info (AF_INET is IPv4)
-        # [0] takes the first result. This returns (family, type, proto, canonname, sockaddr)
+        # [0] takes first IPv4 result. This returns (family, type, proto, canonname, sockaddr)
         ai = socket.getaddrinfo(smtp_host, smtp_port, socket.AF_INET)[0]
         
         # Create a raw socket using the IPv4 address (ai[4])
@@ -138,10 +172,10 @@ def send_email(to_email, subject, html_body):
         
         print(f"📍 Connecting to {ai[4][0]} (IPv4) on port {smtp_port}...")
         
-        # Pass the connected socket to smtplib
+        # Pass connected socket to smtplib
         with smtplib.SMTP(raw_socket) as server:
             print(f"📍 Socket Connected. Initializing TLS...")
-            server.starttls() # Secure the connection
+            server.starttls() # Secure connection
             print(f"📍 Logging in as {EMAIL_USER}...")
             server.login(EMAIL_USER, EMAIL_PASS)
             print(f"📧 Sending email...")
@@ -153,7 +187,7 @@ def send_email(to_email, subject, html_body):
         print(f"❌ Email failed to {to_email}: {e}")
         return False
 
-# ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────────────
+# ─── ROUTE 1: WEBHOOK (INSTANT EMAIL TRIGGER) ───────────────────────
 @app.route('/send-email', methods=['POST'])
 def trigger_instant_email():
     # 1. Security Check
@@ -189,6 +223,11 @@ def trigger_instant_email():
         col_names = [desc[0] for desc in cursor.description]
         order = dict(zip(col_names, row))
 
+        # 4. NEW: Check Inventory API Status
+        is_inventory_healthy = check_inventory_api()
+        if not is_inventory_healthy:
+            print("⚠️ Warning: Inventory API is down. Order data might be outdated.")
+
         html_content = build_email_html(order, order['status'])
         success = send_email(
             order['client_email'],
@@ -211,7 +250,21 @@ def trigger_instant_email():
     finally:
         if conn: conn.close()
 
-# ─── ROUTE 2: BACKGROUND WORKER (FALLBACK) ───────────────────────────────────
+# ─── ROUTE 2: HEALTH CHECK (INVENTORY) ───────────────────────────
+@app.route('/check-inventory', methods=['GET'])
+def check_inventory_status():
+    """
+    Simple health check endpoint.
+    Returns JSON: {"inventory_api": "online" | "offline"}
+    """
+    status = check_inventory_api()
+    
+    if status:
+        return jsonify({"inventory_api": "online", "message": "Inventory API is reachable"}), 200
+    else:
+        return jsonify({"inventory_api": "offline", "message": "Inventory API is unreachable"}), 503
+
+# ─── ROUTE 3: BACKGROUND WORKER (FALLBACK) ───────────────────────────
 def check_orders_and_send_emails():
     print("🚀 Background Worker Started...")
     
@@ -221,6 +274,7 @@ def check_orders_and_send_emails():
             # Find orders that:
             # 1. Email not yet sent
             # 2. Status is NOT 'Pending' (e.g., status changed to 'Shipping' via admin dashboard)
+            # 3. Client email is present (basic validation)
             conn = get_db_connection()
             cursor = conn.cursor()
 
@@ -232,6 +286,8 @@ def check_orders_and_send_emails():
                   AND client_email IS NOT NULL
                   AND client_email != ''
                   AND client_email != 'N/A'
+                  AND client_email IS NOT NULL
+                  AND client_email NOT LIKE '%@%'
                 LIMIT 10
             """)
             orders = cursor.fetchall()
@@ -254,9 +310,9 @@ def check_orders_and_send_emails():
                         if success:
                             cursor.execute("UPDATE orders SET email_sent = TRUE WHERE id = %s", (order['id'],))
                             conn.commit()
-                            print(f"  ✔ [WORKER] DB updated for Order #{order['id']}")
+                            print(f" ✔ [WORKER] DB updated for Order #{order['id']}")
                         else:
-                            print(f"  ⚠ [WORKER] SMTP error for Order #{order['id']}")
+                            print(f" ⚠ [WORKER] SMTP error for Order #{order['id']}")
 
             conn.close()
 
@@ -268,10 +324,10 @@ def check_orders_and_send_emails():
         print("😴 Sleeping for 10 seconds...")
         time.sleep(10)
 
-# ─── ROUTE 3: HEALTH CHECK ───────────────────────────────────────────
+# ─── ROUTE 4: HOME (HEALTH CHECK) ────────────────────────────────────────────
 @app.route('/')
 def home():
-    return "🐍 NaturaBotanica Email Worker is Running"
+    return "🐍 NaturaBotanica Backend is Running"
 
 # ─── STARTUP ───────────────────────────────────────────────────────────
 if __name__ == '__main__':
@@ -280,7 +336,7 @@ if __name__ == '__main__':
 
     if not debug_mode:
         print("🔧 Starting background worker thread...")
-        # Start the background worker in a separate daemon thread
+        # Start background worker in a separate daemon thread
         worker_thread = threading.Thread(target=check_orders_and_send_emails, daemon=True)
         worker_thread.start()
     
