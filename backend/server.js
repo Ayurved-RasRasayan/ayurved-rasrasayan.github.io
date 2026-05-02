@@ -343,25 +343,26 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-                              /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
+                        /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
           @media (max-width: 768px) {
-            /* 1. SCROLL & BACKGROUND FIXES */
+            /* 1. LOCK SCROLL & MAXIMIZE WIDTH */
             html, body {
-              overflow-x: hidden; /* Prevents scrolling right */
+              overflow-x: hidden; /* Force disable horizontal scroll */
               width: 100%;
               margin: 0;
             }
             body { background: #e5e7eb; } 
             
-            /* Minimal padding to prevent whitespace overflow */
+            /* Remove side padding to utilize full screen width */
             .container { 
-              padding: 10px 4px; 
+              padding: 8px 0; 
+              max-width: 100%;
             }
 
             /* 1. Toolbar */
-            .toolbar { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
+            .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; }
-            .btn { width: 100%; justify-content: center; padding: 12px; }
+            .btn { width: calc(100% - 16px); justify-content: center; padding: 12px; margin: 0 8px; }
 
             thead { display: none; } 
             table { display: block; width: 100%; margin: 0; }
@@ -370,10 +371,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             tbody {
               display: flex;
               flex-wrap: wrap;
-              gap: 8px; /* Tightened gap to fit screen perfectly */
+              gap: 8px; /* 8px space between columns */
+              padding: 0 8px; /* Side padding applied here instead of container */
             }
 
-            /* 3. The Card (Half Width) */
+            /* 3. The Card (Perfect Half Width) */
             tr {
               background: #fff;
               border-radius: 8px;
@@ -382,11 +384,14 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               border: 1px solid #e5e7eb;
               position: relative;
               
-              /* Grid Logic: */
               display: flex;
               flex-direction: column;
-              width: calc(50% - 4px); /* Math adjusted for no side scroll */
+              
+              /* MATH: (100% - 8px Gap) / 2 = 50% - 4px */
+              width: calc(50% - 4px); 
               margin-bottom: 0;
+              
+              box-sizing: border-box; /* Critical: ensures padding/border is inside this width */
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
@@ -407,28 +412,28 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             /* Checkbox: Absolute top right */
             td:nth-child(1) {
-              position: absolute; top: 10px; right: 10px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.8); border-radius: 4px;
+              position: absolute; top: 8px; right: 8px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.9); border-radius: 4px;
             }
             td:nth-child(1) input { width: 16px; height: 16px; }
 
-            /* Client Name: Compact Header */
+            /* Client Name */
             td:nth-child(3) {
-              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 20px;
+              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 22px;
             }
-            td:nth-child(3) strong { font-size: 0.95rem; color: #111827; display: block; line-height: 1.2; }
-            td:nth-child(3) small { font-size: 0.7rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+            td:nth-child(3) strong { font-size: 0.9rem; color: #111827; display: block; line-height: 1.1; }
+            td:nth-child(3) small { font-size: 0.65rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
 
-            /* Order ID: Very Small */
+            /* Order ID */
             td:nth-child(2) {
-              order: 3; font-size: 0.65rem; color: #9ca3af; margin-top: -2px; margin-bottom: 6px;
+              order: 3; font-size: 0.6rem; color: #9ca3af; margin-top: -2px; margin-bottom: 6px;
             }
 
-            /* Amount: Green Badge */
+            /* Amount */
             td:nth-child(4) {
-              order: 4; font-size: 0.95rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 4px 8px; border-radius: 4px; align-self: flex-start;
+              order: 4; font-size: 0.9rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 4px 6px; border-radius: 4px; align-self: flex-start;
             }
 
-            /* Order Status: Compact Select */
+            /* Order Status */
             td:nth-child(7) {
               order: 5; margin: 8px 0 4px 0;
             }
@@ -438,13 +443,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               background-repeat: no-repeat; background-position: right 6px top 50%; background-size: 10px auto;
             }
 
-            /* Email Status: Tiny Badge */
+            /* Email Status */
             td:nth-child(6) {
               order: 6; justify-content: center; margin-bottom: 6px;
             }
             td:nth-child(6) .badge { font-size: 8px; padding: 2px 4px; }
             
-            /* Payment Proof: Compact Thumbnail */
+            /* Payment Proof */
             td:nth-child(5) {
               order: 7; justify-content: center; background: #f9fafb; padding: 4px; border-radius: 4px; border: 1px dashed #d1d5db;
               min-height: 48px;
@@ -454,13 +459,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               height: 40px; width: auto; max-width: 60px; object-fit: contain; border-radius: 2px; 
             }
 
-            /* Actions: Compact Button */
+            /* Actions */
             td:nth-child(8) {
               order: 8; margin-top: 2px;
             }
             td:nth-child(8) button {
               width: 100%; background: #fee2e2; color: #b91c1c; padding: 6px; border-radius: 4px; font-weight: 600; border: 1px solid #fecaca;
-              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 12px;
+              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 11px;
             }
           }
 
