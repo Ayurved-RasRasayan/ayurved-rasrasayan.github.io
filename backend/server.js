@@ -2,6 +2,7 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+require('dotenv').config(); // ADDED: To ensure .env is loaded
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,22 +11,26 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP (CONFIGURED FOR BREVO) ─────────────────────────────
-// We are using the specific Host, Port, and Login ID format for Brevo.
+// ─── EMAIL TRANSPORTER SETUP (UPDATED FOR SSL/PORT 465) ──────────────────────
+// DEBUGGING: Print env vars to ensure they are loaded
+console.log(`[EMAIL CONFIG] Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}`);
+console.log(`[EMAIL CONFIG] User: ${process.env.EMAIL_USER}`);
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false, // true for 465, false for other ports (Brevo uses 587 usually)
+  port: process.env.EMAIL_PORT || 465, // DEFAULT TO 465
+  secure: true, // true for 465 (SSL), false for 587
   auth: {
-    user: process.env.EMAIL_USER, // Use the "Login" from Brevo (e.g. a9f3cc001@smtp-brevo.com)
-    pass: process.env.EMAIL_PASS  // Use the "SMTP Key" you generated
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
 // Test the connection on startup
 transporter.verify(function (error, success) {
   if (error) {
-    console.log("⚠️ Email Server Connection Failed. Check your .env file.", error.message);
+    console.log("⚠️ Email Server Connection Failed.", error.message);
+    console.log("💡 Try ensuring your .env file has the correct PORT (465) and PASSWORD.");
   } else {
     console.log("✅ Email Server is ready to send messages (Brevo Connected)");
   }
@@ -67,11 +72,9 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    // Migration: Rename column if upgrading from older version
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
-    // Migration: Convert column type to String if upgrading
     pool.query(`ALTER TABLE orders ALTER COLUMN email_status TYPE VARCHAR USING email_status::TEXT;`, (err) => {
         if(err) console.log("ℹ️ DB Migration checked.");
     });
@@ -120,20 +123,17 @@ app.put('/update-status', async (req, res) => {
     const { id, status } = req.body;
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
-    // 1. Update Order Status & Reset Email Status
     await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
     
-    // 2. Fetch Client Details
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
     if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
     
     const { client_name, client_email } = orderResult.rows[0];
-    let emailStatusResult = 'Queue'; // Default
+    let emailStatusResult = 'Queue'; 
 
-    // 3. Send Email
     if (client_email && client_email.includes('@')) {
       const mailOptions = {
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER, // Use 'From' if set, otherwise Login ID
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER, 
         to: client_email,             
         subject: `Order Status Update: #${id}`,
         html: `<h3>Hello ${client_name},</h3><p>Your order #${id} status is now: <strong>${status}</strong>.</p>`
@@ -141,12 +141,10 @@ app.put('/update-status', async (req, res) => {
 
       try {
         await transporter.sendMail(mailOptions);
-        // 4. Success
         await pool.query(`UPDATE orders SET email_status = 'Sent' WHERE id = $1`, [id]);
         emailStatusResult = 'Sent';
         console.log(`✅ Email sent successfully for #${id}`);
       } catch (emailError) {
-        // 5. Failed
         await pool.query(`UPDATE orders SET email_status = 'Failed' WHERE id = $1`, [id]);
         emailStatusResult = 'Failed';
         console.error(`❌ Email failed for #${id}. Error:`, emailError.message);
