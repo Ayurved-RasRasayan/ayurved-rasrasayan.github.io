@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const axios = require('axios'); // ADDED: For HTTPS API calls
+const axios = require('axios'); 
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,18 +10,22 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL SENDING FUNCTION (HTTPS API - BYPASSES SMTP BLOCK) ──────────────────
-// We use Port 443 (Web) which Render never blocks
+// ─── EMAIL SENDING FUNCTION (HTTPS API) ──────────────────────────────────────────
 async function sendEmailViaAPI(toEmail, toName, orderId, status) {
   try {
-    // Brevo API Endpoint
+    // Determine Sender Address (Priority: EMAIL_FROM env var, then fallback to Login)
+    const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    const senderName = 'NaturaBotanica';
+
+    // DEBUG: Log exactly who is sending to who
+    console.log(`[EMAIL DEBUG] Sending from: ${senderEmail} -> To: ${toEmail}`);
+
     const endpoint = 'https://api.sendinblue.com/v3/smtp/email'; 
     
-    // Prepare Payload
     const data = {
       sender: {
-        name: 'NaturaBotanica',
-        email: process.env.EMAIL_FROM || process.env.EMAIL_USER 
+        name: senderName,
+        email: senderEmail
       },
       to: [{
         email: toEmail,
@@ -31,10 +35,9 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status) {
       htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${status}</strong>.</p>`
     };
 
-    // Send Request
     const response = await axios.post(endpoint, data, {
       headers: {
-        'api-key': process.env.EMAIL_PASS, // Brevo uses the SMTP key for API access too
+        'api-key': process.env.EMAIL_PASS, 
         'content-type': 'application/json'
       }
     });
@@ -134,13 +137,12 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email (USING API) ─────────────────────────
+// ─── ROUTE 2: Update Status & Send Email ─────────────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
-    // Update Order Status & Reset Email
     await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
     
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
@@ -150,7 +152,6 @@ app.put('/update-status', async (req, res) => {
     let emailStatusResult = 'Queue'; 
 
     if (client_email && client_email.includes('@')) {
-      // Use the new API function
       const success = await sendEmailViaAPI(client_email, client_name, id, status);
       
       if (success) {
@@ -218,7 +219,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v7</title>
+        <title>NaturaBotanica — Orders v8</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -465,5 +466,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v7 (API Mode)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v8 (API Mode)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
