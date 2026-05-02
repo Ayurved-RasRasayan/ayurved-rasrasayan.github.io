@@ -60,11 +60,11 @@
     .product-card:hover .product-img { transform: scale(1.05); }
     .cat-btn.active { background: #1C1917; color: #FAFAF9; }
     
-    /* When Payment Modal is open, don't hide body overflow, use blur effect instead */
+    /* Payment Modal Blur */
     .payment-modal-open #products {
         filter: blur(4px);
         opacity: 0.6;
-        pointer-events: none; /* Optional: disable interaction with blurred content */
+        pointer-events: none;
     }
     .payment-modal-open body {
         overflow: hidden;
@@ -80,7 +80,7 @@
       overflow: hidden;
     }
 
-    /* Payment Tab Active State */
+    /* Tab Active State */
     .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
     
     /* Currency Toggle State */
@@ -92,7 +92,6 @@
     /* Upload Zone Error State */
     .upload-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
     
-    /* Fallback backgrounds if images are missing */
     .hero-bg-fallback {
       background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
     }
@@ -397,17 +396,17 @@
         </div>
         <form id="contactForm" onsubmit="submitForm(event)" class="space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input type="text" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
-            <input type="text" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+            <input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+            <input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           </div>
-          <input type="email" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
-          <input type="text" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           <textarea id="contactMessage" placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
-          <button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
+          <button type="submit" id="inquirySubmitBtn" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
             Send Inquiry
             <i data-lucide="send" class="w-4 h-4"></i>
           </button>
-          <div id="formMsg" class="hidden text-center text-sm text-brand font-medium py-2"></div>
+          <div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div>
         </form>
       </div>
     </div>
@@ -1349,13 +1348,67 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchToggle').click(); }
 });
 
-function submitForm(e) {
+// ==================== UPDATED SUBMIT FORM (INQUIRY) ====================
+async function submitForm(e) {
   e.preventDefault();
+
+  const btn = document.getElementById('inquirySubmitBtn');
   const msg = document.getElementById('formMsg');
-  msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
-  msg.classList.remove('hidden');
-  e.target.reset();
-  setTimeout(() => msg.classList.add('hidden'), 5000);
+  const originalText = btn.innerHTML;
+
+  // Get values from the form
+  const firstName = document.getElementById('inquiryFirstName').value;
+  const lastName = document.getElementById('inquiryLastName').value;
+  const email = document.getElementById('inquiryEmail').value;
+  const company = document.getElementById('inquiryCompany').value;
+  const message = document.getElementById('contactMessage').value;
+
+  // Set loading state
+  btn.disabled = true;
+  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...`;
+  msg.classList.add('hidden');
+
+  try {
+    // Check if backend URL is configured (safety check from your cart code)
+    if(RENDER_BACKEND_URL.includes('your-app-name')) {
+      alert("Please update RENDER_BACKEND_URL in script section with your actual Render URL!");
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
+    }
+
+    const response = await fetch(`${RENDER_BACKEND_URL}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        company,
+        message
+      })
+    });
+
+    if (response.ok) {
+      msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
+      msg.classList.remove('hidden');
+      msg.classList.remove('text-red-500');
+      msg.classList.add('text-brand');
+      e.target.reset(); // Clear the form
+    } else {
+      throw new Error('Failed to send');
+    }
+  } catch (error) {
+    console.error(error);
+    msg.textContent = '✕ Error sending inquiry. Please try again or email us directly.';
+    msg.classList.remove('hidden');
+    msg.classList.remove('text-brand');
+    msg.classList.add('text-red-500');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    lucide.createIcons(); // Refresh icons
+  }
 }
 
 // ==================== INIT ====================
