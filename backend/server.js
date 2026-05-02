@@ -343,31 +343,41 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-                    /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
+                              /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
           @media (max-width: 768px) {
+            /* 1. SCROLL & BACKGROUND FIXES */
+            html, body {
+              overflow-x: hidden; /* Prevents scrolling right */
+              width: 100%;
+              margin: 0;
+            }
             body { background: #e5e7eb; } 
-            .container { padding: 10px; }
             
+            /* Minimal padding to prevent whitespace overflow */
+            .container { 
+              padding: 10px 4px; 
+            }
+
             /* 1. Toolbar */
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; }
             .btn { width: 100%; justify-content: center; padding: 12px; }
 
             thead { display: none; } 
-            table { display: block; width: 100%; }
+            table { display: block; width: 100%; margin: 0; }
 
             /* 2. Flex Container for the Grid */
             tbody {
               display: flex;
               flex-wrap: wrap;
-              gap: 12px; /* Spacing between cards */
+              gap: 8px; /* Tightened gap to fit screen perfectly */
             }
 
             /* 3. The Card (Half Width) */
             tr {
               background: #fff;
-              border-radius: 12px;
-              padding: 14px;
+              border-radius: 8px;
+              padding: 10px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.05);
               border: 1px solid #e5e7eb;
               position: relative;
@@ -375,7 +385,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               /* Grid Logic: */
               display: flex;
               flex-direction: column;
-              width: calc(50% - 6px); /* 50% width minus half the gap */
+              width: calc(50% - 4px); /* Math adjusted for no side scroll */
               margin-bottom: 0;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
@@ -387,8 +397,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               padding: 0;
               border: none;
               align-items: center;
-              margin-bottom: 8px;
-              word-break: break-word; /* Prevent long text overflowing narrow cards */
+              margin-bottom: 6px;
+              word-break: break-word;
+              box-sizing: border-box;
             }
             td::before { display: none; }
 
@@ -396,72 +407,60 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             /* Checkbox: Absolute top right */
             td:nth-child(1) {
-              position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.8); border-radius: 4px;
+              position: absolute; top: 10px; right: 10px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.8); border-radius: 4px;
             }
-            td:nth-child(1) input { width: 18px; height: 18px; }
+            td:nth-child(1) input { width: 16px; height: 16px; }
 
             /* Client Name: Compact Header */
             td:nth-child(3) {
-              order: 2;
-              flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 24px; /* Room for checkbox */
+              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 20px;
             }
-            td:nth-child(3) strong { font-size: 1rem; color: #111827; display: block; line-height: 1.2; }
-            td:nth-child(3) small { font-size: 0.75rem; color: #6b7280; font-weight: 400; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+            td:nth-child(3) strong { font-size: 0.95rem; color: #111827; display: block; line-height: 1.2; }
+            td:nth-child(3) small { font-size: 0.7rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
 
             /* Order ID: Very Small */
             td:nth-child(2) {
-              order: 3; font-size: 0.7rem; color: #9ca3af; margin-top: -2px; margin-bottom: 8px;
+              order: 3; font-size: 0.65rem; color: #9ca3af; margin-top: -2px; margin-bottom: 6px;
             }
 
             /* Amount: Green Badge */
             td:nth-child(4) {
-              order: 4; font-size: 1rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 6px 10px; border-radius: 6px; align-self: flex-start;
+              order: 4; font-size: 0.95rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 4px 8px; border-radius: 4px; align-self: flex-start;
             }
 
             /* Order Status: Compact Select */
             td:nth-child(7) {
-              order: 5; margin: 10px 0 6px 0;
+              order: 5; margin: 8px 0 4px 0;
             }
             td:nth-child(7) select {
-              width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; background: #fff;
+              width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #d1d5db; font-size: 12px; background: #fff;
               appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23374151%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-              background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 10px auto;
+              background-repeat: no-repeat; background-position: right 6px top 50%; background-size: 10px auto;
             }
 
             /* Email Status: Tiny Badge */
             td:nth-child(6) {
-              order: 6; justify-content: center; margin-bottom: 8px;
+              order: 6; justify-content: center; margin-bottom: 6px;
             }
-            td:nth-child(6) .badge { font-size: 9px; padding: 2px 6px; }
+            td:nth-child(6) .badge { font-size: 8px; padding: 2px 4px; }
             
             /* Payment Proof: Compact Thumbnail */
             td:nth-child(5) {
-              order: 7; justify-content: center; background: #f9fafb; padding: 6px; border-radius: 4px; border: 1px dashed #d1d5db;
-              min-height: 52px; /* Ensure the box has consistent height even if no image */
+              order: 7; justify-content: center; background: #f9fafb; padding: 4px; border-radius: 4px; border: 1px dashed #d1d5db;
+              min-height: 48px;
             }
-            td:nth-child(5)::before { display: none; } /* Hide label on small cards */
+            td:nth-child(5)::before { display: none; }
             td:nth-child(5) img { 
-              height: 40px;    /* Fixed short height (prevents it being too tall) */
-              width: auto;     /* Width scales to keep aspect ratio */
-              max-width: 60px; /* Prevents it from becoming too wide */
-              object-fit: contain; /* Ensures the whole receipt is visible */
-              border-radius: 2px; 
+              height: 40px; width: auto; max-width: 60px; object-fit: contain; border-radius: 2px; 
             }
 
             /* Actions: Compact Button */
             td:nth-child(8) {
-              order: 8; margin-top: 4px;
+              order: 8; margin-top: 2px;
             }
             td:nth-child(8) button {
-              width: 100%; background: #fee2e2; color: #b91c1c; padding: 8px; border-radius: 6px; font-weight: 600; border: 1px solid #fecaca;
-              display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px;
-            }
-          }
-
-          /* ─── FALLBACK FOR VERY SMALL SCREENS (iPhone SE) ──────────────── */
-          @media (max-width: 380px) {
-            tr {
-              width: 100%; /* Revert to full width on tiny screens */
+              width: 100%; background: #fee2e2; color: #b91c1c; padding: 6px; border-radius: 4px; font-weight: 600; border: 1px solid #fecaca;
+              display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 12px;
             }
           }
 
