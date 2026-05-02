@@ -34,7 +34,7 @@ function checkAuth(req, res, next) {
   }
 }
 
-// ─── EMAIL SENDING FUNCTION (HTTPS API) ──────────────────────────────────────────
+// ─── EMAIL SENDING FUNCTION (Client Status Update) ────────────────────────────
 async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOverride = null) {
   try {
     const senderEmail = senderEmailOverride || 'sales.naturabotanica20@gmail.com';
@@ -75,6 +75,85 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOver
   } catch (error) {
     console.error("❌ Email API Failed:", error.response ? error.response.data : error.message);
     return false;
+  }
+}
+
+// ─── EMAIL SENDING FUNCTION (Admin New Order Notification) ────────────────────
+async function sendAdminNotificationEmail(orderId, orderData) {
+  try {
+    const senderEmail = 'sales.naturabotanica20@gmail.com';
+    const senderName = 'NaturaBotanica Website';
+    const recipientEmail = 'sales.naturabotanica20@gmail.com';
+
+    // Construct Items HTML List
+    let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;">';
+    itemsHtml += '<tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb; padding:8px; text-align:left;">Item</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:center;">Qty</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:right;">Price</th></tr>';
+    
+    if (orderData.items && Array.isArray(orderData.items)) {
+      orderData.items.forEach(item => {
+        const name = item.name || item.product || 'Unknown Item';
+        const qty = item.quantity || 1;
+        const price = item.price || 0;
+        itemsHtml += `
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:8px;">${name}</td>
+            <td style="border:1px solid #e5e7eb; padding:8px; text-align:center;">${qty}</td>
+            <td style="border:1px solid #e5e7eb; padding:8px; text-align:right;">$${price}</td>
+          </tr>`;
+      });
+    } else {
+      itemsHtml += '<tr><td colspan="3" style="border:1px solid #e5e7eb; padding:8px;">No item details available.</td></tr>';
+    }
+    itemsHtml += '</table>';
+
+    const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
+    
+    const data = {
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: recipientEmail, name: 'Sales Team' }],
+      subject: `🛒 NEW ORDER: #${orderId} - ${orderData.clientDetails.name}`,
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #2d4a22;">New Order Received (#${orderId})</h2>
+          <p>A customer has successfully verified their payment.</p>
+          
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
+            <h3 style="margin-top:0;">👤 Client Information</h3>
+            <p><strong>Name:</strong> ${orderData.clientDetails.name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${orderData.clientDetails.email}">${orderData.clientDetails.email}</a></p>
+            <p><strong>Phone:</strong> ${orderData.clientDetails.phone}</p>
+            <p><strong>Address:</strong> ${orderData.clientDetails.address || 'N/A'}</p>
+          </div>
+
+          <h3>📦 Order Details</h3>
+          <p><strong>Method:</strong> ${orderData.paymentMethod} | <strong>Currency:</strong> ${orderData.currency}</p>
+          ${itemsHtml}
+          
+          <div style="margin-top: 20px; text-align: right;">
+            <span style="font-size: 1.2em; font-weight: bold; color: #059669;">Total: $${orderData.totalUSD} (${orderData.totalNPR} NPR)</span>
+          </div>
+
+          ${orderData.paymentScreenshot ? `
+          <p style="margin-top:20px; font-size: 0.9em; color: #666;">
+            📸 Payment Screenshot: <a href="${orderData.paymentScreenshot}" target="_blank">View Proof</a>
+          </p>` : ''}
+
+          <p style="margin-top: 30px; font-size: 0.8em; color: #999;">Timestamp: ${new Date(orderData.timestamp).toLocaleString()}</p>
+        </div>
+      `
+    };
+
+    await axios.post(endpoint, data, {
+      headers: {
+        'api-key': process.env.EMAIL_PASS,
+        'content-type': 'application/json'
+      }
+    });
+
+    console.log(`✅ Admin Notification sent for Order #${orderId}`);
+  } catch (error) {
+    console.error("❌ Failed to send Admin Notification:", error.response ? error.response.data : error.message);
+    // Note: We don't want to stop the server or crash the order saving if the email fails
   }
 }
 
@@ -163,7 +242,12 @@ app.post('/order', async (req, res) => {
     ];
 
     const result = await pool.query(query, values);
-    res.status(200).json({ success: true, orderId: result.rows[0].id });
+    const newOrderId = result.rows[0].id;
+
+    // 🚀 NEW: Send Admin Notification immediately after successful save
+    await sendAdminNotificationEmail(newOrderId, req.body);
+
+    res.status(200).json({ success: true, orderId: newOrderId });
   } catch (error) {
     console.error('❌ Error saving order:', error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -327,7 +411,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* ─── DESKTOP TABLE ────────────────────────────────────────────── */
           .table-wrap { background: #fff; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          table { width: 100%; border-collapse: collapse; min-width: 1100px; } /* Increased min-width for new columns */
+          table { width: 100%; border-collapse: collapse; min-width: 1100px; } 
           th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
           th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
           tr:hover { background: #fafafa; }
@@ -352,22 +436,18 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* ─── MOBILE RESPONSIVE VIEW (Vertical Stack - Samsung Optimized) ─── */
           @media (max-width: 768px) {
-            /* 1. SYSTEM OPTIMIZATIONS */
             body { 
               font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; 
               background: #e5e7eb; 
               -webkit-tap-highlight-color: transparent; 
             }
             html, body {
-              overflow-x: hidden; /* No horizontal scroll */
-              width: 100%;
-              margin: 0;
+              overflow-x: hidden; width: 100%; margin: 0;
             }
-            ::-webkit-scrollbar { display: none; } /* Hide scrollbars */
+            ::-webkit-scrollbar { display: none; } 
             
             .container { padding: 8px 0; max-width: 100%; }
 
-            /* 1. Toolbar */
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; color: #6b7280; }
             .btn { width: calc(100% - 16px); justify-content: center; padding: 12px; margin: 0 8px; font-family: 'Roboto', sans-serif; font-weight: 500; letter-spacing: 0.5px; }
@@ -375,91 +455,64 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             thead { display: none; } 
             table { display: block; width: 100%; margin: 0; border-spacing: 0; }
 
-            /* 2. Flex Container: Vertical Column Layout */
             tbody {
-              display: flex;
-              flex-direction: column; /* Stacks 1, then 2, then 3... */
-              gap: 12px;
-              padding: 0 8px;
+              display: flex; flex-direction: column; gap: 12px; padding: 0 8px;
             }
 
-            /* 3. The Card: Full Width */
             tr {
-              background: #fff;
-              border-radius: 8px;
-              padding: 12px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-              border: 1px solid #e5e7eb;
-              position: relative;
-              display: flex;
-              flex-direction: column;
-              width: 100%;
-              margin-bottom: 0;
-              box-sizing: border-box;
+              background: #fff; border-radius: 8px; padding: 12px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
+              position: relative; display: flex; flex-direction: column;
+              width: 100%; margin-bottom: 0; box-sizing: border-box;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
             td {
-              display: flex;
-              width: 100%;
-              padding: 0;
-              border: none;
-              align-items: center;
-              margin-bottom: 4px;
-              word-break: break-word;
-              box-sizing: border-box;
+              display: flex; width: 100%; padding: 0; border: none;
+              align-items: center; margin-bottom: 4px; word-break: break-word; box-sizing: border-box;
             }
             td::before { display: none; }
 
-            /* 5. Specific Internal Layout (Ordering Columns) */
+            /* 5. Specific Internal Layout */
             
-            /* 1. Checkbox (Child 1) */
             td:nth-child(1) {
               position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
             }
             td:nth-child(1) input { width: 20px; height: 20px; accent-color: #2d4a22; cursor: pointer; }
 
-            /* 2. Client Name (Child 3) -> Order 2 */
             td:nth-child(3) {
               order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 36px;
             }
             td:nth-child(3) strong { font-size: 1.1rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
             td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; order: 5; margin-top: 4px; }
 
-            /* 3. Phone (Child 4) -> Order 3 */
             td:nth-child(4) {
               order: 3; font-size: 0.85rem; color: #555; font-weight: 500; margin-bottom: 2px;
             }
             td:nth-child(4)::before { content: "📱"; margin-right: 6px; }
 
-            /* 4. Address (Child 5) -> Order 4 */
             td:nth-child(5) {
               order: 4; font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 4px;
             }
             td:nth-child(5)::before { content: "📍"; margin-right: 6px; font-style: normal; }
 
-            /* 5. Order ID (Child 2) -> Order 6 (Moved to bottom of header) */
             td:nth-child(2) {
               order: 6; font-size: 0.75rem; color: #9e9e9e; margin-top: 4px; margin-bottom: 8px; border-top: 1px solid #eee; padding-top: 4px;
             }
 
-            /* 6. Amount (Child 6) -> Order 7 */
             td:nth-child(6) {
               order: 7; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
             }
 
-            /* 7. Screenshot (Child 7) -> Order 8 */
             td:nth-child(7) {
               order: 8; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee; min-height: 56px;
             }
             td:nth-child(7)::before { display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap; }
-            td:nth-child(7) img { height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; } /* Small Screenshot */
+            td:nth-child(7) img { height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; }
 
-            /* 8. Email Status (Child 8) -> Order 9 */
             td:nth-child(8) { order: 9; justify-content: flex-start; margin-bottom: 8px; }
             td:nth-child(8) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
             
-            /* 9. Order Status (Child 9) -> Order 10 */
             td:nth-child(9) { order: 10; margin: 12px 0 8px 0; }
             td:nth-child(9) select {
               width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cfd8dc; font-size: 14px; background: #fff; color: #37474f;
@@ -467,7 +520,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 14px auto;
             }
 
-            /* 10. Actions (Child 10) -> Order 11 */
             td:nth-child(10) { order: 11; margin-top: 8px; }
             td:nth-child(10) button {
               width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ffcdd2;
@@ -713,5 +765,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v13'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v14 (Auto-Email)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
