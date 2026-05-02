@@ -10,23 +10,20 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP (UPDATED FOR CLOUD COMPATIBILITY) ────────────────
-// We now use dynamic Host/Port settings to support Gmail, Brevo, or SendGrid.
-// Default to Gmail settings if ENV vars aren't set.
+// ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.EMAIL_PORT || 587,
-  secure: (process.env.EMAIL_PORT || 587) == 465, // true for 465, false for other ports
+  secure: (process.env.EMAIL_PORT || 587) == 465, 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
 });
 
-// Test the connection immediately on startup
 transporter.verify(function (error, success) {
   if (error) {
-    console.log("⚠️ Email Server Connection Failed (This is expected if you haven't updated .env yet):", error);
+    console.log("⚠️ Email Server Connection Failed:", error.message);
   } else {
     console.log("✅ Email Server is ready to send messages");
   }
@@ -44,7 +41,7 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// ─── TABLE SETUP ──────────────────────────────────────────────────────────────
+// ─── TABLE SETUP & MIGRATION ─────────────────────────────────────────────────
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id                  SERIAL PRIMARY KEY,
@@ -59,15 +56,28 @@ const createTableQuery = `
     client_email        VARCHAR,
     payment_screenshot  TEXT,
     status              VARCHAR DEFAULT 'Pending',
-    email_sent          BOOLEAN DEFAULT FALSE,
+    email_status        VARCHAR DEFAULT 'Queue',
     timestamp           TIMESTAMP
   );
 `;
 
 pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
-  else console.log("📊 Table 'orders' is ready");
+  else {
+    console.log("📊 Table 'orders' is ready");
+    // Attempt to migrate existing tables from 'email_sent' (boolean) to 'email_status' (string)
+    console.log("🔄 Checking for database migrations...");
+    pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
+      if(err && err.message.includes('column "email_sent" does not exist')) {
+         // Column already renamed or never existed, ignore
+      }
+    });
+    pool.query(`ALTER TABLE orders ALTER COLUMN email_status TYPE VARCHAR USING email_status::TEXT;`, (err) => {
+        if(err) console.log("ℹ️ Migration check completed.");
+    });
+  }
 });
+
 // ─── ROUTE 1: Receive New Order ───────────────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
@@ -81,7 +91,7 @@ app.post('/order', async (req, res) => {
       INSERT INTO orders 
         (items, total_usd, total_npr, paid_amount, currency,
          payment_method, client_name, client_phone, client_email, payment_screenshot, 
-         status, email_sent, timestamp)
+         status, email_status, timestamp)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING id;
     `;
@@ -92,90 +102,65 @@ app.post('/order', async (req, res) => {
       clientDetails.name, clientDetails.phone, clientDetails.email,
       paymentScreenshot, 
       'Pending',             
-      false,                 
+      'Queue',                // Default to 'Queue'
       timestamp
     ];
 
     const result = await pool.query(query, values);
-    const orderId = result.rows[0].id;
-    console.log(`📝 New Order #${orderId} from ${clientDetails.name}`);
-
-    res.status(200).json({ success: true, orderId });
+    res.status(200).json({ success: true, orderId: result.rows[0].id });
   } catch (error) {
     console.error('❌ Error saving order:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email (EXTREME DEBUG LOGGING) ─────────────
+// ─── ROUTE 2: Update Status & Send Email (Updated for Fail/Queue/Sent) ───────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
-    console.log(`\n[DEBUG 1] --- STARTING EMAIL PROCESS FOR ORDER #${id} ---`);
+    console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
-    // 1. Update Status immediately
-    console.log(`[DEBUG 2] Updating database status to '${status}'...`);
-    await pool.query(`UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`, [status, id]);
-    console.log(`[DEBUG 3] Database status updated.`);
-
-    // 2. Fetch Client Details
-    console.log(`[DEBUG 4] Fetching client details for Order #${id}...`);
-    const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
+    // 1. Set Order Status & Reset Email to 'Queue'
+    await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
     
-    if (orderResult.rows.length === 0) {
-      console.log(`[DEBUG 5] ❌ Order #${id} NOT FOUND in DB.`);
-      return res.status(404).json({ success: false });
-    }
+    // 2. Fetch Client Details
+    const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
+    if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
     
     const { client_name, client_email } = orderResult.rows[0];
-    console.log(`[DEBUG 6] Client found: Name="${client_name}", Email="${client_email}"`);
+
+    let emailStatusResult = 'Queue'; // Default result if we don't send
 
     // 3. Send Email
     if (client_email && client_email.includes('@')) {
-      
-      // Check Credentials
-      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.log(`[DEBUG 7] ❌ CRITICAL: EMAIL_USER or EMAIL_PASS is missing in .env file!`);
-      } else {
-        console.log(`[DEBUG 8] ✅ Credentials loaded.`);
-      }
-
-      console.log(`[DEBUG 9] Preparing email to ${client_email}...`);
-
       const mailOptions = {
         from: process.env.EMAIL_USER, 
         to: client_email,             
         subject: `Order Status Update: #${id}`,
-        html: `
-          <h3>Hello ${client_name},</h3>
-          <p>Your order <strong>#${id}</strong> status has been updated.</p>
-          <h2 style="color: #2d4a22;">${status}</h2>
-          <p>Thank you for shopping with NaturaBotanica.</p>
-        `
+        html: `<h3>Hello ${client_name},</h3><p>Your order #${id} status is now: <strong>${status}</strong>.</p>`
       };
 
       try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`[DEBUG 10] ✅ EMAIL SENT SUCCESSFULLY! Message ID: ${info.messageId}`);
-        
-        // 4. Mark as Sent in DB
-        await pool.query(`UPDATE orders SET email_sent = TRUE WHERE id = $1`, [id]);
-        console.log(`[DEBUG 11] Database updated (email_sent = TRUE).`);
-        
+        await transporter.sendMail(mailOptions);
+        // 4. Mark as Sent
+        await pool.query(`UPDATE orders SET email_status = 'Sent' WHERE id = $1`, [id]);
+        emailStatusResult = 'Sent';
+        console.log(`✅ Email sent successfully for #${id}`);
       } catch (emailError) {
-        console.error(`[DEBUG 10] ❌ EMAIL FAILED TO SEND.`);
-        console.error(`[ERROR DETAILS]:`, emailError.message);
+        // 5. Mark as Failed
+        await pool.query(`UPDATE orders SET email_status = 'Failed' WHERE id = $1`, [id]);
+        emailStatusResult = 'Failed';
+        console.error(`❌ Email failed for #${id}. Status set to Failed.`);
       }
-
     } else {
-      console.log(`[DEBUG 7] ⚠️ SKIPPED: No valid email address found.`);
+      console.log(`⚠️ No valid email found for #${id}`);
     }
 
-    res.json({ success: true, message: `Status updated to ${status}.` });
+    res.json({ success: true, message: `Status updated.`, emailStatus: emailStatusResult });
 
   } catch (error) {
-    console.error(`[FATAL ERROR] Server crashed while updating status:`, error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error(`[FATAL ERROR]`, error);
+    res.status(500).json({ success: false, message: 'Server error', emailStatus: 'Failed' });
   }
 });
 
@@ -213,7 +198,7 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Admin Order Dashboard (v3) ─────────────────────────────────────
+// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -224,7 +209,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v3</title> <!-- Changed title to v3 -->
+        <title>NaturaBotanica — Orders v4</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -251,12 +236,13 @@ app.get('/view-orders', async (req, res) => {
           .status-Pending   { background: #fff7ed; color: #b45309; }
           .status-Shipping  { background: #eff6ff; color: #1e40af; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
-          .status-Success   { background: #dcfce7; color: #15803d; }
+          .status-Success   { background: #dcfce7; color: #15803d; } /* Renamed Payment Successful */
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
           
           /* BADGES */
           .badge-queue { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #b45309; background: #fff7ed; border: 1px solid #fdba74; }
           .badge-sent  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #15803d; background: #f0fdf4; border: 1px solid #86efac; }
+          .badge-fail  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #dc2626; background: #fee2e2; border: 1px solid #fca5a5; }
 
           .screenshot-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: pointer; transition: transform 0.2s; }
           .screenshot-thumb:hover { transform: scale(2); z-index: 10; }
@@ -294,9 +280,14 @@ app.get('/view-orders', async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  const emailBadge = row.email_sent 
-                    ? `<span class="badge-sent">✅ Sent</span>` 
-                    : `<span class="badge-queue">⏳ Queue</span>`;
+                  
+                  // Mapping logic for badges
+                  let emailBadge = `<span class="badge-queue">⏳ Queue</span>`;
+                  if (row.email_status === 'Sent') {
+                    emailBadge = `<span class="badge-sent">✅ Sent</span>`;
+                  } else if (row.email_status === 'Failed') {
+                    emailBadge = `<span class="badge-fail">❌ Failed</span>`;
+                  }
 
                   return `
                   <tr id="row-${row.id}">
@@ -318,7 +309,8 @@ app.get('/view-orders', async (req, res) => {
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
                         <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
-                        <option value="Success"   ${status === 'Success'   ? 'selected' : ''}>Success</option>
+                        <!-- RENAMED HERE -->
+                        <option value="Success"   ${status === 'Success'   ? 'selected' : ''}>Payment Successful</option>
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
                     </td>
@@ -366,6 +358,19 @@ app.get('/view-orders', async (req, res) => {
             onCheckboxChange();
           }
 
+          // Helper to set badge HTML
+          function setBadge(id, status) {
+            const cell = document.getElementById('email-status-cell-' + id);
+            if (!cell) return;
+            if (status === 'Sent') {
+                cell.innerHTML = '<span class="badge-sent">✅ Sent</span>';
+            } else if (status === 'Failed') {
+                cell.innerHTML = '<span class="badge-fail">❌ Failed</span>';
+            } else {
+                cell.innerHTML = '<span class="badge-queue">⏳ Queue</span>';
+            }
+          }
+
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true;
             try {
@@ -375,16 +380,25 @@ app.get('/view-orders', async (req, res) => {
                 body: JSON.stringify({ id, status: newStatus })
               });
               const data = await response.json();
-              if (data.success) {
-                selectEl.className = 'status-select status-' + newStatus;
-                const emailCell = document.getElementById('email-status-cell-' + id);
-                if (emailCell) {
-                  emailCell.innerHTML = '<span class="badge-sent">✅ Sent</span>';
-                }
-                showToast('✅ Status updated & Email Sent');
+              
+              // Update Dropdown Style
+              selectEl.className = 'status-select status-' + newStatus;
+              
+              // Update Badge based on actual server response
+              if (data.emailStatus) {
+                  setBadge(id, data.emailStatus);
               } else {
-                showToast('❌ Update failed');
+                  setBadge(id, 'Queue');
               }
+
+              if (data.emailStatus === 'Failed') {
+                  showToast('❌ Status updated but Email failed');
+              } else if (data.emailStatus === 'Sent') {
+                  showToast('✅ Status updated & Email Sent');
+              } else {
+                  showToast('✅ Status updated');
+              }
+
             } catch (err) {
               showToast('❌ Network error');
             } finally {
@@ -449,5 +463,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v3'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v4'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
