@@ -11,8 +11,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
 // ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
-// IMPORTANT: Set EMAIL_USER and EMAIL_PASS in your .env file
-// For Gmail, use an App Password, not your normal password.
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -97,54 +95,74 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email ───────────────────────────────────────
+// ─── ROUTE 2: Update Status & Send Email (EXTREME DEBUG LOGGING) ─────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
-    console.log(`[DEBUG] Updating Order #${id} to '${status}'...`);
+    console.log(`\n[DEBUG 1] --- STARTING EMAIL PROCESS FOR ORDER #${id} ---`);
 
-    // 1. Update Status immediately. Reset email_sent to FALSE (Queue) to attempt a retry or mark new event.
+    // 1. Update Status immediately
+    console.log(`[DEBUG 2] Updating database status to '${status}'...`);
     await pool.query(`UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`, [status, id]);
+    console.log(`[DEBUG 3] Database status updated.`);
 
     // 2. Fetch Client Details
+    console.log(`[DEBUG 4] Fetching client details for Order #${id}...`);
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
     
-    if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
+    if (orderResult.rows.length === 0) {
+      console.log(`[DEBUG 5] ❌ Order #${id} NOT FOUND in DB.`);
+      return res.status(404).json({ success: false });
+    }
     
     const { client_name, client_email } = orderResult.rows[0];
+    console.log(`[DEBUG 6] Client found: Name="${client_name}", Email="${client_email}"`);
 
     // 3. Send Email
     if (client_email && client_email.includes('@')) {
-      try {
-        const mailOptions = {
-          from: process.env.EMAIL_USER, 
-          to: client_email,             
-          subject: `Order Status Update: #${id}`,
-          html: `
-            <h3>Hello ${client_name},</h3>
-            <p>Your order <strong>#${id}</strong> status has been updated.</p>
-            <h2 style="color: #2d4a22;">${status}</h2>
-            <p>Thank you for shopping with NaturaBotanica.</p>
-          `
-        };
+      
+      // Check Credentials
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.log(`[DEBUG 7] ❌ CRITICAL: EMAIL_USER or EMAIL_PASS is missing in .env file!`);
+      } else {
+        console.log(`[DEBUG 8] ✅ Credentials loaded.`);
+      }
 
-        await transporter.sendMail(mailOptions);
+      console.log(`[DEBUG 9] Preparing email to ${client_email}...`);
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER, 
+        to: client_email,             
+        subject: `Order Status Update: #${id}`,
+        html: `
+          <h3>Hello ${client_name},</h3>
+          <p>Your order <strong>#${id}</strong> status has been updated.</p>
+          <h2 style="color: #2d4a22;">${status}</h2>
+          <p>Thank you for shopping with NaturaBotanica.</p>
+        `
+      };
+
+      try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`[DEBUG 10] ✅ EMAIL SENT SUCCESSFULLY! Message ID: ${info.messageId}`);
         
-        // 4. IF SUCCESS: Update database to say email was sent
+        // 4. Mark as Sent in DB
         await pool.query(`UPDATE orders SET email_sent = TRUE WHERE id = $1`, [id]);
-        console.log(`✅ Email sent & DB updated for #${id}`);
+        console.log(`[DEBUG 11] Database updated (email_sent = TRUE).`);
         
       } catch (emailError) {
-        console.error(`❌ Email failed for #${id}, keeping status as 'Queue'. Error:`, emailError.message);
+        console.error(`[DEBUG 10] ❌ EMAIL FAILED TO SEND.`);
+        console.error(`[ERROR DETAILS]:`, emailError.message);
       }
+
     } else {
-      console.log(`⚠️ No valid email found for #${id}`);
+      console.log(`[DEBUG 7] ⚠️ SKIPPED: No valid email address found.`);
     }
 
     res.json({ success: true, message: `Status updated to ${status}.` });
 
   } catch (error) {
-    console.error('❌ Server error:', error);
+    console.error(`[FATAL ERROR] Server crashed while updating status:`, error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -154,11 +172,7 @@ app.delete('/delete-order/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('DELETE FROM orders WHERE id = $1 RETURNING id', [id]);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
+    if (result.rowCount === 0) return res.status(404).json({ success: false, message: 'Order not found' });
     console.log(`🗑️ Order #${id} deleted`);
     res.json({ success: true, message: `Order #${id} deleted` });
   } catch (error) {
@@ -171,17 +185,14 @@ app.delete('/delete-order/:id', async (req, res) => {
 app.delete('/delete-orders', async (req, res) => {
   try {
     const { ids } = req.body;
-
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ success: false, message: 'No order IDs provided' });
     }
-
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(',');
     const result = await pool.query(
       `DELETE FROM orders WHERE id = ANY(ARRAY[${placeholders}]::int[]) RETURNING id`,
       ids
     );
-
     console.log(`🗑️ Deleted ${result.rowCount} order(s): ${ids.join(', ')}`);
     res.json({ success: true, deleted: result.rows.map(r => r.id) });
   } catch (error) {
@@ -190,7 +201,7 @@ app.delete('/delete-orders', async (req, res) => {
   }
 });
 
-// ─── ROUTE 5: Admin Order Dashboard ──────────────────────────────────────────
+// ─── ROUTE 5: Admin Order Dashboard (v3) ─────────────────────────────────────
 app.get('/view-orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -201,21 +212,14 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders</title>
+        <title>NaturaBotanica — Orders v3</title> <!-- Changed title to v3 -->
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
           .container { max-width: 1200px; margin: 0 auto; }
           h1 { color: #2d4a22; }
-          .toolbar {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 16px; flex-wrap: wrap;
-          }
-          .btn {
-            padding: 8px 16px; border-radius: 4px; border: none;
-            font-weight: bold; cursor: pointer; font-size: 14px;
-            transition: opacity 0.2s;
-          }
+          .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+          .btn { padding: 8px 16px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; transition: opacity 0.2s; }
           .btn:disabled { opacity: 0.4; cursor: not-allowed; }
           .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
           .btn-danger:hover:not(:disabled) { background: #fca5a5; }
@@ -231,45 +235,22 @@ app.get('/view-orders', async (req, res) => {
           
           input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
           
-          select.status-select {
-            padding: 6px; border-radius: 4px; border: 1px solid #ccc;
-            font-weight: bold; cursor: pointer;
-          }
+          select.status-select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; cursor: pointer; }
           .status-Pending   { background: #fff7ed; color: #b45309; }
           .status-Shipping  { background: #eff6ff; color: #1e40af; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
           
-          /* Email Status Badges */
-          .badge-queue {
-            display: inline-block; padding: 4px 8px; border-radius: 12px;
-            font-size: 11px; font-weight: bold; color: #b45309;
-            background: #fff7ed; border: 1px solid #fdba74;
-          }
-          .badge-sent {
-            display: inline-block; padding: 4px 8px; border-radius: 12px;
-            font-size: 11px; font-weight: bold; color: #15803d;
-            background: #f0fdf4; border: 1px solid #86efac;
-          }
+          /* BADGES */
+          .badge-queue { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #b45309; background: #fff7ed; border: 1px solid #fdba74; }
+          .badge-sent  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #15803d; background: #f0fdf4; border: 1px solid #86efac; }
 
-          .screenshot-thumb {
-            width: 40px; height: 40px; object-fit: cover;
-            border-radius: 4px; border: 1px solid #eee; cursor: pointer;
-            transition: transform 0.2s;
-          }
+          .screenshot-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: pointer; transition: transform 0.2s; }
           .screenshot-thumb:hover { transform: scale(2); z-index: 10; }
           
-          #toast {
-            position: fixed; bottom: 20px; right: 20px;
-            background: #333; color: #fff; padding: 12px 24px;
-            border-radius: 4px; display: none; z-index: 999;
-          }
-          #imgModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000;
-            display: none; align-items: center; justify-content: center;
-          }
+          #toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 24px; border-radius: 4px; display: none; z-index: 999; }
+          #imgModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
           #imgModal img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
           .close-img { position: absolute; top: 20px; right: 20px; color: white; cursor: pointer; font-size: 40px; }
         </style>
@@ -301,8 +282,6 @@ app.get('/view-orders', async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  
-                  // Logic to show Queue or Sent badge
                   const emailBadge = row.email_sent 
                     ? `<span class="badge-sent">✅ Sent</span>` 
                     : `<span class="badge-queue">⏳ Queue</span>`;
@@ -385,15 +364,11 @@ app.get('/view-orders', async (req, res) => {
               });
               const data = await response.json();
               if (data.success) {
-                // Update Dropdown Style
                 selectEl.className = 'status-select status-' + newStatus;
-                
-                // Optimistically Update Email Badge to "Sent"
                 const emailCell = document.getElementById('email-status-cell-' + id);
                 if (emailCell) {
                   emailCell.innerHTML = '<span class="badge-sent">✅ Sent</span>';
                 }
-
                 showToast('✅ Status updated & Email Sent');
               } else {
                 showToast('❌ Update failed');
@@ -462,5 +437,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v3'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
