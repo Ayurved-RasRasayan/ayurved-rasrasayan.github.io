@@ -1,20 +1,20 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const nodemailer = require('nodemailer'); // ADDED: Library to send emails
+const nodemailer = require('nodemailer');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' })); // Increased limit for images
+app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
 // ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
-// Ensure you set EMAIL_USER and EMAIL_PASS in your .env file
-// Example: EMAIL_USER="your@gmail.com", EMAIL_PASS="your-app-password"
+// IMPORTANT: Set EMAIL_USER and EMAIL_PASS in your .env file
+// For Gmail, use an App Password, not your normal password.
 const transporter = nodemailer.createTransport({
-  service: 'Gmail', // Or use 'host' and 'port' for other SMTP providers (e.g., Outlook, SendGrid)
+  service: 'Gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -34,7 +34,6 @@ pool.connect((err, client, release) => {
 });
 
 // ─── TABLE SETUP ──────────────────────────────────────────────────────────────
-// We list columns explicitly to ensure the DB matches the code.
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS orders (
     id                  SERIAL PRIMARY KEY,
@@ -68,7 +67,6 @@ app.post('/order', async (req, res) => {
       paymentScreenshot
     } = req.body;
 
-    // FIX: Explicitly list the columns to match the CREATE TABLE query
     const query = `
       INSERT INTO orders 
         (items, total_usd, total_npr, paid_amount, currency,
@@ -99,56 +97,54 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Auto Email ─────────────────────────────────
+// ─── ROUTE 2: Update Status & Send Email ───────────────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
+    console.log(`[DEBUG] Updating Order #${id} to '${status}'...`);
 
-    // 1. Fetch Client Details needed for the email
+    // 1. Update Status immediately. Reset email_sent to FALSE (Queue) to attempt a retry or mark new event.
+    await pool.query(`UPDATE orders SET status = $1, email_sent = FALSE WHERE id = $2`, [status, id]);
+
+    // 2. Fetch Client Details
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
     
-    if (orderResult.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
+    if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
+    
     const { client_name, client_email } = orderResult.rows[0];
 
-    // 2. Update Database (Set email_sent to TRUE because we are sending it now)
-    const query = `UPDATE orders SET status = $1, email_sent = TRUE WHERE id = $2`;
-    await pool.query(query, [status, id]);
-
-    console.log(`🔄 Order #${id} status updated to '${status}'.`);
-
-    // 3. Send Email directly via Node.js
-    if (client_email) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER, // Sender address
-        to: client_email,             // Receiver address
-        subject: `Order Status Update: #${id}`,
-        html: `
-          <h3>Hello ${client_name},</h3>
-          <p>Your order <strong>#${id}</strong> status has been updated to:</p>
-          <h2 style="color: #2d4a22;">${status}</h2>
-          <p>Thank you for shopping with NaturaBotanica.</p>
-        `
-      };
-
+    // 3. Send Email
+    if (client_email && client_email.includes('@')) {
       try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER, 
+          to: client_email,             
+          subject: `Order Status Update: #${id}`,
+          html: `
+            <h3>Hello ${client_name},</h3>
+            <p>Your order <strong>#${id}</strong> status has been updated.</p>
+            <h2 style="color: #2d4a22;">${status}</h2>
+            <p>Thank you for shopping with NaturaBotanica.</p>
+          `
+        };
+
         await transporter.sendMail(mailOptions);
-        console.log(`📧 Email successfully sent to ${client_email} for Order #${id}`);
+        
+        // 4. IF SUCCESS: Update database to say email was sent
+        await pool.query(`UPDATE orders SET email_sent = TRUE WHERE id = $1`, [id]);
+        console.log(`✅ Email sent & DB updated for #${id}`);
+        
       } catch (emailError) {
-        console.error(`❌ Failed to send email to ${client_email}:`, emailError.message);
-        // We don't fail the whole request if email fails, just log it.
+        console.error(`❌ Email failed for #${id}, keeping status as 'Queue'. Error:`, emailError.message);
       }
     } else {
-      console.log(`⚠️ No email found for Order #${id}`);
+      console.log(`⚠️ No valid email found for #${id}`);
     }
 
-    // 4. Respond to Admin
-    res.json({ success: true, message: `Status updated to ${status}. Email sent.` });
+    res.json({ success: true, message: `Status updated to ${status}.` });
 
   } catch (error) {
-    console.error('❌ Error updating status:', error);
+    console.error('❌ Server error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -221,26 +217,20 @@ app.get('/view-orders', async (req, res) => {
             transition: opacity 0.2s;
           }
           .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-          .btn-danger {
-            background: #fee2e2; color: #991b1b;
-            border: 1px solid #fca5a5;
-          }
+          .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
           .btn-danger:hover:not(:disabled) { background: #fca5a5; }
-          .btn-secondary {
-            background: #f3f4f6; color: #374151;
-            border: 1px solid #d1d5db;
-          }
+          .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
           .btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
           .selected-count { color: #6b7280; font-size: 14px; }
-          .table-wrap {
-            background: #fff; border-radius: 8px;
-            overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
+          
+          .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
           table { width: 100%; border-collapse: collapse; }
           th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; }
           th { background: #2d4a22; color: white; }
           tr.selected { background: #fef9c3; }
+          
           input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+          
           select.status-select {
             padding: 6px; border-radius: 4px; border: 1px solid #ccc;
             font-weight: bold; cursor: pointer;
@@ -251,11 +241,21 @@ app.get('/view-orders', async (req, res) => {
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
           
-          /* Image Styles */
+          /* Email Status Badges */
+          .badge-queue {
+            display: inline-block; padding: 4px 8px; border-radius: 12px;
+            font-size: 11px; font-weight: bold; color: #b45309;
+            background: #fff7ed; border: 1px solid #fdba74;
+          }
+          .badge-sent {
+            display: inline-block; padding: 4px 8px; border-radius: 12px;
+            font-size: 11px; font-weight: bold; color: #15803d;
+            background: #f0fdf4; border: 1px solid #86efac;
+          }
+
           .screenshot-thumb {
             width: 40px; height: 40px; object-fit: cover;
-            border-radius: 4px; border: 1px solid #eee;
-            cursor: pointer;
+            border-radius: 4px; border: 1px solid #eee; cursor: pointer;
             transition: transform 0.2s;
           }
           .screenshot-thumb:hover { transform: scale(2); z-index: 10; }
@@ -265,8 +265,6 @@ app.get('/view-orders', async (req, res) => {
             background: #333; color: #fff; padding: 12px 24px;
             border-radius: 4px; display: none; z-index: 999;
           }
-          
-          /* Modal for viewing full image */
           #imgModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 1000;
@@ -282,9 +280,7 @@ app.get('/view-orders', async (req, res) => {
 
           <div class="toolbar">
             <button class="btn btn-secondary" onclick="toggleSelectAll()">☑️ Select All</button>
-            <button class="btn btn-danger" id="btn-delete-selected" disabled onclick="deleteSelected()">
-              🗑️ Delete Selected
-            </button>
+            <button class="btn btn-danger" id="btn-delete-selected" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
             <span class="selected-count" id="selected-count"></span>
           </div>
 
@@ -297,19 +293,23 @@ app.get('/view-orders', async (req, res) => {
                   <th>Client</th>
                   <th>Amount</th>
                   <th>Payment</th>
-                  <th>Status</th>
+                  <th>EMAIL STATUS</th>
+                  <th>Order Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
+                  
+                  // Logic to show Queue or Sent badge
+                  const emailBadge = row.email_sent 
+                    ? `<span class="badge-sent">✅ Sent</span>` 
+                    : `<span class="badge-queue">⏳ Queue</span>`;
+
                   return `
                   <tr id="row-${row.id}">
-                    <td>
-                      <input type="checkbox" class="row-chk" value="${row.id}"
-                        onchange="onCheckboxChange()"/>
-                    </td>
+                    <td><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
                     <td>#${row.id}</td>
                     <td>
                       <strong>${row.client_name || 'Guest'}</strong><br>
@@ -318,14 +318,12 @@ app.get('/view-orders', async (req, res) => {
                     <td>$${row.total_usd}</td>
                     <td>
                       ${row.payment_screenshot ? 
-                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Screenshot" title="Click to view screenshot">` : 
+                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Screenshot">` : 
                         '<span style="color:#ccc; font-size:12px;">No Proof</span>'}
                     </td>
+                    <td id="email-status-cell-${row.id}">${emailBadge}</td>
                     <td>
-                      <select
-                        onchange="updateStatus(${row.id}, this.value, this)"
-                        class="status-select status-${status}"
-                      >
+                      <select onchange="updateStatus(${row.id}, this.value, this)" class="status-select status-${status}">
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
                         <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
@@ -333,10 +331,7 @@ app.get('/view-orders', async (req, res) => {
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
                     </td>
-                    <td>
-                      <button class="btn-delete-single"
-                        onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button>
-                    </td>
+                    <td><button class="btn-delete-single" onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button></td>
                   </tr>
                   `;
                 }).join('')}
@@ -346,8 +341,6 @@ app.get('/view-orders', async (req, res) => {
         </div>
 
         <div id="toast"></div>
-        
-        <!-- Full Image Modal -->
         <div id="imgModal" onclick="this.style.display='none'">
           <span class="close-img">&times;</span>
           <img id="fullImage" src="" alt="Full Payment Proof" onclick="event.stopPropagation()">
@@ -356,42 +349,29 @@ app.get('/view-orders', async (req, res) => {
         <script>
           function showToast(msg) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.display = 'block';
+            t.textContent = msg; t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3000);
           }
-
           function openImage(src) {
-            const m = document.getElementById('imgModal');
-            const img = document.getElementById('fullImage');
-            img.src = src;
-            m.style.display = 'flex';
+            document.getElementById('fullImage').src = src;
+            document.getElementById('imgModal').style.display = 'flex';
           }
-
           function getCheckedIds() {
             return [...document.querySelectorAll('.row-chk:checked')].map(c => parseInt(c.value));
           }
-
           function onCheckboxChange() {
             const ids = getCheckedIds();
             const total = document.querySelectorAll('.row-chk').length;
             document.getElementById('btn-delete-selected').disabled = ids.length === 0;
-            document.getElementById('selected-count').textContent =
-              ids.length > 0 ? ids.length + ' order(s) selected' : '';
+            document.getElementById('selected-count').textContent = ids.length > 0 ? ids.length + ' selected' : '';
             document.getElementById('chk-all').checked = ids.length === total;
-
             document.querySelectorAll('.row-chk').forEach(chk => {
-              const row = document.getElementById('row-' + chk.value);
-              if (chk.checked) row.classList.add('selected');
-              else row.classList.remove('selected');
+              document.getElementById('row-' + chk.value).classList.toggle('selected', chk.checked);
             });
           }
-
           function toggleSelectAll() {
             const chkAll = document.getElementById('chk-all');
-            const checkboxes = document.querySelectorAll('.row-chk');
-            const anyUnchecked = [...checkboxes].some(c => !c.checked);
-            checkboxes.forEach(c => { c.checked = anyUnchecked; });
+            document.querySelectorAll('.row-chk').forEach(c => c.checked = chkAll.checked);
             onCheckboxChange();
           }
 
@@ -405,9 +385,16 @@ app.get('/view-orders', async (req, res) => {
               });
               const data = await response.json();
               if (data.success) {
+                // Update Dropdown Style
                 selectEl.className = 'status-select status-' + newStatus;
-                // UPDATED MESSAGE: Changed "email queued" to "Email sent"
-                showToast('✅ Status updated — Email sent');
+                
+                // Optimistically Update Email Badge to "Sent"
+                const emailCell = document.getElementById('email-status-cell-' + id);
+                if (emailCell) {
+                  emailCell.innerHTML = '<span class="badge-sent">✅ Sent</span>';
+                }
+
+                showToast('✅ Status updated & Email Sent');
               } else {
                 showToast('❌ Update failed');
               }
@@ -419,9 +406,8 @@ app.get('/view-orders', async (req, res) => {
           }
 
           async function deleteSingle(id, btn) {
-            if (!confirm('Delete order #' + id + '? This cannot be undone.')) return;
-            btn.disabled = true;
-            btn.textContent = '⏳...';
+            if (!confirm('Delete order #' + id + '?')) return;
+            btn.disabled = true; btn.textContent = '⏳...';
             try {
               const res = await fetch('/delete-order/' + id, { method: 'DELETE' });
               const data = await res.json();
@@ -431,25 +417,19 @@ app.get('/view-orders', async (req, res) => {
                 onCheckboxChange();
               } else {
                 showToast('❌ Delete failed');
-                btn.disabled = false;
-                btn.textContent = '🗑️ Delete';
+                btn.disabled = false; btn.textContent = '🗑️ Delete';
               }
             } catch (err) {
               showToast('❌ Network error');
-              btn.disabled = false;
-              btn.textContent = '🗑️ Delete';
+              btn.disabled = false; btn.textContent = '🗑️ Delete';
             }
           }
 
           async function deleteSelected() {
             const ids = getCheckedIds();
-            if (ids.length === 0) return;
-            if (!confirm('Delete ' + ids.length + ' selected order(s)? This cannot be undone.')) return;
-
+            if (ids.length === 0 || !confirm('Delete ' + ids.length + ' order(s)?')) return;
             const btn = document.getElementById('btn-delete-selected');
-            btn.disabled = true;
-            btn.textContent = '⏳ Deleting...';
-
+            btn.disabled = true; btn.textContent = '⏳ Deleting...';
             try {
               const res = await fetch('/delete-orders', {
                 method: 'DELETE',
@@ -458,10 +438,7 @@ app.get('/view-orders', async (req, res) => {
               });
               const data = await res.json();
               if (data.success) {
-                data.deleted.forEach(id => {
-                  const row = document.getElementById('row-' + id);
-                  if (row) row.remove();
-                });
+                data.deleted.forEach(id => document.getElementById('row-' + id)?.remove());
                 showToast('🗑️ Deleted ' + data.deleted.length + ' order(s)');
                 onCheckboxChange();
               } else {
