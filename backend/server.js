@@ -343,7 +343,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .screenshot-thumb:hover { transform: scale(1.1); }
 
 
-          /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
+                    /* ─── MOBILE RESPONSIVE VIEW (Half-Width Grid) ─────────────────── */
           @media (max-width: 768px) {
             body { background: #e5e7eb; } 
             .container { padding: 10px; }
@@ -434,12 +434,19 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             }
             td:nth-child(6) .badge { font-size: 9px; padding: 2px 6px; }
             
-            /* Payment Proof: Small Thumb */
+            /* Payment Proof: Compact Thumbnail */
             td:nth-child(5) {
-              order: 7; justify-content: center; background: #f9fafb; padding: 4px; border-radius: 4px; border: 1px dashed #d1d5db;
+              order: 7; justify-content: center; background: #f9fafb; padding: 6px; border-radius: 4px; border: 1px dashed #d1d5db;
+              min-height: 52px; /* Ensure the box has consistent height even if no image */
             }
             td:nth-child(5)::before { display: none; } /* Hide label on small cards */
-            td:nth-child(5) img { width: 100%; height: auto; max-width: 80px; border-radius: 2px; }
+            td:nth-child(5) img { 
+              height: 40px;    /* Fixed short height (prevents it being too tall) */
+              width: auto;     /* Width scales to keep aspect ratio */
+              max-width: 60px; /* Prevents it from becoming too wide */
+              object-fit: contain; /* Ensures the whole receipt is visible */
+              border-radius: 2px; 
+            }
 
             /* Actions: Compact Button */
             td:nth-child(8) {
@@ -448,6 +455,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             td:nth-child(8) button {
               width: 100%; background: #fee2e2; color: #b91c1c; padding: 8px; border-radius: 6px; font-weight: 600; border: 1px solid #fecaca;
               display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px;
+            }
+          }
+
+          /* ─── FALLBACK FOR VERY SMALL SCREENS (iPhone SE) ──────────────── */
+          @media (max-width: 380px) {
+            tr {
+              width: 100%; /* Revert to full width on tiny screens */
             }
           }
 
