@@ -10,22 +10,24 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP ─────────────────────────────────────────────────
+// ─── EMAIL TRANSPORTER SETUP (CONFIGURED FOR BREVO) ─────────────────────────────
+// We are using the specific Host, Port, and Login ID format for Brevo.
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
   port: process.env.EMAIL_PORT || 587,
-  secure: (process.env.EMAIL_PORT || 587) == 465, 
+  secure: false, // true for 465, false for other ports (Brevo uses 587 usually)
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER, // Use the "Login" from Brevo (e.g. a9f3cc001@smtp-brevo.com)
+    pass: process.env.EMAIL_PASS  // Use the "SMTP Key" you generated
   }
 });
 
+// Test the connection on startup
 transporter.verify(function (error, success) {
   if (error) {
-    console.log("⚠️ Email Server Connection Failed:", error.message);
+    console.log("⚠️ Email Server Connection Failed. Check your .env file.", error.message);
   } else {
-    console.log("✅ Email Server is ready to send messages");
+    console.log("✅ Email Server is ready to send messages (Brevo Connected)");
   }
 });
 
@@ -65,15 +67,13 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    // Attempt to migrate existing tables from 'email_sent' (boolean) to 'email_status' (string)
-    console.log("🔄 Checking for database migrations...");
+    // Migration: Rename column if upgrading from older version
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
-      if(err && err.message.includes('column "email_sent" does not exist')) {
-         // Column already renamed or never existed, ignore
-      }
+      if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
+    // Migration: Convert column type to String if upgrading
     pool.query(`ALTER TABLE orders ALTER COLUMN email_status TYPE VARCHAR USING email_status::TEXT;`, (err) => {
-        if(err) console.log("ℹ️ Migration check completed.");
+        if(err) console.log("ℹ️ DB Migration checked.");
     });
   }
 });
@@ -102,7 +102,7 @@ app.post('/order', async (req, res) => {
       clientDetails.name, clientDetails.phone, clientDetails.email,
       paymentScreenshot, 
       'Pending',             
-      'Queue',                // Default to 'Queue'
+      'Queue',                
       timestamp
     ];
 
@@ -114,13 +114,13 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email (Updated for Fail/Queue/Sent) ───────
+// ─── ROUTE 2: Update Status & Send Email ─────────────────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
-    // 1. Set Order Status & Reset Email to 'Queue'
+    // 1. Update Order Status & Reset Email Status
     await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
     
     // 2. Fetch Client Details
@@ -128,13 +128,12 @@ app.put('/update-status', async (req, res) => {
     if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
     
     const { client_name, client_email } = orderResult.rows[0];
-
-    let emailStatusResult = 'Queue'; // Default result if we don't send
+    let emailStatusResult = 'Queue'; // Default
 
     // 3. Send Email
     if (client_email && client_email.includes('@')) {
       const mailOptions = {
-        from: process.env.EMAIL_USER, 
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER, // Use 'From' if set, otherwise Login ID
         to: client_email,             
         subject: `Order Status Update: #${id}`,
         html: `<h3>Hello ${client_name},</h3><p>Your order #${id} status is now: <strong>${status}</strong>.</p>`
@@ -142,15 +141,15 @@ app.put('/update-status', async (req, res) => {
 
       try {
         await transporter.sendMail(mailOptions);
-        // 4. Mark as Sent
+        // 4. Success
         await pool.query(`UPDATE orders SET email_status = 'Sent' WHERE id = $1`, [id]);
         emailStatusResult = 'Sent';
         console.log(`✅ Email sent successfully for #${id}`);
       } catch (emailError) {
-        // 5. Mark as Failed
+        // 5. Failed
         await pool.query(`UPDATE orders SET email_status = 'Failed' WHERE id = $1`, [id]);
         emailStatusResult = 'Failed';
-        console.error(`❌ Email failed for #${id}. Status set to Failed.`);
+        console.error(`❌ Email failed for #${id}. Error:`, emailError.message);
       }
     } else {
       console.log(`⚠️ No valid email found for #${id}`);
@@ -209,7 +208,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v4</title>
+        <title>NaturaBotanica — Orders v5</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -236,10 +235,9 @@ app.get('/view-orders', async (req, res) => {
           .status-Pending   { background: #fff7ed; color: #b45309; }
           .status-Shipping  { background: #eff6ff; color: #1e40af; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
-          .status-Success   { background: #dcfce7; color: #15803d; } /* Renamed Payment Successful */
+          .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fee2e2; color: #991b1b; }
           
-          /* BADGES */
           .badge-queue { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #b45309; background: #fff7ed; border: 1px solid #fdba74; }
           .badge-sent  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #15803d; background: #f0fdf4; border: 1px solid #86efac; }
           .badge-fail  { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #dc2626; background: #fee2e2; border: 1px solid #fca5a5; }
@@ -280,8 +278,6 @@ app.get('/view-orders', async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  
-                  // Mapping logic for badges
                   let emailBadge = `<span class="badge-queue">⏳ Queue</span>`;
                   if (row.email_status === 'Sent') {
                     emailBadge = `<span class="badge-sent">✅ Sent</span>`;
@@ -309,7 +305,6 @@ app.get('/view-orders', async (req, res) => {
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
                         <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
-                        <!-- RENAMED HERE -->
                         <option value="Success"   ${status === 'Success'   ? 'selected' : ''}>Payment Successful</option>
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
@@ -358,7 +353,6 @@ app.get('/view-orders', async (req, res) => {
             onCheckboxChange();
           }
 
-          // Helper to set badge HTML
           function setBadge(id, status) {
             const cell = document.getElementById('email-status-cell-' + id);
             if (!cell) return;
@@ -381,10 +375,8 @@ app.get('/view-orders', async (req, res) => {
               });
               const data = await response.json();
               
-              // Update Dropdown Style
               selectEl.className = 'status-select status-' + newStatus;
               
-              // Update Badge based on actual server response
               if (data.emailStatus) {
                   setBadge(id, data.emailStatus);
               } else {
@@ -463,5 +455,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v4'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v5'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
