@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const axios = require('axios'); // ADDED: For HTTPS API calls
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,34 +10,48 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP (RENDER CLOUD FIX) ───────────────────────────────
-// We use Port 587 with requireTLS to bypass SSL handshake timeouts on Render
-console.log(`[EMAIL CONFIG] Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}`);
-console.log(`[EMAIL CONFIG] User: ${process.env.EMAIL_USER}`);
+// ─── EMAIL SENDING FUNCTION (HTTPS API - BYPASSES SMTP BLOCK) ──────────────────
+// We use Port 443 (Web) which Render never blocks
+async function sendEmailViaAPI(toEmail, toName, orderId, status) {
+  try {
+    // Brevo API Endpoint
+    const endpoint = 'https://api.sendinblue.com/v3/smtp/email'; 
+    
+    // Prepare Payload
+    const data = {
+      sender: {
+        name: 'NaturaBotanica',
+        email: process.env.EMAIL_FROM || process.env.EMAIL_USER 
+      },
+      to: [{
+        email: toEmail,
+        name: toName
+      }],
+      subject: `Order Status Update: #${orderId}`,
+      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${status}</strong>.</p>`
+    };
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-  port: process.env.EMAIL_PORT || 587, // Set Env to 587
-  secure: false, // true for 465, false for 587
-  requireTLS: true, // Forces encryption immediately (Fixes "Connection timeout")
-  tls: {
-    // CRITICAL: Allows connection even if Render's network interferes with SSL check
-    rejectUnauthorized: false 
-  },
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+    // Send Request
+    const response = await axios.post(endpoint, data, {
+      headers: {
+        'api-key': process.env.EMAIL_PASS, // Brevo uses the SMTP key for API access too
+        'content-type': 'application/json'
+      }
+    });
 
-// Test connection
-transporter.verify(function (error, success) {
-  if (error) {
-    console.log("⚠️ Email Server Connection Failed.", error.message);
-  } else {
-    console.log("✅ Email Server is ready to send messages (Brevo Connected)");
+    if (response.data && response.data.messageId) {
+      console.log(`✅ Email sent via API (ID: ${response.data.messageId})`);
+      return true;
+    } else {
+      console.log("⚠️ Email API response unknown");
+      return false;
+    }
+
+  } catch (error) {
+    console.error("❌ Email API Failed:", error.response ? error.response.data : error.message);
+    return false;
   }
-});
+}
 
 // ─── DATABASE CONNECTION ──────────────────────────────────────────────────────
 const pool = new Pool({
@@ -75,7 +89,6 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    // Migration: Rename column if upgrading
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
@@ -121,7 +134,7 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// ─── ROUTE 2: Update Status & Send Email ─────────────────────────────────────
+// ─── ROUTE 2: Update Status & Send Email (USING API) ─────────────────────────
 app.put('/update-status', async (req, res) => {
   try {
     const { id, status } = req.body;
@@ -137,24 +150,17 @@ app.put('/update-status', async (req, res) => {
     let emailStatusResult = 'Queue'; 
 
     if (client_email && client_email.includes('@')) {
-      const mailOptions = {
-        // Use EMAIL_FROM if set, otherwise fallback to Login ID
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER, 
-        to: client_email,             
-        subject: `Order Status Update: #${id}`,
-        html: `<h3>Hello ${client_name},</h3><p>Your order #${id} status is now: <strong>${status}</strong>.</p>`
-      };
-
-      try {
-        await transporter.sendMail(mailOptions);
+      // Use the new API function
+      const success = await sendEmailViaAPI(client_email, client_name, id, status);
+      
+      if (success) {
         await pool.query(`UPDATE orders SET email_status = 'Sent' WHERE id = $1`, [id]);
         emailStatusResult = 'Sent';
-        console.log(`✅ Email sent successfully for #${id}`);
-      } catch (emailError) {
+      } else {
         await pool.query(`UPDATE orders SET email_status = 'Failed' WHERE id = $1`, [id]);
         emailStatusResult = 'Failed';
-        console.error(`❌ Email failed for #${id}. Error:`, emailError.message);
       }
+
     } else {
       console.log(`⚠️ No valid email found for #${id}`);
     }
@@ -212,7 +218,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v6</title>
+        <title>NaturaBotanica — Orders v7</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -459,5 +465,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v6'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v7 (API Mode)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
