@@ -59,7 +59,16 @@
 
     .product-card:hover .product-img { transform: scale(1.05); }
     .cat-btn.active { background: #1C1917; color: #FAFAF9; }
-    .overlay-open { overflow: hidden; }
+    
+    /* When Payment Modal is open, don't hide body overflow, use blur effect instead */
+    .payment-modal-open #products {
+        filter: blur(4px);
+        opacity: 0.6;
+        pointer-events: none; /* Optional: disable interaction with blurred content */
+    }
+    .payment-modal-open body {
+        overflow: hidden;
+    }
 
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
@@ -277,7 +286,7 @@
   </section>
 
   <!-- PRODUCTS GRID -->
-  <section id="products" class="py-16 md:py-24 lg:py-32">
+  <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
         <div>
@@ -595,9 +604,10 @@
             <label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof (Screenshot) <span class="text-red-500">*</span></label>
             
             <!-- Drop Zone -->
-            <div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all duration-300 cursor-pointer group">
-                <!-- Hidden Input -->
-                <input type="file" id="paymentScreenshot" accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileUpload(event)">
+            <div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all duration-300 group">
+                
+                <!-- Fixed: The input now covers the entire container so click works instantly -->
+                <input type="file" id="paymentScreenshot" accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)">
 
                 <!-- Placeholder State -->
                 <div id="uploadPlaceholder" class="flex flex-col items-center justify-center py-4">
@@ -800,14 +810,27 @@ function renderProducts(items) {
 
   grid.innerHTML = items.map((p, i) => {
     const priceNPR = Math.round(p.price * USD_TO_NPR);
+    // Format ID with leading zero (e.g., 01, 57)
+    const idDisplay = p.id < 10 ? `0${p.id}` : p.id;
+    
     return `
     <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+        <!-- Product Image -->
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
+        
+        <!-- Left Badge: Category -->
         <div class="absolute top-3 left-3">
           <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
         </div>
-        ${p.price >= 1000 ? '<div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>' : ''}
+        
+        <!-- Right Badge: Product ID (User Request) -->
+        <div class="absolute top-3 right-3 z-20">
+             <span class="bg-gray-200/90 text-gray-600 text-[9px] font-bold px-2 py-1 rounded-md shadow-sm">#${idDisplay}</span>
+        </div>
+        
+        ${p.price >= 1000 ? '<div class="absolute top-3 right-3 transform translate-x-12"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>' : ''}
+        
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
           <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
         </div>
@@ -960,7 +983,7 @@ function proceedToInquiry() {
   showToast('Cart items added to inquiry form', 'success');
 }
 
-// ==================== FILE UPLOAD LOGIC (WITH PROGRESS BAR) ====================
+// ==================== FILE UPLOAD LOGIC (INSTANT, RELIABLE) ====================
 function handleFileUpload(event) {
     const file = event.target.files[0];
     const dropZone = document.getElementById('dropZone');
@@ -992,39 +1015,31 @@ function handleFileUpload(event) {
         return;
     }
 
-    // Start Upload Simulation
+    // Start Instant Upload (Show Progress Immediately)
     document.getElementById('uploadPlaceholder').classList.add('hidden');
     document.getElementById('uploadProgressContainer').classList.remove('hidden');
     
     const progressBar = document.getElementById('progressBar');
-    let progress = 0;
-
-    // Simulate upload delay (approx 1.5 seconds total)
-    const interval = setInterval(() => {
-        // Increment progress randomly to look organic
-        progress += Math.floor(Math.random() * 15) + 5;
+    progressBar.style.width = '10%'; // Immediate feedback
+    
+    // Instant Read File
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        paymentScreenshotBase64 = e.target.result;
         
-        if (progress >= 100) {
-            progress = 100;
-            clearInterval(interval);
-            
-            // Once progress is done, read the actual file
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                paymentScreenshotBase64 = e.target.result;
-                
-                // Hide progress, show preview
-                document.getElementById('uploadProgressContainer').classList.add('hidden');
-                document.getElementById('imagePreviewContainer').classList.remove('hidden');
-                document.getElementById('imagePreview').src = paymentScreenshotBase64;
-                document.getElementById('fileName').textContent = file.name;
-                lucide.createIcons();
-            };
-            reader.readAsDataURL(file);
-        }
+        // Complete Progress bar
+        progressBar.style.width = '100%';
         
-        progressBar.style.width = progress + '%';
-    }, 150); // Update every 150ms
+        setTimeout(() => {
+            // Hide progress, show preview
+            document.getElementById('uploadProgressContainer').classList.add('hidden');
+            document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            document.getElementById('imagePreview').src = paymentScreenshotBase64;
+            document.getElementById('fileName').textContent = file.name;
+            lucide.createIcons();
+        }, 300); // Tiny delay just to show the 100% progress for visual feedback
+    };
+    reader.readAsDataURL(file);
 }
 
 function clearScreenshot(event) {
@@ -1078,7 +1093,7 @@ function openPaymentModal(method) {
   const modal = document.getElementById('paymentModal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
-  document.body.classList.add('overlay-open');
+  document.body.classList.add('payment-modal-open'); // Add class for blur effect
   lucide.createIcons();
 }
 
@@ -1110,7 +1125,7 @@ function closePaymentModal() {
   const modal = document.getElementById('paymentModal');
   modal.classList.add('hidden');
   modal.classList.remove('flex');
-  document.body.classList.remove('overlay-open');
+  document.body.classList.remove('payment-modal-open'); // Remove class, restore visibility
 }
 
 function switchPaymentTab(method) {
@@ -1178,7 +1193,7 @@ async function submitOrderToBackend() {
     paidAmount: finalAmount,
     currency: currencySymbol,
     paymentMethod: selectedPaymentMethod,
-    // NEW: Including Base64 Screenshot
+    // Including Base64 Screenshot
     paymentScreenshot: paymentScreenshotBase64,
     clientDetails: {
       name: nameInput.value.trim(),
@@ -1253,8 +1268,8 @@ function openModal(id) {
   document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
-  document.getElementById('modalQty').value = 1;
-  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  document.getElementById('modalQty').value =1;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) ||1); closeModal(); };
   const modal = document.getElementById('productModal');
   modal.classList.remove('hidden'); modal.classList.add('flex');
   document.body.classList.add('overlay-open');
@@ -1270,7 +1285,7 @@ function closeModal() {
 
 function modalQtyChange(d) {
   const input = document.getElementById('modalQty');
-  input.value = Math.max(1, (parseInt(input.value) || 1) + d);
+  input.value = Math.max(1, (parseInt(input.value) ||1) + d);
 }
 
 // ==================== SEARCH ====================
