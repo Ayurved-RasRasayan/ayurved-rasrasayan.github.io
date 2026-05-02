@@ -196,7 +196,7 @@ def send_email(to_email, subject, html_body):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
 
-        with IPv4SMTP("smtp-relay.brevo.com", 587) as server:
+        with IPv4SMTP("smtp-relay.brevo.com", 587, timeout=30) as server:
             print("📍 Starting TLS...")
             server.starttls()
             print(f"📍 Logging in as {EMAIL_USER}...")
