@@ -2,7 +2,6 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-// REMOVED: require('dotenv').config(); (Render loads this automatically)
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,26 +10,30 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── EMAIL TRANSPORTER SETUP (CONFIGURED FOR PORT 465) ──────────────────────
-// DEBUGGING: Print env vars to ensure they are loaded
+// ─── EMAIL TRANSPORTER SETUP (RENDER CLOUD FIX) ───────────────────────────────
+// We use Port 587 with requireTLS to bypass SSL handshake timeouts on Render
 console.log(`[EMAIL CONFIG] Host: ${process.env.EMAIL_HOST}, Port: ${process.env.EMAIL_PORT}`);
 console.log(`[EMAIL CONFIG] User: ${process.env.EMAIL_USER}`);
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-  port: process.env.EMAIL_PORT || 465, // DEFAULT TO 465
-  secure: true, // true for 465 (SSL), false for 587
+  port: process.env.EMAIL_PORT || 587, // Set Env to 587
+  secure: false, // true for 465, false for 587
+  requireTLS: true, // Forces encryption immediately (Fixes "Connection timeout")
+  tls: {
+    // CRITICAL: Allows connection even if Render's network interferes with SSL check
+    rejectUnauthorized: false 
+  },
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
 });
 
-// Test the connection on startup
+// Test connection
 transporter.verify(function (error, success) {
   if (error) {
     console.log("⚠️ Email Server Connection Failed.", error.message);
-    console.log("💡 Ensure .env has EMAIL_PORT=465 and correct PASSWORD.");
   } else {
     console.log("✅ Email Server is ready to send messages (Brevo Connected)");
   }
@@ -72,7 +75,7 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    // Migrations
+    // Migration: Rename column if upgrading
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
@@ -124,6 +127,7 @@ app.put('/update-status', async (req, res) => {
     const { id, status } = req.body;
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
+    // Update Order Status & Reset Email
     await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
     
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
@@ -134,6 +138,7 @@ app.put('/update-status', async (req, res) => {
 
     if (client_email && client_email.includes('@')) {
       const mailOptions = {
+        // Use EMAIL_FROM if set, otherwise fallback to Login ID
         from: process.env.EMAIL_FROM || process.env.EMAIL_USER, 
         to: client_email,             
         subject: `Order Status Update: #${id}`,
@@ -207,7 +212,7 @@ app.get('/view-orders', async (req, res) => {
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>NaturaBotanica — Orders v5</title>
+        <title>NaturaBotanica — Orders v6</title>
         <style>
           * { box-sizing: border-box; }
           body { font-family: sans-serif; background: #f3f4f6; padding: 24px; margin: 0; }
@@ -454,5 +459,5 @@ app.get('/view-orders', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v5'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v6'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
