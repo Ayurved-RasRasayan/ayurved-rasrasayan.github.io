@@ -810,27 +810,20 @@ function renderProducts(items) {
 
   grid.innerHTML = items.map((p, i) => {
     const priceNPR = Math.round(p.price * USD_TO_NPR);
-    // Format ID with leading zero (e.g., 01, 57)
-    const idDisplay = p.id < 10 ? `0${p.id}` : p.id;
+    // CHANGED LOGIC: Always show Product No. [number]
+    const idDisplay = p.id < 10 ? `Product No. 0${p.id}` : `Product No. ${p.id}`;
     
     return `
     <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-        <!-- Product Image -->
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
-        
-        <!-- Left Badge: Category -->
         <div class="absolute top-3 left-3">
           <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
         </div>
-        
-        <!-- Right Badge: Product ID (User Request) -->
+        <!-- CHANGED: Removed High Value Badge, keeping only Product No. badge -->
         <div class="absolute top-3 right-3 z-20">
-             <span class="bg-gray-200/90 text-gray-600 text-[9px] font-bold px-2 py-1 rounded-md shadow-sm">#${idDisplay}</span>
+             <span class="bg-gray-200/90 text-gray-600 text-[8px] font-bold px-2 py-1 rounded-md shadow-sm">${idDisplay}</span>
         </div>
-        
-        ${p.price >= 1000 ? '<div class="absolute top-3 right-3 transform translate-x-12"><span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">High Value</span></div>' : ''}
-        
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
           <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
         </div>
