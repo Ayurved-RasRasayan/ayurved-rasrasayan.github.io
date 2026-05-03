@@ -85,14 +85,12 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     const senderName = 'NaturaBotanica Website';
     const recipientEmail = 'sales.naturabotanica20@gmail.com';
 
-    // Construct Items HTML List
     let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;">';
     itemsHtml += '<tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb; padding:8px; text-align:left;">Item</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:center;">Qty</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:right;">Price</th></tr>';
     
     if (orderData.items && Array.isArray(orderData.items)) {
       orderData.items.forEach(item => {
         const name = item.name || item.product || 'Unknown Item';
-        // FIX: Explicitly parse quantity as integer to ensure correct display
         const qty = parseInt(item.quantity) || 1; 
         const price = item.price || 0;
         itemsHtml += `
@@ -154,7 +152,6 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     console.log(`✅ Admin Notification sent for Order #${orderId}`);
   } catch (error) {
     console.error("❌ Failed to send Admin Notification:", error.response ? error.response.data : error.message);
-    // Note: We don't want to stop the server or crash the order saving if the email fails
   }
 }
 
@@ -195,18 +192,12 @@ pool.query(createTableQuery, (err) => {
   if (err) console.error('❌ Error creating table:', err);
   else {
     console.log("📊 Table 'orders' is ready");
-    
-    // Migration 1: Rename email_sent to email_status
     pool.query(`ALTER TABLE orders RENAME COLUMN email_sent TO email_status;`, (err) => {
       if(err && err.message.includes('column "email_sent" does not exist')) { /* Ignore */ }
     });
-    
-    // Migration 2: Ensure email_status is text
     pool.query(`ALTER TABLE orders ALTER COLUMN email_status TYPE VARCHAR USING email_status::TEXT;`, (err) => {
         if(err) console.log("ℹ️ DB Migration checked.");
     });
-
-    // Migration 3: Add Address Column
     pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_address TEXT;`, (err) => {
         if(err) console.log("⚠️ Error adding address column (might exist):", err.message);
         else console.log("✅ 'client_address' column ensured.");
@@ -217,38 +208,14 @@ pool.query(createTableQuery, (err) => {
 // ─── ROUTE 1: Receive New Order (PUBLIC) ────────────────────────────────────
 app.post('/order', async (req, res) => {
   try {
-    const {
-      items, totalUSD, totalNPR, paidAmount,
-      currency, paymentMethod, clientDetails, timestamp,
-      paymentScreenshot
-    } = req.body;
+    const { items, totalUSD, totalNPR, paidAmount, currency, paymentMethod, clientDetails, timestamp, paymentScreenshot } = req.body;
 
-    const query = `
-      INSERT INTO orders 
-        (items, total_usd, total_npr, paid_amount, currency,
-         payment_method, client_name, client_phone, client_email, client_address, payment_screenshot, 
-         status, email_status, timestamp)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
-      RETURNING id;
-    `;
-
-    const values = [
-      JSON.stringify(items), totalUSD, totalNPR, paidAmount,
-      currency, paymentMethod,
-      clientDetails.name, clientDetails.phone, clientDetails.email, clientDetails.address || '',
-      paymentScreenshot, 
-      'Pending',             
-      'Queue',                
-      timestamp
-    ];
+    const query = `INSERT INTO orders (items, total_usd, total_npr, paid_amount, currency, payment_method, client_name, client_phone, client_email, client_address, payment_screenshot, status, email_status, timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id;`;
+    const values = [JSON.stringify(items), totalUSD, totalNPR, paidAmount, currency, paymentMethod, clientDetails.name, clientDetails.phone, clientDetails.email, clientDetails.address || '', paymentScreenshot, 'Pending', 'Queue', timestamp];
 
     const result = await pool.query(query, values);
-    const newOrderId = result.rows[0].id;
-
-    // Send Admin Notification immediately after successful save
-    await sendAdminNotificationEmail(newOrderId, req.body);
-
-    res.status(200).json({ success: true, orderId: newOrderId });
+    await sendAdminNotificationEmail(result.rows[0].id, req.body);
+    res.status(200).json({ success: true, orderId: result.rows[0].id });
   } catch (error) {
     console.error('❌ Error saving order:', error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -271,7 +238,6 @@ app.put('/update-status', checkAuth, async (req, res) => {
 
     if (client_email && client_email.includes('@')) {
       const success = await sendEmailViaAPI(client_email, client_name, id, status);
-      
       if (success) {
         await pool.query(`UPDATE orders SET email_status = 'Sent' WHERE id = $1`, [id]);
         emailStatusResult = 'Sent';
@@ -279,7 +245,6 @@ app.put('/update-status', checkAuth, async (req, res) => {
         await pool.query(`UPDATE orders SET email_status = 'Failed' WHERE id = $1`, [id]);
         emailStatusResult = 'Failed';
       }
-
     } else {
       console.log(`⚠️ No valid email found for #${id}`);
     }
@@ -306,22 +271,11 @@ app.post('/contact', async (req, res) => {
       sender: { name: senderName, email: senderEmail },
       to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
       subject: `New Inquiry: ${fullName}`,
-      htmlContent: `
-        <h3>New Inquiry Received</h3>
-        <p><strong>Name:</strong> ${fullName}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Company:</strong> ${company || 'N/A'}</p>
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        <h4>Message:</h4>
-        <p style="white-space: pre-wrap;">${message}</p>
-      `
+      htmlContent: `<h3>New Inquiry Received</h3><p><strong>Name:</strong> ${fullName}</p><p><strong>Email:</strong> ${email}</p><p><strong>Company:</strong> ${company || 'N/A'}</p><hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;"><h4>Message:</h4><p style="white-space: pre-wrap;">${message}</p>`
     };
 
     await axios.post(endpoint, data, {
-      headers: {
-        'api-key': process.env.EMAIL_PASS,
-        'content-type': 'application/json'
-      }
+      headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' }
     });
 
     console.log(`✅ Inquiry sent from ${email} to Sales Team`);
@@ -355,10 +309,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No order IDs provided' });
     }
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(',');
-    const result = await pool.query(
-      `DELETE FROM orders WHERE id = ANY(ARRAY[${placeholders}]::int[]) RETURNING id`,
-      ids
-    );
+    const result = await pool.query(`DELETE FROM orders WHERE id = ANY(ARRAY[${placeholders}]::int[]) RETURNING id`, ids);
     console.log(`🗑️ Deleted ${result.rowCount} order(s): ${ids.join(', ')}`);
     res.json({ success: true, deleted: result.rows.map(r => r.id) });
   } catch (error) {
@@ -367,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & TIDY MOBILE) ────────────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & NEW DOCUMENT LAYOUT) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -386,23 +337,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background: #f3f4f6; margin: 0; padding: 0; color: #1f2937; 
           }
-          .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+          .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
           
-          h1 { 
-            color: #2d4a22; font-size: 1.5rem; margin: 0 0 20px 0; 
-            display: flex; align-items: center; gap: 10px; 
-          }
+          h1 { color: #2d4a22; font-size: 1.5rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; }
 
           /* ─── TOOLBAR ───────────────────────────────────────────────────── */
-          .toolbar { 
-            display: flex; align-items: center; gap: 10px; margin-bottom: 20px; 
-            flex-wrap: wrap; background: #fff; padding: 12px; 
-            border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
-          }
-          .btn { 
-            padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; 
-            cursor: pointer; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
-          }
+          .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+          .btn { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
           .btn:disabled { opacity: 0.5; cursor: not-allowed; }
           .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
           .btn-danger:hover:not(:disabled) { background: #fecaca; }
@@ -410,140 +351,115 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
           .selected-count { margin-left: auto; color: #6b7280; font-size: 14px; font-weight: 500; }
 
-          /* ─── DESKTOP TABLE ────────────────────────────────────────────── */
-          .table-wrap { background: #fff; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          table { width: 100%; border-collapse: collapse; min-width: 1200px; } 
-          th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
-          th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+          /* ─── DESKTOP TABLE (Document Layout) ───────────────────────────── */
+          .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1100px; }
+          
+          th, td { padding: 0; border: 1px solid #e5e7eb; vertical-align: top; text-align: left; }
+          th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px; text-align: center; }
+          
+          tr { border-bottom: 1px solid #e5e7eb; background: #fff; transition: background 0.2s; }
           tr:hover { background: #fafafa; }
           tr.selected { background: #fffbeb; }
 
+          /* Desktop Cell Styling */
           input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2d4a22; }
-          select.status-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; max-width: 160px; font-size: 13px; }
-          
+
+          /* Column 1: Date & Proof */
+          .col-date-proof { width: 120px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: #f9fafb; }
+          .date-text { font-weight: 700; color: #2d4a22; font-size: 0.95rem; }
+          .proof-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; margin-top: 10px; }
+          .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
+
+          /* Column 2: Product Info */
+          .col-product { width: 300px; padding: 15px; border-left: none; }
+          .prod-header { display: flex; justify-content: space-between; margin-bottom: 5px; align-items: baseline; }
+          .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+          .prod-name { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 4px; display: block; }
+          .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
+          .item-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 2px; margin-bottom: 2px; }
+
+          /* Column 3: Status */
+          .col-status { width: 140px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+          .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; }
           .status-Pending   { background: #fff7ed; color: #c2410c; }
           .status-Shipping  { background: #eff6ff; color: #1d4ed8; }
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fef2f2; color: #b91c1c; }
 
-          .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-          .badge-queue { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-          .badge-sent  { background: #ecfccb; color: #3f6212; border: 1px solid #bef264; }
-          .badge-fail  { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+          /* Column 4: Client Details (Block) */
+          .col-client { padding: 15px; border-left: none; flex-grow: 1; }
+          .client-title { font-size: 0.8rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+          .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
+          .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
-          .screenshot-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: transform 0.2s; }
-          .screenshot-thumb:hover { transform: scale(1.1); }
+          /* Column 5: Actions */
+          .col-actions { width: 80px; padding: 15px; border-left: none; text-align: center; display: flex; align-items: center; }
+          .btn-delete-row { width: 100%; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
 
-          /* ─── MOBILE RESPONSIVE VIEW (Vertical Stack - Samsung Optimized) ─── */
+          /* Mobile Responsive View (Vertical Stack) */
           @media (max-width: 768px) {
-            body { 
-              font-family: 'Roboto', 'Segoe UI', -apple-system, sans-serif; 
-              background: #e5e7eb; 
-              -webkit-tap-highlight-color: transparent; 
-            }
-            html, body {
-              overflow-x: hidden; width: 100%; margin: 0;
-            }
-            ::-webkit-scrollbar { display: none; } 
+            body { background: #e5e7eb; }
+            html, body { overflow-x: hidden; width: 100%; margin: 0; }
+            ::-webkit-scrollbar { display: none; }
             
             .container { padding: 8px 0; max-width: 100%; }
 
-            .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; }
-            .selected-count { margin: 0; text-align: center; font-size: 12px; color: #6b7280; }
-            .btn { width: calc(100% - 16px); justify-content: center; padding: 12px; margin: 0 8px; font-family: 'Roboto', sans-serif; font-weight: 500; letter-spacing: 0.5px; }
+            .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; border-radius: 0; }
+            .selected-count { margin: 0; text-align: center; font-size: 12px; }
+            .btn { width: 100%; justify-content: center; padding: 12px; margin: 0 8px; }
 
             thead { display: none; } 
-            table { display: block; width: 100%; margin: 0; border-spacing: 0; }
+            table { display: block; width: 100%; margin: 0; border-spacing: 0; border: none; }
 
             tbody {
               display: flex; flex-direction: column; gap: 12px; padding: 0 8px;
             }
 
             tr {
-              background: #fff; border-radius: 8px; padding: 12px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
-              position: relative; display: flex; flex-direction: column;
-              width: 100%; margin-bottom: 0; box-sizing: border-box;
+              display: flex; flex-direction: column; width: 100%; background: #fff; border-radius: 8px;
+              padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative; margin-bottom: 0;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
 
             td {
-              display: flex; width: 100%; padding: 0; border: none;
-              align-items: center; margin-bottom: 4px; word-break: break-word; box-sizing: border-box;
+              display: flex; width: 100%; padding: 0; border: none; flex-direction: column; align-items: flex-start; margin-bottom: 8px;
+              word-break: break-word; box-sizing: border-box;
             }
             td::before { display: none; }
 
             /* 1. Checkbox (Child 1) */
-            td:nth-child(1) {
-              position: absolute; top: 12px; right: 12px; width: auto; margin: 0; z-index: 10; padding: 2px; background: rgba(255,255,255,0.95); border-radius: 50%;
-            }
-            td:nth-child(1) input { width: 20px; height: 20px; accent-color: #2d4a22; cursor: pointer; }
+            td:nth-child(1) { order: 1; position: absolute; top: 12px; right: 12px; width: auto; z-index: 10; padding: 4px; background: #fff; border-radius: 4px; border: 1px solid #e5e7eb; }
 
-            /* 2. Client Name (Child 3) -> Order 2 */
-            td:nth-child(3) {
-              order: 2; flex-direction: column; align-items: flex-start; margin-bottom: 2px; padding-right: 36px;
-            }
-            td:nth-child(3) strong { font-size: 1.1rem; color: #111827; display: block; line-height: 1.2; font-weight: 700; }
-            td:nth-child(3) small { font-size: 0.85rem; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; order: 5; margin-top: 4px; }
+            /* 2. Date & Proof (Child 2) */
+            td:nth-child(2) { order: 2; flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
+            .date-text { font-size: 1rem; color: #2d4a22; font-weight: 700; }
+            .proof-thumb-mobile { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; }
 
-            /* 3. Phone (Child 4) -> Order 3 */
-            td:nth-child(4) {
-              order: 3; font-size: 0.85rem; color: #555; font-weight: 500; margin-bottom: 2px;
-            }
-            td:nth-child(4)::before { content: "📱"; margin-right: 6px; }
+            /* 3. Product Info (Child 3) */
+            td:nth-child(3) { order: 3; margin-bottom: 12px; }
+            .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
+            .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
+            .item-row { font-size: 0.9rem; color: #374151; display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 4px; margin-bottom: 4px; width: 100%; }
 
-            /* 4. Address (Child 5) -> Order 4 */
-            td:nth-child(5) {
-              order: 4; font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 4px;
-            }
-            td:nth-child(5)::before { content: "📍"; margin-right: 6px; font-style: normal; }
-
-            /* 5. Items List (Child 11) -> Order 5 (NEW) */
-            td:nth-child(11) {
-              order: 5; background: #f9fafb; border-radius: 6px; padding: 8px; margin-bottom: 8px; border: 1px solid #e5e7eb;
-            }
-            td:nth-child(11)::before {
-              display: block; content: "🛒 Order Items:"; font-size: 0.75rem; font-weight: 700; color: #374151; margin-bottom: 4px; text-transform: uppercase;
-            }
-            .item-list-row { font-size: 0.85rem; color: #555; margin-bottom: 2px; display: flex; justify-content: space-between; }
-            .item-qty { color: #059669; font-weight: 600; margin-left: 8px; }
-
-            /* 6. Order ID (Child 2) -> Order 6 */
-            td:nth-child(2) {
-              order: 6; font-size: 0.75rem; color: #9e9e9e; margin-top: 4px; margin-bottom: 8px; border-top: 1px solid #eee; padding-top: 4px;
-            }
-
-            /* 7. Amount (Child 6) -> Order 7 */
-            td:nth-child(6) {
-              order: 7; font-size: 1rem; font-weight: 700; color: #059669; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; align-self: flex-start; border: 1px solid #c8e6c9;
-            }
-
-            /* 8. Screenshot (Child 7) -> Order 8 */
-            td:nth-child(7) {
-              order: 8; justify-content: flex-start; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #eeeeee; min-height: 56px;
-            }
-            td:nth-child(7)::before { display: inline; content: "Payment Proof:"; font-size: 0.8rem; color: #9e9e9e; font-weight: 600; margin-right: 12px; white-space: nowrap; }
-            td:nth-child(7) img { height: 40px; width: auto; max-width: 80px; object-fit: contain; border-radius: 2px; }
-
-            /* 9. Email Status (Child 8) -> Order 9 */
-            td:nth-child(8) { order: 9; justify-content: flex-start; margin-bottom: 8px; }
-            td:nth-child(8) .badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; }
+            /* 4. Status (Child 4) */
+            td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
+            .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-right: 8px; margin-bottom: 4px; }
+            .badge-queue { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+            .badge-sent { background: #ecfccb; color: #3f6212; border: 1px solid #bef264; }
+            .badge-fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+            .status-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; background: #fff; appearance: none; }
             
-            /* 10. Order Status (Child 9) -> Order 10 */
-            td:nth-child(9) { order: 10; margin: 12px 0 8px 0; }
-            td:nth-child(9) select {
-              width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cfd8dc; font-size: 14px; background: #fff; color: #37474f;
-              appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23455A64%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-              background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 14px auto;
-            }
+            /* 5. Client Details (Child 5) */
+            td:nth-child(5) { order: 5; background: #f9fafb; border-radius: 6px; padding: 10px; width: 100%; margin-bottom: 12px; border: 1px solid #e5e7eb; }
+            td:nth-child(5)::before { content: "👤 Client Details"; display: block; font-size: 0.8rem; font-weight: 700; color: #374151; margin-bottom: 8px; text-transform: uppercase; }
+            .client-detail { font-size: 0.85rem; margin-bottom: 4px; width: 100%; display: flex; }
+            .client-detail strong { min-width: 60px; color: #6b7280; }
 
-            /* 11. Actions (Child 10) -> Order 11 */
-            td:nth-child(10) { order: 11; margin-top: 8px; }
-            td:nth-child(10) button {
-              width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: 600; border: 1px solid #ffcdd2;
-              display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 14px; text-transform: uppercase;
-            }
+            /* 6. Actions (Child 6) */
+            td:nth-child(6) { order: 6; width: 100%; margin-top: 8px; }
+            .btn-delete-row { width: 100%; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; font-weight: 600; text-transform: uppercase; font-size: 14px; }
           }
 
           #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 2000; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 90%; text-align: center; }
@@ -572,70 +488,66 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               <thead>
                 <tr>
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
-                  <th width="60">ID</th>
-                  <th>Client (Name/Email)</th>
-                  <th width="120">Phone</th>
-                  <th>Address</th>
+                  <th width="120">Date/Proof</th>
                   <th width="300">Order Items</th>
-                  <th width="100">Amount</th>
-                  <th width="80">Proof</th>
-                  <th width="100">Email</th>
-                  <th width="120">Status</th>
+                  <th width="140">Status</th>
+                  <th>Client Details</th>
                   <th width="80">Actions</th>
                 </tr>
               </thead>
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  let emailBadge = `<span class="badge badge-queue">⏳ Queue</span>`;
-                  if (row.email_status === 'Sent') {
-                    emailBadge = `<span class="badge badge-sent">✅ Sent</span>`;
-                  } else if (row.email_status === 'Failed') {
-                    emailBadge = `<span class="badge badge-fail">❌ Failed</span>`;
-                  }
+                  let emailBadge = `<span class="badge badge-queue">Queue</span>`;
+                  if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Sent</span>`;
+                  else if (row.email_status === 'Failed') emailBadge = `<span class="badge badge-fail">Failed</span>`;
 
-                  // Parse Items to show Quantities
-                  let itemsArray = [];
-                  let itemsHtmlDesktop = '<span style="color:#9ca3af; font-style:italic;">No items</span>';
-                  let itemsHtmlMobile = '<div style="color:#9ca3af;">No items data</div>';
-                  
+                  // Date formatting
+                  const dateObj = new Date(row.timestamp);
+                  const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                  // Items formatting
+                  let itemsHtml = '';
                   try {
-                    itemsArray = JSON.parse(row.items);
-                    if (Array.isArray(itemsArray) && itemsArray.length > 0) {
-                      // Desktop Summary
-                      itemsHtmlDesktop = itemsArray.map(i => `${i.name} (x${i.quantity || 1})`).join(', ');
-                      
-                      // Mobile List
-                      itemsHtmlMobile = itemsArray.map(i => `
-                        <div class="item-list-row">
-                          <span>${i.name}</span>
-                          <span class="item-qty">x${i.quantity || 1}</span>
-                        </div>
-                      `).join('');
+                    const items = JSON.parse(row.items);
+                    if (Array.isArray(items) && items.length > 0) {
+                      itemsHtml = items.map((item, idx) => {
+                        const qty = parseInt(item.quantity) || 1;
+                        const price = item.price || 0;
+                        const lineTotal = (qty * price).toFixed(2);
+                        return `<div class="item-row"><span>${item.name}</span> <span>x${qty} @ $${price}</span></div>`;
+                      }).join('');
                     }
-                  } catch (e) {
-                    console.log('Error parsing items', e);
-                  }
+                  } catch(e) {}
 
                   return `
                   <tr id="row-${row.id}">
-                    <td data-label="Select"><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
-                    <td data-label="Order">#${row.id}</td>
-                    <td data-label="Client">
-                      <strong>${row.client_name || 'Guest'}</strong><br>
-                      <small>${row.client_email || ''}</small>
-                    </td>
-                    <td data-label="Phone">${row.client_phone || '-'}</td>
-                    <td data-label="Address">${row.client_address || '-'}</td>
-                    <td data-label="Items">${itemsHtmlDesktop}</td>
-                    <td data-label="Amount">$${row.total_usd}</td>
-                    <td data-label="Payment Proof">
+                    <!-- Checkbox -->
+                    <td><input type="checkbox" class="row-chk" value="${row.id}" onchange="onCheckboxChange()"/></td>
+                    
+                    <!-- Date & Proof -->
+                    <td class="col-date-proof">
+                      <span class="date-text">${dateStr}</span>
                       ${row.payment_screenshot ? 
-                        `<img src="${row.payment_screenshot}" class="screenshot-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Proof">` : 
-                        '<span class="no-proof">No Proof</span>'}
+                        `<img src="${row.payment_screenshot}" class="proof-thumb" onclick="openImage('${row.payment_screenshot}')" alt="Proof">` : 
+                        `<div class="no-proof-thumb">No Img</div>`
+                      }
                     </td>
-                    <td data-label="Email Status">${emailBadge}</td>
-                    <td data-label="Order Status">
+
+                    <!-- Product Info -->
+                    <td class="col-product">
+                      <div class="prod-header">
+                        <span class="prod-id">Order #${row.id}</span>
+                        <span style="font-size:0.85rem; color:#6b7280;">$${row.total_usd}</span>
+                      </div>
+                      <div class="prod-items-list">
+                        ${itemsHtml || '<span class="prod-items-list">No Items Data</span>'}
+                      </div>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="col-status">
+                      ${emailBadge}
                       <select onchange="updateStatus(${row.id}, this.value, this)" class="status-select status-${status}">
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
@@ -644,9 +556,20 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                         <option value="Rejected"  ${status === 'Rejected'  ? 'selected' : ''}>Rejected</option>
                       </select>
                     </td>
-                    <td data-label="Actions"><button class="btn btn-delete-single" onclick="deleteSingle(${row.id}, this)">🗑️ Delete</button></td>
-                    <!-- Hidden cell for mobile items list -->
-                    <td data-label="MobileItems" style="display:none;">${itemsHtmlMobile}</td>
+
+                    <!-- Client Details -->
+                    <td class="col-client">
+                      <div class="client-title">Client Details</div>
+                      <div class="client-detail"><strong>Name:</strong> ${row.client_name || 'Guest'}</div>
+                      <div class="client-detail"><strong>Phone:</strong> ${row.client_phone || '-'}</div>
+                      <div class="client-detail"><strong>Email:</strong> ${row.client_email || '-'}</div>
+                      <div class="client-detail"><strong>Address:</strong> ${row.client_address || '-'}</div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="col-actions">
+                      <button class="btn-delete-row" onclick="deleteSingle(${row.id}, this)">Delete</button>
+                    </td>
                   </tr>
                   `;
                 }).join('')}
@@ -681,9 +604,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                 setTimeout(() => modal.style.display = 'none', 200);
             }
           }
-          function getCheckedIds() {
-            return [...document.querySelectorAll('.row-chk:checked')].map(c => parseInt(c.value));
-          }
+          function getCheckedIds() { return [...document.querySelectorAll('.row-chk:checked')].map(c => parseInt(c.value)); }
           function onCheckboxChange() {
             const ids = getCheckedIds();
             const total = document.querySelectorAll('.row-chk').length;
@@ -701,37 +622,25 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           }
 
           function setBadge(id, status) {
-            const cell = document.getElementById('row-' + id).querySelector('td:nth-child(8)'); // Email Status Column
+            const cell = document.getElementById('row-' + id).querySelector('.col-status .badge'); // Find badge in Status col
             if (!cell) return;
-            if (status === 'Sent') {
-                cell.innerHTML = '<span class="badge badge-sent">✅ Sent</span>';
-            } else if (status === 'Failed') {
-                cell.innerHTML = '<span class="badge badge-fail">❌ Failed</span>';
-            } else {
-                cell.innerHTML = '<span class="badge badge-queue">⏳ Queue</span>';
-            }
+            if (status === 'Sent') cell.className = 'badge badge-sent';
+            else if (status === 'Failed') cell.className = 'badge badge-fail';
+            else cell.className = 'badge badge-queue';
           }
 
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true;
             const originalClass = selectEl.className;
             selectEl.className = 'status-select'; 
-            
             try {
-              const response = await fetch('/update-status', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, status: newStatus })
-              });
+              const response = await fetch('/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) });
               const data = await response.json();
-              
               selectEl.className = 'status-select status-' + newStatus;
               setBadge(id, data.emailStatus || 'Queue');
-
               if (data.emailStatus === 'Failed') showToast('❌ Status updated but Email failed');
               else if (data.emailStatus === 'Sent') showToast('✅ Status updated & Email Sent');
               else showToast('✅ Status updated');
-
             } catch (err) {
               showToast('❌ Network error');
               selectEl.className = originalClass;
@@ -743,44 +652,34 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           async function deleteSingle(id, btn) {
             if (!confirm('Delete order #' + id + '?')) return;
             btn.disabled = true; 
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳...';
-            
+            const originalText = btn.textContent;
+            btn.textContent = '⏳...';
             try {
               const res = await fetch('/delete-order/' + id, { method: 'DELETE' });
               const data = await res.json();
               if (data.success) {
                 document.getElementById('row-' + id).style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('row-' + id).remove();
-                    onCheckboxChange();
-                }, 300);
+                setTimeout(() => { document.getElementById('row-' + id).remove(); onCheckboxChange(); }, 300);
                 showToast('🗑️ Order #' + id + ' deleted');
               } else {
                 showToast('❌ Delete failed');
-                btn.disabled = false; btn.innerHTML = originalText;
+                btn.disabled = false; btn.textContent = originalText;
               }
             } catch (err) {
               showToast('❌ Network error');
-              btn.disabled = false; btn.innerHTML = originalText;
+              btn.disabled = false; btn.textContent = originalText;
             }
           }
 
           async function deleteSelected() {
             const ids = getCheckedIds();
             if (ids.length === 0 || !confirm('Delete ' + ids.length + ' order(s)?')) return;
-            
             const btn = document.getElementById('btn-delete-selected');
             const originalText = btn.innerHTML;
             btn.disabled = true; 
             btn.innerHTML = '⏳ Deleting...';
-            
             try {
-              const res = await fetch('/delete-orders', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ids })
-              });
+              const res = await fetch('/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
               const data = await res.json();
               if (data.success) {
                 data.deleted.forEach(id => {
@@ -811,5 +710,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v15 (Qty Fix)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v16 (Doc Layout)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
