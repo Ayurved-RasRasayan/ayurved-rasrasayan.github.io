@@ -91,7 +91,7 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     if (orderData.items && Array.isArray(orderData.items)) {
       orderData.items.forEach(item => {
         const name = item.name || item.product || 'Unknown Item';
-        const qty = parseInt(item.quantity) || 1; 
+        const qty = parseInt(item.qty) || parseInt(item.quantity) || 1; 
         const price = item.price || 0;
         itemsHtml += `
           <tr>
@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH ITEM IMAGES) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED ROBUST PARSING) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -371,7 +371,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .proof-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; margin-top: 10px; }
           .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
 
-          /* Column 2: Product Info (UPDATED FOR IMAGES) */
+          /* Column 2: Product Info */
           .col-product { width: 320px; padding: 15px; border-left: none; }
           .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
           .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
@@ -458,12 +458,12 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             border-left: none; 
             display: flex; 
             align-items: center; 
-            justify-content: center; /* Centers the button box */
+            justify-content: center; 
           }
           .btn-delete-row { 
-            display: flex;          /* Flex for internal centering */
-            justify-content: center;/* Center text horizontally inside button */
-            align-items: center;    /* Center text vertically inside button */
+            display: flex;          
+            justify-content: center;
+            align-items: center;    
             width: 100%; 
             background: #fee2e2; 
             color: #991b1b; 
@@ -514,7 +514,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
             .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
             
-            /* Mobile Item Layout */
             .item-row { 
               display: flex; 
               align-items: center; 
@@ -524,7 +523,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               margin-bottom: 4px; 
               width: 100%; 
             }
-            .item-thumb { width: 24px; height: 24px; } /* Slightly smaller on mobile */
+            .item-thumb { width: 24px; height: 24px; } 
             .item-text { flex: 1; }
 
             /* 4. Status */
@@ -587,16 +586,30 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                   const dateObj = new Date(row.timestamp);
                   const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-                  // Items formatting (UPDATED WITH IMAGES)
+                  // Items formatting (ROBUST PARSING)
                   let itemsHtml = '';
                   try {
-                    const items = JSON.parse(row.items);
-                    if (Array.isArray(items) && items.length > 0) {
-                      itemsHtml = items.map((item, idx) => {
-                        const qty = parseInt(item.quantity) || 1;
+                    let itemsData;
+                    
+                    // 1. Check if row.items is a string, parse it
+                    if (typeof row.items === 'string') {
+                        itemsData = JSON.parse(row.items);
+                    } 
+                    // 2. Check if row.items is already an object/array
+                    else if (Array.isArray(row.items)) {
+                        itemsData = row.items;
+                    } else {
+                        itemsData = [];
+                    }
+
+                    // 3. Render if valid array
+                    if (Array.isArray(itemsData) && itemsData.length > 0) {
+                      itemsHtml = itemsData.map((item, idx) => {
+                        // USE 'qty' from frontend, fallback to 'quantity'
+                        const qty = parseInt(item.qty) || parseInt(item.quantity) || 1;
                         const price = item.price || 0;
                         
-                        // --- IMAGE LOGIC ---
+                        // USE 'img' from frontend, fallback to 'image'
                         const imgSrc = item.img || item.image;
                         const imgHtml = imgSrc ? `<img src="${imgSrc}" class="item-thumb" onerror="this.style.display='none'">` : '';
                         
@@ -610,7 +623,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                           </div>`;
                       }).join('');
                     }
-                  } catch(e) {}
+                  } catch(e) {
+                    console.error("Error parsing items for order", row.id, e);
+                  }
 
                   return `
                   <tr id="row-${row.id}">
@@ -814,5 +829,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v19 (Item Images)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v20 (Robust Items)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
