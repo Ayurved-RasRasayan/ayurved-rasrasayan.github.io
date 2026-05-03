@@ -265,7 +265,8 @@
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
           <div>
-            <div class="text-2xl md:text-3xl font-semibold text-white">57</div>
+            <!-- UPDATED COUNT -->
+            <div class="text-2xl md:text-3xl font-semibold text-white">58</div>
             <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div>
           </div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
@@ -363,7 +364,7 @@
           <p class="text-txt-sub mt-2 md:mt-3 text-base md:text-lg font-light">Prices per kilogram (1 kg). Bulk discounts available.</p>
         </div>
         <div class="flex items-center gap-3 mt-2 md:mt-0">
-          <span class="text-xs md:text-sm text-txt-third" id="productCount">57 products</span>
+          <span class="text-xs md:text-sm text-txt-third" id="productCount">58 products</span>
           <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
             <option value="name">Sort by Name</option>
             <option value="price-asc">Price: Low → High</option>
@@ -863,7 +864,7 @@ document.querySelectorAll('.ripple-btn').forEach(btn => {
     btn.addEventListener('click', createRipple);
 });
 
-// ==================== PRODUCT DATA (IDS 1-57 FIXED) ====================
+// ==================== PRODUCT DATA (IDS 1-58 FIXED) ====================
 const products = [
   // ── Active Pharmaceutical Ingredients ──
   { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
@@ -876,6 +877,8 @@ const products = [
   { id: 7,  name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 120, moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care." },
   { id: 8,  name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 45, moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil." },
   { id: 9,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 3500, moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+  // NEW: AMRIT DHARA ADDED HERE
+  { id: 58, name: "Amrit Dhara", sci: "Traditional Ayurvedic Blend", category: "oils", catLabel: "Oils", price: 250, moq: "1 kg", lead: "7-10 days", img: "images/amrit-dhara.jpg", desc: "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households." },
   // ── Extracts ──
   { id: 10, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids." },
   { id: 11, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations." },
