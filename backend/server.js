@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (RESTORED HEADER, TOTAL BOTTOM) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED ROBUST PARSING) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -372,10 +372,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
 
           /* Column 2: Product Info */
-          .col-product { width: 320px; padding: 15px; border-left: none; display: flex; flex-direction: column; }
+          .col-product { width: 320px; padding: 15px; border-left: none; }
           .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
           .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
-          .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; flex: 1; }
+          .prod-name { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 4px; display: block; }
+          .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
           .item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 4px; margin-bottom: 4px; }
           
           /* Item Thumbnail Styles */
@@ -392,17 +393,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .item-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
           .item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
           .item-qty { font-size: 0.85rem; color: #6b7280; font-weight: 500; white-space: nowrap; }
-
-          /* Total Footer Style */
-          .prod-total-footer {
-            margin-top: auto;
-            padding-top: 10px;
-            border-top: 2px solid #f3f4f6;
-            text-align: right;
-            font-size: 1rem;
-            font-weight: 800;
-            color: #1f2937;
-          }
 
           /* Column 3: Status & Badges */
           .col-status { width: 160px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
@@ -456,7 +446,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           }
           .badge-fail::before { content: "❌ "; margin-right: 4px; font-size: 1.1em; }
 
-          /* Column 4: Client Details */
+          /* Column 4: Client Details (No Internal Label) */
           .col-client { padding: 15px; border-left: none; flex-grow: 1; }
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
@@ -486,7 +476,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             text-align: center; 
           }
 
-          /* Mobile Responsive View */
+          /* Mobile Responsive View (Vertical Stack) */
           @media (max-width: 768px) {
             body { background: #e5e7eb; }
             html, body { overflow-x: hidden; width: 100%; margin: 0; }
@@ -535,16 +525,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             }
             .item-thumb { width: 24px; height: 24px; } 
             .item-text { flex: 1; }
-            
-            /* Mobile Total Footer */
-            .prod-total-footer {
-               text-align: right;
-               font-size: 1.1rem;
-               color: #2d4a22;
-               margin-top: 12px;
-               padding-top: 8px;
-               border-top: 2px solid #eee;
-            }
 
             /* 4. Status */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
@@ -606,19 +586,30 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                   const dateObj = new Date(row.timestamp);
                   const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-                  // Items formatting
+                  // Items formatting (ROBUST PARSING)
                   let itemsHtml = '';
                   try {
                     let itemsData;
-                    if (typeof row.items === 'string') itemsData = JSON.parse(row.items);
-                    else if (Array.isArray(row.items)) itemsData = row.items;
-                    else itemsData = [];
+                    
+                    // 1. Check if row.items is a string, parse it
+                    if (typeof row.items === 'string') {
+                        itemsData = JSON.parse(row.items);
+                    } 
+                    // 2. Check if row.items is already an object/array
+                    else if (Array.isArray(row.items)) {
+                        itemsData = row.items;
+                    } else {
+                        itemsData = [];
+                    }
 
+                    // 3. Render if valid array
                     if (Array.isArray(itemsData) && itemsData.length > 0) {
                       itemsHtml = itemsData.map((item, idx) => {
+                        // USE 'qty' from frontend, fallback to 'quantity'
                         const qty = parseInt(item.qty) || parseInt(item.quantity) || 1;
                         const price = item.price || 0;
                         
+                        // USE 'img' from frontend, fallback to 'image'
                         const imgSrc = item.img || item.image;
                         const imgHtml = imgSrc ? `<img src="${imgSrc}" class="item-thumb" onerror="this.style.display='none'">` : '';
                         
@@ -632,7 +623,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                           </div>`;
                       }).join('');
                     }
-                  } catch(e) {}
+                  } catch(e) {
+                    console.error("Error parsing items for order", row.id, e);
+                  }
 
                   return `
                   <tr id="row-${row.id}">
@@ -651,15 +644,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     <!-- Product Info -->
                     <td class="col-product">
                       <div class="prod-header">
-                        <!-- RESTORED ORDER ID HEADER -->
                         <span class="prod-id">Order #${row.id}</span>
+                        <span style="font-size:0.85rem; color:#6b7280;">$${row.total_usd}</span>
                       </div>
                       <div class="prod-items-list">
                         ${itemsHtml || '<span class="prod-items-list">No Items Data</span>'}
-                      </div>
-                      <!-- TOTAL FOOTER AT BOTTOM -->
-                      <div class="prod-total-footer">
-                        Total = $${row.total_usd}
                       </div>
                     </td>
 
@@ -840,5 +829,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v22 (Fixed Layout)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v20 (Robust Items)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
