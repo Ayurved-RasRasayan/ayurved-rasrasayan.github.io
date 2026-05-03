@@ -153,12 +153,6 @@
     /* Upload Zone Error State */
     .upload-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
     
-    /* Dynamic Unit Display Style */
-    .modalUnitDisplay {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600; /* Make it bold like other labels */
-    }
-    
     .hero-bg-fallback {
       background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%);
     }
@@ -261,11 +255,11 @@
         </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
           <!-- NEW: Ripple Effect Buttons -->
-          <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md: py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1 relative overflow-hidden">
+          <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1 relative overflow-hidden">
             Browse Catalog
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </a>
-          <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md: py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
+          <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
             Get Quote
           </a>
         </div>
@@ -294,7 +288,7 @@
       </div>
     </div>
     
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex flex-col items-center gap-2 animate-bounce z-20" style="animation-duration:2s">
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20" style="animation-duration:2s">
       <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
       <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
     </div>
@@ -332,26 +326,25 @@
           </div>
           <span class="text-[10px] md:text-xs font-medium">Extracts</span>
         </button>
-        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-3 md:p-5 rounded-2xl border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
-          <div class=" display:hidden"> <!-- Placeholder for layout balance -->
+        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="mushrooms">
+          <div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
             <i data-lucide="cloud-fog" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i>
-            <span class="text-[10px] md:text-xs font-medium">Mushrooms</span>
           </div>
           <span class="text-[10px] md:text-xs font-medium">Mushrooms</span>
         </button>
-        <button onclick="filterCategory('herbs')" class="cat-btn group p-3 md:p-5 rounded-2xl border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
+        <button onclick="filterCategory('herbs')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="herbs">
           <div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
             <i data-lucide="sprout" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i>
           </div>
           <span class="text-[10px] md:text-xs font-medium">Herbs</span>
         </button>
-        <button onclick="filterCategory('rasa')" class="cat-btn group p-3 md:p-5 rounded-2xl border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="rasa">
+        <button onclick="filterCategory('rasa')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="rasa">
           <div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
             <i data-lucide="gem" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i>
           </div>
           <span class="text-[10px] md:text-xs font-medium">Rasa</span>
         </button>
-        <button onclick="filterCategory('namak')" class="cat-btn group p-3 md:p-5 rounded-2xl border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="namak">
+        <button onclick="filterCategory('namak')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all duration-300 text-center" data-cat="namak">
           <div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
             <i data-lucide="hexagon" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i>
           </div>
@@ -404,17 +397,17 @@
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4>
               <p class="text-xs md:text-sm text-white/50">COA with every order</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4>
               <p class="text-xs md:text-sm text-white/50">50+ countries served</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Himalayan Source</h4>
               <p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Expert Support</h4>
               <p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p>
@@ -477,8 +470,8 @@
             <input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           </div>
           <input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
-          <input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
-          <textarea id="contactMessage" placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
+          <input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
+          <textarea id="contactMessage" placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
           <button type="submit" id="inquirySubmitBtn" class="ripple-btn w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
             Send Inquiry
             <i data-lucide="send" class="w-4 h-4"></i>
@@ -533,9 +526,15 @@
           </div>
         </div>
       </div>
+      <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a>
+        </div>
       </div>
     </div>
-  </div>
   </footer>
 
   <!-- CART SIDEBAR -->
@@ -613,22 +612,22 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-medium text-txt-main mb-1">Phone No. <span class="text-red-500">*</span></label>
-                <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+                <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
               </div>
               <div>
                 <label class="block text-xs font-medium text-txt-main mb-1">Email (Optional)</label>
-                <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
+                <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
               </div>
             </div>
             <div>
               <label class="block text-xs font-medium text-txt-main mb-1">Address (Optional)</label>
-              <textarea id="clientAddress" rows="2" placeholder="Street, City, Country..." class="w-full px-3 py-2 rounded-lg border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all resize-none"></textarea>
+              <textarea id="clientAddress" rows="2" placeholder="Street, City, Country..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all resize-none"></textarea>
             </div>
           </div>
         </div>
 
         <!-- Order Summary & Currency Toggle -->
-        <div class="bg-bg-light p-4 rounded-xl border-border-main mb-4 md:mb-6">
+        <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4 md:mb-6">
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
             <div class="text-right">
@@ -676,7 +675,7 @@
                     <p class="text-sm font-medium text-txt-main">Click to upload screenshot</p>
                     <p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p>
                 </div>
-                <div id="uploadProgressContainer" class="hidden flex flex flex-col items-center justify-center py-4 w-full">
+                <div id="uploadProgressContainer" class="hidden flex flex-col items-center justify-center py-4 w-full">
                     <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
                         <div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
@@ -694,8 +693,6 @@
             </div>
             <p id="uploadError" class="hidden text-[10px] text-red-500 mt-1 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Please upload a payment screenshot.</p>
         </div>
-
-      </div>
 
       </div>
 
@@ -735,7 +732,6 @@
           <!-- UNIT BOX - DYNAMIC UNIT DISPLAY -->
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">Unit</p>
-            <!-- Dynamic span container -->
             <p class="text-sm text-white font-medium"><span id="modalUnitDisplay"></span></p>
           </div>
           
@@ -749,7 +745,7 @@
           </div>
         </div>
         <div class="flex gap-3">
-          <div class="flex items-center border border border-border-main rounded-xl overflow-hidden">
+          <div class="flex items-center border border-border-main rounded-xl overflow-hidden">
             <button onclick="modalQtyChange(-1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
             <input id="modalQty" type="number" value="1" min="1" class="w-16 text-center py-3 text-sm font-medium border-x border-border-main focus:outline-none">
             <button onclick="modalQtyChange(1)" class="px-4 py-3 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
@@ -885,7 +881,7 @@ const products = [
   { id: 6,  name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 37240, unit: "kg", moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine." },
   { id: 7,  name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 15960, unit: "kg", moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care." },
   { id: 8,  name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 5985, unit: "kg", moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil." },
-  { id: 9, name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 465500, unit: "ml", moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+  { id: 9,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 465500, unit: "ml", moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
   // NEW: AMRIT DHARA ADDED HERE
   { id: 58, name: "Amrit Dhara", sci: "Traditional Ayurvedic Blend", category: "oils", catLabel: "Oils", price: 100, unit: "15 ml", moq: "15 ml", lead: "7-10 days", img: "images/amrit-dhara.jpg", desc: "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households." },
   // ── Extracts ──
@@ -924,26 +920,24 @@ const products = [
   { id: 39, name: "Neela", sci: "Lapis Lazuli", category: "rasa", catLabel: "Rasa Uparasa", price: 11970, unit: "kg", moq: "5 kg", lead: "10-14 days", img: "images/neela.jpg", desc: "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas." },
   { id: 40, name: "Para", sci: "Mercury (Elemental)", category: "rasa", catLabel: "Rasa Uparasa", price: 86450, unit: "kg", moq: "100 g", lead: "21-28 days", img: "images/para.jpg", desc: "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed." },
   { id: 41, name: "Raskapoor", sci: "Sublimed Sulphur", category: "rasa", catLabel: "Rasa Uparasa", price: 7315, unit: "kg", moq: "5 kg", lead: "10-14 days", img: "images/raskapoor.jpg", desc: "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics." },
-  { id: 42, name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 9975, unit: "kg", moq: "5 kg", lead: "10-14 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
+  { id: 42, name: "Sankhiya", sci: "Tin / Sankhya Dravaka", category: "rasa", catLabel: "Rasa Uparasa", price: 9975, unit: "kg", moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion." },
   { id: 43, name: "Singraf", sci: "Cinnabar / Red Sulphide", category: "rasa", catLabel: "Rasa Uparasa", price: 17290, unit: "kg", moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders." },
   // ── Namak (Salts) ──
   { id: 44, name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak (Salts)", price: 5320, unit: "kg", moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery." },
   { id: 45, name: "Jawa Khar", sci: "Alum (Jawa)", category: "namak", catLabel: "Namak (Salts)", price: 1596, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying." },
-  { id: 46, name: "Kala Namak", sci: "Black Alum", category: "namak", catLabel: "Namak (Salts)", price: 1862, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties." },
+  { id: 46, name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak (Salts)", price: 665, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda." },
   { id: 47, name: "Kala Sajji Khar", sci: "Black Alum", category: "namak", catLabel: "Namak (Salts)", price: 1862, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties." },
   { id: 48, name: "Kalmi Shora", sci: "Sodium Carbonate", category: "namak", catLabel: "Namak (Salts)", price: 1330, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/kalmi-shora.jpg", desc: "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties." },
   { id: 49, name: "Mithi Soda", sci: "Sodium Bicarbonate", category: "namak", catLabel: "Namak (Salts)", price: 1995, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/mithi-soda.jpg", desc: "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies." },
-  { id: 50, name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 2660, unit: "kg", moq: "10 kg", lead: "7-10 days", img: "images/nausadar-fali.jpg", desc: "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones." },
-  { id: 51, name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak (Salts)", price: 1596, unit: "kg", moq: "10 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin." },
+  { id: 50, name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 2660, unit: "kg", moq: "10 kg", lead: "10-14 days", img: "images/nausadar-fali.jpg", desc: "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones." },
+  { id: 51, name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak (Salts)", price: 1596, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin." },
   { id: 52, name: "Red Phatkri", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 1995, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/red-phatkri.jpg", desc: "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects." },
   { id: 53, name: "Safed Sajji Khar", sci: "White Alum", category: "namak", catLabel: "Namak (Salts)", price: 1596, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/safed-sajji-khar.jpg", desc: "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments." },
   { id: 54, name: "Samudri Namak", sci: "Sea Salt", category: "namak", catLabel: "Namak (Salts)", price: 266, unit: "kg", moq: "50 kg", lead: "5-7 days", img: "images/samudri-namak.jpg", desc: "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy." },
-  { id: 55, name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 399, unit: "kg", moq: "50 kg", lead: "5-7 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
-  { id: 56, name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 399, unit: "kg", moq: "50 kg", lead: "5-7 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
-  { id: 57, name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 2128, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties." },
-  { id: 58, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 2128, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
-  { id: 59, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 3325, unit: "kg", moq: "10 kg", lead: "7-10 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
-};
+  { id: 55, name: "Sedha Namak", sci: "Rock Salt (Sendha)", category: "namak", catLabel: "Namak (Salts)", price: 399, unit: "kg", moq: "50 kg", lead: "7-10 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance." },
+  { id: 56, name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak (Salts)", price: 2128, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties." },
+  { id: 57, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak (Salts)", price: 3325, unit: "kg", moq: "10 kg", lead: "10-14 days", img: "images/thikri-nausadar.jpg", desc: "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations." },
+];
 
 let cart = [];
 let currentCategory = 'all';
@@ -967,6 +961,7 @@ function renderProducts(items) {
   noResults.classList.add('hidden');
   countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
 
+  // Added shimmer-effect class here
   grid.innerHTML = items.map((p, i) => {
     // Price in NPR is the base (p.price)
     // Calculate USD for display: NPR / Rate
@@ -980,7 +975,7 @@ function renderProducts(items) {
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
         <div class="absolute top-3 left-3">
-          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub shadow-sm shadow-sm">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : p.category === 'namak' ? 'Extract' } </div>
+          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub shadow-sm">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
         </div>
         <div class="absolute top-3 right-3 z-20">
              <span class="bg-gray-200/90 text-gray-600 text-[8px] font-bold px-2 py-1 rounded-md shadow-sm">${idDisplay}</span>
@@ -1065,13 +1060,13 @@ function updateCartUI() {
   else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
 
   document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
-  document.getElementById('cartTotal').textContent = `NPR ${totalPriceNPR.toLocaleString()} ($${totalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })})})`;
+  document.getElementById('cartTotal').textContent = `NPR ${totalPriceNPR.toLocaleString()} ($${totalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
 
   const cartItemsEl = document.getElementById('cartItems');
   const cartFooter = document.getElementById('cartFooter');
 
   if (cart.length === 0) {
-    cartItemsEl.innerHTML = '<div class="flex flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div></div>';
+    cartItemsEl.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub font-medium">Your cart is empty</p><p class="text-sm text-txt-third mt-1">Browse products and add items</p></div>';
     cartFooter.classList.add('hidden');
     lucide.createIcons();
     return;
@@ -1103,7 +1098,7 @@ function updateCartUI() {
         <div class="text-[10px] text-txt-sub text-right">($${pTotalUSD.toLocaleString()})</div>
       </div>
     </div>
-    `}).join('');
+  `}).join('');
   lucide.createIcons();
 }
 
@@ -1152,7 +1147,7 @@ function handleFileUpload(event) {
 
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
         dropZone.classList.add('upload-error');
         errorMsg.textContent = "File too large. Max 5MB allowed.";
         errorMsg.classList.remove('hidden');
@@ -1267,7 +1262,6 @@ function closePaymentModal() {
   const modal = document.getElementById('paymentModal');
   modal.classList.add('hidden');
   modal.classList.remove('flex');
-  modal.classList.remove('flex');
   document.body.classList.remove('payment-modal-open'); 
 }
 
@@ -1338,7 +1332,7 @@ async function submitOrderToBackend() {
       name: nameInput.value.trim(),
       phone: phoneInput.value.trim(),
       email: emailInput.value.trim() || 'N/A',
-      addressInput.value.trim() || 'N/A'
+      address: addressInput.value.trim() || 'N/A'
     },
     timestamp: new Date().toISOString()
   };
@@ -1402,6 +1396,7 @@ async function submitOrderToBackend() {
   }
 }
 
+
 // ==================== PRODUCT MODAL ====================
 function openModal(id) {
   const p = products.find(x => x.id === id);
@@ -1416,10 +1411,9 @@ function openModal(id) {
   document.getElementById('modalCat').textContent = p.catLabel;
   
   document.getElementById('modalPrice').textContent = `NPR ${priceNPR.toLocaleString()}`;
-  document.getElementById('modalPriceUsd').textContent = `$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ${p.unit}`;
-  
+  document.getElementById('modalPriceUsd').textContent = `$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${p.unit}`;
   document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Mineral' : p.category === 'namak' ? 'Namak' : 'Extract' },
+  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
   document.getElementById('modalQty').value = 1;
