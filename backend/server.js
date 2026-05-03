@@ -42,6 +42,15 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOver
 
     console.log(`[EMAIL DEBUG] Sending from: ${senderEmail} -> To: ${toEmail}`);
 
+    // ─── FIX: TRANSLATE STATUS FOR EMAIL ─────────────────────────────────────
+    let displayStatus = status;
+    
+    // If the internal status is 'Success', display 'Payment Successful' to the client
+    if (status === 'Success') {
+        displayStatus = 'Payment Successful';
+    }
+    // ───────────────────────────────────────────────────────────────────────────
+
     const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
 
     const data = {
@@ -54,7 +63,8 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOver
         name: toName
       }],
       subject: `Order Status Update: #${orderId}`,
-      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${status}</strong>.</p><p>Thank you for shopping with NaturaBotanica.</p>`
+      // Using displayStatus here ensures the client reads "Payment Successful"
+      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} status is now: <strong>${displayStatus}</strong>.</p><p>Thank you for shopping with NaturaBotanica.</p>`
     };
 
     const response = await axios.post(endpoint, data, {
@@ -575,11 +585,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             .item-row {
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 1px dashed #eee;
-                padding-bottom: 4px;
-                margin-bottom: 4px;
+                align-items: center,
+                justify-content: space-between,
+                border-bottom: 1px dashed #eee,
+                padding-bottom: 4px,
+                margin-bottom: 4px,
                 width: 100%;
             }
             .item-thumb { width: 24px; height: 24px; }
@@ -894,5 +904,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v24 (Visible Grid Borders)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v25 (Payment Successful Email Fix)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
