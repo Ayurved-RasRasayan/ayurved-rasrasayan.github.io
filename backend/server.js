@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & UPDATED BADGE LOGIC) ────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & FANCY BADGES) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -379,7 +379,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
           .item-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 2px; margin-bottom: 2px; }
 
-          /* Column 3: Status */
+          /* Column 3: Status & Badges */
           .col-status { width: 160px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
           .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; }
           .status-Pending   { background: #fff7ed; color: #c2410c; }
@@ -387,6 +387,59 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .status-Completed { background: #f0fdf4; color: #15803d; }
           .status-Success   { background: #dcfce7; color: #15803d; }
           .status-Rejected  { background: #fef2f2; color: #b91c1c; }
+
+          /* ─── FANCY BADGE STYLES ───────────────────────────────────────── */
+          .badge { 
+            display: inline-flex; 
+            align-items: center; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+            overflow: hidden;
+          }
+
+          /* Animation Keyframes */
+          @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          /* Apply animation on load */
+          .badge { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+          /* Email Queue (Yellow/Orange) */
+          .badge-queue {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
+          }
+          .badge-queue::before { content: "⏳ "; margin-right: 4px; font-size: 1.1em; }
+
+          /* Email Sent (Green) */
+          .badge-sent {
+            background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+            color: #365314;
+            border: 1px solid #bef264;
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+          }
+          .badge-sent::before { content: "✅ "; margin-right: 4px; font-size: 1.1em; }
+
+          /* Email Failed (Red) */
+          .badge-fail {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);
+          }
+          .badge-fail::before { content: "❌ "; margin-right: 4px; font-size: 1.1em; }
 
           /* Column 4: Client Details (Block) */
           .col-client { padding: 15px; border-left: none; flex-grow: 1; }
@@ -445,10 +498,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
             /* 4. Status (Child 4) */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
-            .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-right: 8px; margin-bottom: 4px; }
-            .badge-queue { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-            .badge-sent { background: #ecfccb; color: #3f6212; border: 1px solid #bef264; }
-            .badge-fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
             .status-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; background: #fff; appearance: none; }
             
             /* 5. Client Details (Child 5) */
@@ -499,7 +548,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
                   
-                  // --- UPDATED BADGE TEXT LOGIC ---
+                  // --- UPDATED BADGE TEXT & CLASS LOGIC ---
                   let emailBadge = `<span class="badge badge-queue">Email Queue</span>`;
                   if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Email Sent</span>`;
                   else if (row.email_status === 'Failed') emailBadge = `<span class="badge badge-fail">Email Failed</span>`;
@@ -623,9 +672,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             onCheckboxChange();
           }
 
-          // --- UPDATED setBadge FUNCTION ---
+          // --- UPDATED setBadge FUNCTION WITH ANIMATION TRIGGER ---
           function setBadge(id, status) {
-            const cell = document.getElementById('row-' + id).querySelector('.col-status .badge');
+            const cell = document.getElementById('row-' + id).querySelector('.badge');
             if (!cell) return;
             
             // Remove all old badge classes first
@@ -643,6 +692,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               cell.classList.add('badge-queue');
               cell.textContent = 'Email Queue';
             }
+
+            // Trigger the "Pop" animation again on change
+            cell.style.animation = 'none';
+            cell.offsetHeight; /* trigger reflow */
+            cell.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
           }
 
           async function updateStatus(id, newStatus, selectEl) {
@@ -729,5 +783,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v16 (Doc Layout)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v17 (Fancy Badges)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
