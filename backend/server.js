@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & NEW DOCUMENT LAYOUT) ────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & UPDATED BADGE LOGIC) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -380,7 +380,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .item-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 2px; margin-bottom: 2px; }
 
           /* Column 3: Status */
-          .col-status { width: 140px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+          .col-status { width: 160px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
           .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; }
           .status-Pending   { background: #fff7ed; color: #c2410c; }
           .status-Shipping  { background: #eff6ff; color: #1d4ed8; }
@@ -490,7 +490,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th width="120">Date/Proof</th>
                   <th width="300">Order Items</th>
-                  <th width="140">Status</th>
+                  <th width="160">Status</th>
                   <th>Client Details</th>
                   <th width="80">Actions</th>
                 </tr>
@@ -498,9 +498,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  let emailBadge = `<span class="badge badge-queue">Queue</span>`;
-                  if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Sent</span>`;
-                  else if (row.email_status === 'Failed') emailBadge = `<span class="badge badge-fail">Failed</span>`;
+                  
+                  // --- UPDATED BADGE TEXT LOGIC ---
+                  let emailBadge = `<span class="badge badge-queue">Email Queue</span>`;
+                  if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Email Sent</span>`;
+                  else if (row.email_status === 'Failed') emailBadge = `<span class="badge badge-fail">Email Failed</span>`;
 
                   // Date formatting
                   const dateObj = new Date(row.timestamp);
@@ -621,12 +623,26 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             onCheckboxChange();
           }
 
+          // --- UPDATED setBadge FUNCTION ---
           function setBadge(id, status) {
-            const cell = document.getElementById('row-' + id).querySelector('.col-status .badge'); // Find badge in Status col
+            const cell = document.getElementById('row-' + id).querySelector('.col-status .badge');
             if (!cell) return;
-            if (status === 'Sent') cell.className = 'badge badge-sent';
-            else if (status === 'Failed') cell.className = 'badge badge-fail';
-            else cell.className = 'badge badge-queue';
+            
+            // Remove all old badge classes first
+            cell.classList.remove('badge-queue', 'badge-sent', 'badge-fail');
+
+            if (status === 'Sent') {
+              cell.classList.add('badge-sent');
+              cell.textContent = 'Email Sent';
+            }
+            else if (status === 'Failed') {
+              cell.classList.add('badge-fail');
+              cell.textContent = 'Email Failed';
+            }
+            else {
+              cell.classList.add('badge-queue');
+              cell.textContent = 'Email Queue';
+            }
           }
 
           async function updateStatus(id, newStatus, selectEl) {
@@ -637,8 +653,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               const response = await fetch('/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) });
               const data = await response.json();
               selectEl.className = 'status-select status-' + newStatus;
+              
+              // Update badge based on response
               setBadge(id, data.emailStatus || 'Queue');
-              if (data.emailStatus === 'Failed') showToast('❌ Status updated but Email failed');
+              
+              if (data.emailStatus === 'Failed') showToast('❌ Status updated but Email Failed');
               else if (data.emailStatus === 'Sent') showToast('✅ Status updated & Email Sent');
               else showToast('✅ Status updated');
             } catch (err) {
