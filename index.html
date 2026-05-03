@@ -46,6 +46,61 @@
     .anim-d3 { animation-delay: 0.3s; }
     .anim-d4 { animation-delay: 0.4s; }
 
+    /* NEW: Typewriter Animation */
+    @keyframes typeCursor {
+      from, to { border-right-color: transparent; }
+    }
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      margin: 0 auto;
+      border-right: 3px solid #A3B14B;
+      animation: blink-caret 0.75s step-end infinite;
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #A3B14B; }
+    }
+
+    /* NEW: Shimmer Animation for Product Cards */
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .shimmer-effect {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 50%; height: 100%;
+      background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+      transform: skewX(-20deg);
+      animation: shimmer 2s infinite;
+    }
+
+    /* NEW: Ripple Animation for Buttons */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* NEW: Slow Spin for Logo */
+    @keyframes slowSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .logo-spin {
+      animation: slowSpin 10s linear infinite;
+    }
+
     /* Modal Transitions */
     .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
     .modal-exit { animation: modalFadeOut 0.2s ease-in forwards; }
@@ -112,8 +167,9 @@
   <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
     <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
+        <!-- Added Logo Spin Animation -->
         <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20">
-          <i data-lucide="leaf" class="w-5 h-5 text-white"></i>
+          <i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i>
         </div>
         <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main">NaturaBotanica</span>
       </a>
@@ -172,6 +228,10 @@
 
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
+    
+    <!-- NEW: ANIMATED WIREFRAME GLOBE CANVAS -->
+    <canvas id="globeCanvas" class="absolute inset-0 z-5 w-full h-full pointer-events-none"></canvas>
+
     <div class="absolute inset-0 hero-bg-fallback z-0">
       <img src="images/hero-bg.jpg" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
       <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
@@ -186,18 +246,20 @@
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
           <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, APIs, Rasa Shastra & Salts</span>
         </div>
+        <!-- NEW: Typewriter Effect Applied -->
         <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6 drop-shadow-2xl">
-          Premium<br><span class="text-brand">Natural</span><br>Ingredients
+          Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients
         </h1>
         <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">
           APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.
         </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#products" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1">
+          <!-- NEW: Ripple Effect Buttons -->
+          <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1 relative overflow-hidden">
             Browse Catalog
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </a>
-          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
+          <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
             Get Quote
           </a>
         </div>
@@ -219,7 +281,7 @@
         </div>
       </div>
 
-      <!-- RIGHT SIDE IMAGE RESTORED -->
+      <!-- RIGHT SIDE IMAGE -->
       <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0">
         <img src="images/jeM6q.jpg" alt="Chakra Energy" class="relative z-10 max-h-[500px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'">
       </div>
@@ -409,7 +471,7 @@
           <input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           <input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all">
           <textarea id="contactMessage" placeholder="Tell us about your requirements (products, quantities, specifications...)" rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all resize-none"></textarea>
-          <button type="submit" id="inquirySubmitBtn" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
+          <button type="submit" id="inquirySubmitBtn" class="ripple-btn w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
             Send Inquiry
             <i data-lucide="send" class="w-4 h-4"></i>
           </button>
@@ -493,7 +555,7 @@
         </div>
         
         <!-- OPTION 1: Proceed to Inquiry -->
-        <button onclick="proceedToInquiry()" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2">
+        <button onclick="proceedToInquiry()" class="ripple-btn w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
           Proceed to Inquiry
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -635,7 +697,7 @@
 
       <!-- Footer Action -->
       <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white">
-        <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
+        <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="ripple-btn w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
           I have made payment
           <i data-lucide="check" class="w-4 h-4"></i>
         </button>
@@ -700,8 +762,108 @@ const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com';
 const USD_TO_NPR = 133; 
 let paymentScreenshotBase64 = null;
 
+// ==================== NEW: WIREFRAME GLOBE ANIMATION ENGINE ====================
+(function initGlobeAnimation() {
+    const canvas = document.getElementById('globeCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let rotation = 0;
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const cx = width / 2;
+        const cy = height / 2;
+        const r = Math.min(width, height) * 0.35; // Radius of globe
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rotation * Math.PI / 180);
+
+        // Draw Globe (Circle)
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(163, 177, 75, 0.15)'; // Brand color low opacity
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Draw Longitude lines
+        for (let i = 0; i < 8; i++) {
+            ctx.beginPath();
+            ctx.ellipse(0, 0, r, r * 0.3, i * (Math.PI / 4), 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(163, 177, 75, 0.1)';
+            ctx.stroke();
+        }
+
+        // Draw Latitude lines
+        for (let i = 0; i < 6; i++) {
+            ctx.beginPath();
+            ctx.moveTo(-r, -r/2 + (i * r/2.5));
+            ctx.lineTo(r, -r/2 + (i * r/2.5));
+            ctx.strokeStyle = 'rgba(163, 177, 75, 0.1)';
+            ctx.stroke();
+        }
+
+        // Draw Satellite Dots
+        const satCount = 3;
+        for (let i = 0; i < satCount; i++) {
+            const angle = (Date.now() / 2000) + (i * (Math.PI * 2 / satCount));
+            const sx = Math.cos(angle) * (r + 30);
+            const sy = Math.sin(angle) * (r + 30);
+            
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#A3B14B';
+            ctx.fill();
+            
+            // Connection line to center
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+            ctx.strokeStyle = 'rgba(163, 177, 75, 0.05)';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        rotation += 0.1; // Slow rotation
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+// ==================== NEW: RIPPLE EFFECT ENGINE ====================
+function createRipple(event) {
+    const button = event.currentTarget;
+    const circle = document.createElement("span");
+    const diameter = Math.max(button.offsetWidth, button.offsetHeight);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+    circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+    circle.classList.add("ripple");
+
+    const ripple = button.getElementsByClassName("ripple")[0];
+    if (ripple) {
+        ripple.remove();
+    }
+
+    button.appendChild(circle);
+}
+
+// Attach Ripple to all .ripple-btn elements
+document.querySelectorAll('.ripple-btn').forEach(btn => {
+    btn.addEventListener('click', createRipple);
+});
+
 // ==================== PRODUCT DATA (IDS 1-57 FIXED) ====================
-// CRITICAL: Never change these IDs. To add a new product, use ID 58.
 const products = [
   // ── Active Pharmaceutical Ingredients ──
   { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
@@ -791,12 +953,13 @@ function renderProducts(items) {
   noResults.classList.add('hidden');
   countEl.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
 
+  // Added shimmer-effect class here
   grid.innerHTML = items.map((p, i) => {
     const priceNPR = Math.round(p.price * USD_TO_NPR);
     const idDisplay = p.id < 10 ? `Product No. 0${p.id}` : `Product No. ${p.id}`;
     
     return `
-    <div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
+    <div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500" style="animation: fadeInUp 0.6s ease-out ${i * 0.04}s forwards; opacity: 0;">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
         <div class="absolute top-3 left-3">
