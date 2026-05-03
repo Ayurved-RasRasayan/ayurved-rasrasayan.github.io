@@ -46,7 +46,7 @@
     .anim-d3 { animation-delay: 0.3s; }
     .anim-d4 { animation-delay: 0.4s; }
 
-    /* NEW: Typewriter Animation */
+    /* Typewriter Animation */
     @keyframes typeCursor {
       from, to { border-right-color: transparent; }
     }
@@ -62,7 +62,7 @@
       50% { border-color: #A3B14B; }
     }
 
-    /* NEW: Shimmer Animation for Product Cards */
+    /* Shimmer Animation */
     @keyframes shimmer {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(100%); }
@@ -80,7 +80,7 @@
       animation: shimmer 2s infinite;
     }
 
-    /* NEW: Ripple Animation for Buttons */
+    /* Ripple Animation */
     .ripple {
       position: absolute;
       border-radius: 50%;
@@ -92,7 +92,7 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* NEW: Slow Spin for Logo */
+    /* Slow Spin */
     @keyframes slowSpin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -141,16 +141,10 @@
       overflow: hidden;
     }
 
-    /* Tab Active State */
     .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
-    
-    /* Currency Toggle State */
     .currency-btn.active-curr { background-color: #1C1917; color: white; }
 
-    /* Error Input State */
     .input-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
-    
-    /* Upload Zone Error State */
     .upload-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
     
     .hero-bg-fallback {
@@ -167,7 +161,6 @@
   <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
     <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        <!-- Added Logo Spin Animation -->
         <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20">
           <i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i>
         </div>
@@ -228,8 +221,7 @@
 
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    
-    <!-- NEW: ANIMATED WIREFRAME GLOBE CANVAS -->
+    <!-- ANIMATED WIREFRAME GLOBE CANVAS -->
     <canvas id="globeCanvas" class="absolute inset-0 z-5 w-full h-full pointer-events-none"></canvas>
 
     <div class="absolute inset-0 hero-bg-fallback z-0">
@@ -246,7 +238,7 @@
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
           <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, APIs, Rasa Shastra & Salts</span>
         </div>
-        <!-- NEW: Typewriter Effect Applied -->
+        <!-- Typewriter Effect -->
         <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6 drop-shadow-2xl">
           Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients
         </h1>
@@ -254,7 +246,7 @@
           APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.
         </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <!-- NEW: Ripple Effect Buttons -->
+          <!-- Ripple Effect Buttons -->
           <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1 relative overflow-hidden">
             Browse Catalog
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -265,7 +257,6 @@
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
           <div>
-            <!-- UPDATED COUNT -->
             <div class="text-2xl md:text-3xl font-semibold text-white">58</div>
             <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div>
           </div>
@@ -723,15 +714,17 @@
         <div class="flex items-center gap-4 mb-6">
           <div>
             <span id="modalPrice" class="text-3xl font-semibold text-brand">NPR 0.00</span>
-            <span class="text-sm text-txt-third">per ${currentModalProduct ? currentModalProduct.unit : 'kg'}</span>
-            <div id="modalPriceUsd" class="text-xs text-txt-sub font-medium">$0.00 / ${currentModalProduct ? currentModalProduct.unit : 'kg'}</div>
+            <!-- FIXED: Added ID to target with JS -->
+            <span id="modalUnitLabel" class="text-sm text-txt-third">per kg</span>
+            <div id="modalPriceUsd" class="text-xs text-txt-sub font-medium">$0.00 / kg</div>
           </div>
         </div>
         <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
         <div class="grid grid-cols-3 gap-4 mb-8">
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">Unit</p>
-            <p class="text-sm text-white font-medium">1 ${currentModalProduct ? currentModalProduct.unit : 'kg'}</p>
+            <!-- FIXED: Added ID to target with JS -->
+            <p id="modalUnitBox" class="text-sm text-white font-medium">1 kg</p>
           </div>
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">MOQ</p>
@@ -760,8 +753,6 @@
 <script>
 // ==================== CONFIGURATION ====================
 const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com'; 
-// Exchange Rate: How many Nepalese Rupees equal 1 USD. 
-// Changing this number automatically updates USD prices shown on website.
 const USD_TO_NPR = 133; 
 
 let paymentScreenshotBase64 = null;
@@ -961,11 +952,8 @@ function renderProducts(items) {
 
   // Added shimmer-effect class here
   grid.innerHTML = items.map((p, i) => {
-    // Price in NPR is the base (p.price)
-    // Calculate USD for display: NPR / Rate
     const priceNPR = p.price; 
     const priceUSD = priceNPR / USD_TO_NPR;
-    
     const idDisplay = p.id < 10 ? `Product No. 0${p.id}` : `Product No. ${p.id}`;
     
     return `
@@ -1007,7 +995,6 @@ function getFilteredProducts() {
   let items = currentCategory === 'all' ? [...products] : products.filter(p => p.category === currentCategory);
   switch (currentSort) {
     case 'name': items.sort((a, b) => a.name.localeCompare(b.name)); break;
-    // Since prices are now NPR, we sort directly without multiplier
     case 'price-asc': items.sort((a, b) => a.price - b.price); break;
     case 'price-desc': items.sort((a, b) => b.price - a.price); break;
   }
@@ -1049,8 +1036,6 @@ function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared', 'inf
 function updateCartUI() {
   const countEl = document.getElementById('cartCount');
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
-  
-  // Totals in NPR (Base)
   const totalPriceNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const totalPriceUSD = totalPriceNPR / USD_TO_NPR;
 
@@ -1402,6 +1387,7 @@ function openModal(id) {
   currentModalProduct = p;
   const priceNPR = p.price;
   const priceUSD = priceNPR / USD_TO_NPR;
+  const unit = p.unit; // Get unit here
   
   document.getElementById('modalImg').src = p.img;
   document.getElementById('modalName').textContent = p.name;
@@ -1409,7 +1395,10 @@ function openModal(id) {
   document.getElementById('modalCat').textContent = p.catLabel;
   
   document.getElementById('modalPrice').textContent = `NPR ${priceNPR.toLocaleString()}`;
-  document.getElementById('modalPriceUsd').textContent = `$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${p.unit}`;
+  
+  // FIX 1: Update the "per unit" label dynamically
+  document.getElementById('modalUnitLabel').textContent = `per ${unit}`;
+  document.getElementById('modalPriceUsd').textContent = `$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${unit}`;
   
   document.getElementById('modalDesc').textContent = p.desc;
   document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
@@ -1417,6 +1406,10 @@ function openModal(id) {
   document.getElementById('modalLead').textContent = p.lead;
   document.getElementById('modalQty').value = 1;
   document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  
+  // FIX 2: Update the "Unit Box" (1 kg/ml) dynamically
+  document.getElementById('modalUnitBox').textContent = `1 ${unit}`;
+  
   const modal = document.getElementById('productModal');
   modal.classList.remove('hidden'); 
   modal.classList.add('flex');
