@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & NO INTERNAL LABELS) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH ITEM IMAGES) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -371,13 +371,28 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .proof-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; margin-top: 10px; }
           .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
 
-          /* Column 2: Product Info */
-          .col-product { width: 300px; padding: 15px; border-left: none; }
-          .prod-header { display: flex; justify-content: space-between; margin-bottom: 5px; align-items: baseline; }
+          /* Column 2: Product Info (UPDATED FOR IMAGES) */
+          .col-product { width: 320px; padding: 15px; border-left: none; }
+          .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
           .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
           .prod-name { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 4px; display: block; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
-          .item-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 2px; margin-bottom: 2px; }
+          .item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 4px; margin-bottom: 4px; }
+          
+          /* Item Thumbnail Styles */
+          .item-thumb { 
+            width: 30px; 
+            height: 30px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            border: 1px solid #d1d5db; 
+            margin-right: 8px; 
+            flex-shrink: 0;
+            background: #f3f4f6;
+          }
+          .item-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+          .item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .item-qty { font-size: 0.85rem; color: #6b7280; font-weight: 500; white-space: nowrap; }
 
           /* Column 3: Status & Badges */
           .col-status { width: 160px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
@@ -403,18 +418,12 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             position: relative; 
             overflow: hidden;
           }
-
-          /* Animation Keyframes */
           @keyframes popIn {
             0% { transform: scale(0.8); opacity: 0; }
             60% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
           }
-          
-          /* Apply animation on load */
           .badge { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
-          /* Email Queue (Yellow/Orange) */
           .badge-queue {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             color: #92400e;
@@ -422,8 +431,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
           }
           .badge-queue::before { content: "⏳ "; margin-right: 4px; font-size: 1.1em; }
-
-          /* Email Sent (Green) */
           .badge-sent {
             background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
             color: #365314;
@@ -431,8 +438,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
           }
           .badge-sent::before { content: "✅ "; margin-right: 4px; font-size: 1.1em; }
-
-          /* Email Failed (Red) */
           .badge-fail {
             background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
             color: #991b1b;
@@ -441,38 +446,35 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           }
           .badge-fail::before { content: "❌ "; margin-right: 4px; font-size: 1.1em; }
 
-          /* Column 4: Client Details (Block) */
+          /* Column 4: Client Details (No Internal Label) */
           .col-client { padding: 15px; border-left: none; flex-grow: 1; }
-          /* .client-title REMOVED as requested */
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
-          /* Column: Actions */
-.col-actions { 
-    width: 80px; 
-    padding: 15px; 
-    border-left: none; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; /* Centers the button box within the column */
-}
-
-/* The Delete Button */
-.btn-delete-row { 
-    display: flex;          /* Make the button a flex container */
-    justify-content: center;/* Center text horizontally inside the button */
-    align-items: center;    /* Center text vertically inside the button */
-    
-    width: 100%; 
-    background: #fee2e2; 
-    color: #991b1b; 
-    border: 1px solid #fecaca; 
-    padding: 8px 12px; 
-    border-radius: 6px; 
-    font-weight: 600; 
-    cursor: pointer; 
-    font-size: 12px; 
-}
+          /* Column 5: Actions (Centered) */
+          .col-actions { 
+            width: 80px; 
+            padding: 15px; 
+            border-left: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; /* Centers the button box */
+          }
+          .btn-delete-row { 
+            display: flex;          /* Flex for internal centering */
+            justify-content: center;/* Center text horizontally inside button */
+            align-items: center;    /* Center text vertically inside button */
+            width: 100%; 
+            background: #fee2e2; 
+            color: #991b1b; 
+            border: 1px solid #fecaca; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 12px; 
+            text-align: center; 
+          }
 
           /* Mobile Responsive View (Vertical Stack) */
           @media (max-width: 768px) {
@@ -481,55 +483,60 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             ::-webkit-scrollbar { display: none; }
             
             .container { padding: 8px 0; max-width: 100%; }
-
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; border-radius: 0; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; }
             .btn { width: 100%; justify-content: center; padding: 12px; margin: 0 8px; }
 
             thead { display: none; } 
             table { display: block; width: 100%; margin: 0; border-spacing: 0; border: none; }
-
-            tbody {
-              display: flex; flex-direction: column; gap: 12px; padding: 0 8px;
-            }
-
+            tbody { display: flex; flex-direction: column; gap: 12px; padding: 0 8px; }
             tr {
               display: flex; flex-direction: column; width: 100%; background: #fff; border-radius: 8px;
               padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative; margin-bottom: 0;
             }
             tr.selected { border: 2px solid #2d4a22; box-shadow: 0 0 0 2px rgba(45, 74, 34, 0.1); }
-
             td {
               display: flex; width: 100%; padding: 0; border: none; flex-direction: column; align-items: flex-start; margin-bottom: 8px;
               word-break: break-word; box-sizing: border-box;
             }
             td::before { display: none; }
 
-            /* 1. Checkbox (Child 1) */
+            /* 1. Checkbox */
             td:nth-child(1) { order: 1; position: absolute; top: 12px; right: 12px; width: auto; z-index: 10; padding: 4px; background: #fff; border-radius: 4px; border: 1px solid #e5e7eb; }
 
-            /* 2. Date & Proof (Child 2) */
+            /* 2. Date & Proof */
             td:nth-child(2) { order: 2; flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
             .date-text { font-size: 1rem; color: #2d4a22; font-weight: 700; }
             .proof-thumb-mobile { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; }
 
-            /* 3. Product Info (Child 3) */
+            /* 3. Product Info */
             td:nth-child(3) { order: 3; margin-bottom: 12px; }
             .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
             .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
-            .item-row { font-size: 0.9rem; color: #374151; display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 4px; margin-bottom: 4px; width: 100%; }
+            
+            /* Mobile Item Layout */
+            .item-row { 
+              display: flex; 
+              align-items: center; 
+              justify-content: space-between; 
+              border-bottom: 1px dashed #eee; 
+              padding-bottom: 4px; 
+              margin-bottom: 4px; 
+              width: 100%; 
+            }
+            .item-thumb { width: 24px; height: 24px; } /* Slightly smaller on mobile */
+            .item-text { flex: 1; }
 
-            /* 4. Status (Child 4) */
+            /* 4. Status */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
             .status-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; background: #fff; appearance: none; }
             
-            /* 5. Client Details (Child 5) */
+            /* 5. Client Details */
             td:nth-child(5) { order: 5; background: #f9fafb; border-radius: 6px; padding: 10px; width: 100%; margin-bottom: 12px; border: 1px solid #e5e7eb; }
-            /* td:nth-child(5)::before REMOVED as requested - No label generated */
             .client-detail { font-size: 0.85rem; margin-bottom: 4px; width: 100%; display: flex; }
             .client-detail strong { min-width: 60px; color: #6b7280; }
 
-            /* 6. Actions (Child 6) */
+            /* 6. Actions */
             td:nth-child(6) { order: 6; width: 100%; margin-top: 8px; }
             .btn-delete-row { width: 100%; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; font-weight: 600; text-transform: uppercase; font-size: 14px; }
           }
@@ -561,7 +568,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                 <tr>
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th width="120">Date/Proof</th>
-                  <th width="300">Order Items</th>
+                  <th width="320">Order Items</th>
                   <th width="160">Status</th>
                   <th>Client Details</th>
                   <th width="80">Actions</th>
@@ -580,7 +587,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                   const dateObj = new Date(row.timestamp);
                   const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-                  // Items formatting
+                  // Items formatting (UPDATED WITH IMAGES)
                   let itemsHtml = '';
                   try {
                     const items = JSON.parse(row.items);
@@ -588,8 +595,19 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                       itemsHtml = items.map((item, idx) => {
                         const qty = parseInt(item.quantity) || 1;
                         const price = item.price || 0;
-                        const lineTotal = (qty * price).toFixed(2);
-                        return `<div class="item-row"><span>${item.name}</span> <span>x${qty} @ $${price}</span></div>`;
+                        
+                        // --- IMAGE LOGIC ---
+                        const imgSrc = item.img || item.image;
+                        const imgHtml = imgSrc ? `<img src="${imgSrc}" class="item-thumb" onerror="this.style.display='none'">` : '';
+                        
+                        return `
+                          <div class="item-row">
+                            <div class="item-text">
+                              ${imgHtml}
+                              <span class="item-name" title="${item.name}">${item.name}</span>
+                            </div>
+                            <span class="item-qty">x${qty} @ $${price}</span>
+                          </div>`;
                       }).join('');
                     }
                   } catch(e) {}
@@ -633,7 +651,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
                     <!-- Client Details -->
                     <td class="col-client">
-                      <!-- .client-title REMOVED -->
                       <div class="client-detail"><strong>Name:</strong> ${row.client_name || 'Guest'}</div>
                       <div class="client-detail"><strong>Phone:</strong> ${row.client_phone || '-'}</div>
                       <div class="client-detail"><strong>Email:</strong> ${row.client_email || '-'}</div>
@@ -695,14 +712,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             onCheckboxChange();
           }
 
-          // --- UPDATED setBadge FUNCTION WITH ANIMATION TRIGGER ---
           function setBadge(id, status) {
             const cell = document.getElementById('row-' + id).querySelector('.badge');
             if (!cell) return;
-            
-            // Remove all old badge classes first
             cell.classList.remove('badge-queue', 'badge-sent', 'badge-fail');
-
             if (status === 'Sent') {
               cell.classList.add('badge-sent');
               cell.textContent = 'Email Sent';
@@ -715,8 +728,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               cell.classList.add('badge-queue');
               cell.textContent = 'Email Queue';
             }
-
-            // Trigger the "Pop" animation again on change
             cell.style.animation = 'none';
             cell.offsetHeight; /* trigger reflow */
             cell.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
@@ -730,10 +741,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               const response = await fetch('/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) });
               const data = await response.json();
               selectEl.className = 'status-select status-' + newStatus;
-              
-              // Update badge based on response
               setBadge(id, data.emailStatus || 'Queue');
-              
               if (data.emailStatus === 'Failed') showToast('❌ Status updated but Email Failed');
               else if (data.emailStatus === 'Sent') showToast('✅ Status updated & Email Sent');
               else showToast('✅ Status updated');
@@ -806,5 +814,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v18 (Clean Labels)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v19 (Item Images)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
