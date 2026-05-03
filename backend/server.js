@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH BOLD TOTAL & PRODUCT ID) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH VERTICAL LINE SEPARATOR) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -373,8 +373,31 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* Column 2: Product Info */
           .col-product { width: 320px; padding: 15px; border-left: none; }
-          .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
-          .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+          
+          /* HEADER STYLING WITH VERTICAL LINE */
+          .prod-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 8px; 
+            border-bottom: 1px solid #e5e7eb; 
+            padding-bottom: 6px; 
+          }
+          .prod-id { 
+            font-size: 0.8rem; 
+            background: #e0e7ff; 
+            color: #3730a3; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: 700; 
+            /* VERTICAL LINE TOUCHING BOTTOM */
+            border-right: 2px solid #e5e7eb; 
+            padding-right: 10px;
+            margin-right: 10px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+          }
           /* BOLD TOTAL STYLE */
           .prod-total { font-size: 1rem; color: #111827; font-weight: 800; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
@@ -513,7 +536,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
             /* 3. Product Info */
             td:nth-child(3) { order: 3; margin-bottom: 12px; width: 100%; }
-            .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
+            
+            /* Mobile Header Adjustments */
+            .prod-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+            .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 0px; font-weight: 700; border-right: 2px solid #e5e7eb; padding-right: 10px; margin-right: 10px; }
             
             .item-row {
               display: flex;
@@ -836,5 +862,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v21 (Bold Total & PIDs)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v22 (Vertical Separator)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
