@@ -729,10 +729,12 @@
         </div>
         <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
         <div class="grid grid-cols-3 gap-4 mb-8">
+          <!-- UNIT BOX - DYNAMIC UNIT DISPLAY -->
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">Unit</p>
-            <p class="text-sm text-white font-medium">1 ${currentModalProduct ? currentModalProduct.unit : 'kg'}</p>
+            <p class="text-sm text-white font-medium"><span id="modalUnitDisplay"></span></p>
           </div>
+          
           <div class="p-3 rounded-xl bg-bg-dark2 text-center">
             <p class="text-xs text-white/50 mb-1">MOQ</p>
             <p id="modalMoq" class="text-sm text-white font-medium">25 kg</p>
@@ -870,18 +872,18 @@ document.querySelectorAll('.ripple-btn').forEach(btn => {
 // ==================== PRODUCT DATA (PRICES IN NPR + UNIT) ====================
 const products = [
   // ── Active Pharmaceutical Ingredients ──
-  { id: 1, name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 465500, unit: "kg", moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
-  { id: 2, name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 1596000, unit: "kg", moq: "100 g", lead: "21-30 days", img: "images/paclitaxel.jpg", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available." },
-  { id: 3, name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 1130500, unit: "kg", moq: "100 g", lead: "21-30 days", img: "images/docetaxel.jpg", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers." },
+  { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 465500, unit: "kg", moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
+  { id: 2,  name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 1596000, unit: "kg", moq: "100 g", lead: "21-30 days", img: "images/paclitaxel.jpg", desc: "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available." },
+  { id: 3,  name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 1130500, unit: "kg", moq: "100 g", lead: "21-30 days", img: "images/docetaxel.jpg", desc: "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers." },
   // ── Oils ──
-  { id: 4, name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 731500, unit: "ml", moq: "10 g", lead: "14-21 days", img: "images/agarwood-oil.jpg", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery." },
-  { id: 5, name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 8645, unit: "kg", moq: "1 kg", lead: "7-10 days", img: "images/cardamom-oil.jpg", desc: "True green cardamom essential oil. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring and aromatherapy." },
-  { id: 6, name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 37240, unit: "kg", moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine." },
-  { id: 7, name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 15960, unit: "kg", moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care." },
-  { id: 8, name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 5985, unit: "kg", moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil." },
-  { id: 9, name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 465500, unit: "ml", moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
+  { id: 4,  name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oils", price: 731500, unit: "ml", moq: "10 g", lead: "14-21 days", img: "images/agarwood-oil.jpg", desc: "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery." },
+  { id: 5,  name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oils", price: 8645, unit: "kg", moq: "1 kg", lead: "7-10 days", img: "images/cardamom-oil.jpg", desc: "True green cardamom essential oil. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring and aromatherapy." },
+  { id: 6,  name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oils", price: 37240, unit: "kg", moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine." },
+  { id: 7,  name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oils", price: 15960, unit: "kg", moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care." },
+  { id: 8,  name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oils", price: 5985, unit: "kg", moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil." },
+  { id: 9,  name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oils", price: 465500, unit: "ml", moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices." },
   // NEW: AMRIT DHARA ADDED HERE
-  { id: 58, name: "Amrit Dhara", sci: "Traditional Ayurvedic Blend", category: "oils", catLabel: "Oils", price: 100, unit: "15 ml", moq: "15 ml", lead: "7-10 days", img: "images/amrit-dhara.jpg", desc: "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and pudina. Comes in 15ml Dropper" },
+  { id: 58, name: "Amrit Dhara", sci: "Traditional Ayurvedic Blend", category: "oils", catLabel: "Oils", price: 100, unit: "15 ml", moq: "15 ml", lead: "7-10 days", img: "images/amrit-dhara.jpg", desc: "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households." },
   // ── Extracts ──
   { id: 10, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extracts", price: 12635, unit: "kg", moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids." },
   { id: 11, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extracts", price: 4256, unit: "kg", moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations." },
@@ -1410,7 +1412,6 @@ function openModal(id) {
   
   document.getElementById('modalPrice').textContent = `NPR ${priceNPR.toLocaleString()}`;
   document.getElementById('modalPriceUsd').textContent = `$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${p.unit}`;
-  
   document.getElementById('modalDesc').textContent = p.desc;
   document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
   document.getElementById('modalMoq').textContent = p.moq;
