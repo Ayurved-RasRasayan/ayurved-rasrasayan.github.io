@@ -447,28 +447,33 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
-          /* Column 5: Actions */
+          /* Column: Actions */
 .col-actions { 
-  width: 80px; 
-  padding: 15px; 
-  border-left: none; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; /* ADDED: Centers the button horizontally */
+    width: 80px; 
+    padding: 15px; 
+    border-left: none; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; /* Centers the button box within the column */
 }
 
+/* The Delete Button */
 .btn-delete-row { 
-  width: 100%; 
-  background: #fee2e2; 
-  color: #991b1b; 
-  border: 1px solid #fecaca; 
-  padding: 8px 12px; 
-  border-radius: 6px; 
-  font-weight: 600; 
-  cursor: pointer; 
-  font-size: 12px; 
-  text-align: center; /* ADDED: Centers the text inside the button */
+    display: flex;          /* Make the button a flex container */
+    justify-content: center;/* Center text horizontally inside the button */
+    align-items: center;    /* Center text vertically inside the button */
+    
+    width: 100%; 
+    background: #fee2e2; 
+    color: #991b1b; 
+    border: 1px solid #fecaca; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    font-size: 12px; 
 }
+
           /* Mobile Responsive View (Vertical Stack) */
           @media (max-width: 768px) {
             body { background: #e5e7eb; }
