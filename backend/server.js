@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED: PROD IDs + TOTAL BOTTOM) ────
+// ─── ROUTE 6: Admin Order Dashboard (RESTORED HEADER, TOTAL BOTTOM) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -373,11 +373,8 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* Column 2: Product Info */
           .col-product { width: 320px; padding: 15px; border-left: none; display: flex; flex-direction: column; }
-          .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; height: 20px; } /* Header now holds nothing or label */
-          
-          /* Product ID Badge */
-          .prod-id { font-size: 0.75rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-block; }
-
+          .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
+          .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; flex: 1; }
           .item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 4px; margin-bottom: 4px; }
           
@@ -464,7 +461,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
-          /* Column 5: Actions */
+          /* Column 5: Actions (Centered) */
           .col-actions { 
             width: 80px; 
             padding: 15px; 
@@ -524,16 +521,8 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
             /* 3. Product Info */
             td:nth-child(3) { order: 3; margin-bottom: 12px; }
-            
-            /* Mobile Total Footer */
-            .prod-total-footer {
-               text-align: right;
-               font-size: 1.1rem;
-               color: #2d4a22;
-               margin-top: 12px;
-               padding-top: 8px;
-               border-top: 2px solid #eee;
-            }
+            .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
+            .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
             
             .item-row { 
               display: flex; 
@@ -546,6 +535,16 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             }
             .item-thumb { width: 24px; height: 24px; } 
             .item-text { flex: 1; }
+            
+            /* Mobile Total Footer */
+            .prod-total-footer {
+               text-align: right;
+               font-size: 1.1rem;
+               color: #2d4a22;
+               margin-top: 12px;
+               padding-top: 8px;
+               border-top: 2px solid #eee;
+            }
 
             /* 4. Status */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
@@ -623,15 +622,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                         const imgSrc = item.img || item.image;
                         const imgHtml = imgSrc ? `<img src="${imgSrc}" class="item-thumb" onerror="this.style.display='none'">` : '';
                         
-                        // --- ITEM ID LOGIC ---
-                        // We display the Product ID (#1, #2) inside the item row
-                        const idBadge = `<span class="prod-id">#${item.id}</span>`;
-
                         return `
                           <div class="item-row">
                             <div class="item-text">
                               ${imgHtml}
-                              ${idBadge}
                               <span class="item-name" title="${item.name}">${item.name}</span>
                             </div>
                             <span class="item-qty">x${qty} @ $${price}</span>
@@ -657,12 +651,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     <!-- Product Info -->
                     <td class="col-product">
                       <div class="prod-header">
-                        <!-- Removed Order ID, Empty Header or Generic Label can go here -->
+                        <!-- RESTORED ORDER ID HEADER -->
+                        <span class="prod-id">Order #${row.id}</span>
                       </div>
                       <div class="prod-items-list">
                         ${itemsHtml || '<span class="prod-items-list">No Items Data</span>'}
                       </div>
-                      <!-- TOTAL FOOTER (MOVED TO BOTTOM) -->
+                      <!-- TOTAL FOOTER AT BOTTOM -->
                       <div class="prod-total-footer">
                         Total = $${row.total_usd}
                       </div>
@@ -845,5 +840,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v21 (Prod IDs + Total Bottom)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v22 (Fixed Layout)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
