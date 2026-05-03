@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const axios = require('axios'); 
+const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,7 +27,7 @@ function checkAuth(req, res, next) {
   const validPass = process.env.ADMIN_PASSWORD || 'password123';
 
   if (user === validUser && pass === validPass) {
-    next(); 
+    next();
   } else {
     res.setHeader('WWW-Authenticate', 'Basic realm="NaturaBotanica Admin"');
     return res.status(401).send('<h1>Access Denied</h1>');
@@ -42,8 +42,8 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOver
 
     console.log(`[EMAIL DEBUG] Sending from: ${senderEmail} -> To: ${toEmail}`);
 
-    const endpoint = 'https://api.sendinblue.com/v3/smtp/email'; 
-    
+    const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
+
     const data = {
       sender: {
         name: senderName,
@@ -59,7 +59,7 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status, senderEmailOver
 
     const response = await axios.post(endpoint, data, {
       headers: {
-        'api-key': process.env.EMAIL_PASS, 
+        'api-key': process.env.EMAIL_PASS,
         'content-type': 'application/json'
       }
     });
@@ -87,11 +87,11 @@ async function sendAdminNotificationEmail(orderId, orderData) {
 
     let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;">';
     itemsHtml += '<tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb; padding:8px; text-align:left;">Item</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:center;">Qty</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:right;">Price</th></tr>';
-    
+
     if (orderData.items && Array.isArray(orderData.items)) {
       orderData.items.forEach(item => {
         const name = item.name || item.product || 'Unknown Item';
-        const qty = parseInt(item.qty) || parseInt(item.quantity) || 1; 
+        const qty = parseInt(item.qty) || parseInt(item.quantity) || 1;
         const price = item.price || 0;
         itemsHtml += `
           <tr>
@@ -106,7 +106,7 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     itemsHtml += '</table>';
 
     const endpoint = 'https://api.sendinblue.com/v3/smtp/email';
-    
+
     const data = {
       sender: { name: senderName, email: senderEmail },
       to: [{ email: recipientEmail, name: 'Sales Team' }],
@@ -115,7 +115,7 @@ async function sendAdminNotificationEmail(orderId, orderData) {
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2 style="color: #2d4a22;">New Order Received (#${orderId})</h2>
           <p>A customer has successfully verified their payment.</p>
-          
+
           <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
             <h3 style="margin-top:0;">👤 Client Information</h3>
             <p><strong>Name:</strong> ${orderData.clientDetails.name}</p>
@@ -127,7 +127,7 @@ async function sendAdminNotificationEmail(orderId, orderData) {
           <h3>📦 Order Details</h3>
           <p><strong>Method:</strong> ${orderData.paymentMethod} | <strong>Currency:</strong> ${orderData.currency}</p>
           ${itemsHtml}
-          
+
           <div style="margin-top: 20px; text-align: right;">
             <span style="font-size: 1.2em; font-weight: bold; color: #059669;">Total: $${orderData.totalUSD} (${orderData.totalNPR} NPR)</span>
           </div>
@@ -229,12 +229,12 @@ app.put('/update-status', checkAuth, async (req, res) => {
     console.log(`\n[DEBUG] Updating Order #${id} to '${status}'...`);
 
     await pool.query(`UPDATE orders SET status = $1, email_status = 'Queue' WHERE id = $2`, [status, id]);
-    
+
     const orderResult = await pool.query('SELECT client_name, client_email FROM orders WHERE id = $1', [id]);
     if (orderResult.rows.length === 0) return res.status(404).json({ success: false });
-    
+
     const { client_name, client_email } = orderResult.rows[0];
-    let emailStatusResult = 'Queue'; 
+    let emailStatusResult = 'Queue';
 
     if (client_email && client_email.includes('@')) {
       const success = await sendEmailViaAPI(client_email, client_name, id, status);
@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED ROBUST PARSING) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH BOLD TOTAL & PRODUCT ID) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -333,12 +333,12 @@ app.get('/view-orders', checkAuth, async (req, res) => {
         <style>
           /* ─── RESET & GLOBAL ───────────────────────────────────────────── */
           * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: #f3f4f6; margin: 0; padding: 0; color: #1f2937; 
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f3f4f6; margin: 0; padding: 0; color: #1f2937;
           }
           .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
-          
+
           h1 { color: #2d4a22; font-size: 1.5rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; }
 
           /* ─── TOOLBAR ───────────────────────────────────────────────────── */
@@ -354,10 +354,10 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           /* ─── DESKTOP TABLE (Document Layout) ───────────────────────────── */
           .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
           table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1100px; }
-          
+
           th, td { padding: 0; border: 1px solid #e5e7eb; vertical-align: top; text-align: left; }
           th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px; text-align: center; }
-          
+
           tr { border-bottom: 1px solid #e5e7eb; background: #fff; transition: background 0.2s; }
           tr:hover { background: #fafafa; }
           tr.selected { background: #fffbeb; }
@@ -375,23 +375,25 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .col-product { width: 320px; padding: 15px; border-left: none; }
           .prod-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: baseline; }
           .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
-          .prod-name { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 4px; display: block; }
+          /* BOLD TOTAL STYLE */
+          .prod-total { font-size: 1rem; color: #111827; font-weight: 800; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
           .item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 4px; margin-bottom: 4px; }
-          
+
           /* Item Thumbnail Styles */
-          .item-thumb { 
-            width: 30px; 
-            height: 30px; 
-            object-fit: cover; 
-            border-radius: 4px; 
-            border: 1px solid #d1d5db; 
-            margin-right: 8px; 
+          .item-thumb {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            margin-right: 8px;
             flex-shrink: 0;
             background: #f3f4f6;
           }
           .item-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-          .item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+          .item-pid { font-size: 0.75rem; color: #9ca3af; font-family: monospace; margin-left: 4px; }
           .item-qty { font-size: 0.85rem; color: #6b7280; font-weight: 500; white-space: nowrap; }
 
           /* Column 3: Status & Badges */
@@ -404,18 +406,18 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .status-Rejected  { background: #fef2f2; color: #b91c1c; }
 
           /* ─── FANCY BADGE STYLES ───────────────────────────────────────── */
-          .badge { 
-            display: inline-flex; 
-            align-items: center; 
-            padding: 6px 12px; 
-            border-radius: 8px; 
-            font-size: 11px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             overflow: hidden;
           }
           @keyframes popIn {
@@ -452,28 +454,28 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
           /* Column 5: Actions (Centered) */
-          .col-actions { 
-            width: 80px; 
-            padding: 15px; 
-            border-left: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-          }
-          .btn-delete-row { 
-            display: flex;          
+          .col-actions {
+            width: 80px;
+            padding: 15px;
+            border-left: none;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;    
-            width: 100%; 
-            background: #fee2e2; 
-            color: #991b1b; 
-            border: 1px solid #fecaca; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-size: 12px; 
-            text-align: center; 
+          }
+          .btn-delete-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
           }
 
           /* Mobile Responsive View (Vertical Stack) */
@@ -481,13 +483,13 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             body { background: #e5e7eb; }
             html, body { overflow-x: hidden; width: 100%; margin: 0; }
             ::-webkit-scrollbar { display: none; }
-            
+
             .container { padding: 8px 0; max-width: 100%; }
             .toolbar { flex-direction: column; align-items: stretch; padding: 10px 8px; gap: 8px; background: #fff; border-radius: 0; }
             .selected-count { margin: 0; text-align: center; font-size: 12px; }
             .btn { width: 100%; justify-content: center; padding: 12px; margin: 0 8px; }
 
-            thead { display: none; } 
+            thead { display: none; }
             table { display: block; width: 100%; margin: 0; border-spacing: 0; border: none; }
             tbody { display: flex; flex-direction: column; gap: 12px; padding: 0 8px; }
             tr {
@@ -510,26 +512,25 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             .proof-thumb-mobile { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; }
 
             /* 3. Product Info */
-            td:nth-child(3) { order: 3; margin-bottom: 12px; }
+            td:nth-child(3) { order: 3; margin-bottom: 12px; width: 100%; }
             .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 4px; font-weight: 700; }
-            .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
             
-            .item-row { 
-              display: flex; 
-              align-items: center; 
-              justify-content: space-between; 
-              border-bottom: 1px dashed #eee; 
-              padding-bottom: 4px; 
-              margin-bottom: 4px; 
-              width: 100%; 
+            .item-row {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              border-bottom: 1px dashed #eee;
+              padding-bottom: 4px;
+              margin-bottom: 4px;
+              width: 100%;
             }
-            .item-thumb { width: 24px; height: 24px; } 
+            .item-thumb { width: 24px; height: 24px; }
             .item-text { flex: 1; }
 
             /* 4. Status */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
             .status-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; background: #fff; appearance: none; }
-            
+
             /* 5. Client Details */
             td:nth-child(5) { order: 5; background: #f9fafb; border-radius: 6px; padding: 10px; width: 100%; margin-bottom: 12px; border: 1px solid #e5e7eb; }
             .client-detail { font-size: 0.85rem; margin-bottom: 4px; width: 100%; display: flex; }
@@ -542,7 +543,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 2000; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 90%; text-align: center; }
           #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-          
+
           #imgModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
           #imgModal.show { display: flex; opacity: 1; }
           #imgModal img { max-width: 90%; max-height: 90%; border-radius: 8px; transform: scale(0.9); transition: transform 0.2s; }
@@ -576,7 +577,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  
+
                   // --- UPDATED BADGE TEXT & CLASS LOGIC ---
                   let emailBadge = `<span class="badge badge-queue">Email Queue</span>`;
                   if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Email Sent</span>`;
@@ -590,11 +591,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                   let itemsHtml = '';
                   try {
                     let itemsData;
-                    
+
                     // 1. Check if row.items is a string, parse it
                     if (typeof row.items === 'string') {
                         itemsData = JSON.parse(row.items);
-                    } 
+                    }
                     // 2. Check if row.items is already an object/array
                     else if (Array.isArray(row.items)) {
                         itemsData = row.items;
@@ -608,16 +609,21 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                         // USE 'qty' from frontend, fallback to 'quantity'
                         const qty = parseInt(item.qty) || parseInt(item.quantity) || 1;
                         const price = item.price || 0;
-                        
+
                         // USE 'img' from frontend, fallback to 'image'
                         const imgSrc = item.img || item.image;
                         const imgHtml = imgSrc ? `<img src="${imgSrc}" class="item-thumb" onerror="this.style.display='none'">` : '';
                         
+                        // --- UPDATED: PRODUCT ID LOGIC ---
+                        // Checks for 'id', 'product_id', or '_id'
+                        const pid = item.id || item.product_id || item._id;
+                        const pidHtml = pid ? `<span class="item-pid">(ID: ${pid})</span>` : '';
+
                         return `
                           <div class="item-row">
                             <div class="item-text">
                               ${imgHtml}
-                              <span class="item-name" title="${item.name}">${item.name}</span>
+                              <span class="item-name" title="${item.name}">${item.name} ${pidHtml}</span>
                             </div>
                             <span class="item-qty">x${qty} @ $${price}</span>
                           </div>`;
@@ -645,7 +651,8 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     <td class="col-product">
                       <div class="prod-header">
                         <span class="prod-id">Order #${row.id}</span>
-                        <span style="font-size:0.85rem; color:#6b7280;">$${row.total_usd}</span>
+                        <!-- UPDATED: BOLD TOTAL -->
+                        <span class="prod-total">Total: $${row.total_usd}</span>
                       </div>
                       <div class="prod-items-list">
                         ${itemsHtml || '<span class="prod-items-list">No Items Data</span>'}
@@ -829,5 +836,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v20 (Robust Items)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v21 (Bold Total & PIDs)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
