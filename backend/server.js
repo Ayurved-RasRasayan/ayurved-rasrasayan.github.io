@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & CLEANED LAYOUT) ────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & NEW DOCUMENT LAYOUT) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -351,9 +351,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
           .selected-count { margin-left: auto; color: #6b7280; font-size: 14px; font-weight: 500; }
 
-          /* ─── DESKTOP TABLE (Cleaned Document Layout) ──────────────────── */
+          /* ─── DESKTOP TABLE (Document Layout) ───────────────────────────── */
           .table-wrap { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 900px; } /* Reduced min-width since client col is gone */
+          table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1100px; }
           
           th, td { padding: 0; border: 1px solid #e5e7eb; vertical-align: top; text-align: left; }
           th { background: #2d4a22; color: #fff; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px; text-align: center; }
@@ -372,18 +372,29 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
 
           /* Column 2: Product Info */
-          .col-product { width: 400px; padding: 15px; border-left: none; }
+          .col-product { width: 300px; padding: 15px; border-left: none; }
           .prod-header { display: flex; justify-content: space-between; margin-bottom: 5px; align-items: baseline; }
           .prod-id { font-size: 0.8rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
           .prod-name { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 4px; display: block; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
           .item-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 2px; margin-bottom: 2px; }
 
-          /* Column 3: Order Status Only (Queue Removed) */
-          .col-status { width: 140px; padding: 15px; border-left: none; display: flex; align-items: center; justify-content: center; }
-          .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; text-align: center; }
-          
-          /* Column 4: Actions (Client Column Removed) */
+          /* Column 3: Status */
+          .col-status { width: 140px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+          .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; }
+          .status-Pending   { background: #fff7ed; color: #c2410c; }
+          .status-Shipping  { background: #eff6ff; color: #1d4ed8; }
+          .status-Completed { background: #f0fdf4; color: #15803d; }
+          .status-Success   { background: #dcfce7; color: #15803d; }
+          .status-Rejected  { background: #fef2f2; color: #b91c1c; }
+
+          /* Column 4: Client Details (Block) */
+          .col-client { padding: 15px; border-left: none; flex-grow: 1; }
+          .client-title { font-size: 0.8rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+          .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
+          .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
+
+          /* Column 5: Actions */
           .col-actions { width: 80px; padding: 15px; border-left: none; text-align: center; display: flex; align-items: center; }
           .btn-delete-row { width: 100%; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
 
@@ -402,7 +413,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             thead { display: none; } 
             table { display: block; width: 100%; margin: 0; border-spacing: 0; border: none; }
 
-            tbody { display: flex; flex-direction: column; gap: 12px; padding: 0 8px; }
+            tbody {
+              display: flex; flex-direction: column; gap: 12px; padding: 0 8px;
+            }
 
             tr {
               display: flex; flex-direction: column; width: 100%; background: #fff; border-radius: 8px;
@@ -430,13 +443,22 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             .prod-name { font-size: 1.1rem; color: #111827; font-weight: 700; margin-bottom: 6px; }
             .item-row { font-size: 0.9rem; color: #374151; display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 4px; margin-bottom: 4px; width: 100%; }
 
-            /* 4. Order Status (Child 4) -> Client Details Removed */
+            /* 4. Status (Child 4) */
             td:nth-child(4) { order: 4; width: 100%; margin-bottom: 12px; }
-            /* Removed .badge styles here since Queue is gone */
+            .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-right: 8px; margin-bottom: 4px; }
+            .badge-queue { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+            .badge-sent { background: #ecfccb; color: #3f6212; border: 1px solid #bef264; }
+            .badge-fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
             .status-select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; background: #fff; appearance: none; }
             
-            /* 5. Actions (Child 5) -> Was Child 6 */
-            td:nth-child(5) { order: 5; width: 100%; margin-top: 8px; }
+            /* 5. Client Details (Child 5) */
+            td:nth-child(5) { order: 5; background: #f9fafb; border-radius: 6px; padding: 10px; width: 100%; margin-bottom: 12px; border: 1px solid #e5e7eb; }
+            td:nth-child(5)::before { content: "👤 Client Details"; display: block; font-size: 0.8rem; font-weight: 700; color: #374151; margin-bottom: 8px; text-transform: uppercase; }
+            .client-detail { font-size: 0.85rem; margin-bottom: 4px; width: 100%; display: flex; }
+            .client-detail strong { min-width: 60px; color: #6b7280; }
+
+            /* 6. Actions (Child 6) */
+            td:nth-child(6) { order: 6; width: 100%; margin-top: 8px; }
             .btn-delete-row { width: 100%; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; font-weight: 600; text-transform: uppercase; font-size: 14px; }
           }
 
@@ -467,15 +489,19 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                 <tr>
                   <th width="40"><input type="checkbox" id="chk-all" onchange="toggleSelectAll()"/></th>
                   <th width="120">Date/Proof</th>
-                  <th width="400">Order Items</th>
-                  <th width="140">Order Status</th>
+                  <th width="300">Order Items</th>
+                  <th width="140">Status</th>
+                  <th>Client Details</th>
                   <th width="80">Actions</th>
                 </tr>
               </thead>
               <tbody id="orders-tbody">
                 ${result.rows.map(row => {
                   const status = row.status || 'Pending';
-                  
+                  let emailBadge = `<span class="badge badge-queue">Queue</span>`;
+                  if (row.email_status === 'Sent') emailBadge = `<span class="badge badge-sent">Sent</span>`;
+                  else if (row.email_status === 'Failed') emailBadge = `<span class="badge badge-fail">Failed</span>`;
+
                   // Date formatting
                   const dateObj = new Date(row.timestamp);
                   const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -486,7 +512,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                     const items = JSON.parse(row.items);
                     if (Array.isArray(items) && items.length > 0) {
                       itemsHtml = items.map((item, idx) => {
-                        const qty = parseInt(item.quantity) ||1;
+                        const qty = parseInt(item.quantity) || 1;
                         const price = item.price || 0;
                         const lineTotal = (qty * price).toFixed(2);
                         return `<div class="item-row"><span>${item.name}</span> <span>x${qty} @ $${price}</span></div>`;
@@ -519,8 +545,9 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                       </div>
                     </td>
 
-                    <!-- Order Status (Queue Badge Removed) -->
+                    <!-- Status -->
                     <td class="col-status">
+                      ${emailBadge}
                       <select onchange="updateStatus(${row.id}, this.value, this)" class="status-select status-${status}">
                         <option value="Pending"   ${status === 'Pending'   ? 'selected' : ''}>Pending</option>
                         <option value="Shipping"  ${status === 'Shipping'  ? 'selected' : ''}>Shipping</option>
@@ -530,7 +557,16 @@ app.get('/view-orders', checkAuth, async (req, res) => {
                       </select>
                     </td>
 
-                    <!-- Actions (Client Column Removed) -->
+                    <!-- Client Details -->
+                    <td class="col-client">
+                      <div class="client-title">Client Details</div>
+                      <div class="client-detail"><strong>Name:</strong> ${row.client_name || 'Guest'}</div>
+                      <div class="client-detail"><strong>Phone:</strong> ${row.client_phone || '-'}</div>
+                      <div class="client-detail"><strong>Email:</strong> ${row.client_email || '-'}</div>
+                      <div class="client-detail"><strong>Address:</strong> ${row.client_address || '-'}</div>
+                    </td>
+
+                    <!-- Actions -->
                     <td class="col-actions">
                       <button class="btn-delete-row" onclick="deleteSingle(${row.id}, this)">Delete</button>
                     </td>
@@ -585,6 +621,14 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             onCheckboxChange();
           }
 
+          function setBadge(id, status) {
+            const cell = document.getElementById('row-' + id).querySelector('.col-status .badge'); // Find badge in Status col
+            if (!cell) return;
+            if (status === 'Sent') cell.className = 'badge badge-sent';
+            else if (status === 'Failed') cell.className = 'badge badge-fail';
+            else cell.className = 'badge badge-queue';
+          }
+
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true;
             const originalClass = selectEl.className;
@@ -592,14 +636,11 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             try {
               const response = await fetch('/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) });
               const data = await response.json();
-              
               selectEl.className = 'status-select status-' + newStatus;
-              
-              // Note: setBadge removed because Queue display removed
+              setBadge(id, data.emailStatus || 'Queue');
               if (data.emailStatus === 'Failed') showToast('❌ Status updated but Email failed');
               else if (data.emailStatus === 'Sent') showToast('✅ Status updated & Email Sent');
               else showToast('✅ Status updated');
-
             } catch (err) {
               showToast('❌ Network error');
               selectEl.className = originalClass;
@@ -667,7 +708,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
     console.error(err);
     res.status(500).send('Server Error');
   }
-});;
+});
 
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v16 (Doc Layout)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
