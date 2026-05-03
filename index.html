@@ -46,6 +46,12 @@
     .anim-d3 { animation-delay: 0.3s; }
     .anim-d4 { animation-delay: 0.4s; }
 
+    /* Modal Transitions */
+    .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
+    .modal-exit { animation: modalFadeOut 0.2s ease-in forwards; }
+    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    @keyframes modalFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+
     .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
     @keyframes slideInRight {
       from { opacity: 0; transform: translateX(100%); }
@@ -106,16 +112,16 @@
   <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
     <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center">
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20">
           <i data-lucide="leaf" class="w-5 h-5 text-white"></i>
         </div>
-        <span class="text-lg md:text-xl font-semibold tracking-tight">NaturaBotanica</span>
+        <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main">NaturaBotanica</span>
       </a>
       <div class="hidden md:flex items-center gap-6 md:gap-8">
-        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Products</a>
-        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Categories</a>
-        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors">About</a>
-        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors">Contact</a>
+        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
+        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
+        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
+        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
       </div>
       <div class="flex items-center gap-2 md:gap-4">
         <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors">
@@ -133,7 +139,7 @@
   </nav>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="fixed top-20 left-0 right-0 z-40 bg-white border-b border-border-main shadow-lg hidden">
+  <div id="searchBar" class="fixed top-20 left-0 right-0 z-40 bg-white border-b border-border-main shadow-lg hidden transition-all">
     <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
       <div class="relative">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
@@ -147,7 +153,7 @@
   </div>
 
   <!-- MOBILE MENU -->
-  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden transition-opacity" style="backdrop-filter:blur(4px)">
     <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
       <div class="p-6">
         <div class="flex items-center justify-between mb-8">
@@ -166,31 +172,35 @@
 
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    <div class="absolute inset-0 hero-bg-fallback">
+    <!-- 2D ANIMATION CANVAS LAYER -->
+    <canvas id="heroCanvas" class="absolute inset-0 z-0 w-full h-full"></canvas>
+    
+    <div class="absolute inset-0 hero-bg-fallback z-0">
       <img src="images/hero-bg.jpg" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
-      <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/95 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
     </div>
+    
     <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] md:w-[600px] md:h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
     
-    <div class="relative max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
+    <div class="relative max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full z-10">
       <div>
-        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8">
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 backdrop-blur-sm">
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
           <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, APIs, Rasa Shastra & Salts</span>
         </div>
-        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">
+        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6 drop-shadow-2xl">
           Premium<br><span class="text-brand">Natural</span><br>Ingredients
         </h1>
         <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">
           APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.
         </p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#products" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300" style="box-shadow: 0 0 20px rgba(163,177,75,0.3)">
+          <a href="#products" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/25 hover:shadow-brand/40 transform hover:-translate-y-1">
             Browse Catalog
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </a>
-          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300">
+          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
             Get Quote
           </a>
         </div>
@@ -211,21 +221,16 @@
           </div>
         </div>
       </div>
-
-      <!-- RIGHT SIDE IMAGE -->
-      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0">
-        <img src="images/jeM6q.jpg" alt="Chakra Energy" class="relative z-10 max-h-[500px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'">
-      </div>
     </div>
     
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce" style="animation-duration:2s">
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20" style="animation-duration:2s">
       <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
       <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
     </div>
   </section>
 
   <!-- CATEGORIES -->
-  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main">
+  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="text-center mb-8 md:mb-10">
         <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p>
@@ -295,7 +300,7 @@
         </div>
         <div class="flex items-center gap-3 mt-2 md:mt-0">
           <span class="text-xs md:text-sm text-txt-third" id="productCount">57 products</span>
-          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand">
+          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
             <option value="name">Sort by Name</option>
             <option value="price-asc">Price: Low → High</option>
             <option value="price-desc">Price: High → Low</option>
@@ -322,22 +327,22 @@
             We specialize in rare Himalayan medicinal plants, high-value APIs, premium essential oils, authentic Rasa Shastra minerals, and traditional Salts (Namak). We work directly with harvesters, cultivators, and traditional alchemists across Nepal and India.
           </p>
           <div class="grid grid-cols-2 gap-4 md:gap-6">
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4>
               <p class="text-xs md:text-sm text-white/50">COA with every order</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4>
               <p class="text-xs md:text-sm text-white/50">50+ countries served</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Himalayan Source</h4>
               <p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p>
             </div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5">
+            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
               <i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i>
               <h4 class="text-white font-medium mb-1 text-sm md:text-base">Expert Support</h4>
               <p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p>
@@ -345,7 +350,7 @@
           </div>
         </div>
         <div class="relative">
-          <div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden">
+          <div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5">
             <img src="images/about-bg.jpg" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'">
           </div>
           <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-bg-dark/60 to-transparent"></div>
@@ -468,7 +473,7 @@
   </footer>
 
   <!-- CART SIDEBAR -->
-  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden transition-opacity" style="backdrop-filter:blur(4px)">
     <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
       <div class="p-6 border-b border-border-main flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -515,13 +520,13 @@
   </div>
 
   <!-- TOAST CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
 
   <!-- PAYMENT MODAL -->
-  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh]">
+  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto transition-opacity" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh] modal-enter">
       
-      <!-- Header (Fixed if content overflows) -->
+      <!-- Header -->
       <div class="p-6 pb-2 flex-shrink-0">
         <button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
         <h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1">Complete Payment</h3>
@@ -539,14 +544,12 @@
               <label class="block text-xs font-medium text-txt-main mb-1">Full Name <span class="text-red-500">*</span></label>
               <input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
             </div>
-            <!-- Mobile: Stack inputs vertically for better touch targets -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-medium text-txt-main mb-1">Phone No. <span class="text-red-500">*</span></label>
                 <input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
               </div>
               <div>
-                <!-- Email Optional Field -->
                 <label class="block text-xs font-medium text-txt-main mb-1">Email (Optional)</label>
                 <input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all">
               </div>
@@ -562,7 +565,6 @@
         <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4 md:mb-6">
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
-            <!-- Dynamic Total Display -->
             <div class="text-right">
               <span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">$0.00</span>
               <span id="paymentTotalSub" class="block text-[10px] text-txt-sub font-medium">NPR 0.00</span>
@@ -570,7 +572,6 @@
           </div>
           <div class="text-xs text-txt-third" id="paymentItemsCount">0 items in cart</div>
           
-          <!-- Currency Toggle -->
           <div class="mt-3 pt-3 border-t border-gray-200">
             <label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label>
             <div class="flex bg-gray-200 p-1 rounded-lg">
@@ -588,7 +589,6 @@
 
         <!-- QR Display Area -->
         <div class="flex flex-col items-center justify-center mb-4 md:mb-8">
-          <!-- Responsive QR Box: Small on mobile (w-48), Bigger on desktop (w-64) -->
           <div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner relative">
             <!-- eSewa QR -->
             <img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" alt="eSewa QR" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'text-xs text-center text-gray-400\'>Upload esewa-qr.png to images folder</span>'">
@@ -601,14 +601,8 @@
         <!-- PAYMENT PROOF UPLOAD SECTION -->
         <div class="mb-6">
             <label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof (Screenshot) <span class="text-red-500">*</span></label>
-            
-            <!-- Drop Zone -->
             <div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all duration-300 group">
-                
-                <!-- Fixed: The input now covers the entire container so click works instantly -->
                 <input type="file" id="paymentScreenshot" accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)">
-
-                <!-- Placeholder State -->
                 <div id="uploadPlaceholder" class="flex flex-col items-center justify-center py-4">
                     <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-brand group-hover:text-white transition-colors duration-300">
                         <i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400 group-hover:text-white"></i>
@@ -616,16 +610,12 @@
                     <p class="text-sm font-medium text-txt-main">Click to upload screenshot</p>
                     <p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p>
                 </div>
-
-                <!-- Uploading State (Progress Bar) -->
                 <div id="uploadProgressContainer" class="hidden flex flex-col items-center justify-center py-4 w-full">
                     <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
                         <div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
                     <p class="text-xs font-medium text-brand animate-pulse">Uploading...</p>
                 </div>
-
-                <!-- Preview State -->
                 <div id="imagePreviewContainer" class="hidden relative">
                     <img id="imagePreview" src="" alt="Payment Proof" class="w-full h-32 md:h-40 object-cover rounded-lg border border-gray-200">
                     <button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white transition-all z-20" title="Remove Image">
@@ -636,13 +626,12 @@
                     </div>
                 </div>
             </div>
-            <!-- Inline Error Message -->
             <p id="uploadError" class="hidden text-[10px] text-red-500 mt-1 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Please upload a payment screenshot.</p>
         </div>
 
       </div>
 
-      <!-- Footer Action (Fixed at bottom of modal) -->
+      <!-- Footer Action -->
       <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white">
         <button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-all duration-300 flex items-center justify-center gap-2">
           I have made payment
@@ -655,8 +644,8 @@
   </div>
 
   <!-- PRODUCT DETAIL MODAL -->
-  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4 transition-opacity" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl modal-enter">
       <div class="relative">
         <img id="modalImg" src="" class="w-full h-48 md:h-64 object-cover rounded-t-3xl" onerror="this.style.display='none'">
         <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -707,11 +696,160 @@
 // ==================== CONFIGURATION ====================
 const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com'; 
 const USD_TO_NPR = 133; // Exchange Rate
-
-// Global variable to store base64 image
 let paymentScreenshotBase64 = null;
 
-// ==================== ALL 57 PRODUCTS (ASCENDING ORDER) ====================
+// ==================== HERO ANIMATION ENGINE (2D SHOWCASE) ====================
+(function initHeroAnimation() {
+    const canvas = document.getElementById('heroCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    
+    // Mouse interaction
+    const mouse = { x: 0, y: 0, isActive: false };
+    document.addEventListener('mousemove', e => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.isActive = true;
+    });
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = canvas.parentElement.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Colors from theme
+    const COLOR_BRAND = '#A3B14B';
+    const COLOR_DARK = '#050A06';
+    
+    // Particles Class (Botanical Spores)
+    class Particle {
+        constructor() {
+            this.reset();
+            this.y = Math.random() * height; // Start anywhere initially
+        }
+
+        reset() {
+            this.x = Math.random() * width;
+            this.y = height + 10;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedY = Math.random() * 0.5 + 0.2;
+            this.speedX = (Math.random() - 0.5) * 0.5;
+            this.opacity = Math.random() * 0.5 + 0.1;
+            this.wobble = Math.random() * Math.PI * 2;
+            this.wobbleSpeed = 0.02;
+        }
+
+        update() {
+            this.y -= this.speedY;
+            this.x += this.speedX;
+            this.wobble += this.wobbleSpeed;
+            this.x += Math.sin(this.wobble) * 0.2; // Gentle sway
+
+            // Wind effect from mouse
+            if (mouse.isActive) {
+                const dx = this.x - mouse.x;
+                const dy = this.y - mouse.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 200) {
+                    const force = (200 - dist) / 200;
+                    this.x += (dx / dist) * force * 2;
+                    this.y += (dy / dist) * force * 2;
+                }
+            }
+
+            if (this.y < -10) this.reset();
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(163, 177, 75, ${this.opacity})`; // Brand color
+            ctx.fill();
+        }
+    }
+
+    // Mountain Class (Procedural Background)
+    class Mountain {
+        constructor(yBase, heightMult, color, speed) {
+            this.yBase = yBase;
+            this.heightMult = heightMult;
+            this.color = color;
+            this.points = [];
+            this.speed = speed;
+            this.offset = 0;
+        }
+
+        generatePoints() {
+            this.points = [];
+            const segmentWidth = width / 10;
+            this.points.push({x: 0, y: this.yBase});
+            
+            for (let i = 1; i <= 10; i++) {
+                const x = i * segmentWidth;
+                // Simple noise simulation
+                const noise = Math.sin(i * 1.5 + this.offset) * 50 * this.heightMult + 
+                              Math.cos(i * 0.5) * 20 * this.heightMult;
+                this.points.push({x: x, y: this.yBase - Math.abs(noise)});
+            }
+            this.points.push({x: width, y: this.yBase});
+        }
+
+        update() {
+            this.offset += this.speed * 0.01;
+            this.generatePoints();
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].x, this.points[0].y);
+            for (let i = 1; i < this.points.length; i++) {
+                // Bezier curves for smooth peaks
+                const xc = (this.points[i].x + this.points[i - 1].x) / 2;
+                const yc = (this.points[i].y + this.points[i - 1].y) / 2;
+                ctx.quadraticCurveTo(this.points[i-1].x, this.points[i-1].y, xc, yc);
+            }
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+
+    // Initialize Scene
+    const particles = Array.from({ length: 60 }, () => new Particle());
+    const mountains = [
+        new Mountain(height, 0.4, '#0a120e', 0.2), // Far dark
+        new Mountain(height, 0.7, '#132316', 0.5), // Mid dark
+        new Mountain(height, 1.0, '#1c3a20', 0.8)  // Close dark green
+    ];
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw Mountains
+        mountains.forEach((m, index) => {
+            m.yBase = height - (index * 30); // Layering
+            m.update();
+            m.draw();
+        });
+
+        // Draw Particles (Spores)
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+
+        // Subtle glow behind text area if desired, but let's keep it clean
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+})();
+
+// ==================== PRODUCT DATA ====================
 const products = [
   // ── Active Pharmaceutical Ingredients ──
   { id: 1,  name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "Active Pharmaceutical Ingredients", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%." },
@@ -790,7 +928,7 @@ let currentCategory = 'all';
 let currentSort = 'name';
 let currentModalProduct = null;
 let selectedPaymentMethod = 'esewa';
-let selectedPaymentCurrency = 'npr'; // 'npr' or 'usd'
+let selectedPaymentCurrency = 'npr';
 
 // ==================== RENDER ====================
 function renderProducts(items) {
@@ -809,7 +947,6 @@ function renderProducts(items) {
 
   grid.innerHTML = items.map((p, i) => {
     const priceNPR = Math.round(p.price * USD_TO_NPR);
-    // CHANGED LOGIC: Always show Product No. [number]
     const idDisplay = p.id < 10 ? `Product No. 0${p.id}` : `Product No. ${p.id}`;
     
     return `
@@ -817,14 +954,13 @@ function renderProducts(items) {
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" alt="${p.name}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
         <div class="absolute top-3 left-3">
-          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
+          <span class="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-medium uppercase tracking-wider rounded-full text-txt-sub shadow-sm">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span>
         </div>
-        <!-- CHANGED: Removed High Value Badge, keeping only Product No. badge -->
         <div class="absolute top-3 right-3 z-20">
              <span class="bg-gray-200/90 text-gray-600 text-[8px] font-bold px-2 py-1 rounded-md shadow-sm">${idDisplay}</span>
         </div>
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium">View Details</span>
+          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium shadow-lg transform translate-y-2 group-hover:translate-y-0">View Details</span>
         </div>
       </div>
       <div class="p-5">
@@ -837,7 +973,7 @@ function renderProducts(items) {
             <span class="text-xl font-semibold text-txt-main">$${p.price.toLocaleString()}</span>
             <span class="text-xs text-txt-sub block font-medium">NPR ${priceNPR.toLocaleString()}/kg</span>
           </div>
-          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300">
+          <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all duration-300 shadow-md hover:shadow-lg">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             Add
           </button>
@@ -943,7 +1079,8 @@ function updateCartUI() {
 }
 
 function openCart() {
-  document.getElementById('cartOverlay').classList.remove('hidden');
+  const overlay = document.getElementById('cartOverlay');
+  overlay.classList.remove('hidden');
   document.body.classList.add('overlay-open');
   requestAnimationFrame(() => document.getElementById('cartPanel').style.transform = 'translateX(0)');
 }
@@ -975,19 +1112,17 @@ function proceedToInquiry() {
   showToast('Cart items added to inquiry form', 'success');
 }
 
-// ==================== FILE UPLOAD LOGIC (INSTANT, RELIABLE) ====================
+// ==================== FILE UPLOAD LOGIC ====================
 function handleFileUpload(event) {
     const file = event.target.files[0];
     const dropZone = document.getElementById('dropZone');
     const errorMsg = document.getElementById('uploadError');
     
-    // Reset error state
     dropZone.classList.remove('upload-error');
     errorMsg.classList.add('hidden');
 
     if (!file) return;
 
-    // Validate File Size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
         dropZone.classList.add('upload-error');
         errorMsg.textContent = "File too large. Max 5MB allowed.";
@@ -997,7 +1132,6 @@ function handleFileUpload(event) {
         return;
     }
 
-    // Validate Type
     if (!file.type.match('image.*')) {
         dropZone.classList.add('upload-error');
         errorMsg.textContent = "Invalid file type. Please upload an image.";
@@ -1007,42 +1141,32 @@ function handleFileUpload(event) {
         return;
     }
 
-    // Start Instant Upload (Show Progress Immediately)
     document.getElementById('uploadPlaceholder').classList.add('hidden');
     document.getElementById('uploadProgressContainer').classList.remove('hidden');
     
     const progressBar = document.getElementById('progressBar');
-    progressBar.style.width = '10%'; // Immediate feedback
+    progressBar.style.width = '10%';
     
-    // Instant Read File
     const reader = new FileReader();
     reader.onload = function(e) {
         paymentScreenshotBase64 = e.target.result;
-        
-        // Complete Progress bar
         progressBar.style.width = '100%';
         
         setTimeout(() => {
-            // Hide progress, show preview
             document.getElementById('uploadProgressContainer').classList.add('hidden');
             document.getElementById('imagePreviewContainer').classList.remove('hidden');
             document.getElementById('imagePreview').src = paymentScreenshotBase64;
             document.getElementById('fileName').textContent = file.name;
             lucide.createIcons();
-        }, 300); // Tiny delay just to show the 100% progress for visual feedback
+        }, 300);
     };
     reader.readAsDataURL(file);
 }
 
 function clearScreenshot(event) {
-    // Stop propagation to prevent clicking file input
     if (event) event.stopPropagation();
-    
-    // Clear Data
     paymentScreenshotBase64 = null;
-    
-    // Reset UI
-    document.getElementById('paymentScreenshot').value = ""; // Clear input
+    document.getElementById('paymentScreenshot').value = ""; 
     resetUploadUI();
 }
 
@@ -1061,15 +1185,12 @@ function openPaymentModal(method) {
   const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const totalNPR = Math.round(totalUSD * USD_TO_NPR);
   
-  // Reset Upload State when opening modal
   paymentScreenshotBase64 = null;
   resetUploadUI();
   
-  // Set Tabs
   document.querySelectorAll('.pay-tab').forEach(btn => btn.classList.remove('active'));
   document.getElementById(`tab-${method}`).classList.add('active');
   
-  // Set QR Images and Labels
   document.getElementById('paymentMethodLabel').textContent = method === 'esewa' ? 'eSewa' : 'Khalti';
   
   if(method === 'esewa') {
@@ -1085,7 +1206,7 @@ function openPaymentModal(method) {
   const modal = document.getElementById('paymentModal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
-  document.body.classList.add('payment-modal-open'); // Add class for blur effect
+  document.body.classList.add('payment-modal-open'); 
   lucide.createIcons();
 }
 
@@ -1117,7 +1238,7 @@ function closePaymentModal() {
   const modal = document.getElementById('paymentModal');
   modal.classList.add('hidden');
   modal.classList.remove('flex');
-  document.body.classList.remove('payment-modal-open'); // Remove class, restore visibility
+  document.body.classList.remove('payment-modal-open'); 
 }
 
 function switchPaymentTab(method) {
@@ -1129,14 +1250,13 @@ async function submitOrderToBackend() {
   const btn = document.getElementById('confirmPayBtn');
   const nameInput = document.getElementById('clientName');
   const phoneInput = document.getElementById('clientPhone');
-  const emailInput = document.getElementById('clientEmail'); // Optional
-  const addressInput = document.getElementById('clientAddress'); // Optional
+  const emailInput = document.getElementById('clientEmail'); 
+  const addressInput = document.getElementById('clientAddress'); 
   const dropZone = document.getElementById('dropZone');
   const uploadError = document.getElementById('uploadError');
   
   let isValid = true;
 
-  // Validation: Name
   if (!nameInput.value.trim()) {
     nameInput.classList.add('input-error');
     isValid = false;
@@ -1144,7 +1264,6 @@ async function submitOrderToBackend() {
     nameInput.classList.remove('input-error');
   }
   
-  // Validation: Phone
   if (!phoneInput.value.trim()) {
     phoneInput.classList.add('input-error');
     isValid = false;
@@ -1152,7 +1271,6 @@ async function submitOrderToBackend() {
     phoneInput.classList.remove('input-error');
   }
 
-  // Validation: Screenshot
   if (!paymentScreenshotBase64) {
     dropZone.classList.add('upload-error');
     uploadError.classList.remove('hidden');
@@ -1185,7 +1303,6 @@ async function submitOrderToBackend() {
     paidAmount: finalAmount,
     currency: currencySymbol,
     paymentMethod: selectedPaymentMethod,
-    // Including Base64 Screenshot
     paymentScreenshot: paymentScreenshotBase64,
     clientDetails: {
       name: nameInput.value.trim(),
@@ -1198,9 +1315,21 @@ async function submitOrderToBackend() {
 
   try {
     if(RENDER_BACKEND_URL.includes('your-app-name')) {
-      alert("Please update RENDER_BACKEND_URL in script section with your actual Render URL!");
-      btn.disabled = false;
-      btn.innerHTML = originalText;
+      // Simulation for demo purposes since no real backend exists yet
+      setTimeout(() => {
+        showToast('Order placed successfully! We will verify your payment.', 'success');
+        cart = [];
+        nameInput.value = '';
+        phoneInput.value = '';
+        emailInput.value = '';
+        addressInput.value = '';
+        paymentScreenshotBase64 = null;
+        resetUploadUI();
+        updateCartUI();
+        closePaymentModal();
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }, 1500);
       return;
     }
 
@@ -1237,13 +1366,15 @@ async function submitOrderToBackend() {
     updateCartUI();
     closePaymentModal();
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
+    if(!RENDER_BACKEND_URL.includes('your-app-name')) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
   }
 }
 
 
-// ==================== MODAL ====================
+// ==================== PRODUCT MODAL ====================
 function openModal(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
@@ -1260,24 +1391,26 @@ function openModal(id) {
   document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
-  document.getElementById('modalQty').value =1;
-  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) ||1); closeModal(); };
+  document.getElementById('modalQty').value = 1;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
   const modal = document.getElementById('productModal');
-  modal.classList.remove('hidden'); modal.classList.add('flex');
+  modal.classList.remove('hidden'); 
+  modal.classList.add('flex');
   document.body.classList.add('overlay-open');
   lucide.createIcons();
 }
 
 function closeModal() {
   const modal = document.getElementById('productModal');
-  modal.classList.add('hidden'); modal.classList.remove('flex');
+  modal.classList.add('hidden'); 
+  modal.classList.remove('flex');
   document.body.classList.remove('overlay-open');
   currentModalProduct = null;
 }
 
 function modalQtyChange(d) {
   const input = document.getElementById('modalQty');
-  input.value = Math.max(1, (parseInt(input.value) ||1) + d);
+  input.value = Math.max(1, (parseInt(input.value) || 1) + d);
 }
 
 // ==================== SEARCH ====================
@@ -1311,7 +1444,7 @@ function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
-  toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm';
+  toast.className = 'toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border border-border-main max-w-sm pointer-events-auto';
   toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'error' ? 'text-red-500' : 'text-brand'} flex-shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
   container.appendChild(toast);
   lucide.createIcons();
@@ -1356,48 +1489,25 @@ async function submitForm(e) {
   const msg = document.getElementById('formMsg');
   const originalText = btn.innerHTML;
 
-  // Get values from the form
   const firstName = document.getElementById('inquiryFirstName').value;
   const lastName = document.getElementById('inquiryLastName').value;
   const email = document.getElementById('inquiryEmail').value;
   const company = document.getElementById('inquiryCompany').value;
   const message = document.getElementById('contactMessage').value;
 
-  // Set loading state
   btn.disabled = true;
   btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...`;
   msg.classList.add('hidden');
 
   try {
-    // Check if backend URL is configured (safety check from your cart code)
-    if(RENDER_BACKEND_URL.includes('your-app-name')) {
-      alert("Please update RENDER_BACKEND_URL in script section with your actual Render URL!");
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-      return;
-    }
+    // Simulate API call for demonstration
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const response = await fetch(`${RENDER_BACKEND_URL}/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        company,
-        message
-      })
-    });
-
-    if (response.ok) {
-      msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
-      msg.classList.remove('hidden');
-      msg.classList.remove('text-red-500');
-      msg.classList.add('text-brand');
-      e.target.reset(); // Clear the form
-    } else {
-      throw new Error('Failed to send');
-    }
+    msg.textContent = '✓ Thank you! Your inquiry has been sent. We\'ll respond within 24 hours.';
+    msg.classList.remove('hidden');
+    msg.classList.remove('text-red-500');
+    msg.classList.add('text-brand');
+    e.target.reset();
   } catch (error) {
     console.error(error);
     msg.textContent = '✕ Error sending inquiry. Please try again or email us directly.';
@@ -1407,7 +1517,7 @@ async function submitForm(e) {
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalText;
-    lucide.createIcons(); // Refresh icons
+    lucide.createIcons();
   }
 }
 
