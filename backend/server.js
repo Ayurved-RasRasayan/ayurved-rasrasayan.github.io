@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH VERTICAL LINE SEPARATOR) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH FULL WIDTH DIVIDING LINES) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -390,7 +390,6 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             padding: 2px 6px; 
             border-radius: 4px; 
             font-weight: 700; 
-            /* VERTICAL LINE TOUCHING BOTTOM */
             border-right: 2px solid #e5e7eb; 
             padding-right: 10px;
             margin-right: 10px;
@@ -401,7 +400,31 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           /* BOLD TOTAL STYLE */
           .prod-total { font-size: 1rem; color: #111827; font-weight: 800; }
           .prod-items-list { font-size: 0.9rem; color: #4b5563; line-height: 1.5; }
-          .item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e5e7eb; padding-bottom: 4px; margin-bottom: 4px; }
+          
+          /* UPDATED ITEM ROW STYLING - FULL WIDTH LINES */
+          .item-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            
+            /* Negative margins to push through parent padding */
+            margin-left: -15px; 
+            margin-right: -15px; 
+            
+            /* Increase width to fill the gap */
+            width: calc(100% + 30px); 
+            
+            /* Add padding back so text is readable */
+            padding-left: 15px; 
+            padding-right: 15px; 
+            
+            border-bottom: 1px dashed #e5e7eb; 
+            padding-bottom: 4px; 
+            margin-bottom: 4px; 
+            
+            /* Ensure box-sizing works with calc */
+            box-sizing: border-box; 
+          }
 
           /* Item Thumbnail Styles */
           .item-thumb {
@@ -540,15 +563,24 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             /* Mobile Header Adjustments */
             .prod-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
             .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 0px; font-weight: 700; border-right: 2px solid #e5e7eb; padding-right: 10px; margin-right: 10px; }
+
+            /* RESET NEGATIVE MARGINS FOR MOBILE */
+            .item-row {
+                margin-left: 0;
+                margin-right: 0;
+                width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
             
             .item-row {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              border-bottom: 1px dashed #eee;
-              padding-bottom: 4px;
-              margin-bottom: 4px;
-              width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px dashed #eee;
+                padding-bottom: 4px;
+                margin-bottom: 4px;
+                width: 100%;
             }
             .item-thumb { width: 24px; height: 24px; }
             .item-text { flex: 1; }
@@ -564,7 +596,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
             /* 6. Actions */
             td:nth-child(6) { order: 6; width: 100%; margin-top: 8px; }
-            .btn-delete-row { width: 100%; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; font-weight: 600; text-transform: uppercase; font-size: 14px; }
+            .btn-delete-row { width: 100%; background: #fee2e2; color: #b91c1b; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; font-weight: 600; text-transform: uppercase; font-size: 14px; }
           }
 
           #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 2000; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 90%; text-align: center; }
@@ -862,5 +894,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v22 (Vertical Separator)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v23 (Full Width Lines)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
