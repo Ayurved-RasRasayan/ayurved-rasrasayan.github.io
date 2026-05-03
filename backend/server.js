@@ -448,9 +448,27 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
           /* Column 5: Actions */
-          .col-actions { width: 80px; padding: 15px; border-left: none; text-align: center; display: flex; align-items: center; }
-          .btn-delete-row { width: 100%; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+.col-actions { 
+  width: 80px; 
+  padding: 15px; 
+  border-left: none; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; /* ADDED: Centers the button horizontally */
+}
 
+.btn-delete-row { 
+  width: 100%; 
+  background: #fee2e2; 
+  color: #991b1b; 
+  border: 1px solid #fecaca; 
+  padding: 8px 12px; 
+  border-radius: 6px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  font-size: 12px; 
+  text-align: center; /* ADDED: Centers the text inside the button */
+}
           /* Mobile Responsive View (Vertical Stack) */
           @media (max-width: 768px) {
             body { background: #e5e7eb; }
