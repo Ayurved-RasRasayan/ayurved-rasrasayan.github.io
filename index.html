@@ -172,18 +172,15 @@
 
   <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    <!-- 2D ANIMATION CANVAS LAYER -->
-    <canvas id="heroCanvas" class="absolute inset-0 z-0 w-full h-full"></canvas>
-    
     <div class="absolute inset-0 hero-bg-fallback z-0">
       <img src="images/hero-bg.jpg" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
-      <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/95 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div>
     </div>
     
     <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] md:w-[600px] md:h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
     
-    <div class="relative max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full z-10">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
       <div>
         <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 backdrop-blur-sm">
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
@@ -220,6 +217,11 @@
             <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div>
           </div>
         </div>
+      </div>
+
+      <!-- RIGHT SIDE IMAGE RESTORED -->
+      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0">
+        <img src="images/jeM6q.jpg" alt="Chakra Energy" class="relative z-10 max-h-[500px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'">
       </div>
     </div>
     
@@ -487,7 +489,6 @@
       <div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-txt-sub">Subtotal</span>
-          <!-- CHANGED: Default to NPR -->
           <span id="cartTotal" class="text-xl font-semibold">NPR 0.00</span>
         </div>
         
@@ -567,7 +568,6 @@
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-medium uppercase text-txt-third">Total Amount</span>
             <div class="text-right">
-              <!-- CHANGED: Default to NPR display -->
               <span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0.00</span>
               <span id="paymentTotalSub" class="block text-[10px] text-txt-sub font-medium">$0.00</span>
             </div>
@@ -659,7 +659,6 @@
         <p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
         <div class="flex items-center gap-4 mb-6">
           <div>
-            <!-- CHANGED: Default to NPR in Modal -->
             <span id="modalPrice" class="text-3xl font-semibold text-brand">NPR 0.00</span>
             <span class="text-sm text-txt-third">per kg</span>
             <div id="modalPriceUsd" class="text-xs text-txt-sub font-medium">$0.00 / kg</div>
@@ -700,127 +699,6 @@
 const RENDER_BACKEND_URL = 'https://ayurved-rasrasayan-github-io.onrender.com'; 
 const USD_TO_NPR = 133; 
 let paymentScreenshotBase64 = null;
-
-// ==================== HERO ANIMATION ENGINE ====================
-(function initHeroAnimation() {
-    const canvas = document.getElementById('heroCanvas');
-    const ctx = canvas.getContext('2d');
-    let width, height;
-    const mouse = { x: 0, y: 0, isActive: false };
-    document.addEventListener('mousemove', e => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-        mouse.isActive = true;
-    });
-    function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = canvas.parentElement.offsetHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-    const COLOR_BRAND = '#A3B14B';
-    const COLOR_DARK = '#050A06';
-    
-    class Particle {
-        constructor() {
-            this.reset();
-            this.y = Math.random() * height;
-        }
-        reset() {
-            this.x = Math.random() * width;
-            this.y = height + 10;
-            this.size = Math.random() * 2 + 0.5;
-            this.speedY = Math.random() * 0.5 + 0.2;
-            this.speedX = (Math.random() - 0.5) * 0.5;
-            this.opacity = Math.random() * 0.6 + 0.4; // Higher opacity
-            this.wobble = Math.random() * Math.PI * 2;
-            this.wobbleSpeed = 0.02;
-        }
-        update() {
-            this.y -= this.speedY;
-            this.x += this.speedX;
-            this.wobble += this.wobbleSpeed;
-            this.x += Math.sin(this.wobble) * 0.2;
-            if (mouse.isActive) {
-                const dx = this.x - mouse.x;
-                const dy = this.y - mouse.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 200) {
-                    const force = (200 - dist) / 200;
-                    this.x += (dx / dist) * force * 2;
-                    this.y += (dy / dist) * force * 2;
-                }
-            }
-            if (this.y < -10) this.reset();
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(163, 177, 75, ${this.opacity})`; 
-            ctx.fill();
-        }
-    }
-    class Mountain {
-        constructor(yBase, heightMult, color, speed) {
-            this.yBase = yBase;
-            this.heightMult = heightMult;
-            this.color = color;
-            this.points = [];
-            this.speed = speed;
-            this.offset = 0;
-        }
-        generatePoints() {
-            this.points = [];
-            const segmentWidth = width / 10;
-            this.points.push({x: 0, y: this.yBase});
-            for (let i = 1; i <= 10; i++) {
-                const x = i * segmentWidth;
-                const noise = Math.sin(i * 1.5 + this.offset) * 50 * this.heightMult + 
-                              Math.cos(i * 0.5) * 20 * this.heightMult;
-                this.points.push({x: x, y: this.yBase - Math.abs(noise)});
-            }
-            this.points.push({x: width, y: this.yBase});
-        }
-        update() {
-            this.offset += this.speed * 0.01;
-            this.generatePoints();
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.moveTo(this.points[0].x, this.points[0].y);
-            for (let i = 1; i < this.points.length; i++) {
-                const xc = (this.points[i].x + this.points[i - 1].x) / 2;
-                const yc = (this.points[i].y + this.points[i - 1].y) / 2;
-                ctx.quadraticCurveTo(this.points[i-1].x, this.points[i-1].y, xc, yc);
-            }
-            ctx.lineTo(width, height);
-            ctx.lineTo(0, height);
-            ctx.closePath();
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        }
-    }
-    const particles = Array.from({ length: 60 }, () => new Particle());
-    const mountains = [
-        new Mountain(height, 0.4, '#0a120e', 0.2), 
-        new Mountain(height, 0.7, '#132316', 0.5), 
-        new Mountain(height, 1.0, '#1c3a20', 0.8)  
-    ];
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        mountains.forEach((m, index) => {
-            m.yBase = height - (index * 30);
-            m.update();
-            m.draw();
-        });
-        particles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        requestAnimationFrame(animate);
-    }
-    animate();
-})();
 
 // ==================== PRODUCT DATA (IDS 1-57 FIXED) ====================
 // CRITICAL: Never change these IDs. To add a new product, use ID 58.
@@ -938,7 +816,6 @@ function renderProducts(items) {
         <p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p>
         <div class="flex items-center justify-between">
           <div>
-            <!-- CHANGED: Display NPR as Main -->
             <span class="text-xl font-semibold text-txt-main">NPR ${priceNPR.toLocaleString()}</span>
             <span class="text-xs text-txt-sub block font-medium">$${p.price.toLocaleString()}/kg</span>
           </div>
@@ -1005,8 +882,6 @@ function updateCartUI() {
   else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
 
   document.getElementById('cartItemCount').textContent = `(${totalItems} item${totalItems !== 1 ? 's' : ''})`;
-  
-  // CHANGED: Default to NPR Total in Cart
   document.getElementById('cartTotal').textContent = `NPR ${totalPriceNPR.toLocaleString()} ($${totalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
 
   const cartItemsEl = document.getElementById('cartItems');
@@ -1033,7 +908,6 @@ function updateCartUI() {
           </div>
           <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
         </div>
-        <!-- CHANGED: NPR price line -->
         <p class="text-xs text-txt-third mt-1">NPR ${Math.round(item.price * USD_TO_NPR).toLocaleString()}/kg</p>
         <div class="flex items-center justify-between mt-2">
           <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
@@ -1041,7 +915,6 @@ function updateCartUI() {
             <span class="px-3 py-1 text-xs font-medium border-x border-border-main">${item.qty} kg</span>
             <button onclick="updateQty(${item.id}, 1)" class="px-2.5 py-1 hover:bg-black/5 transition-colors"><i data-lucide="plus" class="w-3 h-3"></i></button>
           </div>
-          <!-- CHANGED: NPR Total per item -->
           <span class="text-sm font-semibold">NPR ${pTotalNPR.toLocaleString()}</span>
         </div>
         <div class="text-[10px] text-txt-sub text-right">($${pTotalUSD.toLocaleString()})</div>
@@ -1073,7 +946,6 @@ function proceedToInquiry() {
   const totalUSD = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const totalNPR = Math.round(totalUSD * USD_TO_NPR);
   
-  // CHANGED: Inquiry summary defaults to NPR
   let cartSummary = "\n\n--- Inquiry for Cart Items ---\n";
   cart.forEach(item => {
     const itemPriceNPR = Math.round(item.price * USD_TO_NPR);
@@ -1360,7 +1232,6 @@ function openModal(id) {
   document.getElementById('modalSci').textContent = p.sci;
   document.getElementById('modalCat').textContent = p.catLabel;
   
-  // CHANGED: Show NPR as main price in Modal
   document.getElementById('modalPrice').textContent = `NPR ${priceNPR.toLocaleString()}`;
   document.getElementById('modalPriceUsd').textContent = `$${p.price.toLocaleString()} / kg`;
   
@@ -1404,7 +1275,6 @@ document.getElementById('searchInput').addEventListener('input', function () {
   if (q.length < 2) { el.innerHTML = ''; return; }
   const matches = products.filter(p => p.name.toLowerCase().includes(q) || p.sci.toLowerCase().includes(q) || p.catLabel.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)).slice(0, 8);
   if (!matches.length) { el.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; }
-  // CHANGED: Show NPR in Search Results
   el.innerHTML = matches.map(p => {
       const priceNPR = Math.round(p.price * USD_TO_NPR);
       return `
