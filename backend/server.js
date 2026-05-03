@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH FULL WIDTH DIVIDING LINES) ────
+// ─── ROUTE 6: Admin Order Dashboard (UPDATED WITH FULL GRID BORDERS) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -372,7 +372,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .no-proof-thumb { width: 40px; height: 40px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #999; margin-top: 10px; }
 
           /* Column 2: Product Info */
-          .col-product { width: 320px; padding: 15px; border-left: none; }
+          .col-product { width: 320px; padding: 15px; /* border-left: none; REMOVED TO SHOW VERTICAL GRID */ }
           
           /* HEADER STYLING WITH VERTICAL LINE */
           .prod-header { 
@@ -443,7 +443,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .item-qty { font-size: 0.85rem; color: #6b7280; font-weight: 500; white-space: nowrap; }
 
           /* Column 3: Status & Badges */
-          .col-status { width: 160px; padding: 15px; border-left: none; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+          .col-status { width: 160px; padding: 15px; /* border-left: none; REMOVED TO SHOW VERTICAL GRID */ display: flex; flex-direction: column; gap: 10px; justify-content: center; }
           .status-select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-weight: 600; cursor: pointer; width: 100%; font-size: 13px; }
           .status-Pending   { background: #fff7ed; color: #c2410c; }
           .status-Shipping  { background: #eff6ff; color: #1d4ed8; }
@@ -454,7 +454,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           /* ─── FANCY BADGE STYLES ───────────────────────────────────────── */
           .badge {
             display: inline-flex;
-            align-items: center;
+            align-items: center,
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 11px;
@@ -495,7 +495,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .badge-fail::before { content: "❌ "; margin-right: 4px; font-size: 1.1em; }
 
           /* Column 4: Client Details (No Internal Label) */
-          .col-client { padding: 15px; border-left: none; flex-grow: 1; }
+          .col-client { padding: 15px; /* border-left: none; REMOVED TO SHOW VERTICAL GRID */ flex-grow: 1; }
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
@@ -503,15 +503,15 @@ app.get('/view-orders', checkAuth, async (req, res) => {
           .col-actions {
             width: 80px;
             padding: 15px;
-            border-left: none;
+            /* border-left: none; REMOVED TO SHOW VERTICAL GRID */
             display: flex;
             align-items: center;
             justify-content: center;
           }
           .btn-delete-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex,
+            justify-content: center,
+            align-items: center,
             width: 100%;
             background: #fee2e2;
             color: #991b1b;
@@ -894,5 +894,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v23 (Full Width Lines)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v24 (Visible Grid Borders)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
