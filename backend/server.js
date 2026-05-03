@@ -318,7 +318,7 @@ app.delete('/delete-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & FANCY BADGES) ────
+// ─── ROUTE 6: Admin Order Dashboard (PROTECTED & NO INTERNAL LABELS) ────
 app.get('/view-orders', checkAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
@@ -443,7 +443,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
           /* Column 4: Client Details (Block) */
           .col-client { padding: 15px; border-left: none; flex-grow: 1; }
-          .client-title { font-size: 0.8rem; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+          /* .client-title REMOVED as requested */
           .client-detail { font-size: 0.9rem; color: #374151; margin-bottom: 4px; display: flex; }
           .client-detail strong { color: #111827; min-width: 70px; display: inline-block; }
 
@@ -502,7 +502,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
             
             /* 5. Client Details (Child 5) */
             td:nth-child(5) { order: 5; background: #f9fafb; border-radius: 6px; padding: 10px; width: 100%; margin-bottom: 12px; border: 1px solid #e5e7eb; }
-            td:nth-child(5)::before { content: "👤 Client Details"; display: block; font-size: 0.8rem; font-weight: 700; color: #374151; margin-bottom: 8px; text-transform: uppercase; }
+            /* td:nth-child(5)::before REMOVED as requested - No label generated */
             .client-detail { font-size: 0.85rem; margin-bottom: 4px; width: 100%; display: flex; }
             .client-detail strong { min-width: 60px; color: #6b7280; }
 
@@ -610,7 +610,7 @@ app.get('/view-orders', checkAuth, async (req, res) => {
 
                     <!-- Client Details -->
                     <td class="col-client">
-                      <div class="client-title">Client Details</div>
+                      <!-- .client-title REMOVED -->
                       <div class="client-detail"><strong>Name:</strong> ${row.client_name || 'Guest'}</div>
                       <div class="client-detail"><strong>Phone:</strong> ${row.client_phone || '-'}</div>
                       <div class="client-detail"><strong>Email:</strong> ${row.client_email || '-'}</div>
@@ -783,5 +783,5 @@ app.get('/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v17 (Fancy Badges)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v18 (Clean Labels)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
