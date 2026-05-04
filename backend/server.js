@@ -50,5 +50,12 @@ app.post('/api/inquiries', async (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Route to seed database
+const myProducts = require('./products.json');
+app.get('/api/seed', async (req, res) => {
+  try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Database seeded successfully!'); } 
+  catch (err) { res.status(500).send('Error: ' + err.message); }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
