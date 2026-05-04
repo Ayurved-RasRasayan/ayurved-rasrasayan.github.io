@@ -367,7 +367,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
                       itemsHtml = itemsData.map(item => {
                         const qty = parseInt(item.qty) || 1;
                         const imgSrc = item.img || item.image;
-                        const imgHtml = imgSrc ? '<img src="'+imgSrc+'" class="item-thumb" onerror="this.style.display=\\'none\\'">' : '';
+                        const imgHtml = imgSrc ? '<img src="'+imgSrc+'" class="item-thumb">' : '';
                         const pid = item.id || item.product_id;
                         const pidHtml = pid ? '<span class="item-pid">(ID: '+pid+')</span>' : '';
                         return '<div class="item-row"><div class="item-text">'+imgHtml+'<span class="item-name" title="'+item.name+'">'+item.name+' '+pidHtml+'</span></div><span class="item-qty">x'+qty+' @ $'+item.price+'</span></div>';
