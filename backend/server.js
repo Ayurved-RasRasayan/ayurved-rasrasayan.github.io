@@ -167,10 +167,7 @@ app.post('/api/orders', async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     const savedOrder = await newOrder.save();
-    
-    // Auto-send notification to website admin email via Brevo
     await sendAdminNotificationEmail(savedOrder._id, req.body);
-    
     res.status(201).json({ success: true, orderId: savedOrder._id });
   } catch (error) {
     console.error('❌ Error saving order:', error);
@@ -180,6 +177,7 @@ app.post('/api/orders', async (req, res) => {
 
 // ─── ROUTE 4: UPDATE STATUS & AUTO-EMAIL CLIENT (PROTECTED) ─────────────────
 app.put('/api/update-status', checkAuth, async (req, res) => {
+  console.log(`🔔 RECEIVED PUT REQUEST FOR STATUS UPDATE`); // Debug log
   try {
     const { id, status } = req.body;
     await Order.findByIdAndUpdate(id, { status, emailStatus: 'Queue' }, { new: true });
@@ -208,12 +206,9 @@ app.post('/api/inquiries', async (req, res) => {
   try {
     const { firstName, lastName, email, company, message } = req.body;
     const fullName = `${firstName} ${lastName}`;
-
-    // Save to MongoDB
     const newInquiry = new Inquiry(req.body);
     await newInquiry.save();
 
-    // Auto-send inquiry to website admin via Brevo
     const endpoint = 'https://api.brevo.com/v3/smtp/email';
     const data = {
       sender: { name: 'NaturaBotanica Website', email: 'sales.naturabotanica20@gmail.com' },
@@ -226,7 +221,6 @@ app.post('/api/inquiries', async (req, res) => {
       headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' }
     });
 
-    console.log(`✅ Inquiry saved & emailed from ${email}`);
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('❌ Error sending inquiry:', error.response ? error.response.data : error.message);
@@ -462,10 +456,18 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
             else { cell.classList.add('badge-queue'); cell.textContent = 'Email Queue'; }
             cell.style.animation = 'none'; cell.offsetHeight; cell.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
           }
+          
+          // DYNAMIC URL FIX FOR RENDER
+          const baseUrl = window.location.pathname.replace('/api/view-orders', '') + '/api';
+
           async function updateStatus(id, newStatus, selectEl) {
             selectEl.disabled = true; const originalClass = selectEl.className; selectEl.className = 'status-select'; 
             try {
-              const response = await fetch('/api/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) });
+              const response = await fetch(baseUrl + '/update-status', { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ id, status: newStatus }) 
+              });
               const data = await response.json();
               selectEl.className = 'status-select status-' + newStatus;
               setBadge(id, data.emailStatus || 'Queue');
@@ -474,19 +476,21 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
               else showToast('✅ Status updated');
             } catch (err) { showToast('❌ Network error'); selectEl.className = originalClass; } finally { selectEl.disabled = false; }
           }
+          
           async function deleteSingle(id, btn) {
             if (!confirm('Delete order?')) return; btn.disabled = true; btn.textContent = '⏳...';
             try {
-              const res = await fetch('/api/delete-order/' + id, { method: 'DELETE' }); const data = await res.json();
+              const res = await fetch(baseUrl + '/delete-order/' + id, { method: 'DELETE' }); const data = await res.json();
               if (data.success) { document.getElementById('row-' + id).style.opacity = '0'; setTimeout(() => { document.getElementById('row-' + id).remove(); onCheckboxChange(); }, 300); showToast('🗑️ Order deleted'); }
               else { showToast('❌ Delete failed'); btn.disabled = false; btn.textContent = 'Delete'; }
             } catch (err) { showToast('❌ Network error'); btn.disabled = false; btn.textContent = 'Delete'; }
           }
+          
           async function deleteSelected() {
             const ids = getCheckedIds(); if (ids.length === 0 || !confirm('Delete ' + ids.length + ' order(s)?')) return;
             const btn = document.getElementById('btn-delete-selected'); const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '⏳ Deleting...';
             try {
-              const res = await fetch('/api/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
+              const res = await fetch(baseUrl + '/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
               const data = await res.json();
               if (data.success) { data.deleted.forEach(id => { const el = document.getElementById('row-' + id); if(el) { el.style.opacity = '0'; setTimeout(()=>el.remove(), 300); } }); showToast('🗑️ Deleted ' + data.deleted.length + ' order(s)'); setTimeout(() => onCheckboxChange(), 350); } else { showToast('❌ Delete failed'); }
             } catch (err) { showToast('❌ Network error'); } finally { btn.innerHTML = originalText; btn.disabled = false; onCheckboxChange(); }
@@ -499,5 +503,11 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).send('Server Error'); }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v27 (MongoDB + Debug Logging)'));
+// ─── TEST ROUTE & SERVER START ────────────────────────────────────────────────
+app.get('/api/test-log', (req, res) => { 
+  console.log("✅ TEST LOG WORKS! Backend is alive!"); 
+  res.send("Check Render Logs for '✅ TEST LOG WORKS'"); 
+});
+
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Backend v28 (MongoDB + Debug + URL Fix)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
