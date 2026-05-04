@@ -30,9 +30,17 @@ function checkAuth(req, res, next) {
   }
 }
 
-// ─── EMAIL SENDING FUNCTION (Client Status Update via Brevo) ───────────────────
+// ─── EMAIL FUNCTION 1: Client Status Update (Brevo + Debug) ───────────────────
 async function sendEmailViaAPI(toEmail, toName, orderId, status) {
   try {
+    console.log(`\n[EMAIL DEBUG] --- STARTING CLIENT EMAIL ---`);
+    console.log(`[EMAIL DEBUG] To: ${toEmail}, Name: ${toName}, Status: ${status}`);
+
+    if (!process.env.EMAIL_PASS) {
+      console.error(`[EMAIL DEBUG] ❌ FATAL: EMAIL_PASS is MISSING in Render!`);
+      return false;
+    }
+
     const senderEmail = 'sales.naturabotanica20@gmail.com';
     let displayStatus = status;
     if (status === 'Success') displayStatus = 'Payment Successful';
@@ -49,23 +57,35 @@ async function sendEmailViaAPI(toEmail, toName, orderId, status) {
       headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' }
     });
 
+    console.log(`[EMAIL DEBUG] Brevo HTTP Status: ${response.status}`);
     if (response.data && response.data.messageId) {
-      console.log(`✅ Email sent to client (ID: ${response.data.messageId})`);
+      console.log(`[EMAIL DEBUG] ✅ SUCCESS! (ID: ${response.data.messageId})`);
       return true;
     }
     return false;
   } catch (error) {
-    console.error("❌ Client Email Failed:", error.response ? error.response.data : error.message);
+    console.error(`[EMAIL DEBUG] ❌ ERROR: ${error.message}`);
+    if (error.response) {
+      console.error(`[EMAIL DEBUG] Brevo Status: ${error.response.status}`);
+      console.error(`[EMAIL DEBUG] Brevo Data:`, JSON.stringify(error.response.data));
+    }
     return false;
+  } finally {
+    console.log(`[EMAIL DEBUG] --- ENDING CLIENT EMAIL ---\n`);
   }
 }
 
-// ─── EMAIL SENDING FUNCTION (Admin New Order Notification via Brevo) ────────────
+// ─── EMAIL FUNCTION 2: Admin New Order Notification (Brevo + Debug) ───────────
 async function sendAdminNotificationEmail(orderId, orderData) {
   try {
-    const endpoint = 'https://api.brevo.com/v3/smtp/email';
-    let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;"><tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb; padding:8px; text-align:left;">Item</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:center;">Qty</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:right;">Price</th></tr>';
+    console.log(`\n[ADMIN EMAIL DEBUG] --- SENDING NEW ORDER ALERT ---`);
+    
+    if (!process.env.EMAIL_PASS) {
+      console.error(`[ADMIN EMAIL DEBUG] ❌ FATAL: EMAIL_PASS is MISSING!`);
+      return;
+    }
 
+    let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;"><tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb; padding:8px; text-align:left;">Item</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:center;">Qty</th><th style="border:1px solid #e5e7eb; padding:8px; text-align:right;">Price</th></tr>';
     if (orderData.items && Array.isArray(orderData.items)) {
       orderData.items.forEach(item => {
         const qty = parseInt(item.qty) || 1;
@@ -74,19 +94,24 @@ async function sendAdminNotificationEmail(orderId, orderData) {
     }
     itemsHtml += '</table>';
 
+    const endpoint = 'https://api.brevo.com/v3/smtp/email';
     const data = {
       sender: { name: 'NaturaBotanica Website', email: 'sales.naturabotanica20@gmail.com' },
       to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
       subject: `🛒 NEW ORDER: #${orderId} - ${orderData.clientDetails.name}`,
-      htmlContent: `<div style="font-family: Arial, sans-serif; color: #333;"><h2 style="color: #2d4a22;">New Order Received (#${orderId})</h2><p>A customer has successfully verified their payment.</p><div style="background: #f3f4f6; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px;"><h3 style="margin-top:0;">👤 Client Information</h3><p><strong>Name:</strong> ${orderData.clientDetails.name}</p><p><strong>Email:</strong> <a href="mailto:${orderData.clientDetails.email}">${orderData.clientDetails.email}</a></p><p><strong>Phone:</strong> ${orderData.clientDetails.phone}</p><p><strong>Address:</strong> ${orderData.clientDetails.address || 'N/A'}</p></div><h3>📦 Order Details</h3><p><strong>Method:</strong> ${orderData.paymentMethod} | <strong>Currency:</strong> ${orderData.currency}</p>${itemsHtml}<div style="margin-top: 20px; text-align: right;"><span style="font-size: 1.2em; font-weight: bold; color: #059669;">Total: $${orderData.totalUSD} (${orderData.totalNPR} NPR)</span></div>${orderData.paymentScreenshot ? `<p style="margin-top:20px; font-size: 0.9em; color: #666;">📸 Payment Screenshot: <a href="${orderData.paymentScreenshot}" target="_blank">View Proof</a></p>` : ''}<p style="margin-top: 30px; font-size: 0.8em; color: #999;">Timestamp: ${new Date(orderData.timestamp).toLocaleString()}</p></div>`
+      htmlContent: `<div style="font-family: Arial, sans-serif; color: #333;"><h2 style="color: #2d4a22;">New Order Received (#${orderId})</h2><div style="background: #f3f4f6; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px;"><h3 style="margin-top:0;">👤 Client Info</h3><p><strong>Name:</strong> ${orderData.clientDetails.name}</p><p><strong>Email:</strong> <a href="mailto:${orderData.clientDetails.email}">${orderData.clientDetails.email}</a></p><p><strong>Phone:</strong> ${orderData.clientDetails.phone}</p><p><strong>Address:</strong> ${orderData.clientDetails.address || 'N/A'}</p></div><h3>📦 Order Details</h3><p><strong>Method:</strong> ${orderData.paymentMethod} | <strong>Total:</strong> $${orderData.totalUSD} (${orderData.totalNPR} NPR)</p>${itemsHtml}${orderData.paymentScreenshot ? `<p style="margin-top:20px; font-size: 0.9em; color: #666;">📸 <a href="${orderData.paymentScreenshot}" target="_blank">View Payment Screenshot</a></p>` : ''}</div>`
     };
 
-    await axios.post(endpoint, data, {
+    const response = await axios.post(endpoint, data, {
       headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' }
     });
-    console.log(`✅ Admin Notification sent for Order #${orderId}`);
+
+    console.log(`[ADMIN EMAIL DEBUG] ✅ SUCCESS! Status: ${response.status}`);
   } catch (error) {
-    console.error("❌ Admin Notification Failed:", error.response ? error.response.data : error.message);
+    console.error(`[ADMIN EMAIL DEBUG] ❌ ERROR: ${error.message}`);
+    if (error.response) console.error(`[ADMIN EMAIL DEBUG] Data:`, JSON.stringify(error.response.data));
+  } finally {
+    console.log(`[ADMIN EMAIL DEBUG] --- ENDING ADMIN ALERT ---\n`);
   }
 }
 
@@ -233,7 +258,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 });
 
-    // Using backticks (`) completely prevents escaping errors with MongoDB IDs and Base64 strings
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -475,5 +499,5 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).send('Server Error'); }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v26 (MongoDB + Brevo Integration)'));
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica Node.js Backend Running v27 (MongoDB + Debug Logging)'));
 app.listen(port, () => console.log(`🚀 Node Server running on port ${port}`));
