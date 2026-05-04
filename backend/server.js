@@ -177,21 +177,31 @@ app.post('/api/orders', async (req, res) => {
 
 // ─── ROUTE 4: UPDATE STATUS & AUTO-EMAIL CLIENT (PROTECTED) ─────────────────
 app.put('/api/update-status', checkAuth, async (req, res) => {
-  console.log(`🔔 RECEIVED PUT REQUEST FOR STATUS UPDATE`); // Debug log
+  console.log(`🔔 RECEIVED PUT REQUEST FOR STATUS UPDATE`);
   try {
     const { id, status } = req.body;
-    await Order.findByIdAndUpdate(id, { status, emailStatus: 'Queue' }, { new: true });
+    
+    // FIX: Use { _id: id } instead of just id, because MongoDB uses _id
+    await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
 
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ success: false });
+    // FIX: Fetch using { _id: id }
+    const order = await Order.findOne({ _id: id });
+    if (!order) {
+      console.error(`❌ Order not found for ID: ${id}`);
+      return res.status(404).json({ success: false });
+    }
 
     let emailStatusResult = 'Queue';
     const clientEmail = order.clientDetails?.email;
 
+    console.log(`[DEBUG] Client Email found: ${clientEmail}`);
+
     if (clientEmail && clientEmail.includes('@')) {
       const success = await sendEmailViaAPI(clientEmail, order.clientDetails.name, id, status);
       emailStatusResult = success ? 'Sent' : 'Failed';
-      await Order.findByIdAndUpdate(id, { emailStatus: emailStatusResult });
+      
+      // FIX: Update the email status using { _id: id }
+      await Order.updateOne({ _id: id }, { emailStatus: emailStatusResult });
     }
 
     res.json({ success: true, message: `Status updated.`, emailStatus: emailStatusResult });
