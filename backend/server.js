@@ -233,6 +233,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 });
 
+    // Using backticks (`) completely prevents escaping errors with MongoDB IDs and Base64 strings
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -307,10 +308,8 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
             td:nth-child(1) { order: 1; position: absolute; top: 12px; right: 12px; width: auto; z-index: 10; padding: 4px; background: #fff; border-radius: 4px; border: 1px solid #e5e7eb; }
             td:nth-child(2) { order: 2; flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
             .date-text { font-size: 1rem; color: #2d4a22; font-weight: 700; }
-            .proof-thumb-mobile { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer; }
             td:nth-child(3) { order: 3; margin-bottom: 12px; width: 100%; }
             .prod-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-            .prod-id-mobile { display: inline-block; background: #2d4a22; color: #fff; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 0px; font-weight: 700; border-right: 2px solid #e5e7eb; padding-right: 10px; margin-right: 10px; }
             .item-row { margin-left: 0; margin-right: 0; width: 100%; padding-left: 0; padding-right: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 4px; margin-bottom: 4px; width: 100%; }
             .item-thumb { width: 24px; height: 24px; }
             .item-text { flex: 1; }
@@ -368,7 +367,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
                       itemsHtml = itemsData.map(item => {
                         const qty = parseInt(item.qty) || 1;
                         const imgSrc = item.img || item.image;
-                        const imgHtml = imgSrc ? '<img src="'+imgSrc+'" class="item-thumb" onerror="this.style.display=\'none\'">' : '';
+                        const imgHtml = imgSrc ? '<img src="'+imgSrc+'" class="item-thumb" onerror="this.style.display=\\'none\\'">' : '';
                         const pid = item.id || item.product_id;
                         const pidHtml = pid ? '<span class="item-pid">(ID: '+pid+')</span>' : '';
                         return '<div class="item-row"><div class="item-text">'+imgHtml+'<span class="item-name" title="'+item.name+'">'+item.name+' '+pidHtml+'</span></div><span class="item-qty">x'+qty+' @ $'+item.price+'</span></div>';
@@ -376,7 +375,41 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
                     }
                   } catch(e) { console.error("Error parsing items", e); }
 
-                  return '<tr id="row-'+row._id+'"><td><input type="checkbox" class="row-chk" value="'+row._id+'" onchange="onCheckboxChange()"/></td><td class="col-date-proof"><span class="date-text">'+dateStr+'</span>'+(row.paymentScreenshot ? '<img src="'+row.paymentScreenshot+'" class="proof-thumb" onclick="openImage(\\''+row.paymentScreenshot.replace(/'/g, "\\'")+'\\')" alt="Proof">' : '<div class="no-proof-thumb">No Img</div>')+'</td><td class="col-product"><div class="prod-header"><span class="prod-id">Order #'+row._id.toString().substring(0,8)+'</span><span class="prod-total">Total: $'+row.totalUSD+'</span></div><div class="prod-items-list">'+(itemsHtml || 'No Items Data')+'</div></td><td class="col-status">'+emailBadge+'<select onchange="updateStatus(\\''+row._id+'\\', this.value, this)" class="status-select status-'+status+'"><option value="Pending" '+(status==='Pending'?'selected':'')+'>Pending</option><option value="Shipping" '+(status==='Shipping'?'selected':'')+'>Shipping</option><option value="Completed" '+(status==='Completed'?'selected':'')+'>Completed</option><option value="Success" '+(status==='Success'?'selected':'')+'>Payment Successful</option><option value="Rejected" '+(status==='Rejected'?'selected':'')+'>Rejected</option></select></td><td class="col-client"><div class="client-detail"><strong>Name:</strong> '+(row.clientDetails?.name || 'Guest')+'</div><div class="client-detail"><strong>Phone:</strong> '+(row.clientDetails?.phone || '-')+'</div><div class="client-detail"><strong>Email:</strong> '+(row.clientDetails?.email || '-')+'</div><div class="client-detail"><strong>Address:</strong> '+(row.clientDetails?.address || '-')+'</div></td><td class="col-actions"><button class="btn-delete-row" onclick="deleteSingle(\\''+row._id+'\\', this)">Delete</button></td></tr>';
+                  return `
+                  <tr id="row-${row._id}">
+                    <td><input type="checkbox" class="row-chk" value="${row._id}" onchange="onCheckboxChange()"/></td>
+                    <td class="col-date-proof">
+                      <span class="date-text">${dateStr}</span>
+                      ${row.paymentScreenshot ? '<img src="'+row.paymentScreenshot+'" class="proof-thumb" onclick="openImage(this.src)" alt="Proof">' : '<div class="no-proof-thumb">No Img</div>'}
+                    </td>
+                    <td class="col-product">
+                      <div class="prod-header">
+                        <span class="prod-id">Order #${row._id.toString().substring(0,8)}</span>
+                        <span class="prod-total">Total: $${row.totalUSD}</span>
+                      </div>
+                      <div class="prod-items-list">${itemsHtml || 'No Items Data'}</div>
+                    </td>
+                    <td class="col-status">
+                      ${emailBadge}
+                      <select onchange="updateStatus('${row._id}', this.value, this)" class="status-select status-${status}">
+                        <option value="Pending" ${status==='Pending'?'selected':''}>Pending</option>
+                        <option value="Shipping" ${status==='Shipping'?'selected':''}>Shipping</option>
+                        <option value="Completed" ${status==='Completed'?'selected':''}>Completed</option>
+                        <option value="Success" ${status==='Success'?'selected':''}>Payment Successful</option>
+                        <option value="Rejected" ${status==='Rejected'?'selected':''}>Rejected</option>
+                      </select>
+                    </td>
+                    <td class="col-client">
+                      <div class="client-detail"><strong>Name:</strong> ${row.clientDetails?.name || 'Guest'}</div>
+                      <div class="client-detail"><strong>Phone:</strong> ${row.clientDetails?.phone || '-'}</div>
+                      <div class="client-detail"><strong>Email:</strong> ${row.clientDetails?.email || '-'}</div>
+                      <div class="client-detail"><strong>Address:</strong> ${row.clientDetails?.address || '-'}</div>
+                    </td>
+                    <td class="col-actions">
+                      <button class="btn-delete-row" onclick="deleteSingle('${row._id}', this)">Delete</button>
+                    </td>
+                  </tr>
+                  `;
                 }).join('')}
               </tbody>
             </table>
