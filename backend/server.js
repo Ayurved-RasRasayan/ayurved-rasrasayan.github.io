@@ -85,7 +85,7 @@ async function sendInquiryAlert(data) {
     const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
     await axios.post('https://api.brevo.com/v3/smtp/email', {
       sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
-      to: [{ email: process.env.RECEIVER_EMAIL, name: 'Sales Team' }], // Receiver from ENV
+      to: [{ email: process.env.RECEIVER_EMAIL, name: 'Sales Team' }],
       subject: `📨 New Inquiry: ${fullName} (${data.company || 'Individual'})`,
       htmlContent: `
         <div style="font-family:Arial;color:#333;padding:20px;border:1px solid #eee;">
@@ -93,7 +93,7 @@ async function sendInquiryAlert(data) {
           <p style="background:#f9fafb;padding:10px;border-radius:5px;">
             <strong>Name:</strong> ${fullName}<br>
             <strong>Email:</strong> ${data.email}<br>
-            <strong>Phone:</strong> ${data.email}<br>
+            <strong>Phone:</strong> ${data.phone || 'N/A'}<br>
             <strong>Company:</strong> ${data.company || 'N/A'}
           </p>
           <div style="margin-top:20px;">
@@ -113,10 +113,45 @@ async function sendInquiryAlert(data) {
 // ─── DATABASE CONNECT & SCHEMAS ────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB Connected')).catch(err => { console.error('❌ MongoDB Error:', err); process.exit(1); });
 
-const productSchema = new mongoose.Schema({ id: Number, name: String, sci: String, category: String, catLabel: String, price: Number, unit: String, moq: String, lead: String, img: String, desc: String, stock: { type: Number, default: 100 } });
-const orderSchema = new mongoose.Schema({ items: Array, totalUSD: Number, totalNPR: Number, paidAmount: Number, currency: String, paymentMethod: String, paymentScreenshot: String, clientDetails: { name: String, phone: String, email: String, address: String }, status: { type: String, default: 'Pending' }, emailStatus: { type: String, default: 'Queue' }, timestamp: { type: Date, default: Date.now } });
-const inquirySchema = new mongoose.Schema({ firstName: String, lastName: String, email: String, company: String, message: String, timestamp: { type: Date, default: Date.now } });
-const settingSchema = new mongoose.Schema({ key: { type: String, unique: true }, value: mongoose.Schema.Types.Mixed });
+const productSchema = new mongoose.Schema({
+  id: Number,
+  name: String,
+  sci: String,
+  category: String,
+  catLabel: String,
+  price: Number,
+  unit: String,
+  moq: String,
+  lead: String,
+  img: String,
+  desc: String,
+  stock: { type: Number, default: 100 }
+});
+const orderSchema = new mongoose.Schema({
+  items: Array,
+  totalUSD: Number,
+  totalNPR: Number,
+  paidAmount: Number,
+  currency: String,
+  paymentMethod: String,
+  paymentScreenshot: String,
+  clientDetails: { name: String, phone: String, email: String, address: String },
+  status: { type: String, default: 'Pending' },
+  emailStatus: { type: String, default: 'Queue' },
+  timestamp: { type: Date, default: Date.now }
+});
+const inquirySchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  email: String,
+  company: String,
+  message: String,
+  timestamp: { type: Date, default: Date.now }
+});
+const settingSchema = new mongoose.Schema({
+  key: { type: String, unique: true },
+  value: mongoose.Schema.Types.Mixed
+});
 
 const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
@@ -132,7 +167,134 @@ async function setSetting(key, value) {
   await Setting.updateOne({ key }, { value }, { upsert: true });
 }
 
-// ─── AUTO-SYNC EXCHANGE RATE ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── PRODUCT SYNC ENGINE (NEW) ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PRODUCTS_FILE = path.join(__dirname, 'products.json');
+
+/**
+ * Upsert products from an array into the DB.
+ * - Adds new products
+ * - Updates existing products (matched by `id`)
+ * - Optionally removes products not in the source array
+ * - Preserves `stock` for existing products unless `resetStock` is true
+ */
+async function syncProductsToDB(productsArray, { removeOrphans = false, resetStock = false } = {}) {
+  if (!Array.isArray(productsArray) || productsArray.length === 0) {
+    console.warn('[SYNC] Empty or invalid products array, skipping.');
+    return { added: 0, updated: 0, removed: 0 };
+  }
+
+  let added = 0, updated = 0, removed = 0;
+
+  // Build a set of incoming IDs
+  const incomingIds = new Set(productsArray.map(p => p.id));
+
+  // Upsert each product
+  for (const p of productsArray) {
+    const existing = await Product.findOne({ id: p.id });
+
+    if (existing) {
+      // Preserve stock unless explicitly resetting
+      const updateData = { ...p };
+      if (!resetStock) {
+        updateData.stock = existing.stock;
+      }
+      await Product.updateOne({ id: p.id }, { $set: updateData });
+      updated++;
+    } else {
+      // New product — use stock from JSON or default to 100
+      const newProduct = { ...p, stock: p.stock ?? 100 };
+      await new Product(newProduct).save();
+      added++;
+    }
+  }
+
+  // Remove products in DB that are NOT in the source
+  if (removeOrphans) {
+    const dbProducts = await Product.find({}, { id: 1 });
+    for (const dbp of dbProducts) {
+      if (!incomingIds.has(dbp.id)) {
+        await Product.deleteOne({ id: dbp.id });
+        removed++;
+      }
+    }
+  }
+
+  console.log(`[SYNC] ✅ Added: ${added}, Updated: ${updated}, Removed: ${removed}`);
+  return { added, updated, removed };
+}
+
+/**
+ * Write current DB products back to products.json file.
+ * Used when products are modified via API so the file stays in sync.
+ */
+async function syncDBToFile() {
+  try {
+    const products = await Product.find().sort({ id: 1 }).lean();
+    // Remove Mongo-specific fields
+    const clean = products.map(({ _id, __v, ...rest }) => rest);
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(clean, null, 2), 'utf8');
+    console.log(`[SYNC] 📝 products.json updated (${clean.length} products)`);
+    return true;
+  } catch (e) {
+    console.error('[SYNC] ❌ Failed to write products.json:', e.message);
+    return false;
+  }
+}
+
+/**
+ * Read products.json and sync to DB.
+ */
+async function syncFileToDB({ removeOrphans = false, resetStock = false } = {}) {
+  try {
+    const raw = fs.readFileSync(PRODUCTS_FILE, 'utf8');
+    const products = JSON.parse(raw);
+    return await syncProductsToDB(products, { removeOrphans, resetStock });
+  } catch (e) {
+    console.error('[SYNC] ❌ Failed to read/parse products.json:', e.message);
+    return null;
+  }
+}
+
+// ─── FILE WATCHER: Auto-detect changes to products.json ────────────────
+let watcherReady = false;
+let syncDebounce = null;
+
+function startFileWatcher() {
+  try {
+    const watcher = fs.watch(PRODUCTS_FILE, (eventType) => {
+      if (eventType !== 'change') return;
+
+      // Debounce: avoid triggering multiple times for a single save
+      if (syncDebounce) clearTimeout(syncDebounce);
+      syncDebounce = setTimeout(async () => {
+        console.log('[WATCHER] 📂 products.json changed — syncing to DB...');
+        const result = await syncFileToDB({ removeOrphans: true });
+        if (result) {
+          console.log(`[WATCHER] ✅ Sync complete: +${result.added} ~${result.updated} -${result.removed}`);
+        } else {
+          console.error('[WATCHER] ❌ Sync failed');
+        }
+      }, 500); // 500ms debounce
+    });
+
+    watcher.on('error', (err) => {
+      console.error('[WATCHER] ❌ File watch error:', err.message);
+    });
+
+    watcherReady = true;
+    console.log('[WATCHER] 👀 Watching products.json for changes...');
+  } catch (e) {
+    console.warn('[WATCHER] ⚠️ Could not start file watcher:', e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── AUTO-SYNC EXCHANGE RATE ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
 async function syncExchangeRate() {
   try {
     const apiRes = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 10000 });
@@ -150,11 +312,14 @@ async function syncExchangeRate() {
   return null;
 }
 
-// Sync on startup, then every 6 hours
 syncExchangeRate();
 setInterval(syncExchangeRate, 6 * 60 * 60 * 1000);
 
-// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── ROUTES ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────
 app.get('/api/exchange-rate', checkAuth, async (req, res) => {
   try {
     const rate = await getSetting('exchange_rate', 133);
@@ -164,7 +329,6 @@ app.get('/api/exchange-rate', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ─── ROUTE: PUBLIC EXCHANGE RATE (storefront) ───────────────────────────────
 app.get('/api/public/rate', async (req, res) => {
   try {
     const rate = await getSetting('exchange_rate', 133);
@@ -172,7 +336,6 @@ app.get('/api/public/rate', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ─── ROUTE: FORCE FETCH LIVE RATE ───────────────────────────────────────────
 app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   try {
     const rate = await syncExchangeRate();
@@ -190,18 +353,166 @@ app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
 // ─── ROUTE: BASE & HEALTH ────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
-  try { await mongoose.connection.db.admin().ping(); res.json({ status: 'healthy' }); }
-  catch (e) { res.status(503).json({ status: 'unhealthy' }); }
+  try {
+    await mongoose.connection.db.admin().ping();
+    res.json({ status: 'healthy' });
+  } catch (e) { res.status(503).json({ status: 'unhealthy' }); }
 });
 
-// ─── ROUTE: PRODUCTS & SEEDING ───────────────────────────────────────────
-app.get('/api/products', async (req, res) => { try { res.json(await Product.find().sort({ id: 1 })); } catch (e) { res.status(500).json({ error: e.message }); } });
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── ROUTE: PRODUCTS (ENHANCED WITH CRUD + SYNC) ────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 
-const myProducts = require('./products.json');
-app.get('/api/seed', checkAuth, async (req, res) => { try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Seeded!'); } catch (e) { res.status(500).send(e.message); } });
-app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); } });
+// GET all products (public — used by frontend storefront)
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ id: 1 }).lean();
+    // Strip Mongo fields for cleaner response
+    const clean = products.map(({ _id, __v, ...rest }) => rest);
+    res.json(clean);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
-// ─── ROUTE: ORDERS ────────────────────────────────────────────────
+// GET single product by id
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findOne({ id: Number(req.params.id) }).lean();
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const { _id, __v, ...rest } = product;
+    res.json(rest);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST: Add a new product (admin only) → saves to DB + updates products.json
+app.post('/api/products', checkAuth, async (req, res) => {
+  try {
+    const { id, name, price, category } = req.body;
+    if (!id || !name || price === undefined) {
+      return res.status(400).json({ success: false, error: 'id, name, and price are required' });
+    }
+
+    // Check for duplicate id
+    const existing = await Product.findOne({ id });
+    if (existing) {
+      return res.status(409).json({ success: false, error: `Product with id ${id} already exists` });
+    }
+
+    const newProduct = new Product({ ...req.body, stock: req.body.stock ?? 100 });
+    await newProduct.save();
+
+    // Update products.json to keep file in sync
+    await syncDBToFile();
+
+    console.log(`[PRODUCT] ✅ Added: #${id} ${name}`);
+    res.status(201).json({ success: true, product: newProduct.toObject() });
+  } catch (e) {
+    console.error('[PRODUCT] ❌ Add error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// PUT: Update a product (admin only) → updates DB + updates products.json
+app.put('/api/products/:id', checkAuth, async (req, res) => {
+  try {
+    const productId = Number(req.params.id);
+    const existing = await Product.findOne({ id: productId });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    // Prevent overwriting stock unless explicitly sent
+    const updateData = { ...req.body };
+    if (req.body.stock === undefined) {
+      delete updateData.stock; // preserve existing stock
+    }
+
+    await Product.updateOne({ id: productId }, { $set: updateData });
+
+    // Update products.json
+    await syncDBToFile();
+
+    console.log(`[PRODUCT] ✏️ Updated: #${productId}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[PRODUCT] ❌ Update error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// DELETE: Remove a product (admin only) → removes from DB + updates products.json
+app.delete('/api/products/:id', checkAuth, async (req, res) => {
+  try {
+    const productId = Number(req.params.id);
+    const result = await Product.deleteOne({ id: productId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    // Update products.json
+    await syncDBToFile();
+
+    console.log(`[PRODUCT] 🗑️ Deleted: #${productId}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[PRODUCT] ❌ Delete error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// POST: Bulk import products (admin only) → upserts all + updates file
+app.post('/api/products/bulk', checkAuth, async (req, res) => {
+  try {
+    if (!Array.isArray(req.body.products)) {
+      return res.status(400).json({ success: false, error: 'products array required' });
+    }
+
+    const result = await syncProductsToDB(req.body.products, { removeOrphans: false, resetStock: false });
+    await syncDBToFile();
+
+    res.json({ success: true, ...result });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ─── SEED ROUTES (keep legacy support) ──────────────────────────────────
+// Full re-seed (wipes and replaces all products — preserves stock from JSON)
+app.get('/api/seed', checkAuth, async (req, res) => {
+  try {
+    await Product.deleteMany({});
+    const myProducts = require('./products.json');
+    await Product.insertMany(myProducts);
+    res.json({ success: true, count: myProducts.length, message: 'Full re-seed complete' });
+  } catch (e) { res.status(500).send(e.message); }
+});
+
+// Smart sync: file → DB (add new, update changed, remove deleted)
+app.get('/api/sync-products', checkAuth, async (req, res) => {
+  try {
+    const result = await syncFileToDB({ removeOrphans: true });
+    if (result) {
+      res.json({ success: true, ...result });
+    } else {
+      res.status(500).json({ success: false, error: 'Sync failed' });
+    }
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.get('/api/seed-stock', checkAuth, async (req, res) => {
+  try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── ROUTE: ORDERS ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
 app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
@@ -222,20 +533,18 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     const { id, status } = req.body;
     const order = await Order.findOne({ _id: id });
     if (!order) return res.status(404).json({ success: false });
-    
+
     const wasDeducted = STOCK_DEDUCT_STATUSES.includes(order.status);
     const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
-    
+
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
 
     if (shouldDeduct && !wasDeducted) {
       for (const item of (order.items || [])) {
-        // FIXED: Correct syntax for stock deduction
         await Product.updateOne({ id: item.id }, { $inc: { stock: -(parseInt(item.qty) || 1) } });
       }
     } else if (!shouldDeduct && wasDeducted) {
       for (const item of (order.items || [])) {
-        // FIXED: Correct syntax for stock addition
         await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
       }
     }
@@ -249,21 +558,14 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ─── ROUTE: INQUIRIES (UPDATED) ─────────────────────────────────────────
+// ─── ROUTE: INQUIRIES ───────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
     if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
-
-    console.log('📨 New Inquiry:', req.body);
-    
-    // 1. Save to Database
     await new Inquiry(req.body).save();
-    
-    // 2. Send Email Notification
     await sendInquiryAlert(req.body);
-    
     res.json({ success: true });
   } catch (e) {
     console.error('❌ Inquiry Save Error:', e);
@@ -271,16 +573,20 @@ app.post('/api/inquiries', async (req, res) => {
   }
 });
 
-// ─── ROUTE: DELETE / MANAGE STOCK ───────────────────────────────────────────
+// ─── ROUTE: DELETE / MANAGE ─────────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
-  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); }
+  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
 });
 app.delete('/api/delete-orders', checkAuth, async (req, res) => {
-  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch(e) { res.status(500).json({success:false}); }
+  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.put('/api/update-stock', checkAuth, async (req, res) => {
-  try { await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } }); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
+  try {
+    await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
+    await syncDBToFile(); // Keep file in sync
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.get('/api/manage-stock', checkAuth, async (req, res) => {
@@ -304,57 +610,48 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
       const nprAmount = Math.round(r.totalNPR) || 0;
-
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
-
       const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
       let ih = '';
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
-           ih = it.map(i => {
-              const img = i.img ? `<img src="${i.img}" class="it">` : '';
-              const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
-              const qty = i.qty || 1;
-              const price = i.price || 0;
-              const lineTotal = qty * price;
-              return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
-         }).join('');
+          ih = it.map(i => {
+            const img = i.img ? `<img src="${i.img}" class="it">` : '';
+            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+            const qty = i.qty || 1;
+            const price = i.price || 0;
+            const lineTotal = qty * price;
+            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+          }).join('');
         }
-      } catch(e) {}
-
+      } catch (e) {}
       const imgHtml = r.paymentScreenshot
         ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
         : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
-
       const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
-
       return `<tr id="r-${r._id}">
         <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
         <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
         <td class="cp">
-          <div class="ph">
-            <span class="ph-label">Order Id</span>
-            <span class="pid">#${r._id.toString().substring(0,8)}</span>
-          </div>
+          <div class="ph"><span class="ph-label">Order Id</span><span class="pid">#${r._id.toString().substring(0, 8)}</span></div>
           <div class="pil">${ih || 'No Data'}</div>
           ${totalHtml}
         </td>
         <td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
-          <option value="Pending" ${s==='Pending'?'selected':''}>Pending</option>
-          <option value="Shipping" ${s==='Shipping'?'selected':''}>Shipping</option>
-          <option value="Completed" ${s==='Completed'?'selected':''}>Completed</option>
-          <option value="Success" ${s==='Success'?'selected':''}>Payment Successful</option>
-          <option value="Rejected" ${s==='Rejected'?'selected':''}>Rejected</option>
+          <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>Pending</option>
+          <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>Shipping</option>
+          <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>Completed</option>
+          <option value="Success" ${s === 'Success' ? 'selected' : ''}>Payment Successful</option>
+          <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>Rejected</option>
         </select></td>
         <td class="cc">
-          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name||'Guest'}</div>
-          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone||'-'}</div>
-          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email||'-'}</div>
-          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address||'-'}</div>
+          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
+          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
+          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email || '-'}</div>
+          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address || '-'}</div>
         </td>
         <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
       </tr>`;
@@ -364,6 +661,25 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading orders'); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── STARTUP: Initial Sync + File Watcher ───────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function startup() {
+  // 1. Smart-sync products.json → DB on startup
+  console.log('[STARTUP] 🔄 Syncing products.json → Database...');
+  const syncResult = await syncFileToDB({ removeOrphans: true });
+  if (syncResult) {
+    console.log(`[STARTUP] ✅ Product sync: +${syncResult.added} ~${syncResult.updated} -${syncResult.removed}`);
+  }
+
+  // 2. Start file watcher for live changes
+  startFileWatcher();
+}
+
+startup();
+
+// ─── 404 & ERROR HANDLERS ───────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => { console.error('Unhandled error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
