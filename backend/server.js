@@ -98,6 +98,15 @@ async function setSetting(key, value) {
   await Setting.updateOne({ key }, { value }, { upsert: true });
 }
 
+// ─── PUBLIC EXCHANGE RATE (for storefront) ──────────────────────────────────
+app.get('/api/public/rate', async (req, res) => {
+  try {
+    const rate = await getSetting('exchange_rate', 133);
+    res.json({ rate });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+
 // ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────────
 app.get('/api/exchange-rate', checkAuth, async (req, res) => {
   try {
