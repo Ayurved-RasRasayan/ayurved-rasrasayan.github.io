@@ -123,9 +123,9 @@
           <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 relative overflow-hidden">Get Quote</a>
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">58</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">7</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">8</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
           <div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div>
         </div>
@@ -139,7 +139,8 @@
   <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-3 md:gap-4">
+      <!-- Grid automatically adapts, but ensure button for 'powder' exists -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4">
         <button onclick="filterCategory('all')" class="cat-btn active group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="all"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="grid-3x3" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">All <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('api')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="api"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="flask-conical" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">APIs <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('oils')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="oils"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="droplets" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Oils <span class="count-cat text-txt-third"></span></span></button>
@@ -148,6 +149,9 @@
         <button onclick="filterCategory('herbs')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="herbs"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="sprout" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Herbs <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('rasa')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="rasa"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="gem" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Rasa <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('namak')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="namak"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="hexagon" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Namak <span class="count-cat text-txt-third"></span></span></button>
+        
+        <!-- NEW: Herbs Powder Category Button -->
+        <button onclick="filterCategory('powder')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="powder"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Powders <span class="count-cat text-txt-third"></span></span></button>
       </div>
     </div>
   </section>
@@ -302,6 +306,13 @@ let products = []; let cart = []; let currentCategory = 'all'; let currentSort =
 let currentModalProduct = null; let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
 
 /* ═══════════════════════════════════════
+   AUTO-SYNC CONFIGURATION
+   ═══════════════════════════════════════ */
+// NOTE: No hardcoded 'newLocalItems' here. 
+// We rely 100% on products.json (Backend) for data.
+// To add products, simply edit backend/products.json and restart server.
+
+/* ═══════════════════════════════════════
    FETCH EXCHANGE RATE FROM DATABASE
    ═══════════════════════════════════════ */
 async function loadExchangeRate() {
@@ -344,18 +355,22 @@ async function loadProducts() {
   try {
     const res = await fetch(`${BACKEND_URL}/products`);
     if (!res.ok) throw new Error();
+    // SIMPLIFIED: Just take whatever the DB gives us
     products = await res.json();
+    
     updateCategoryCounts();
     renderProducts(getFilteredProducts());
   } catch (e) {
-    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products.</p></div>';
+    console.warn('API failed, showing empty state');
+    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products from database.</p></div>';
     lucide.createIcons();
   }
 }
 
 function updateCategoryCounts() {
   document.querySelector('[data-cat="all"] .count-cat').textContent = `(${products.length})`;
-  const categories = ['api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak'];
+  // Include 'powder' in this list to count it automatically
+  const categories = ['api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'powder']; 
   categories.forEach(cat => {
     const count = products.filter(p => p.category === cat).length;
     const el = document.querySelector(`[data-cat="${cat}"] .count-cat`);
@@ -381,10 +396,22 @@ function renderProducts(items) {
   grid.innerHTML = items.map((p, i) => {
     const pN = p.price, pU = pN / exchangeRate, s = p.stock !== undefined ? p.stock : 100, oos = s <= 0, sT = oos ? 'Out of Stock' : `Stock: ${s}`, sC = oos ? 'text-red-500' : 'text-brand',
       bH = oos ? `<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>` : `<button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
+    
+    // Dynamic Badge Logic based on category
+    let badgeText = '';
+    if(p.category === 'api') badgeText = 'API';
+    else if(p.category === 'herbs') badgeText = 'Raw Herb';
+    else if(p.category === 'mushrooms') badgeText = 'Mushroom';
+    else if(p.category === 'oils') badgeText = 'Oil';
+    else if(p.category === 'namak') badgeText = 'Salt';
+    else if(p.category === 'rasa') badgeText = 'Mineral';
+    else if(p.category === 'powder') badgeText = 'Powder'; // New Category
+    else badgeText = 'Extract';
+
     return `<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos ? 'opacity-70' : ''}" style="animation:fadeInUp 0.6s ease-out ${i * 0.04}s forwards;opacity:0">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
-        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium uppercase rounded-full text-txt-sub shadow-sm">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span></div>
+        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium uppercase rounded-full text-txt-sub shadow-sm">${badgeText}</span></div>
         <div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-black/70 text-[10px] font-mono font-bold uppercase rounded-full text-white shadow-sm">ID: ${p.id}</span></div>
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center"><span class="opacity-0 group-hover:opacity-100 px-4 py-2 bg-white/90 rounded-full text-xs font-medium shadow-lg transform translate-y-2 group-hover:translate-y-0">View Details</span></div>
       </div>
@@ -397,7 +424,6 @@ function renderProducts(items) {
         <div class="flex items-center justify-between">
           <div>
             <span class="text-xl font-semibold">NPR ${pN.toLocaleString()}</span>
-            <!-- CHANGED LINE BELOW: removed "1 unit =" from the display -->
             <span class="text-xs text-txt-sub block">$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })}/${p.unit.replace('1 unit = ', '')}</span>
           </div>
           ${bH}
@@ -450,7 +476,6 @@ function updateCartUI() {
   cF.classList.remove('hidden');
   cI.innerHTML = cart.map(i => {
     const t = i.price * i.qty;
-    // We use i.unit directly now, and wrap it in parentheses
     return `<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
       <img src="${i.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
@@ -458,17 +483,11 @@ function updateCartUI() {
           <div><h4 class="text-sm font-medium truncate">${i.name} <span class="text-[10px] text-txt-third font-mono">#${i.id}</span></h4><p class="text-[11px] text-txt-third italic">${i.sci}</p></div>
           <button onclick="removeFromCart(${i.id})" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
         </div>
-        
-        <!-- UPDATED: Price line with parentheses -->
         <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()}/(${i.unit})</p>
-        
         <div class="flex justify-between mt-2">
           <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
             <button onclick="updateQty(${i.id},-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
-            
-            <!-- UPDATED: Quantity line with parentheses -->
             <span class="px-3 py-1 text-xs font-medium border-x border-border-main">Qty ${i.qty} x (${i.unit})</span>
-            
             <button onclick="updateQty(${i.id},1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
           </div>
           <span class="text-sm font-semibold">NPR ${t.toLocaleString()}</span>
@@ -534,14 +553,25 @@ function openModal(id) {
   document.getElementById('modalSci').textContent = p.sci;
   document.getElementById('modalCat').textContent = p.catLabel;
   document.getElementById('modalPrice').textContent = `NPR ${pN.toLocaleString()}`;
-  document.getElementById('modalUnitLabel').textContent = `per ${u.replace('1 unit = ', '')}`; // Also cleaned up here for consistency
+  document.getElementById('modalUnitLabel').textContent = `per ${u.replace('1 unit = ', '')}`;
   document.getElementById('modalPriceUsd').textContent = `$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${u.replace('1 unit = ', '')}`;
   document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
+  
+  // Badge logic in modal
+  let badgeText = '';
+  if(p.category === 'api') badgeText = 'API';
+  else if(p.category === 'herbs') badgeText = 'Raw Herb';
+  else if(p.category === 'mushrooms') badgeText = 'Mushroom';
+  else if(p.category === 'oils') badgeText = 'Essential Oil';
+  else if(p.category === 'namak') badgeText = 'Salt';
+  else if(p.category === 'rasa') badgeText = 'Rasa Uparasa';
+  else if(p.category === 'powder') badgeText = 'Herb Powder'; // New
+  else badgeText = 'Extract';
+  document.getElementById('modalBadge').textContent = badgeText;
+
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
   document.getElementById('modalQty').value = 1;
-  // CHANGED LINE BELOW: Just use 'u' directly, do not prepend "1 unit = "
   document.getElementById('modalUnitBox').textContent = u;
   document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
   const md = document.getElementById('productModal');
