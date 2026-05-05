@@ -8,8 +8,6 @@
 .cur-btn{padding:7px 20px;border:none;font-weight:700;font-size:13px;cursor:pointer;background:transparent;color:#6b7280;transition:all .25s;letter-spacing:.3px;border-radius:6px}
 .cur-btn.active{background:#2d6a2e;color:#fff;box-shadow:0 2px 6px rgba(45,106,46,.35)}
 .cur-btn:not(.active):hover{color:#374151;background:rgba(0,0,0,.05)}
-
-/* Rate control bar */
 .rc-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #e5e7eb}
 .rc-label{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
 .rc-check{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;color:#374151}
@@ -24,16 +22,12 @@
 .rc-err{font-size:11px;color:#dc2626;font-weight:500}
 .rc-time{font-size:11px;color:#9ca3af;font-weight:500;margin-left:auto}
 .rc-divider{width:1px;height:20px;background:#e5e7eb}
-
-/* Grand Total */
 .total-bar{max-width:1400px;margin:0 auto 24px;background:#fff;border:1px solid #d1d5db;border-left:4px solid #2d4a22;border-radius:6px;padding:10px 20px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
-.total-lbl{color:#6b7280;font-weight:1000;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
-.total-val{color:#1a5c1c;font-weight:1000;font-size:18px;font-variant-numeric:tabular-nums}
+.total-lbl{color:#6b7280;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+.total-val{color:#1a5c1c;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
 .total-cur{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;vertical-align:middle;letter-spacing:.3px}
 .total-cur.npr{background:#dbeafe;color:#1e40af}
 .total-cur.usd{background:#fef3c7;color:#92400e}
-
-/* Table */
 .tw{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.05)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:1100px}
 th,td{padding:0;border:1px solid #e5e7eb;vertical-align:top;text-align:left}
@@ -107,23 +101,20 @@ td:nth-child(6){order:6;width:100%;margin-top:8px}
       <button class="cur-btn" id="tbUSD" onclick="setCur('USD')">🇺🇸 USD</button>
     </div>
   </div>
-
-  <!-- Rate Control -->
   <div class="rc-bar">
     <span class="rc-label">💱 Exchange Rate</span>
     <div class="rc-divider"></div>
     <label class="rc-check"><input type="checkbox" id="autoRate" onchange="toggleAutoRate()"> Auto-fetch daily</label>
     <div class="rc-divider"></div>
     <span style="font-size:13px;color:#374151">1 USD =</span>
-    <input type="number" class="rc-input" id="rateInput" value="133" min="1" step="0.01">
+    <input type="number" class="rc-input" id="rateInput" value="..." min="1" step="0.01" disabled>
     <span style="font-size:13px;color:#374151;font-weight:600">NPR</span>
     <button class="rc-btn rc-set" id="rateSetBtn" onclick="setManualRate()">Set</button>
     <button class="rc-btn rc-fetch" id="rateFetchBtn" onclick="fetchRate()" style="display:none">🔄 Fetch Live</button>
-    <span class="rc-rate" id="rateDisplay">133.00</span>
+    <span class="rc-rate" id="rateDisplay">...</span>
     <span class="rc-err" id="rateErr"></span>
-    <span class="rc-time" id="rateTime"></span>
+    <span class="rc-time" id="rateTime">Loading...</span>
   </div>
-
   <div class="tw"><table><thead><tr><th width="40"><input type="checkbox" id="ca" onchange="tSA()"/></th><th width="120">Date/Proof</th><th width="320">Items</th><th width="160">Status</th><th>Client</th><th width="80">Act</th></tr></thead><tbody id="tb">{{ORDERS_ROWS}}</tbody></table></div>
   <div class="total-bar">
     <span class="total-lbl">Grand Total</span>
@@ -134,54 +125,131 @@ td:nth-child(6){order:6;width:100%;margin-top:8px}
 <div id="toast">M</div>
 <div id="imgModal" onclick="cI(event)"><span class="ci" onclick="cI(event)">&times;</span><img id="fI" src="" onclick="event.stopPropagation()"></div>
 <script>
+var API = window.location.pathname.replace('/api/view-orders', '') + '/api';
+var RATE = 133;
+var cur = 'NPR';
+
 /* ═══════════════════════════════════════
-   EXCHANGE RATE
+   LOAD RATE FROM DATABASE ON START
    ═══════════════════════════════════════ */
-let RATE = parseFloat(localStorage.getItem('nb_rate')) || 133;
-let cur = 'NPR';
-
-document.getElementById('rateInput').value = RATE;
-document.getElementById('rateDisplay').textContent = RATE.toFixed(2);
-
-// Restore auto setting
-if (localStorage.getItem('nb_auto') === 'true') {
-  document.getElementById('autoRate').checked = true;
-  toggleAutoRate();
+async function loadRateFromDB() {
+  try {
+    var res = await fetch(API + '/exchange-rate', {
+      headers: { 'Authorization': localStorage.getItem('nb_auth') || '' }
+    });
+    if (!res.ok) { applyRateFallback(133); return; }
+    var data = await res.json();
+    RATE = data.rate || 133;
+    applyRateUI(RATE, data.source || 'default', data.fetchedAt, data.auto || false);
+    updateAmounts();
+  } catch (e) {
+    applyRateFallback(133);
+  }
 }
 
-function toggleAutoRate() {
+function applyRateUI(rate, source, fetchedAt, auto) {
+  RATE = rate;
+  document.getElementById('rateInput').value = rate.toFixed(2);
+  document.getElementById('rateDisplay').textContent = rate.toFixed(2);
+  document.getElementById('rateTime').textContent = 'Loading...';
+  document.getElementById('autoRate').checked = !!auto;
+
+  if (!!auto) {
+    document.getElementById('rateInput').disabled = true;
+    document.getElementById('rateInput').style.opacity = '.5';
+    document.getElementById('rateSetBtn').style.display = 'none';
+    document.getElementById('rateFetchBtn').style.display = '';
+  } else {
+    document.getElementById('rateInput').disabled = false;
+    document.getElementById('rateInput').style.opacity = '1';
+    document.getElementById('rateSetBtn').style.display = '';
+    document.getElementById('rateFetchBtn').style.display = 'none';
+  }
+
+  if (source === 'live' && fetchedAt) {
+    var d = new Date(fetchedAt);
+    document.getElementById('rateTime').textContent = 'Live: ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+  } else if (source === 'manual' && fetchedAt) {
+    var d = new Date(fetchedAt);
+    document.getElementById('rateTime').textContent = 'Manual: ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+  } else {
+    document.getElementById('rateTime').textContent = 'Default';
+  }
+}
+
+function applyRateFallback(rate) {
+  RATE = rate;
+  document.getElementById('rateInput').value = rate;
+  document.getElementById('rateDisplay').textContent = rate.toFixed(2);
+  document.getElementById('rateTime').textContent = 'Offline';
+  document.getElementById('rateInput').disabled = false;
+  document.getElementById('rateInput').style.opacity = '1';
+  document.getElementById('rateSetBtn').style.display = '';
+  document.getElementById('rateFetchBtn').style.display = 'none';
+  updateAmounts();
+}
+
+/* ═══════════════════════════════════════
+   TOGGLE AUTO RATE
+   ═══════════════════════════════════════ */
+async function toggleAutoRate() {
   var auto = document.getElementById('autoRate').checked;
   var inp = document.getElementById('rateInput');
   var setBtn = document.getElementById('rateSetBtn');
   var fetchBtn = document.getElementById('rateFetchBtn');
-  localStorage.setItem('nb_auto', auto);
+
   if (auto) {
-    inp.disabled = true;
-    inp.style.opacity = '.5';
-    setBtn.style.display = 'none';
-    fetchBtn.style.display = '';
-    fetchRate();
+    inp.disabled = true; inp.style.opacity = '.5';
+    setBtn.style.display = 'none'; fetchBtn.style.display = '';
   } else {
-    inp.disabled = false;
-    inp.style.opacity = '1';
-    setBtn.style.display = '';
-    fetchBtn.style.display = 'none';
-    document.getElementById('rateErr').textContent = '';
+    inp.disabled = false; inp.style.opacity = '1';
+    setBtn.style.display = ''; fetchBtn.style.display = 'none';
+  }
+
+  try {
+    await fetch(API + '/exchange-rate/auto', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('nb_auth') || '' },
+      body: JSON.stringify({ enabled: auto })
+    });
+    if (auto) fetchRate();
+  } catch (e) {
+    document.getElementById('rateErr').textContent = 'Failed to save preference';
   }
 }
 
-function setManualRate() {
+/* ═══════════════════════════════════════
+   SET MANUAL RATE → SAVES TO DB
+   ═══════════════════════════════════════ */
+async function setManualRate() {
   var v = parseFloat(document.getElementById('rateInput').value);
   if (isNaN(v) || v < 1) { document.getElementById('rateErr').textContent = 'Invalid rate'; return; }
-  RATE = v;
-  localStorage.setItem('nb_rate', RATE);
-  document.getElementById('rateDisplay').textContent = RATE.toFixed(2);
-  document.getElementById('rateTime').textContent = 'Manual';
   document.getElementById('rateErr').textContent = '';
-  updateAmounts();
-  sT('✅ Rate set to ' + RATE.toFixed(2));
+  document.getElementById('rateSetBtn').textContent = '⏳';
+  try {
+    var res = await fetch(API + '/exchange-rate', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('nb_auth') || '' },
+      body: JSON.stringify({ rate: v })
+    });
+    var data = await res.json();
+    if (data.success) {
+      RATE = data.rate;
+      applyRateUI(RATE, 'manual', new Date().toISOString(), false);
+      updateAmounts();
+      sT('✅ Rate saved to database: ' + RATE.toFixed(2));
+    }
+  } catch (e) {
+    document.getElementById('rateErr').textContent = 'Failed to save';
+    sT('❌ Could not save rate');
+  } finally {
+    document.getElementById('rateSetBtn').textContent = 'Set';
+  }
 }
 
+/* ═══════════════════════════════════════
+   FETCH LIVE RATE → SAVES TO DB
+   ═══════════════════════════════════════ */
 async function fetchRate() {
   var btn = document.getElementById('rateFetchBtn');
   var errEl = document.getElementById('rateErr');
@@ -189,23 +257,20 @@ async function fetchRate() {
   btn.className = 'rc-btn rc-fetching';
   errEl.textContent = '';
   try {
-    // Free forex API, no key needed
-    var res = await fetch('https://open.er-api.com/v6/latest/USD');
+    var res = await fetch(API + '/exchange-rate/fetch', {
+      headers: { 'Authorization': localStorage.getItem('nb_auth') || '' }
+    });
     var data = await res.json();
-    if (data.result === 'success' && data.rates && data.rates.NPR) {
-      RATE = data.rates.NPR;
-      localStorage.setItem('nb_rate', RATE);
-      document.getElementById('rateInput').value = RATE.toFixed(2);
-      document.getElementById('rateDisplay').textContent = RATE.toFixed(2);
-      var now = new Date();
-      document.getElementById('rateTime').textContent = 'Live: ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    if (data.success) {
+      RATE = data.rate;
+      applyRateUI(RATE, 'live', new Date().toISOString(), true);
       updateAmounts();
-      sT('✅ Live rate: 1 USD = ' + RATE.toFixed(2) + ' NPR');
+      sT('✅ Live rate: 1 USD = ' + RATE.toFixed(2) + ' NPR (saved)');
     } else {
-      throw new Error('No NPR rate in response');
+      throw new Error(data.error || 'Unknown error');
     }
   } catch (e) {
-    errEl.textContent = 'Failed to fetch, using saved rate';
+    errEl.textContent = 'Fetch failed: ' + (e.message || 'Network error');
     sT('❌ Could not fetch live rate');
   } finally {
     btn.textContent = '🔄 Fetch Live';
@@ -228,30 +293,18 @@ function updateAmounts() {
   document.querySelectorAll('[data-npr]').forEach(function(el) {
     var npr = parseFloat(el.dataset.npr) || 0;
     total += npr;
-    if (cur === 'USD') {
-      el.textContent = '= $' + (npr / RATE).toFixed(2);
-    } else {
-      el.textContent = '= Rs. ' + npr.toLocaleString('en-NP');
-    }
+    if (cur === 'USD') { el.textContent = '= $' + (npr / RATE).toFixed(2); }
+    else { el.textContent = '= Rs. ' + npr.toLocaleString('en-NP'); }
   });
   var tv = document.getElementById('totalVal');
   var tc = document.getElementById('totalCur');
-  if (cur === 'USD') {
-    tv.textContent = '$' + (total / RATE).toFixed(2);
-    tc.textContent = 'USD';
-    tc.className = 'total-cur usd';
-  } else {
-    tv.textContent = 'Rs. ' + total.toLocaleString('en-NP');
-    tc.textContent = 'NPR';
-    tc.className = 'total-cur npr';
-  }
+  if (cur === 'USD') { tv.textContent = '$' + (total / RATE).toFixed(2); tc.textContent = 'USD'; tc.className = 'total-cur usd'; }
+  else { tv.textContent = 'Rs. ' + total.toLocaleString('en-NP'); tc.textContent = 'NPR'; tc.className = 'total-cur npr'; }
 }
-updateAmounts();
 
 /* ═══════════════════════════════════════
    ORDER FUNCTIONS
    ═══════════════════════════════════════ */
-var b = window.location.pathname.replace('/api/view-orders', '') + '/api';
 function sT(m) { var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
 function oI(s) { document.getElementById('fI').src = s; var m = document.getElementById('imgModal'); m.style.display = 'flex'; m.classList.add('show'); }
 function cI(e) { if (e.target !== document.getElementById('fI')) { var m = document.getElementById('imgModal'); m.classList.remove('show'); setTimeout(function() { m.style.display = 'none'; }, 200); } }
@@ -259,7 +312,12 @@ function gI() { return [...document.querySelectorAll('.rc:checked')].map(functio
 function oCC() { var i = gI(), t = document.querySelectorAll('.rc').length; document.getElementById('bd').disabled = i.length === 0; document.getElementById('sc').textContent = i.length > 0 ? i.length + ' selected' : ''; document.getElementById('ca').checked = i.length === t; document.querySelectorAll('.rc').forEach(function(c) { document.getElementById('r-' + c.value).classList.toggle('selected', c.checked); }); }
 function tSA() { var c = document.getElementById('ca'); document.querySelectorAll('.rc').forEach(function(x) { x.checked = c.checked; }); oCC(); }
 function uI(id, s) { var c = document.getElementById('r-' + id)?.querySelector('.badge'); if (!c) return; c.classList.remove('bq', 'bsn', 'bf'); if (s === 'Sent') { c.classList.add('bsn'); c.textContent = 'Email Sent'; } else if (s === 'Failed') { c.classList.add('bf'); c.textContent = 'Email Failed'; } else { c.classList.add('bq'); c.textContent = 'Email Queue'; } c.style.animation = 'none'; c.offsetHeight; c.style.animation = 'pi .5s cubic-bezier(.175,.885,.32,1.275) forwards'; }
-async function uS(id, ns, el) { el.disabled = true; var oc = el.className; el.className = 'ss'; try { var r = await fetch(b + '/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: ns }) }); var d = await r.json(); el.className = 'ss s-' + ns; uI(id, d.emailStatus || 'Queue'); if (d.emailStatus === 'Failed') sT('❌ Status updated but Email Failed'); else if (d.emailStatus === 'Sent') sT('✅ Status updated & Email Sent'); else sT('✅ Status updated'); } catch (e) { sT('❌ Network error'); el.className = oc; } finally { el.disabled = false; } }
-async function d1(id, btn) { if (!confirm('Delete?')) return; btn.disabled = true; btn.textContent = '...'; try { var r = await fetch(b + '/delete-order/' + id, { method: 'DELETE' }); var d = await r.json(); if (d.success) { document.getElementById('r-' + id).style.opacity = '0'; setTimeout(function() { document.getElementById('r-' + id).remove(); oCC(); updateAmounts(); }, 300); sT('🗑️ Deleted'); } else { btn.disabled = false; btn.textContent = 'Del'; } } catch (e) { sT('❌ Error'); btn.disabled = false; btn.textContent = 'Del'; } }
-async function dS() { var i = gI(); if (i.length === 0 || !confirm('Delete ' + i.length + '?')) return; var btn = document.getElementById('bd'); btn.disabled = true; btn.innerHTML = '⏳...'; try { var r = await fetch(b + '/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: i }) }); var d = await r.json(); if (d.success) { d.deleted.forEach(function(id) { var el = document.getElementById('r-' + id); if (el) { el.style.opacity = '0'; setTimeout(function() { el.remove(); }, 300); } }); sT('🗑️ Deleted ' + d.deleted.length); setTimeout(function() { oCC(); updateAmounts(); }, 350); } else sT('❌ Error'); } catch (e) { sT('❌ Error'); } finally { btn.innerHTML = '🗑️ Delete'; btn.disabled = false; oCC(); } }
+async function uS(id, ns, el) { el.disabled = true; var oc = el.className; el.className = 'ss'; try { var r = await fetch(API + '/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: ns }) }); var d = await r.json(); el.className = 'ss s-' + ns; uI(id, d.emailStatus || 'Queue'); if (d.emailStatus === 'Failed') sT('❌ Status updated but Email Failed'); else if (d.emailStatus === 'Sent') sT('✅ Status updated & Email Sent'); else sT('✅ Status updated'); } catch (e) { sT('❌ Network error'); el.className = oc; } finally { el.disabled = false; } }
+async function d1(id, btn) { if (!confirm('Delete?')) return; btn.disabled = true; btn.textContent = '...'; try { var r = await fetch(API + '/delete-order/' + id, { method: 'DELETE' }); var d = await r.json(); if (d.success) { document.getElementById('r-' + id).style.opacity = '0'; setTimeout(function() { document.getElementById('r-' + id).remove(); oCC(); updateAmounts(); }, 300); sT('🗑️ Deleted'); } else { btn.disabled = false; btn.textContent = 'Del'; } } catch (e) { sT('❌ Error'); btn.disabled = false; btn.textContent = 'Del'; } }
+async function dS() { var i = gI(); if (i.length === 0 || !confirm('Delete ' + i.length + '?')) return; var btn = document.getElementById('bd'); btn.disabled = true; btn.innerHTML = '⏳...'; try { var r = await fetch(API + '/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: i }) }); var d = await r.json(); if (d.success) { d.deleted.forEach(function(id) { var el = document.getElementById('r-' + id); if (el) { el.style.opacity = '0'; setTimeout(function() { el.remove(); }, 300); } }); sT('🗑️ Deleted ' + d.deleted.length); setTimeout(function() { oCC(); updateAmounts(); }, 350); } else sT('❌ Error'); } catch (e) { sT('❌ Error'); } finally { btn.innerHTML = '🗑️ Delete'; btn.disabled = false; oCC(); } }
+
+/* ═══════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════ */
+loadRateFromDB();
 </script></body></html>
