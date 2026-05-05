@@ -82,10 +82,72 @@ mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB Conn
 const productSchema = new mongoose.Schema({ id: Number, name: String, sci: String, category: String, catLabel: String, price: Number, unit: String, moq: String, lead: String, img: String, desc: String, stock: { type: Number, default: 100 } });
 const orderSchema = new mongoose.Schema({ items: Array, totalUSD: Number, totalNPR: Number, paidAmount: Number, currency: String, paymentMethod: String, paymentScreenshot: String, clientDetails: { name: String, phone: String, email: String, address: String }, status: { type: String, default: 'Pending' }, emailStatus: { type: String, default: 'Queue' }, timestamp: { type: Date, default: Date.now } });
 const inquirySchema = new mongoose.Schema({ firstName: String, lastName: String, email: String, company: String, message: String, timestamp: { type: Date, default: Date.now } });
+const settingSchema = new mongoose.Schema({ key: { type: String, unique: true }, value: mongoose.Schema.Types.Mixed });
 
 const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
+const Setting = mongoose.model('Setting', settingSchema);
+
+// ─── HELPER: Get/Set DB Setting ─────────────────────────────────────────────
+async function getSetting(key, defaultVal) {
+  const doc = await Setting.findOne({ key });
+  return doc ? doc.value : defaultVal;
+}
+async function setSetting(key, value) {
+  await Setting.updateOne({ key }, { value }, { upsert: true });
+}
+
+// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────────
+app.get('/api/exchange-rate', checkAuth, async (req, res) => {
+  try {
+    const rate = await getSetting('exchange_rate', 133);
+    const auto = await getSetting('auto_rate', false);
+    const source = await getSetting('rate_source', 'default');
+    const fetchedAt = await getSetting('rate_fetched_at', null);
+    res.json({ rate, auto, source, fetchedAt });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─── ROUTE: SET EXCHANGE RATE (MANUAL) ──────────────────────────────────────
+app.put('/api/exchange-rate', checkAuth, async (req, res) => {
+  try {
+    const { rate } = req.body;
+    if (typeof rate !== 'number' || rate < 1) return res.status(400).json({ error: 'Invalid rate' });
+    await setSetting('exchange_rate', rate);
+    await setSetting('rate_source', 'manual');
+    await setSetting('rate_fetched_at', new Date().toISOString());
+    res.json({ success: true, rate });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─── ROUTE: TOGGLE AUTO RATE ─────────────────────────────────────────────────
+app.put('/api/exchange-rate/auto', checkAuth, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+    await setSetting('auto_rate', !!enabled);
+    res.json({ success: true, auto: !!enabled });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─── ROUTE: FETCH LIVE RATE FROM API ────────────────────────────────────────
+app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
+  try {
+    const apiRes = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 8000 });
+    if (apiRes.data?.result === 'success' && apiRes.data?.rates?.NPR) {
+      const rate = apiRes.data.rates.NPR;
+      await setSetting('exchange_rate', rate);
+      await setSetting('rate_source', 'live');
+      await setSetting('rate_fetched_at', new Date().toISOString());
+      res.json({ success: true, rate });
+    } else {
+      res.status(502).json({ error: 'NPR rate not found in API response' });
+    }
+  } catch (e) {
+    console.error('[RATE] Fetch error:', e.message);
+    res.status(502).json({ error: 'Failed to fetch live rate: ' + e.message });
+  }
+});
 
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
