@@ -252,13 +252,15 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
-          ih = it.map(i => {
-            const img = i.img ? `<img src="${i.img}" class="it">` : '';
-            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
-            const qty = i.qty || 1;
-            const price = i.price || 0;
-            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name}</span></div><span class="iq">${pid} x${qty} @ <span class="ipr">NPR ${price.toLocaleString('en-NP')}</span></span></div>`;
-          }).join('');
+         // ✅ AFTER
+ih = it.map(i => {
+  const img = i.img ? `<img src="${i.img}" class="it">` : '';
+  const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+  const qty = i.qty || 1;
+  const price = i.price || 0;
+  const lineTotal = qty * price;
+  return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+}).join('');
         }
       } catch(e) {}
 
