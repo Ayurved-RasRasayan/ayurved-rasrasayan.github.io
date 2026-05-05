@@ -111,11 +111,9 @@ app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
     if (errors.length > 0) return res.status(400).json({ success: false, errors });
-    
     req.body.clientDetails.name = req.body.clientDetails.name.trim().substring(0, 100);
     req.body.clientDetails.email = req.body.clientDetails.email.trim().toLowerCase();
     req.body.clientDetails.phone = req.body.clientDetails.phone.trim().substring(0, 20);
-    
     const savedOrder = await new Order(req.body).save();
     await sendAdminAlert(savedOrder._id, req.body);
     res.status(201).json({ success: true, orderId: savedOrder._id });
@@ -130,18 +128,14 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     const { id, status } = req.body;
     const order = await Order.findOne({ _id: id });
     if (!order) return res.status(404).json({ success: false });
-
     const wasDeducted = STOCK_DEDUCT_STATUSES.includes(order.status);
     const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
-
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
-
     if (shouldDeduct && !wasDeducted) {
       for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1) } });
     } else if (!shouldDeduct && wasDeducted) {
       for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
     }
-
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
       emailStat = await sendClientEmail(order.clientDetails.email, order.clientDetails.name, id, status) ? 'Sent' : 'Failed';
@@ -161,11 +155,11 @@ app.post('/api/inquiries', async (req, res) => {
 });
 
 // ─── ROUTE: DELETE ORDERS ───────────────────────────────────────────────────
-app.delete('/api/delete-order/:id', checkAuth, async (req, res) => { 
-  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); } 
+app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
+  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); }
 });
-app.delete('/api/delete-orders', checkAuth, async (req, res) => { 
-  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch(e) { res.status(500).json({success:false}); } 
+app.delete('/api/delete-orders', checkAuth, async (req, res) => {
+  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch(e) { res.status(500).json({success:false}); }
 });
 
 // ─── ROUTE: STOCK MANAGER ───────────────────────────────────────────────────
@@ -194,15 +188,62 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
+      const nprAmount = Math.round(r.totalNPR) || 0;
+
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
+
       const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+      // Build items list
       let ih = '';
-      try { const it = Array.isArray(r.items) ? r.items : []; if(it.length>0) ih = it.map(i => `<div class="ir"><div class="ix">${i.img?`<img src="${i.img}" class="it">`:''}<span class="in" title="${i.name}">${i.name}</span></div><span class="iq">x${i.qty||1} @ $${i.price}</span></div>`).join(''); } catch(e){}
-      const imgHtml = r.paymentScreenshot ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">` : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
-      const nprAmount = Math.round(r.totalNPR) || 0;
-      return `<tr id="r-${r._id}"><td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td><td class="cdp"><span class="dt">${d}</span>${imgHtml}</td><td class="cp"><div class="ph"><span class="pid">#${r._id.toString().substring(0,8)}</span><span class="ptl">$${r.totalUSD}</span></div><div class="pil">${ih||'No Data'}</div></td><td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}"><option value="Pending" ${s==='Pending'?'selected':''}>Pending</option><option value="Shipping" ${s==='Shipping'?'selected':''}>Shipping</option><option value="Completed" ${s==='Completed'?'selected':''}>Completed</option><option value="Success" ${s==='Success'?'selected':''}>Payment Successful</option><option value="Rejected" ${s==='Rejected'?'selected':''}>Rejected</option></select></td><td class="cc"><div class="cd"><strong>Name:</strong> ${r.clientDetails?.name||'Guest'}</div><div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone||'-'}</div><div class="cd"><strong>Email:</strong> ${r.clientDetails?.email||'-'}</div><div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address||'-'}</div><div class="cd"><strong>Amount:</strong> <span class="amt-val" data-npr="${nprAmount}">Rs. ${nprAmount.toLocaleString('en-NP')}</span></div></td><td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td></tr>`;
+      try {
+        const it = Array.isArray(r.items) ? r.items : [];
+        if (it.length > 0) {
+          ih = it.map(i => {
+            const img = i.img ? `<img src="${i.img}" class="it">` : '';
+            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+            const qty = i.qty || 1;
+            const price = i.price || 0;
+            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name}</span></div><span class="iq">${pid} x${qty} @ <span class="ipr">NPR ${price.toLocaleString('en-NP')}</span></span></div>`;
+          }).join('');
+        }
+      } catch(e) {}
+
+      const imgHtml = r.paymentScreenshot
+        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
+        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
+
+      // Order total with data-npr for currency toggle
+      const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+
+      return `<tr id="r-${r._id}">
+        <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
+        <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
+        <td class="cp">
+          <div class="ph">
+            <span class="ph-label">Order Id</span>
+            <span class="pid">#${r._id.toString().substring(0,8)}</span>
+          </div>
+          <div class="pil">${ih || 'No Data'}</div>
+          ${totalHtml}
+        </td>
+        <td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
+          <option value="Pending" ${s==='Pending'?'selected':''}>Pending</option>
+          <option value="Shipping" ${s==='Shipping'?'selected':''}>Shipping</option>
+          <option value="Completed" ${s==='Completed'?'selected':''}>Completed</option>
+          <option value="Success" ${s==='Success'?'selected':''}>Payment Successful</option>
+          <option value="Rejected" ${s==='Rejected'?'selected':''}>Rejected</option>
+        </select></td>
+        <td class="cc">
+          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name||'Guest'}</div>
+          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone||'-'}</div>
+          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email||'-'}</div>
+          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address||'-'}</div>
+        </td>
+        <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
+      </tr>`;
     }).join('');
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
