@@ -88,7 +88,7 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     if (!order) return res.status(404).json({ success: false });
     if (status === 'Completed') {
       console.log(`📦 Deducting stock for Completed Order #${id}...`);
-      if (order.items) { for (const item of order.items) { await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } }); } }
+      if (order.items) { for (const item of order.items) { await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } }); }
     }
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
