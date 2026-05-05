@@ -127,9 +127,8 @@ app.delete('/api/delete-orders', checkAuth, async (req, res) => { try { await Or
 app.get('/api/manage-stock', checkAuth, async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 });
-    res.send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Stock Manager</title>
+    res.render(`
+      <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Stock Manager</title>
       <style>
         *{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#1f2937}
         .header{max-width:1200px;margin:0 auto 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
@@ -144,30 +143,13 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
         @media(max-width:768px){table,thead,tbody,th,td,tr{display:block}thead tr{position:absolute;left:-9999px}tr{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:15px;padding:10px}td{border:none;border-bottom:1px solid #eee;padding-left:50%;text-align:right;position:relative}td:before{content:attr(data-label);position:absolute;left:15px;top:12px;width:45%;font-weight:700;text-align:left;font-size:12px;color:#6b7280;text-transform:uppercase}.si{width:100%}.pi{justify-content:flex-end}}
       </style></head><body>
       <div class="header"><h1>📦 Stock Manager</h1><a href="/api/view-orders" class="btn">← Back to Orders</a></div>
-      <div class="tw"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Set New</th><th>Action</th></tr></thead><tbody id="tb"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Set New</th><th>Action</th></tr></thead>
+      <tbody id="tb"><% products.map(function(p) { var s = p.stock || 0; var b = "<span style=\\"color:#15803d\\">In Stock</span>"; if(s===0) b = "<span style=\\"color:#b91c1c\\">Out</span>"; else if(s<=10) b = "<span style=\\"color:#c2410c\\">Low</span>"; %>
+      <tr><td data-label="Product"><div class="pi"><img src="<%= p.img %>" class="pimg"><div><strong><%= p.name %></strong><div style="font-size:10px;color:#6b7280"><%= p.sci %></div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280"><%= p.catLabel %></td><td data-label="Current"><%- b %> (<%= s %>)</td><td data-label="New Stock"><input type="number" class="si" id="s-<%= p.id %>" value="<%= s %>" min="0" onchange="document.getElementById('b-<%= p.id %>').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-<%= p.id %>" onclick="save(<%= p.id %>)">Save</button></td></tr>
+      <% }); %></tbody></table></div>
       <div id="toast" class="toast"></div>
       <script>
         const baseUrl = window.location.pathname.replace('/api/manage-stock','')+'/api';
-        const products = JSON.parse('${JSON.stringify(products)}');
-
-        const tb = document.getElementById('tb');
-        products.forEach(p => {
-          const s = p.stock || 0;
-          let b = '<span style="color:#15803d">In Stock</span>';
-          if(s===0) b = '<span style="color:#b91c1c">Out</span>';
-          else if(s<=10) b = '<span style="color:#c2410c">Low</span>';
-          
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td>
-            <td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td>
-            <td data-label="Current">${b} (${s})</td>
-            <td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td>
-            <td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td>
-          `;
-          tb.appendChild(tr);
-        });
-
         async function save(id) {
           const v = parseInt(document.getElementById('s-'+id).value);
           if(isNaN(v)||v<0) return;
@@ -178,9 +160,8 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
             if(r.ok){ btn.textContent='✓'; const t=document.getElementById('toast');t.textContent='✅ Saved!';t.classList.add('show');setTimeout(()=>location.reload(),800)} else btn.textContent='Error';
           } catch(e) { btn.textContent='Error'; } finally { btn.disabled=false; }
         }
-      </script>
-      </body></html>
-    `);
+      </script></body></html>
+    `, { products });
   } catch (e) { res.status(500).send('Error'); }
 });
 
