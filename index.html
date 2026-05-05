@@ -428,34 +428,54 @@ function removeFromCart(id){cart=cart.filter(i=>i.id!==id);updateCartUI();}
 function updateQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;i.qty=Math.max(1,i.qty+d);updateCartUI();}
 function clearCart(){cart=[];updateCartUI();showToast('Cart cleared','info');}
 
-function updateCartUI(){
-  const cEl=document.getElementById('cartCount'), tI=cart.reduce((s,i)=>s+i.qty,0), tP=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tP/exchangeRate;
-  if(tI>0){cEl.classList.remove('hidden');cEl.classList.add('flex');cEl.textContent=tI;}else{cEl.classList.add('hidden');cEl.classList.remove('flex');}
-  document.getElementById('cartItemCount').textContent=`(${tI} items)`;
-  document.getElementById('cartTotal').textContent=`NPR ${tP.toLocaleString()} ($${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;
-  const cI=document.getElementById('cartItems'), cF=document.getElementById('cartFooter');
-  if(!cart.length){cI.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub">Cart is empty</p></div>';cF.classList.add('hidden');lucide.createIcons();return;}
+function updateCartUI() {
+  const cEl = document.getElementById('cartCount'), tI = cart.reduce((s, i) => s + i.qty, 0), tP = cart.reduce((s, i) => s + i.price * i.qty, 0), tU = tP / exchangeRate;
+  if (tI > 0) {
+    cEl.classList.remove('hidden');
+    cEl.classList.add('flex');
+    cEl.textContent = tI;
+  } else {
+    cEl.classList.add('hidden');
+    cEl.classList.remove('flex');
+  }
+  document.getElementById('cartItemCount').textContent = `(${tI} items)`;
+  document.getElementById('cartTotal').textContent = `NPR ${tP.toLocaleString()} ($${tU.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
+  const cI = document.getElementById('cartItems'), cF = document.getElementById('cartFooter');
+  if (!cart.length) {
+    cI.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub">Cart is empty</p></div>';
+    cF.classList.add('hidden');
+    lucide.createIcons();
+    return;
+  }
   cF.classList.remove('hidden');
-  cI.innerHTML=cart.map(i=>{
-    const t=i.price*i.qty;
-    return`<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
+  cI.innerHTML = cart.map(i => {
+    const t = i.price * i.qty;
+    // We use i.unit directly now, and wrap it in parentheses
+    return `<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
       <img src="${i.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
         <div class="flex justify-between">
           <div><h4 class="text-sm font-medium truncate">${i.name} <span class="text-[10px] text-txt-third font-mono">#${i.id}</span></h4><p class="text-[11px] text-txt-third italic">${i.sci}</p></div>
           <button onclick="removeFromCart(${i.id})" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
         </div>
-        <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()}/${i.unit}</p>
+        
+        <!-- UPDATED: Price line with parentheses -->
+        <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()}/(${i.unit})</p>
+        
         <div class="flex justify-between mt-2">
           <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
             <button onclick="updateQty(${i.id},-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
-            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">${i.qty} ${i.unit}</span>
+            
+            <!-- UPDATED: Quantity line with parentheses -->
+            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">Qty ${i.qty} x (${i.unit})</span>
+            
             <button onclick="updateQty(${i.id},1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
           </div>
           <span class="text-sm font-semibold">NPR ${t.toLocaleString()}</span>
         </div>
       </div>
-    </div>`;}).join('');
+    </div>`;
+  }).join('');
   lucide.createIcons();
 }
 
