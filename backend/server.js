@@ -86,15 +86,22 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
     const order = await Order.findOne({ _id: id });
     if (!order) return res.status(404).json({ success: false });
+    
     if (status === 'Completed') {
       console.log(`📦 Deducting stock for Completed Order #${id}...`);
-      if (order.items) { for (const item of order.items) { await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } }); }
+      Array.from(order.items).forEach(async (item) => {
+        await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } });
+      });
     }
+
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
       emailStat = await sendClientEmail(order.clientDetails.email, order.clientDetails.name, id, status) ? 'Sent' : 'Failed';
       await Order.updateOne({ _id: id }, { emailStatus: emailStat });
     }
+    res.json({ success: true, emailStatus: emailStat });
+  } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
+});
     res.json({ success: true, emailStatus: emailStat });
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
