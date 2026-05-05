@@ -9,7 +9,8 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-const requiredEnvVars = ['MONGO_URI', 'EMAIL_PASS', 'ADMIN_USER', 'ADMIN_PASSWORD'];
+// ─── ENVIRONMENT VARIABLES CHECK ────────────────────────────────────────
+const requiredEnvVars = ['MONGO_URI', 'EMAIL_PASS', 'ADMIN_USER', 'ADMIN_PASSWORD', 'RECEIVER_EMAIL'];
 const missing = requiredEnvVars.filter(v => !process.env[v]);
 if (missing.length > 0) {
   console.error(`❌ FATAL: Missing environment variables: ${missing.join(', ')}`);
@@ -19,6 +20,7 @@ if (missing.length > 0) {
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
+// ─── MIDDLEWARE & HELPERS ────────────────────────────────────────────────
 function checkAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -51,6 +53,7 @@ function validateOrder(data) {
   return errors;
 }
 
+// ─── EMAIL FUNCTIONS ─────────────────────────────────────────────────────────
 async function sendClientEmail(toEmail, toName, orderId, status) {
   try {
     let displayStatus = status === 'Success' ? 'Payment Successful' : status;
@@ -77,6 +80,38 @@ async function sendAdminAlert(orderId, data) {
   } catch (e) { console.error('Admin Alert Error:', e.message); }
 }
 
+// NEW: Send Inquiry Email Notification
+async function sendInquiryAlert(data) {
+  try {
+    const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+    await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
+      to: [{ email: process.env.RECEIVER_EMAIL, name: 'Sales Team' }], // Receiver from ENV
+      subject: `📨 New Inquiry: ${fullName} (${data.company || 'Individual'})`,
+      htmlContent: `
+        <div style="font-family:Arial;color:#333;padding:20px;border:1px solid #eee;">
+          <h2 style="color:#A3B14B;">New Inquiry Received</h2>
+          <p style="background:#f9fafb;padding:10px;border-radius:5px;">
+            <strong>Name:</strong> ${fullName}<br>
+            <strong>Email:</strong> ${data.email}<br>
+            <strong>Phone:</strong> ${data.email}<br>
+            <strong>Company:</strong> ${data.company || 'N/A'}
+          </p>
+          <div style="margin-top:20px;">
+            <strong>Message:</strong>
+            <p style="background:#fff;padding:15px;border:1px solid #eee;margin-top:5px;">${data.message}</p>
+          </div>
+        </div>
+      `
+    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
+    return true;
+  } catch (e) {
+    console.error('[INQUIRY EMAIL] ❌ Error:', e.response?.data || e.message);
+    return false;
+  }
+}
+
+// ─── DATABASE CONNECT & SCHEMAS ────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB Connected')).catch(err => { console.error('❌ MongoDB Error:', err); process.exit(1); });
 
 const productSchema = new mongoose.Schema({ id: Number, name: String, sci: String, category: String, catLabel: String, price: Number, unit: String, moq: String, lead: String, img: String, desc: String, stock: { type: Number, default: 100 } });
@@ -153,17 +188,21 @@ app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   }
 });
 
+// ─── ROUTE: BASE & HEALTH ────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
   try { await mongoose.connection.db.admin().ping(); res.json({ status: 'healthy' }); }
   catch (e) { res.status(503).json({ status: 'unhealthy' }); }
 });
+
+// ─── ROUTE: PRODUCTS & SEEDING ───────────────────────────────────────────
 app.get('/api/products', async (req, res) => { try { res.json(await Product.find().sort({ id: 1 })); } catch (e) { res.status(500).json({ error: e.message }); } });
 
 const myProducts = require('./products.json');
 app.get('/api/seed', checkAuth, async (req, res) => { try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Seeded!'); } catch (e) { res.status(500).send(e.message); } });
 app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); } });
 
+// ─── ROUTE: ORDERS ────────────────────────────────────────────────────────
 app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
@@ -188,7 +227,7 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
     if (shouldDeduct && !wasDeducted) {
-      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1) } });
+      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } });
     } else if (!shouldDeduct && wasDeducted) {
       for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
     }
@@ -201,27 +240,29 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
+// ─── ROUTE: INQUIRIES (UPDATED) ─────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
-    // 1. Check if fields exist AND are not empty strings
     if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
 
-    // 2. Debug log to ensure data is reaching server (check your terminal)
     console.log('📨 New Inquiry:', req.body);
-
-    // 3. Save to DB
+    
+    // 1. Save to Database
     await new Inquiry(req.body).save();
+    
+    // 2. Send Email Notification
+    await sendInquiryAlert(req.body);
     
     res.json({ success: true });
   } catch (e) {
-    // 4. Return actual error message instead of generic 'Server error'
     console.error('❌ Inquiry Save Error:', e);
     res.status(500).json({ success: false, error: e.message });
   }
-});;
+});
 
+// ─── ROUTE: DELETE / MANAGE STOCK ───────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); }
 });
@@ -265,15 +306,14 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
-         // ✅ AFTER
-ih = it.map(i => {
-  const img = i.img ? `<img src="${i.img}" class="it">` : '';
-  const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
-  const qty = i.qty || 1;
-  const price = i.price || 0;
-  const lineTotal = qty * price;
-  return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
-}).join('');
+         ih = it.map(i => {
+            const img = i.img ? `<img src="${i.img}" class="it">` : '';
+            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+            const qty = i.qty || 1;
+            const price = i.price || 0;
+            const lineTotal = qty * price;
+            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+         }).join('');
         }
       } catch(e) {}
 
