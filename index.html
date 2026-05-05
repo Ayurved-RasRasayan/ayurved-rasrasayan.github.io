@@ -369,16 +369,22 @@ function createRipple(e) { const b=e.currentTarget, d=document.createElement("sp
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',createRipple));
 
 function renderProducts(items) {
-  const grid=document.getElementById('productGrid'),noR=document.getElementById('noResults'),cnt=document.getElementById('productCount');
-  if(!items||!items.length){grid.innerHTML='';noR.classList.remove('hidden');cnt.textContent='0 products';return;}
-  noR.classList.add('hidden'); cnt.textContent=`${items.length} product${items.length!==1?'s':''}`;
-  grid.innerHTML=items.map((p,i)=>{
-    const pN=p.price, pU=pN/exchangeRate, s=p.stock!==undefined?p.stock:100, oos=s<=0, sT=oos?'Out of Stock':`Stock: ${s}`, sC=oos?'text-red-500':'text-brand',
-    bH=oos?`<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>`:`<button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
-    return`<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos?'opacity-70':''}" style="animation:fadeInUp 0.6s ease-out ${i*0.04}s forwards;opacity:0">
+  const grid = document.getElementById('productGrid'), noR = document.getElementById('noResults'), cnt = document.getElementById('productCount');
+  if (!items || !items.length) {
+    grid.innerHTML = '';
+    noR.classList.remove('hidden');
+    cnt.textContent = '0 products';
+    return;
+  }
+  noR.classList.add('hidden');
+  cnt.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = items.map((p, i) => {
+    const pN = p.price, pU = pN / exchangeRate, s = p.stock !== undefined ? p.stock : 100, oos = s <= 0, sT = oos ? 'Out of Stock' : `Stock: ${s}`, sC = oos ? 'text-red-500' : 'text-brand',
+      bH = oos ? `<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>` : `<button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
+    return `<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos ? 'opacity-70' : ''}" style="animation:fadeInUp 0.6s ease-out ${i * 0.04}s forwards;opacity:0">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
-        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium uppercase rounded-full text-txt-sub shadow-sm">${p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Oil':p.category==='namak'?'Salt':p.category==='rasa'?'Mineral':'Extract'}</span></div>
+        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium uppercase rounded-full text-txt-sub shadow-sm">${p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Oil' : p.category === 'namak' ? 'Salt' : p.category === 'rasa' ? 'Mineral' : 'Extract'}</span></div>
         <div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-black/70 text-[10px] font-mono font-bold uppercase rounded-full text-white shadow-sm">ID: ${p.id}</span></div>
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center"><span class="opacity-0 group-hover:opacity-100 px-4 py-2 bg-white/90 rounded-full text-xs font-medium shadow-lg transform translate-y-2 group-hover:translate-y-0">View Details</span></div>
       </div>
@@ -389,11 +395,16 @@ function renderProducts(items) {
         <p class="text-xs text-txt-third mb-3 line-clamp-2">${p.desc}</p>
         <p class="text-xs font-bold ${sC} mb-3 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> ${sT}</p>
         <div class="flex items-center justify-between">
-          <div><span class="text-xl font-semibold">NPR ${pN.toLocaleString()}</span><span class="text-xs text-txt-sub block">$${pU.toLocaleString('en-US',{minimumFractionDigits:2})}/${p.unit}</span></div>
+          <div>
+            <span class="text-xl font-semibold">NPR ${pN.toLocaleString()}</span>
+            <!-- CHANGED LINE BELOW: removed "1 unit =" from the display -->
+            <span class="text-xs text-txt-sub block">$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })}/${p.unit.replace('1 unit = ', '')}</span>
+          </div>
           ${bH}
         </div>
       </div>
-    </div>`}).join('');
+    </div>`;
+  }).join('');
   lucide.createIcons();
 }
 
@@ -493,7 +504,32 @@ async function submitOrderToBackend(){
   finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}
 }
 
-function openModal(id){const p=products.find(x=>x.id===id);if(!p)return;currentModalProduct=p;const pN=p.price, pU=pN/exchangeRate, u=p.unit;document.getElementById('modalImg').src=p.img;document.getElementById('modalName').textContent=p.name;document.getElementById('modalSci').textContent=p.sci;document.getElementById('modalCat').textContent=p.catLabel;document.getElementById('modalPrice').textContent=`NPR ${pN.toLocaleString()}`;document.getElementById('modalUnitLabel').textContent=`per ${u}`;document.getElementById('modalPriceUsd').textContent=`$${pU.toLocaleString('en-US',{minimumFractionDigits:2})} / ${u}`;document.getElementById('modalDesc').textContent=p.desc;document.getElementById('modalBadge').textContent=p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Essential Oil':p.category==='rasa'?'Rasa Uparasa':p.category==='namak'?'Namak':'Extract';document.getElementById('modalMoq').textContent=p.moq;document.getElementById('modalLead').textContent=p.lead;document.getElementById('modalQty').value=1;document.getElementById('modalUnitBox').textContent=`1 unit = ${u}`;;document.getElementById('modalAddBtn').onclick=()=>{addToCart(p.id,parseInt(document.getElementById('modalQty').value)||1);closeModal();};const md=document.getElementById('productModal');md.classList.remove('hidden');md.classList.add('flex');lucide.createIcons();}
+function openModal(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  currentModalProduct = p;
+  const pN = p.price, pU = pN / exchangeRate, u = p.unit;
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalSci').textContent = p.sci;
+  document.getElementById('modalCat').textContent = p.catLabel;
+  document.getElementById('modalPrice').textContent = `NPR ${pN.toLocaleString()}`;
+  document.getElementById('modalUnitLabel').textContent = `per ${u.replace('1 unit = ', '')}`; // Also cleaned up here for consistency
+  document.getElementById('modalPriceUsd').textContent = `$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${u.replace('1 unit = ', '')}`;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalBadge').textContent = p.category === 'api' ? 'API' : p.category === 'herbs' ? 'Raw Herb' : p.category === 'mushrooms' ? 'Mushroom' : p.category === 'oils' ? 'Essential Oil' : p.category === 'rasa' ? 'Rasa Uparasa' : p.category === 'namak' ? 'Namak' : 'Extract';
+  document.getElementById('modalMoq').textContent = p.moq;
+  document.getElementById('modalLead').textContent = p.lead;
+  document.getElementById('modalQty').value = 1;
+  // CHANGED LINE BELOW: Just use 'u' directly, do not prepend "1 unit = "
+  document.getElementById('modalUnitBox').textContent = u;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  const md = document.getElementById('productModal');
+  md.classList.remove('hidden');
+  md.classList.add('flex');
+  lucide.createIcons();
+}
+  
 function closeModal(){document.getElementById('productModal').classList.add('hidden');document.getElementById('productModal').classList.remove('flex');currentModalProduct=null;}
 function modalQtyChange(d){const i=document.getElementById('modalQty');i.value=Math.max(1,(parseInt(i.value)||1)+d);}
 
