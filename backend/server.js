@@ -9,7 +9,6 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// ─── STARTUP VALIDATION ─────────────────────────────────────────────────────
 const requiredEnvVars = ['MONGO_URI', 'EMAIL_PASS', 'ADMIN_USER', 'ADMIN_PASSWORD'];
 const missing = requiredEnvVars.filter(v => !process.env[v]);
 if (missing.length > 0) {
@@ -17,11 +16,9 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-// ─── MIDDLEWARE ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── SECURITY MIDDLEWARE ─────────────────────────────────────────────────────
 function checkAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -37,7 +34,6 @@ function checkAuth(req, res, next) {
   return res.status(401).send('Access Denied');
 }
 
-// ─── INPUT VALIDATION ────────────────────────────────────────────────────────
 function validateOrder(data) {
   const errors = [];
   if (!data.items || !Array.isArray(data.items) || data.items.length === 0) errors.push('Items array is required');
@@ -55,7 +51,6 @@ function validateOrder(data) {
   return errors;
 }
 
-// ─── EMAIL SERVICES ──────────────────────────────────────────────────────────
 async function sendClientEmail(toEmail, toName, orderId, status) {
   try {
     let displayStatus = status === 'Success' ? 'Payment Successful' : status;
@@ -82,7 +77,6 @@ async function sendAdminAlert(orderId, data) {
   } catch (e) { console.error('Admin Alert Error:', e.message); }
 }
 
-// ─── MONGODB CONNECTION ──────────────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB Connected')).catch(err => { console.error('❌ MongoDB Error:', err); process.exit(1); });
 
 const productSchema = new mongoose.Schema({ id: Number, name: String, sci: String, category: String, catLabel: String, price: Number, unit: String, moq: String, lead: String, img: String, desc: String, stock: { type: Number, default: 100 } });
@@ -93,7 +87,6 @@ const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 
-// ─── PUBLIC ROUTES ──────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
   try { await mongoose.connection.db.admin().ping(); res.json({ status: 'healthy' }); }
@@ -101,12 +94,10 @@ app.get('/api/health', async (req, res) => {
 });
 app.get('/api/products', async (req, res) => { try { res.json(await Product.find().sort({ id: 1 })); } catch (e) { res.status(500).json({ error: e.message }); } });
 
-// ─── PROTECTED SEED ROUTES ──────────────────────────────────────────────────
 const myProducts = require('./products.json');
 app.get('/api/seed', checkAuth, async (req, res) => { try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Seeded!'); } catch (e) { res.status(500).send(e.message); } });
 app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); } });
 
-// ─── ROUTE: NEW ORDER ───────────────────────────────────────────────────────
 app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
@@ -120,7 +111,6 @@ app.post('/api/orders', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
 
-// ─── ROUTE: UPDATE STATUS & STOCK ───────────────────────────────────────────
 const STOCK_DEDUCT_STATUSES = ['Completed', 'Success', 'Shipping'];
 
 app.put('/api/update-status', checkAuth, async (req, res) => {
@@ -145,7 +135,6 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ─── ROUTE: INQUIRY ─────────────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
     if (!req.body.email || !req.body.message) return res.status(400).json({ success: false, error: 'Missing fields' });
@@ -154,7 +143,6 @@ app.post('/api/inquiries', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// ─── ROUTE: DELETE ORDERS ───────────────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); }
 });
@@ -162,7 +150,6 @@ app.delete('/api/delete-orders', checkAuth, async (req, res) => {
   try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch(e) { res.status(500).json({success:false}); }
 });
 
-// ─── ROUTE: STOCK MANAGER ───────────────────────────────────────────────────
 app.put('/api/update-stock', checkAuth, async (req, res) => {
   try { await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } }); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -182,7 +169,6 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
-// ─── ROUTE: VIEW ORDERS DASHBOARD ───────────────────────────────────────────
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
@@ -196,7 +182,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
 
       const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-      // Build items list
       let ih = '';
       try {
         const it = Array.isArray(r.items) ? r.items : [];
@@ -215,7 +200,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
         ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
         : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
 
-      // Order total with data-npr for currency toggle
       const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
 
       return `<tr id="r-${r._id}">
@@ -250,7 +234,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading orders'); }
 });
 
-// ─── ERROR HANDLING ─────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => { console.error('Unhandled error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
