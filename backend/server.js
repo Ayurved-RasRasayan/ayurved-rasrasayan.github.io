@@ -98,7 +98,39 @@ async function setSetting(key, value) {
   await Setting.updateOne({ key }, { value }, { upsert: true });
 }
 
-// ─── PUBLIC EXCHANGE RATE (for storefront) ──────────────────────────────────
+// ─── AUTO-SYNC EXCHANGE RATE ────────────────────────────────────────────────
+async function syncExchangeRate() {
+  try {
+    const apiRes = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 10000 });
+    if (apiRes.data?.result === 'success' && apiRes.data?.rates?.NPR) {
+      const rate = apiRes.data.rates.NPR;
+      await setSetting('exchange_rate', rate);
+      await setSetting('rate_source', 'live');
+      await setSetting('rate_fetched_at', new Date().toISOString());
+      console.log(`💱 Exchange rate synced: 1 USD = ${rate} NPR (${new Date().toLocaleTimeString()})`);
+      return rate;
+    }
+  } catch (e) {
+    console.warn('💱 Rate sync failed:', e.message);
+  }
+  return null;
+}
+
+// Sync on startup, then every 6 hours
+syncExchangeRate();
+setInterval(syncExchangeRate, 6 * 60 * 60 * 1000);
+
+// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────────
+app.get('/api/exchange-rate', checkAuth, async (req, res) => {
+  try {
+    const rate = await getSetting('exchange_rate', 133);
+    const source = await getSetting('rate_source', 'default');
+    const fetchedAt = await getSetting('rate_fetched_at', null);
+    res.json({ rate, source, fetchedAt });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─── ROUTE: PUBLIC EXCHANGE RATE (storefront) ───────────────────────────────
 app.get('/api/public/rate', async (req, res) => {
   try {
     const rate = await getSetting('exchange_rate', 133);
@@ -106,54 +138,17 @@ app.get('/api/public/rate', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-
-// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────────
-app.get('/api/exchange-rate', checkAuth, async (req, res) => {
-  try {
-    const rate = await getSetting('exchange_rate', 133);
-    const auto = await getSetting('auto_rate', false);
-    const source = await getSetting('rate_source', 'default');
-    const fetchedAt = await getSetting('rate_fetched_at', null);
-    res.json({ rate, auto, source, fetchedAt });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// ─── ROUTE: SET EXCHANGE RATE (MANUAL) ──────────────────────────────────────
-app.put('/api/exchange-rate', checkAuth, async (req, res) => {
-  try {
-    const { rate } = req.body;
-    if (typeof rate !== 'number' || rate < 1) return res.status(400).json({ error: 'Invalid rate' });
-    await setSetting('exchange_rate', rate);
-    await setSetting('rate_source', 'manual');
-    await setSetting('rate_fetched_at', new Date().toISOString());
-    res.json({ success: true, rate });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// ─── ROUTE: TOGGLE AUTO RATE ─────────────────────────────────────────────────
-app.put('/api/exchange-rate/auto', checkAuth, async (req, res) => {
-  try {
-    const { enabled } = req.body;
-    await setSetting('auto_rate', !!enabled);
-    res.json({ success: true, auto: !!enabled });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// ─── ROUTE: FETCH LIVE RATE FROM API ────────────────────────────────────────
+// ─── ROUTE: FORCE FETCH LIVE RATE ───────────────────────────────────────────
 app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   try {
-    const apiRes = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 8000 });
-    if (apiRes.data?.result === 'success' && apiRes.data?.rates?.NPR) {
-      const rate = apiRes.data.rates.NPR;
-      await setSetting('exchange_rate', rate);
-      await setSetting('rate_source', 'live');
-      await setSetting('rate_fetched_at', new Date().toISOString());
+    const rate = await syncExchangeRate();
+    if (rate) {
       res.json({ success: true, rate });
     } else {
-      res.status(502).json({ error: 'NPR rate not found in API response' });
+      const fallback = await getSetting('exchange_rate', 133);
+      res.status(502).json({ error: 'Failed to fetch live rate', rate: fallback });
     }
   } catch (e) {
-    console.error('[RATE] Fetch error:', e.message);
     res.status(502).json({ error: 'Failed to fetch live rate: ' + e.message });
   }
 });
