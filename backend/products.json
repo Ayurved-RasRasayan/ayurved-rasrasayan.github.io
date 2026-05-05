@@ -116,19 +116,7 @@
     "img": "images/white-sandalwood-oil.jpg",
     "desc": "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices."
   },
-  {
-    "id": 58,
-    "name": "Amrit Dhara",
-    "sci": "Traditional Ayurvedic Blend",
-    "category": "oils",
-    "catLabel": "Oils",
-    "price": 100,
-    "unit": "1 unit = 15 ml",
-    "moq": "15 ml",
-    "lead": "7-10 days",
-    "img": "images/amrit-dhara.jpg",
-    "desc": "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households."
-  },
+  
   {
     "id": 10,
     "name": "Chirita Extract",
@@ -755,6 +743,19 @@
   },
   {
     "id": 58,
+    "name": "Amrit Dhara",
+    "sci": "Traditional Ayurvedic Blend",
+    "category": "oils",
+    "catLabel": "Oils",
+    "price": 100,
+    "unit": "1 unit = 15 ml",
+    "moq": "15 ml",
+    "lead": "7-10 days",
+    "img": "images/amrit-dhara.jpg",
+    "desc": "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households."
+  },
+  {
+    "id": 59,
     "name": "Amla",
     "sci": "Phyllanthus emblica",
     "category": "herbs",
@@ -768,7 +769,7 @@
     "desc": "Dried Amla (Indian Gooseberry) fruits, sourced from organic farms. High in Vitamin C."
   },
   {
-    "id": 59,
+    "id": 60,
     "name": "Arjuna Chal",
     "sci": "Terminalia arjuna",
     "category": "herbs",
@@ -782,7 +783,7 @@
     "desc": "Arjuna bark, known for cardiovascular benefits. Cleaned and dried bark chips."
   },
   {
-    "id": 9003,
+    "id": 61,
     "name": "Ashwagandha",
     "sci": "Withania somnifera",
     "category": "herbs",
@@ -796,7 +797,7 @@
     "desc": "Premium dried Ashwagandha roots. High withanolide content."
   },
   {
-    "id": 9004,
+    "id": 62,
     "name": "Chhoti Harad",
     "sci": "Terminalia chebula",
     "category": "herbs",
@@ -810,7 +811,7 @@
     "desc": "Small Harad fruits, sorted and dried. Essential for Triphala formulations."
   },
   {
-    "id": 9005,
+    "id": 63,
     "name": "Moringa Leaves",
     "sci": "Moringa oleifera",
     "category": "herbs",
@@ -824,7 +825,7 @@
     "desc": "Shade-dried Moringa leaves. Rich in nutrients and antioxidants."
   },
   {
-    "id": 9006,
+    "id": 64,
     "name": "Neem",
     "sci": "Azadirachta indica",
     "category": "herbs",
@@ -838,7 +839,7 @@
     "desc": "Dried Neem leaves. Widely used for its antibacterial and antifungal properties."
   },
   {
-    "id": 9007,
+    "id": 65,
     "name": "Tulsi",
     "sci": "Ocimum tenuiflorum",
     "category": "herbs",
@@ -852,7 +853,7 @@
     "desc": "Sacred Basil (Tulsi) leaves. Aromatic and medicinal."
   },
   {
-    "id": 9010,
+    "id": 66,
     "name": "Ashwagandha Powder",
     "sci": "Withania somnifera",
     "category": "powder",
@@ -866,7 +867,7 @@
     "desc": "Fine mesh powder of Ashwagandha root."
   },
   {
-    "id": 9011,
+    "id": 67,
     "name": "Amla Powder",
     "sci": "Phyllanthus emblica",
     "category": "powder",
@@ -880,7 +881,7 @@
     "desc": "Dried Amla fruit powder. Natural Vitamin C supplement."
   },
   {
-    "id": 9012,
+    "id": 68,
     "name": "Harro Powder",
     "sci": "Terminalia chebula",
     "category": "powder",
@@ -894,7 +895,7 @@
     "desc": "Harad fruit powder. Key ingredient in Ayurvedic digestive formulas."
   },
   {
-    "id": 9013,
+    "id": 69,
     "name": "Neem Powder",
     "sci": "Azadirachta indica",
     "category": "powder",
@@ -908,7 +909,7 @@
     "desc": "Pure Neem leaf powder. Used in skincare and health supplements."
   },
   {
-    "id": 9014,
+    "id": 70,
     "name": "Triphala Powder",
     "sci": "Mixed Formula",
     "category": "powder",
