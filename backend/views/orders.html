@@ -134,9 +134,7 @@ var cur = 'NPR';
    ═══════════════════════════════════════ */
 async function loadRateFromDB() {
   try {
-    var res = await fetch(API + '/exchange-rate', {
-      headers: { 'Authorization': localStorage.getItem('nb_auth') || '' }
-    });
+    var res = await fetch(API + '/exchange-rate');
     if (!res.ok) { applyRateFallback(133); return; }
     var data = await res.json();
     RATE = data.rate || 133;
@@ -152,6 +150,7 @@ function applyRateUI(rate, source, fetchedAt, auto) {
   document.getElementById('rateInput').value = rate.toFixed(2);
   document.getElementById('rateDisplay').textContent = rate.toFixed(2);
   document.getElementById('rateTime').textContent = 'Loading...';
+  document.getElementById('rateErr').textContent = '';
   document.getElementById('autoRate').checked = !!auto;
 
   if (!!auto) {
@@ -182,6 +181,7 @@ function applyRateFallback(rate) {
   document.getElementById('rateInput').value = rate;
   document.getElementById('rateDisplay').textContent = rate.toFixed(2);
   document.getElementById('rateTime').textContent = 'Offline';
+  document.getElementById('rateErr').textContent = '';
   document.getElementById('rateInput').disabled = false;
   document.getElementById('rateInput').style.opacity = '1';
   document.getElementById('rateSetBtn').style.display = '';
@@ -209,7 +209,7 @@ async function toggleAutoRate() {
   try {
     await fetch(API + '/exchange-rate/auto', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('nb_auth') || '' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled: auto })
     });
     if (auto) fetchRate();
@@ -229,7 +229,7 @@ async function setManualRate() {
   try {
     var res = await fetch(API + '/exchange-rate', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('nb_auth') || '' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rate: v })
     });
     var data = await res.json();
@@ -257,9 +257,7 @@ async function fetchRate() {
   btn.className = 'rc-btn rc-fetching';
   errEl.textContent = '';
   try {
-    var res = await fetch(API + '/exchange-rate/fetch', {
-      headers: { 'Authorization': localStorage.getItem('nb_auth') || '' }
-    });
+    var res = await fetch(API + '/exchange-rate/fetch');
     var data = await res.json();
     if (data.success) {
       RATE = data.rate;
