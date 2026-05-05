@@ -1,1 +1,23 @@
-
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Stock Manager</title>
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#1f2937}
+.header{max-width:1200px;margin:0 auto 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+h1{color:#2d4a22;margin:0}.btn{padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid #d1d5db;background:#fff;color:#374151}
+.tw{max-width:1200px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+table{width:100%;border-collapse:collapse}th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #e5e7eb}th{background:#2d4a22;color:#fff;font-size:12px;text-transform:uppercase}tr:hover{background:#f9fafb}
+.pi{display:flex;align-items:center;gap:12px}.pimg{width:40px;height:40px;border-radius:6px;object-fit:cover}
+.si{width:80px;padding:6px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-weight:600;text-align:center}.si:focus{outline:none;border-color:#A3B14B}
+.sb{background:#A3B14B;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;opacity:0;transition:.2s}.sv{opacity:1}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:12px 24px;border-radius:50px;opacity:0;transition:.3s;z-index:2000}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:768px){table,thead,tbody,th,td,tr{display:block}thead tr{position:absolute;left:-9999px}tr{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:15px;padding:10px}td{border:none;padding-left:50%;text-align:right;position:relative}td:before{content:attr(data-label);position:absolute;left:15px;top:12px;width:45%;font-weight:700;text-align:left;font-size:12px;color:#6b7280;text-transform:uppercase}.si{width:100%}.pi{justify-content:flex-end}}
+</style></head><body>
+<div class="header"><h1>📦 Stock Manager</h1><a href="/api/view-orders" class="btn">← Back to Orders</a></div>
+<div class="tw"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Set New</th><th>Action</th></tr></thead>
+<tbody>{{STOCK_ROWS}}</tbody>
+</table></div>
+<div id="toast" class="toast"></div>
+<script>
+const b=window.location.pathname.replace('/api/manage-stock','')+'/api';
+async function save(id){const v=parseInt(document.getElementById('s-'+id).value);if(isNaN(v)||v<0)return;const btn=document.getElementById('b-'+id);btn.textContent='...';btn.disabled=true;try{const r=await fetch(b+'/update-stock',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,stock:v})});if(r.ok){btn.textContent='✓';const t=document.getElementById('toast');t.textContent='✅ Saved!';t.classList.add('show');setTimeout(()=>location.reload(),800)}else btn.textContent='Error'}catch(e){btn.textContent='Error'}finally{btn.disabled=false}}
+</script></body></html>
