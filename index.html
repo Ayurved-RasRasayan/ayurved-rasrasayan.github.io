@@ -271,10 +271,32 @@
 
 <script>
 const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api'; 
-const USD_TO_NPR = 133; 
+/* ─── EXCHANGE RATE: loaded from MongoDB ─── */
+let exchangeRate = 133; 
+
 let paymentScreenshotBase64 = null;
 let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
 let currentModalProduct = null; let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
+
+/* ═══════════════════════════════════════
+   FETCH EXCHANGE RATE FROM DATABASE
+   ═══════════════════════════════════════ */
+async function loadExchangeRate() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/public/rate`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.rate && data.rate > 0) {
+        exchangeRate = data.rate;
+        console.log(`💱 Exchange rate loaded from DB: 1 USD = ${exchangeRate} NPR`);
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch rate from DB, using fallback 133');
+  }
+  // Always load products after rate is resolved
+  loadProducts();
+}
 
 async function loadProducts() {
   const grid = document.getElementById('productGrid');
@@ -283,7 +305,7 @@ async function loadProducts() {
     const res = await fetch(`${BACKEND_URL}/products`); 
     if (!res.ok) throw new Error(); 
     products = await res.json(); 
-    updateCategoryCounts(); // <--- UPDATE COUNTS HERE
+    updateCategoryCounts(); 
     renderProducts(getFilteredProducts()); 
   } catch (e) { 
     grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products.</p></div>'; 
@@ -291,7 +313,6 @@ async function loadProducts() {
   }
 }
 
-// --- NEW FUNCTION: UPDATE CATEGORY COUNTS ---
 function updateCategoryCounts() {
   document.querySelector('[data-cat="all"] .count-cat').textContent = `(${products.length})`;
   const categories = ['api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak'];
@@ -312,10 +333,8 @@ function renderProducts(items) {
   if(!items||!items.length){grid.innerHTML='';noR.classList.remove('hidden');cnt.textContent='0 products';return;}
   noR.classList.add('hidden'); cnt.textContent=`${items.length} product${items.length!==1?'s':''}`;
   grid.innerHTML=items.map((p,i)=>{
-    const pN=p.price,pU=pN/USD_TO_NPR,s=p.stock!==undefined?p.stock:100,oos=s<=0,sT=oos?'Out of Stock':`Stock: ${s}`,sC=oos?'text-red-500':'text-brand',
+    const pN=p.price, pU=pN/exchangeRate, s=p.stock!==undefined?p.stock:100, oos=s<=0, sT=oos?'Out of Stock':`Stock: ${s}`, sC=oos?'text-red-500':'text-brand',
     bH=oos?`<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>`:`<button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
-    
-    // --- FIX: SHOW PRODUCT ID ON CARD ---
     return`<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos?'opacity-70':''}" style="animation:fadeInUp 0.6s ease-out ${i*0.04}s forwards;opacity:0">
       <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
         <img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
@@ -342,26 +361,13 @@ function getFilteredProducts(){let i=currentCategory==='all'?[...products]:produ
 function filterCategory(c){currentCategory=c;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));renderProducts(getFilteredProducts());}
 function sortProducts(){currentSort=document.getElementById('sortSelect').value;renderProducts(getFilteredProducts());}
 
-// --- FIX: SECURE CART WITH EXPLICIT ID MAPPING ---
 function addToCart(id, qty=1){
   const p = products.find(x => x.id === id);
   if (!p) return;
   if ((p.stock || 100) <= 0) return showToast('Out of stock', 'error');
-  
   const e = cart.find(i => i.id === id);
-  if (e) {
-    e.qty += qty;
-  } else {
-    // Only push safe, explicit data to the cart
-    cart.push({
-      id: p.id, 
-      name: p.name, 
-      sci: p.sci, 
-      img: p.img, 
-      unit: p.unit, 
-      price: p.price, 
-      qty: qty
-    });
+  if (e) { e.qty += qty; } else {
+    cart.push({ id: p.id, name: p.name, sci: p.sci, img: p.img, unit: p.unit, price: p.price, qty: qty });
   }
   updateCartUI();
   showToast(`${p.name} added`);
@@ -372,15 +378,13 @@ function updateQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;i.qty=Math
 function clearCart(){cart=[];updateCartUI();showToast('Cart cleared','info');}
 
 function updateCartUI(){
-  const cEl=document.getElementById('cartCount'),tI=cart.reduce((s,i)=>s+i.qty,0),tP=cart.reduce((s,i)=>s+i.price*i.qty,0),tU=tP/USD_TO_NPR;
+  const cEl=document.getElementById('cartCount'), tI=cart.reduce((s,i)=>s+i.qty,0), tP=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tP/exchangeRate;
   if(tI>0){cEl.classList.remove('hidden');cEl.classList.add('flex');cEl.textContent=tI;}else{cEl.classList.add('hidden');cEl.classList.remove('flex');}
   document.getElementById('cartItemCount').textContent=`(${tI} items)`;
   document.getElementById('cartTotal').textContent=`NPR ${tP.toLocaleString()} ($${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;
-  const cI=document.getElementById('cartItems'),cF=document.getElementById('cartFooter');
+  const cI=document.getElementById('cartItems'), cF=document.getElementById('cartFooter');
   if(!cart.length){cI.innerHTML='<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub">Cart is empty</p></div>';cF.classList.add('hidden');lucide.createIcons();return;}
   cF.classList.remove('hidden');
-  
-  // --- FIX: SHOW ID IN CART SIDEBAR ---
   cI.innerHTML=cart.map(i=>{
     const t=i.price*i.qty;
     return`<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
@@ -406,38 +410,36 @@ function updateCartUI(){
 
 function openCart(){document.getElementById('cartOverlay').classList.remove('hidden');requestAnimationFrame(()=>document.getElementById('cartPanel').style.transform='translateX(0)');}
 function closeCart(){document.getElementById('cartPanel').style.transform='translateX(100%)';setTimeout(()=>document.getElementById('cartOverlay').classList.add('hidden'),300);}
-function proceedToInquiry(){if(!cart.length)return;closeCart();const m=document.getElementById('contactMessage'),tN=cart.reduce((s,i)=>s+i.price*i.qty,0),tU=tN/USD_TO_NPR;let s="\n\n--- Cart ---\n";cart.forEach(i=>{s+=`- #${i.id} ${i.name} (${i.qty} @ NPR ${i.price.toLocaleString()})\n`;});s+=`Total: NPR ${tN.toLocaleString()}`;m.value+=s;document.getElementById('contact').scrollIntoView({behavior:'smooth'});showToast('Added to inquiry');}
+function proceedToInquiry(){if(!cart.length)return;closeCart();const m=document.getElementById('contactMessage'), tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;let s="\n\n--- Cart ---\n";cart.forEach(i=>{s+=`- #${i.id} ${i.name} (${i.qty} @ NPR ${i.price.toLocaleString()})\n`;});s+=`Total: NPR ${tN.toLocaleString()} (~$${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;m.value+=s;document.getElementById('contact').scrollIntoView({behavior:'smooth'});showToast('Added to inquiry');}
 
 function handleFileUpload(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('Max 5MB','error');return;}document.getElementById('uploadPlaceholder').classList.add('hidden');document.getElementById('uploadProgressContainer').classList.remove('hidden');const r=new FileReader();r.onload=function(ev){paymentScreenshotBase64=ev.target.result;document.getElementById('progressBar').style.width='100%';setTimeout(()=>{document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.remove('hidden');document.getElementById('imagePreview').src=paymentScreenshotBase64;lucide.createIcons();},300);};r.readAsDataURL(f);}
 function clearScreenshot(e){if(e)e.stopPropagation();paymentScreenshotBase64=null;document.getElementById('paymentScreenshot').value="";document.getElementById('uploadPlaceholder').classList.remove('hidden');document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.add('hidden');document.getElementById('progressBar').style.width='0%';}
 
-function openPaymentModal(m){selectedPaymentMethod=m;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0),tU=tN/USD_TO_NPR;paymentScreenshotBase64=null;clearScreenshot();document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('active'));document.getElementById(`tab-${m}`).classList.add('active');document.getElementById('paymentMethodLabel').textContent=m==='esewa'?'eSewa':'Khalti';document.getElementById('qr-esewa').classList.toggle('hidden',m!=='esewa');document.getElementById('qr-khalti').classList.toggle('hidden',m!=='khalti');updatePaymentTotals(tU,tN);document.getElementById('paymentItemsCount').textContent=`${cart.reduce((s,i)=>s+i.qty,0)} items`;const md=document.getElementById('paymentModal');md.classList.remove('hidden');md.classList.add('flex');document.body.classList.add('payment-modal-open');lucide.createIcons();}
-function setPaymentCurrency(c){selectedPaymentCurrency=c;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0),tU=tN/USD_TO_NPR;document.querySelectorAll('.currency-btn').forEach(b=>b.classList.remove('active-curr'));document.getElementById(c==='npr'?'btnNPR':'btnUSD').classList.add('active-curr');updatePaymentTotals(tU,tN);}
+function openPaymentModal(m){selectedPaymentMethod=m;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;paymentScreenshotBase64=null;clearScreenshot();document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('active'));document.getElementById(`tab-${m}`).classList.add('active');document.getElementById('paymentMethodLabel').textContent=m==='esewa'?'eSewa':'Khalti';document.getElementById('qr-esewa').classList.toggle('hidden',m!=='esewa');document.getElementById('qr-khalti').classList.toggle('hidden',m!=='khalti');updatePaymentTotals(tU,tN);document.getElementById('paymentItemsCount').textContent=`${cart.reduce((s,i)=>s+i.qty,0)} items`;const md=document.getElementById('paymentModal');md.classList.remove('hidden');md.classList.add('flex');document.body.classList.add('payment-modal-open');lucide.createIcons();}
+function setPaymentCurrency(c){selectedPaymentCurrency=c;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;document.querySelectorAll('.currency-btn').forEach(b=>b.classList.remove('active-curr'));document.getElementById(c==='npr'?'btnNPR':'btnUSD').classList.add('active-curr');updatePaymentTotals(tU,tN);}
 function updatePaymentTotals(u,n){const m=document.getElementById('paymentTotal'),s=document.getElementById('paymentTotalSub');if(selectedPaymentCurrency==='npr'){m.textContent=`NPR ${n.toLocaleString()}`;s.textContent=`($${u.toLocaleString('en-US',{minimumFractionDigits:2})})`;}else{m.textContent=`$${u.toLocaleString('en-US',{minimumFractionDigits:2})}`;s.textContent=`(NPR ${n.toLocaleString()})`;}}
 function closePaymentModal(){document.getElementById('paymentModal').classList.add('hidden');document.getElementById('paymentModal').classList.remove('flex');document.body.classList.remove('payment-modal-open');}
 function switchPaymentTab(m){selectedPaymentMethod=m;openPaymentModal(m);}
 
 async function submitOrderToBackend(){
-  const btn=document.getElementById('confirmPayBtn'),nI=document.getElementById('clientName'),pH=document.getElementById('clientPhone'),eI=document.getElementById('clientEmail'),aI=document.getElementById('clientAddress'),dZ=document.getElementById('dropZone'),uE=document.getElementById('uploadError');
+  const btn=document.getElementById('confirmPayBtn'), nI=document.getElementById('clientName'), pH=document.getElementById('clientPhone'), eI=document.getElementById('clientEmail'), aI=document.getElementById('clientAddress'), dZ=document.getElementById('dropZone'), uE=document.getElementById('uploadError');
   let v=true;
   if(!nI.value.trim()){nI.classList.add('input-error');v=false;}else nI.classList.remove('input-error');
   if(!pH.value.trim()){pH.classList.add('input-error');v=false;}else pH.classList.remove('input-error');
-  // --- FIX: STRICT EMAIL CHECK ---
   if(!eI.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eI.value.trim())){eI.classList.add('input-error');v=false;}else eI.classList.remove('input-error');
   if(!paymentScreenshotBase64){dZ.classList.add('upload-error');uE.classList.remove('hidden');v=false;}else{dZ.classList.remove('upload-error');uE.classList.add('hidden');}
   if(!v){showToast('Fill required fields','error');return;}
   
-  const oT=btn.innerHTML,tN=cart.reduce((s,i)=>s+i.price*i.qty,0),tU=tN/USD_TO_NPR,fA=selectedPaymentCurrency==='npr'?tN:tU,cS=selectedPaymentCurrency==='npr'?'NPR':'USD';
+  const oT=btn.innerHTML, tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate, fA=selectedPaymentCurrency==='npr'?tN:tU, cS=selectedPaymentCurrency==='npr'?'NPR':'USD';
   btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Verifying...';lucide.createIcons();
   try{
-    // --- FIX: EXPLICIT ITEM MAPPING WITH IDs TO BACKEND ---
     const r=await fetch(`${BACKEND_URL}/orders`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, qty: item.qty })),
-        totalUSD:tU,totalNPR:tN,paidAmount:fA,currency:cS,paymentMethod:selectedPaymentMethod,paymentScreenshot:paymentScreenshotBase64,
-        clientDetails:{name:nI.value.trim(),phone:pH.value.trim(),email:eI.value.trim(),address:aI.value.trim()||'N/A'}
+        totalUSD:tU, totalNPR:tN, paidAmount:fA, currency:cS, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64,
+        clientDetails:{name:nI.value.trim(), phone:pH.value.trim(), email:eI.value.trim(), address:aI.value.trim()||'N/A'}
       })
     });
     if(r.ok){
@@ -451,16 +453,16 @@ async function submitOrderToBackend(){
   finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}
 }
 
-function openModal(id){const p=products.find(x=>x.id===id);if(!p)return;currentModalProduct=p;const pN=p.price,pU=pN/USD_TO_NPR,u=p.unit;document.getElementById('modalImg').src=p.img;document.getElementById('modalName').textContent=p.name;document.getElementById('modalSci').textContent=p.sci;document.getElementById('modalCat').textContent=p.catLabel;document.getElementById('modalPrice').textContent=`NPR ${pN.toLocaleString()}`;document.getElementById('modalUnitLabel').textContent=`per ${u}`;document.getElementById('modalPriceUsd').textContent=`$${pU.toLocaleString('en-US',{minimumFractionDigits:2})} / ${u}`;document.getElementById('modalDesc').textContent=p.desc;document.getElementById('modalBadge').textContent=p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Essential Oil':p.category==='rasa'?'Rasa Uparasa':p.category==='namak'?'Namak':'Extract';document.getElementById('modalMoq').textContent=p.moq;document.getElementById('modalLead').textContent=p.lead;document.getElementById('modalQty').value=1;document.getElementById('modalUnitBox').textContent=`1 ${u}`;document.getElementById('modalAddBtn').onclick=()=>{addToCart(p.id,parseInt(document.getElementById('modalQty').value)||1);closeModal();};const md=document.getElementById('productModal');md.classList.remove('hidden');md.classList.add('flex');lucide.createIcons();}
+function openModal(id){const p=products.find(x=>x.id===id);if(!p)return;currentModalProduct=p;const pN=p.price, pU=pN/exchangeRate, u=p.unit;document.getElementById('modalImg').src=p.img;document.getElementById('modalName').textContent=p.name;document.getElementById('modalSci').textContent=p.sci;document.getElementById('modalCat').textContent=p.catLabel;document.getElementById('modalPrice').textContent=`NPR ${pN.toLocaleString()}`;document.getElementById('modalUnitLabel').textContent=`per ${u}`;document.getElementById('modalPriceUsd').textContent=`$${pU.toLocaleString('en-US',{minimumFractionDigits:2})} / ${u}`;document.getElementById('modalDesc').textContent=p.desc;document.getElementById('modalBadge').textContent=p.category==='api'?'API':p.category==='herbs'?'Raw Herb':p.category==='mushrooms'?'Mushroom':p.category==='oils'?'Essential Oil':p.category==='rasa'?'Rasa Uparasa':p.category==='namak'?'Namak':'Extract';document.getElementById('modalMoq').textContent=p.moq;document.getElementById('modalLead').textContent=p.lead;document.getElementById('modalQty').value=1;document.getElementById('modalUnitBox').textContent=`1 ${u}`;document.getElementById('modalAddBtn').onclick=()=>{addToCart(p.id,parseInt(document.getElementById('modalQty').value)||1);closeModal();};const md=document.getElementById('productModal');md.classList.remove('hidden');md.classList.add('flex');lucide.createIcons();}
 function closeModal(){document.getElementById('productModal').classList.add('hidden');document.getElementById('productModal').classList.remove('flex');currentModalProduct=null;}
 function modalQtyChange(d){const i=document.getElementById('modalQty');i.value=Math.max(1,(parseInt(i.value)||1)+d);}
 
 document.getElementById('searchToggle').addEventListener('click',()=>{const b=document.getElementById('searchBar');b.classList.toggle('hidden');if(!b.classList.contains('hidden'))document.getElementById('searchInput').focus();});
 document.getElementById('searchClose').addEventListener('click',()=>document.getElementById('searchBar').classList.add('hidden'));
-document.getElementById('searchInput').addEventListener('input',function(){const q=this.value.toLowerCase().trim(),el=document.getElementById('searchResults');if(q.length<2){el.innerHTML='';return;}const m=products.filter(p=>p.name.toLowerCase().includes(q)||p.sci.toLowerCase().includes(q)||p.catLabel.toLowerCase().includes(q)).slice(0,8);if(!m.length){el.innerHTML='<p class="text-sm text-txt-third py-4 text-center">No products found</p>';return;}el.innerHTML=m.map(p=>{const pN=p.price,pU=pN/USD_TO_NPR;return`<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl text-left"><img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${p.name}</p><p class="text-[11px] text-txt-third italic">${p.sci}</p></div><div class="text-right"><span class="text-sm font-semibold text-brand">NPR ${pN.toLocaleString()}</span><span class="block text-[10px] text-txt-sub">$${pU.toLocaleString()}</span></div></button>`;}).join('');});
+document.getElementById('searchInput').addEventListener('input',function(){const q=this.value.toLowerCase().trim(), el=document.getElementById('searchResults');if(q.length<2){el.innerHTML='';return;}const m=products.filter(p=>p.name.toLowerCase().includes(q)||p.sci.toLowerCase().includes(q)||p.catLabel.toLowerCase().includes(q)).slice(0,8);if(!m.length){el.innerHTML='<p class="text-sm text-txt-third py-4 text-center">No products found</p>';return;}el.innerHTML=m.map(p=>{const pN=p.price, pU=pN/exchangeRate;return`<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl text-left"><img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${p.name}</p><p class="text-[11px] text-txt-third italic">${p.sci}</p></div><div class="text-right"><span class="text-sm font-semibold text-brand">NPR ${pN.toLocaleString()}</span><span class="block text-[10px] text-txt-sub">$${pU.toLocaleString()}</span></div></button>`;}).join('');});
 
 function showToast(m, type='success'){
-  const container=document.getElementById('toastContainer'),el=document.createElement('div');
+  const container=document.getElementById('toastContainer'), el=document.createElement('div');
   el.className='toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border max-w-sm pointer-events-auto';
   const iconName=type==='success'?'check-circle':type==='error'?'alert-circle':'info';
   el.innerHTML=`<i data-lucide="${iconName}" class="w-5 h-5 ${type==='error'?'text-red-500':'text-brand'}"></i><span class="text-sm font-medium">${m}</span>`;
@@ -481,9 +483,10 @@ document.getElementById('paymentModal').addEventListener('click',e=>{if(e.target
 window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>100){n.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)';n.style.borderBottom='1px solid rgba(231,229,228,0.5)';}else{n.style.boxShadow='none';n.style.borderBottom='none';}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeModal();closeMobile();document.getElementById('searchBar').classList.add('hidden');closePaymentModal();}if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('searchToggle').click();}});
 
-async function submitForm(e){e.preventDefault();const btn=document.getElementById('inquirySubmitBtn'),msg=document.getElementById('formMsg'),oT=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...';msg.classList.add('hidden');lucide.createIcons();try{const r=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany').value,message:document.getElementById('contactMessage').value})});if(r.ok){msg.textContent='✓ Thank you! Inquiry sent.';msg.classList.remove('hidden','text-red-500');msg.classList.add('text-brand');e.target.reset();}else throw new Error();}catch(e){msg.textContent='✕ Error sending inquiry.';msg.classList.remove('hidden','text-brand');msg.classList.add('text-red-500');}finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}}
+async function submitForm(e){e.preventDefault();const btn=document.getElementById('inquirySubmitBtn'), msg=document.getElementById('formMsg'), oT=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...';msg.classList.add('hidden');lucide.createIcons();try{const r=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany').value,message:document.getElementById('contactMessage').value})});if(r.ok){msg.textContent='✓ Thank you! Inquiry sent.';msg.classList.remove('hidden','text-red-500');msg.classList.add('text-brand');e.target.reset();}else throw new Error();}catch(e){msg.textContent='✕ Error sending inquiry.';msg.classList.remove('hidden','text-brand');msg.classList.add('text-red-500');}finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}}
 
-loadProducts();lucide.createIcons();
+/* ═══ BOOT: fetch rate first, then load products ═══ */
+loadExchangeRate();
+lucide.createIcons();
 </script>
-</body>
-</html>
+</body></html>
