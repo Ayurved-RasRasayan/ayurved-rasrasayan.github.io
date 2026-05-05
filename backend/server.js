@@ -203,11 +203,24 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
 
 app.post('/api/inquiries', async (req, res) => {
   try {
-    if (!req.body.email || !req.body.message) return res.status(400).json({ success: false, error: 'Missing fields' });
+    // 1. Check if fields exist AND are not empty strings
+    if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
+      return res.status(400).json({ success: false, error: 'Missing fields' });
+    }
+
+    // 2. Debug log to ensure data is reaching server (check your terminal)
+    console.log('📨 New Inquiry:', req.body);
+
+    // 3. Save to DB
     await new Inquiry(req.body).save();
+    
     res.json({ success: true });
-  } catch (e) { res.status(500).json({ success: false }); }
-});
+  } catch (e) {
+    // 4. Return actual error message instead of generic 'Server error'
+    console.error('❌ Inquiry Save Error:', e);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});;
 
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); }
