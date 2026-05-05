@@ -55,6 +55,7 @@
     .upload-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
     .hero-bg-fallback { background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%); }
     .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
+    .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -155,7 +156,15 @@
   <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
-        <div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2><p class="text-txt-sub mt-2 md:mt-3 text-base md:text-lg font-light">Prices per unit. Bulk discounts available.</p></div>
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
+          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <!-- NEW: Exchange rate indicator near pricing -->
+          <div class="flex items-center gap-2 mt-3">
+            <span class="rate-dot" id="rateDot"></span>
+            <p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p>
+          </div>
+        </div>
         <div class="flex items-center gap-3"><span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span><select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div>
       </div>
       <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
@@ -219,7 +228,22 @@
         <div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white">Contact</a></div></div>
         <div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white">Terms of Service</a></div></div>
       </div>
-      <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-4"><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a></div></div>
+      <!-- NEW: Exchange rate in footer -->
+      <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
+          <span class="hidden md:inline text-white/10">|</span>
+          <div class="flex items-center gap-2" id="footerRate">
+            <span class="rate-dot" id="footerDot"></span>
+            <span class="text-xs text-white/40 font-medium" id="footerRateText">1 USD = ...</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a>
+        </div>
+      </div>
     </div>
   </footer>
 
@@ -270,9 +294,8 @@
   </div>
 
 <script>
-const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api'; 
-/* ─── EXCHANGE RATE: loaded from MongoDB ─── */
-let exchangeRate = 133; 
+const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
+let exchangeRate = 133;
 
 let paymentScreenshotBase64 = null;
 let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
@@ -288,28 +311,45 @@ async function loadExchangeRate() {
       const data = await res.json();
       if (data.rate && data.rate > 0) {
         exchangeRate = data.rate;
-        console.log(`💱 Exchange rate loaded from DB: 1 USD = ${exchangeRate} NPR`);
       }
     }
   } catch (e) {
     console.warn('Could not fetch rate from DB, using fallback 133');
   }
-  // Always load products after rate is resolved
+  /* NEW: Update rate displays on storefront */
+  updateRateDisplays();
   loadProducts();
+}
+
+/* NEW: Update all rate indicators on the page */
+function updateRateDisplays() {
+  const r = exchangeRate.toFixed(2);
+  // Products section indicator
+  const dot = document.getElementById('rateDot');
+  const label = document.getElementById('rateLabel');
+  if (dot && label) {
+    dot.style.background = '#22c55e';
+    label.textContent = `$ prices calculated at 1 USD = Rs. ${r} (auto-synced)`;
+  }
+  // Footer rate
+  const ft = document.getElementById('footerRateText');
+  const fd = document.getElementById('footerDot');
+  if (ft) ft.textContent = `1 USD = Rs. ${r} NPR`;
+  if (fd) fd.style.background = '#22c55e';
 }
 
 async function loadProducts() {
   const grid = document.getElementById('productGrid');
   grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub font-medium">Fetching products...</p></div>'; lucide.createIcons();
-  try { 
-    const res = await fetch(`${BACKEND_URL}/products`); 
-    if (!res.ok) throw new Error(); 
-    products = await res.json(); 
-    updateCategoryCounts(); 
-    renderProducts(getFilteredProducts()); 
-  } catch (e) { 
-    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products.</p></div>'; 
-    lucide.createIcons(); 
+  try {
+    const res = await fetch(`${BACKEND_URL}/products`);
+    if (!res.ok) throw new Error();
+    products = await res.json();
+    updateCategoryCounts();
+    renderProducts(getFilteredProducts());
+  } catch (e) {
+    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products.</p></div>';
+    lucide.createIcons();
   }
 }
 
@@ -353,7 +393,7 @@ function renderProducts(items) {
           ${bH}
         </div>
       </div>
-    </div>`}).join(''); 
+    </div>`}).join('');
   lucide.createIcons();
 }
 
@@ -404,7 +444,7 @@ function updateCartUI(){
           <span class="text-sm font-semibold">NPR ${t.toLocaleString()}</span>
         </div>
       </div>
-    </div>`;}).join(''); 
+    </div>`;}).join('');
   lucide.createIcons();
 }
 
@@ -429,7 +469,7 @@ async function submitOrderToBackend(){
   if(!eI.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eI.value.trim())){eI.classList.add('input-error');v=false;}else eI.classList.remove('input-error');
   if(!paymentScreenshotBase64){dZ.classList.add('upload-error');uE.classList.remove('hidden');v=false;}else{dZ.classList.remove('upload-error');uE.classList.add('hidden');}
   if(!v){showToast('Fill required fields','error');return;}
-  
+
   const oT=btn.innerHTML, tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate, fA=selectedPaymentCurrency==='npr'?tN:tU, cS=selectedPaymentCurrency==='npr'?'NPR':'USD';
   btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Verifying...';lucide.createIcons();
   try{
@@ -488,5 +528,4 @@ async function submitForm(e){e.preventDefault();const btn=document.getElementByI
 /* ═══ BOOT: fetch rate first, then load products ═══ */
 loadExchangeRate();
 lucide.createIcons();
-</script>
-</body></html>
+</script></body></html>
