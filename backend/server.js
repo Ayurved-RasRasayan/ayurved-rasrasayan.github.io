@@ -80,7 +80,6 @@ async function sendAdminAlert(orderId, data) {
   } catch (e) { console.error('Admin Alert Error:', e.message); }
 }
 
-// NEW: Send Inquiry Email Notification
 async function sendInquiryAlert(data) {
   try {
     const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
@@ -202,7 +201,7 @@ const myProducts = require('./products.json');
 app.get('/api/seed', checkAuth, async (req, res) => { try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Seeded!'); } catch (e) { res.status(500).send(e.message); } });
 app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); } });
 
-// ─── ROUTE: ORDERS ────────────────────────────────────────────────────────
+// ─── ROUTE: ORDERS ────────────────────────────────────────────────
 app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
@@ -223,14 +222,24 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
     const { id, status } = req.body;
     const order = await Order.findOne({ _id: id });
     if (!order) return res.status(404).json({ success: false });
+    
     const wasDeducted = STOCK_DEDUCT_STATUSES.includes(order.status);
     const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
+    
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
+
     if (shouldDeduct && !wasDeducted) {
-      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1 } });
+      for (const item of (order.items || [])) {
+        // FIXED: Correct syntax for stock deduction
+        await Product.updateOne({ id: item.id }, { $inc: { stock: -(parseInt(item.qty) || 1) } });
+      }
     } else if (!shouldDeduct && wasDeducted) {
-      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
+      for (const item of (order.items || [])) {
+        // FIXED: Correct syntax for stock addition
+        await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
+      }
     }
+
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
       emailStat = await sendClientEmail(order.clientDetails.email, order.clientDetails.name, id, status) ? 'Sent' : 'Failed';
@@ -306,13 +315,13 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
-         ih = it.map(i => {
-            const img = i.img ? `<img src="${i.img}" class="it">` : '';
-            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
-            const qty = i.qty || 1;
-            const price = i.price || 0;
-            const lineTotal = qty * price;
-            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+           ih = it.map(i => {
+              const img = i.img ? `<img src="${i.img}" class="it">` : '';
+              const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+              const qty = i.qty || 1;
+              const price = i.price || 0;
+              const lineTotal = qty * price;
+              return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
          }).join('');
         }
       } catch(e) {}
