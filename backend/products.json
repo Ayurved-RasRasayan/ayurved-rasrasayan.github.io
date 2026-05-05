@@ -754,7 +754,7 @@
     "desc": "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations."
   }
   {
-    "id": 9001,
+    "id": 58,
     "name": "Amla",
     "sci": "Phyllanthus emblica",
     "category": "herbs",
@@ -768,7 +768,7 @@
     "desc": "Dried Amla (Indian Gooseberry) fruits, sourced from organic farms. High in Vitamin C."
   },
   {
-    "id": 9002,
+    "id": 59,
     "name": "Arjuna Chal",
     "sci": "Terminalia arjuna",
     "category": "herbs",
