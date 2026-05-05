@@ -10,18 +10,14 @@
 .cur-btn:not(.active):hover{color:#374151;background:rgba(0,0,0,.05)}
 .rc-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #e5e7eb}
 .rc-label{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-.rc-check{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;color:#374151}
-.rc-check input{width:16px;height:16px;accent-color:#2d6a2e;cursor:pointer}
-.rc-input{width:80px;padding:5px 8px;border:1px solid #d1d5db;border-radius:5px;font-size:13px;font-weight:600;text-align:center}
-.rc-input:focus{outline:none;border-color:#2d6a2e}
-.rc-btn{padding:5px 12px;border-radius:5px;border:none;font-weight:600;font-size:12px;cursor:pointer;transition:.2s}
-.rc-set{background:#2d6a2e;color:#fff}.rc-set:hover{background:#245a24}
+.rc-rate{font-size:15px;font-weight:800;color:#2d4a22}
+.rc-time{font-size:11px;color:#9ca3af;font-weight:500;margin-left:auto}
+.rc-btn{padding:5px 14px;border-radius:5px;border:none;font-weight:600;font-size:12px;cursor:pointer;transition:.2s}
 .rc-fetch{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}.rc-fetch:hover{background:#dbeafe}
 .rc-fetching{background:#f3f4f6;color:#9ca3af;cursor:wait}
-.rc-rate{font-size:13px;font-weight:700;color:#2d4a22}
 .rc-err{font-size:11px;color:#dc2626;font-weight:500}
-.rc-time{font-size:11px;color:#9ca3af;font-weight:500;margin-left:auto}
-.rc-divider{width:1px;height:20px;background:#e5e7eb}
+.rc-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.rc-dot.err{background:#ef4444}
 .total-bar{max-width:1400px;margin:0 auto 24px;background:#fff;border:1px solid #d1d5db;border-left:4px solid #2d4a22;border-radius:6px;padding:10px 20px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
 .total-lbl{color:#6b7280;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
 .total-val{color:#1a5c1c;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
@@ -70,7 +66,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
 body{background:#e5e7eb}html,body{overflow-x:hidden;width:100%;margin:0}::-webkit-scrollbar{display:none}
 .c{padding:8px 0;max-width:100%}.tb{flex-direction:column;align-items:stretch;padding:10px 8px;gap:8px;background:#fff;border-radius:0}
 .b{width:100%;justify-content:center;padding:12px;margin:0 8px}.cur-toggle{margin:0 8px;justify-content:center}#sc{text-align:center;margin:0 8px}
-.rc-bar{margin:0 8px 12px;flex-direction:column;align-items:stretch;gap:8px}.rc-time{margin-left:0;text-align:center}.rc-divider{width:100%;height:1px}
+.rc-bar{margin:0 8px 12px;flex-direction:column;align-items:stretch;gap:8px}.rc-time{margin-left:0;text-align:center}
 .total-bar{margin:0 8px 24px;padding:10px 14px;justify-content:space-between;flex-wrap:wrap;gap:6px}.total-val{font-size:16px}
 thead{display:none}table{display:block;width:100%;margin:0;border-spacing:0;border:none}
 tbody{display:flex;flex-direction:column;gap:12px;padding:0 8px}
@@ -102,18 +98,14 @@ td:nth-child(6){order:6;width:100%;margin-top:8px}
     </div>
   </div>
   <div class="rc-bar">
+    <span class="rc-dot" id="rateDot"></span>
     <span class="rc-label">💱 Exchange Rate</span>
-    <div class="rc-divider"></div>
-    <label class="rc-check"><input type="checkbox" id="autoRate" onchange="toggleAutoRate()"> Auto-fetch daily</label>
-    <div class="rc-divider"></div>
     <span style="font-size:13px;color:#374151">1 USD =</span>
-    <input type="number" class="rc-input" id="rateInput" value="..." min="1" step="0.01" disabled>
-    <span style="font-size:13px;color:#374151;font-weight:600">NPR</span>
-    <button class="rc-btn rc-set" id="rateSetBtn" onclick="setManualRate()">Set</button>
-    <button class="rc-btn rc-fetch" id="rateFetchBtn" onclick="fetchRate()" style="display:none">🔄 Fetch Live</button>
     <span class="rc-rate" id="rateDisplay">...</span>
+    <span style="font-size:13px;color:#374151;font-weight:600">NPR</span>
+    <button class="rc-btn rc-fetch" id="rateFetchBtn" onclick="fetchRate()">🔄 Refresh</button>
     <span class="rc-err" id="rateErr"></span>
-    <span class="rc-time" id="rateTime">Loading...</span>
+    <span class="rc-time" id="rateTime"></span>
   </div>
   <div class="tw"><table><thead><tr><th width="40"><input type="checkbox" id="ca" onchange="tSA()"/></th><th width="120">Date/Proof</th><th width="320">Items</th><th width="160">Status</th><th>Client</th><th width="80">Act</th></tr></thead><tbody id="tb">{{ORDERS_ROWS}}</tbody></table></div>
   <div class="total-bar">
@@ -129,131 +121,47 @@ var API = window.location.pathname.replace('/api/view-orders', '') + '/api';
 var RATE = 133;
 var cur = 'NPR';
 
-/* ═══════════════════════════════════════
-   LOAD RATE FROM DATABASE ON START
-   ═══════════════════════════════════════ */
 async function loadRateFromDB() {
   try {
     var res = await fetch(API + '/exchange-rate');
     if (!res.ok) { applyRateFallback(133); return; }
     var data = await res.json();
     RATE = data.rate || 133;
-    applyRateUI(RATE, data.source || 'default', data.fetchedAt, data.auto || false);
+    applyRateUI(RATE, data.source, data.fetchedAt);
     updateAmounts();
   } catch (e) {
     applyRateFallback(133);
   }
 }
 
-function applyRateUI(rate, source, fetchedAt, auto) {
+function applyRateUI(rate, source, fetchedAt) {
   RATE = rate;
-  document.getElementById('rateInput').value = rate.toFixed(2);
   document.getElementById('rateDisplay').textContent = rate.toFixed(2);
-  document.getElementById('rateTime').textContent = 'Loading...';
   document.getElementById('rateErr').textContent = '';
-  document.getElementById('autoRate').checked = !!auto;
-
-  if (!!auto) {
-    document.getElementById('rateInput').disabled = true;
-    document.getElementById('rateInput').style.opacity = '.5';
-    document.getElementById('rateSetBtn').style.display = 'none';
-    document.getElementById('rateFetchBtn').style.display = '';
-  } else {
-    document.getElementById('rateInput').disabled = false;
-    document.getElementById('rateInput').style.opacity = '1';
-    document.getElementById('rateSetBtn').style.display = '';
-    document.getElementById('rateFetchBtn').style.display = 'none';
-  }
+  document.getElementById('rateDot').className = 'rc-dot';
 
   if (source === 'live' && fetchedAt) {
     var d = new Date(fetchedAt);
-    document.getElementById('rateTime').textContent = 'Live: ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
-  } else if (source === 'manual' && fetchedAt) {
-    var d = new Date(fetchedAt);
-    document.getElementById('rateTime').textContent = 'Manual: ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+    document.getElementById('rateTime').textContent = 'Synced: ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
   } else {
     document.getElementById('rateTime').textContent = 'Default';
+    document.getElementById('rateDot').classList.add('err');
   }
 }
 
 function applyRateFallback(rate) {
   RATE = rate;
-  document.getElementById('rateInput').value = rate;
   document.getElementById('rateDisplay').textContent = rate.toFixed(2);
   document.getElementById('rateTime').textContent = 'Offline';
   document.getElementById('rateErr').textContent = '';
-  document.getElementById('rateInput').disabled = false;
-  document.getElementById('rateInput').style.opacity = '1';
-  document.getElementById('rateSetBtn').style.display = '';
-  document.getElementById('rateFetchBtn').style.display = 'none';
+  document.getElementById('rateDot').className = 'rc-dot err';
   updateAmounts();
 }
 
-/* ═══════════════════════════════════════
-   TOGGLE AUTO RATE
-   ═══════════════════════════════════════ */
-async function toggleAutoRate() {
-  var auto = document.getElementById('autoRate').checked;
-  var inp = document.getElementById('rateInput');
-  var setBtn = document.getElementById('rateSetBtn');
-  var fetchBtn = document.getElementById('rateFetchBtn');
-
-  if (auto) {
-    inp.disabled = true; inp.style.opacity = '.5';
-    setBtn.style.display = 'none'; fetchBtn.style.display = '';
-  } else {
-    inp.disabled = false; inp.style.opacity = '1';
-    setBtn.style.display = ''; fetchBtn.style.display = 'none';
-  }
-
-  try {
-    await fetch(API + '/exchange-rate/auto', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ enabled: auto })
-    });
-    if (auto) fetchRate();
-  } catch (e) {
-    document.getElementById('rateErr').textContent = 'Failed to save preference';
-  }
-}
-
-/* ═══════════════════════════════════════
-   SET MANUAL RATE → SAVES TO DB
-   ═══════════════════════════════════════ */
-async function setManualRate() {
-  var v = parseFloat(document.getElementById('rateInput').value);
-  if (isNaN(v) || v < 1) { document.getElementById('rateErr').textContent = 'Invalid rate'; return; }
-  document.getElementById('rateErr').textContent = '';
-  document.getElementById('rateSetBtn').textContent = '⏳';
-  try {
-    var res = await fetch(API + '/exchange-rate', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rate: v })
-    });
-    var data = await res.json();
-    if (data.success) {
-      RATE = data.rate;
-      applyRateUI(RATE, 'manual', new Date().toISOString(), false);
-      updateAmounts();
-      sT('✅ Rate saved to database: ' + RATE.toFixed(2));
-    }
-  } catch (e) {
-    document.getElementById('rateErr').textContent = 'Failed to save';
-    sT('❌ Could not save rate');
-  } finally {
-    document.getElementById('rateSetBtn').textContent = 'Set';
-  }
-}
-
-/* ═══════════════════════════════════════
-   FETCH LIVE RATE → SAVES TO DB
-   ═══════════════════════════════════════ */
 async function fetchRate() {
   var btn = document.getElementById('rateFetchBtn');
   var errEl = document.getElementById('rateErr');
-  btn.textContent = '⏳ Fetching...';
+  btn.textContent = '⏳ Syncing...';
   btn.className = 'rc-btn rc-fetching';
   errEl.textContent = '';
   try {
@@ -261,24 +169,22 @@ async function fetchRate() {
     var data = await res.json();
     if (data.success) {
       RATE = data.rate;
-      applyRateUI(RATE, 'live', new Date().toISOString(), true);
+      applyRateUI(RATE, 'live', new Date().toISOString());
       updateAmounts();
-      sT('✅ Live rate: 1 USD = ' + RATE.toFixed(2) + ' NPR (saved)');
+      sT('✅ Rate synced: 1 USD = ' + RATE.toFixed(2) + ' NPR');
     } else {
       throw new Error(data.error || 'Unknown error');
     }
   } catch (e) {
-    errEl.textContent = 'Fetch failed: ' + (e.message || 'Network error');
-    sT('❌ Could not fetch live rate');
+    errEl.textContent = 'Sync failed: ' + (e.message || 'Network error');
+    document.getElementById('rateDot').className = 'rc-dot err';
+    sT('❌ Could not sync rate');
   } finally {
-    btn.textContent = '🔄 Fetch Live';
+    btn.textContent = '🔄 Refresh';
     btn.className = 'rc-btn rc-fetch';
   }
 }
 
-/* ═══════════════════════════════════════
-   CURRENCY TOGGLE
-   ═══════════════════════════════════════ */
 function setCur(c) {
   cur = c;
   document.getElementById('tbNPR').classList.toggle('active', c === 'NPR');
@@ -300,9 +206,6 @@ function updateAmounts() {
   else { tv.textContent = 'Rs. ' + total.toLocaleString('en-NP'); tc.textContent = 'NPR'; tc.className = 'total-cur npr'; }
 }
 
-/* ═══════════════════════════════════════
-   ORDER FUNCTIONS
-   ═══════════════════════════════════════ */
 function sT(m) { var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
 function oI(s) { document.getElementById('fI').src = s; var m = document.getElementById('imgModal'); m.style.display = 'flex'; m.classList.add('show'); }
 function cI(e) { if (e.target !== document.getElementById('fI')) { var m = document.getElementById('imgModal'); m.classList.remove('show'); setTimeout(function() { m.style.display = 'none'; }, 200); } }
@@ -314,8 +217,5 @@ async function uS(id, ns, el) { el.disabled = true; var oc = el.className; el.cl
 async function d1(id, btn) { if (!confirm('Delete?')) return; btn.disabled = true; btn.textContent = '...'; try { var r = await fetch(API + '/delete-order/' + id, { method: 'DELETE' }); var d = await r.json(); if (d.success) { document.getElementById('r-' + id).style.opacity = '0'; setTimeout(function() { document.getElementById('r-' + id).remove(); oCC(); updateAmounts(); }, 300); sT('🗑️ Deleted'); } else { btn.disabled = false; btn.textContent = 'Del'; } } catch (e) { sT('❌ Error'); btn.disabled = false; btn.textContent = 'Del'; } }
 async function dS() { var i = gI(); if (i.length === 0 || !confirm('Delete ' + i.length + '?')) return; var btn = document.getElementById('bd'); btn.disabled = true; btn.innerHTML = '⏳...'; try { var r = await fetch(API + '/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: i }) }); var d = await r.json(); if (d.success) { d.deleted.forEach(function(id) { var el = document.getElementById('r-' + id); if (el) { el.style.opacity = '0'; setTimeout(function() { el.remove(); }, 300); } }); sT('🗑️ Deleted ' + d.deleted.length); setTimeout(function() { oCC(); updateAmounts(); }, 350); } else sT('❌ Error'); } catch (e) { sT('❌ Error'); } finally { btn.innerHTML = '🗑️ Delete'; btn.disabled = false; oCC(); } }
 
-/* ═══════════════════════════════════════
-   BOOT
-   ═══════════════════════════════════════ */
 loadRateFromDB();
 </script></body></html>
