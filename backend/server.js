@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
-const rateLimit = require('express-rate-limit');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -22,10 +21,6 @@ if (missing.length > 0) {
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// Rate Limiters
-const orderLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many orders, try again later' } });
-const inquiryLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: { error: 'Too many inquiries, try again later' } });
-
 // ─── SECURITY MIDDLEWARE ─────────────────────────────────────────────────────
 function checkAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -37,7 +32,7 @@ function checkAuth(req, res, next) {
     const decoded = Buffer.from(authHeader.split(' ')[1], 'base64').toString();
     const [user, pass] = decoded.split(':');
     if (user === process.env.ADMIN_USER && pass === process.env.ADMIN_PASSWORD) return next();
-  } catch (e) { /* Invalid base64 */ }
+  } catch (e) {}
   res.setHeader('WWW-Authenticate', 'Basic realm="Admin"');
   return res.status(401).send('Access Denied');
 }
@@ -55,6 +50,7 @@ function validateOrder(data) {
   else {
     if (!data.clientDetails.name || typeof data.clientDetails.name !== 'string') errors.push('Client name required');
     if (!data.clientDetails.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.clientDetails.email)) errors.push('Valid email required');
+    if (!data.clientDetails.phone) errors.push('Phone number required');
   }
   return errors;
 }
@@ -70,7 +66,7 @@ async function sendClientEmail(toEmail, toName, orderId, status) {
       htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} is now: <strong>${displayStatus}</strong>.</p><p>Thank you!</p>`
     }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
     return !!res.data?.messageId;
-  } catch (e) { console.error('[EMAIL-DEBUG] ❌ Error:', e.response?.data || e.message); return false; }
+  } catch (e) { console.error('[EMAIL] ❌ Error:', e.response?.data || e.message); return false; }
 }
 
 async function sendAdminAlert(orderId, data) {
@@ -97,28 +93,28 @@ const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 
-// ─── PUBLIC & HEALTH ROUTES ─────────────────────────────────────────────────
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica Backend v3.0 (Secured)'));
+// ─── PUBLIC ROUTES ──────────────────────────────────────────────────────────
+app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
-  try { await mongoose.connection.db.admin().ping(); res.json({ status: 'healthy', mongodb: 'connected' }); }
-  catch (e) { res.status(503).json({ status: 'unhealthy', mongodb: 'disconnected' }); }
+  try { await mongoose.connection.db.admin().ping(); res.json({ status: 'healthy' }); }
+  catch (e) { res.status(503).json({ status: 'unhealthy' }); }
 });
 app.get('/api/products', async (req, res) => { try { res.json(await Product.find().sort({ id: 1 })); } catch (e) { res.status(500).json({ error: e.message }); } });
 
 // ─── PROTECTED SEED ROUTES ──────────────────────────────────────────────────
 const myProducts = require('./products.json');
 app.get('/api/seed', checkAuth, async (req, res) => { try { await Product.deleteMany({}); await Product.insertMany(myProducts); res.send('Seeded!'); } catch (e) { res.status(500).send(e.message); } });
-app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset to 100'); } catch (e) { res.status(500).send(e.message); } });
+app.get('/api/seed-stock', checkAuth, async (req, res) => { try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); } });
 
 // ─── ROUTE: NEW ORDER ───────────────────────────────────────────────────────
-app.post('/api/orders', orderLimiter, async (req, res) => {
+app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
     if (errors.length > 0) return res.status(400).json({ success: false, errors });
     
-    // Sanitize inputs
     req.body.clientDetails.name = req.body.clientDetails.name.trim().substring(0, 100);
     req.body.clientDetails.email = req.body.clientDetails.email.trim().toLowerCase();
+    req.body.clientDetails.phone = req.body.clientDetails.phone.trim().substring(0, 20);
     
     const savedOrder = await new Order(req.body).save();
     await sendAdminAlert(savedOrder._id, req.body);
@@ -133,28 +129,19 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   try {
     const { id, status } = req.body;
     const order = await Order.findOne({ _id: id });
-    if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+    if (!order) return res.status(404).json({ success: false });
 
     const wasDeducted = STOCK_DEDUCT_STATUSES.includes(order.status);
     const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
 
-    // Update DB Status
     await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
 
-    // Handle Stock Transitions
     if (shouldDeduct && !wasDeducted) {
-      console.log(`📦 Deducting stock for Order #${id}...`);
-      for (const item of (order.items || [])) {
-        await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1) } });
-      }
+      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: - (parseInt(item.qty) || 1) } });
     } else if (!shouldDeduct && wasDeducted) {
-      console.log(`📦 Restoring stock for Order #${id}...`);
-      for (const item of (order.items || [])) {
-        await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
-      }
+      for (const item of (order.items || [])) await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
     }
 
-    // Handle Email
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
       emailStat = await sendClientEmail(order.clientDetails.email, order.clientDetails.name, id, status) ? 'Sent' : 'Failed';
@@ -165,27 +152,20 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
 });
 
 // ─── ROUTE: INQUIRY ─────────────────────────────────────────────────────────
-app.post('/api/inquiries', inquiryLimiter, async (req, res) => {
+app.post('/api/inquiries', async (req, res) => {
   try {
     if (!req.body.email || !req.body.message) return res.status(400).json({ success: false, error: 'Missing fields' });
     await new Inquiry(req.body).save();
-    // Send email notification (omitted brevo call for brevity, same as your original)
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false }); }
 });
 
 // ─── ROUTE: DELETE ORDERS ───────────────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => { 
-  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } 
-  catch(e) { res.status(500).json({success:false}); } 
+  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch(e) { res.status(500).json({success:false}); } 
 });
-
 app.delete('/api/delete-orders', checkAuth, async (req, res) => { 
-  try { 
-    await Order.deleteMany({ _id: { $in: req.body.ids } }); 
-    // CRITICAL FIX: Return the deleted array so frontend JS can update UI
-    res.json({ success: true, deleted: req.body.ids }); 
-  } catch(e) { res.status(500).json({success:false}); } 
+  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch(e) { res.status(500).json({success:false}); } 
 });
 
 // ─── ROUTE: STOCK MANAGER ───────────────────────────────────────────────────
@@ -201,15 +181,8 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
       let badge = '<span style="color:#15803d">In Stock</span>';
       if (s === 0) badge = '<span style="color:#b91c1c">Out</span>';
       else if (s <= 10) badge = '<span style="color:#c2410c">Low</span>';
-      return `<tr>
-        <td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg" onerror="this.style.display='none'"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td>
-        <td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td>
-        <td data-label="Current">${badge} (${s})</td>
-        <td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td>
-        <td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td>
-      </tr>`;
+      return `<tr><td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg" onerror="this.style.display='none'"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td><td data-label="Current">${badge} (${s})</td><td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td></tr>`;
     }).join('');
-
     let html = fs.readFileSync(path.join(__dirname, 'views/stock.html'), 'utf8');
     res.send(html.replace('{{STOCK_ROWS}}', rows));
   } catch (e) { res.status(500).send('Error loading stock'); }
@@ -218,61 +191,25 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
 // ─── ROUTE: VIEW ORDERS DASHBOARD ───────────────────────────────────────────
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
-    // Added limit to prevent memory crashes on large databases
-    const orders = await Order.find().sort({ timestamp: -1 }).limit(100); 
+    const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
-      
       const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
       let ih = '';
-      try {
-        const it = Array.isArray(r.items) ? r.items : [];
-        if (it.length > 0) ih = it.map(i => {
-          const q = parseInt(i.qty) || 1;
-          const im = i.img ? `<img src="${i.img}" class="it">` : '';
-          const pid = i.id ? `<span style="font-size:.75rem;color:#9ca3af;font-family:monospace;margin-left:4px">(ID:${i.id})</span>` : '';
-          return `<div class="ir"><div class="ix">${im}<span class="in" title="${i.name}">${i.name}${pid}</span></div><span class="iq">x${q} @ $${i.price}</span></div>`;
-        }).join('');
-      } catch (e) { }
-
-      const imgHtml = r.paymentScreenshot 
-        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">` 
-        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
-
-      return `<tr id="r-${r._id}">
-        <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
-        <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
-        <td class="cp"><div class="ph"><span class="pid">#${r._id.toString().substring(0, 8)}</span><span class="ptl">$${r.totalUSD}</span></div><div class="pil">${ih || 'No Data'}</div></td>
-        <td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
-          <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>Pending</option>
-          <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>Shipping</option>
-          <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>Completed</option>
-          <option value="Success" ${s === 'Success' ? 'selected' : ''}>Payment Successful</option>
-          <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>Rejected</option>
-        </select></td>
-        <td class="cc">
-          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
-          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
-          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email || '-'}</div>
-          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address || '-'}</div>
-        </td>
-        <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
-      </tr>`;
+      try { const it = Array.isArray(r.items) ? r.items : []; if(it.length>0) ih = it.map(i => `<div class="ir"><div class="ix">${i.img?`<img src="${i.img}" class="it">`:''}<span class="in" title="${i.name}">${i.name}</span></div><span class="iq">x${i.qty||1} @ $${i.price}</span></div>`).join(''); } catch(e){}
+      const imgHtml = r.paymentScreenshot ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">` : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
+      return `<tr id="r-${r._id}"><td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td><td class="cdp"><span class="dt">${d}</span>${imgHtml}</td><td class="cp"><div class="ph"><span class="pid">#${r._id.toString().substring(0,8)}</span><span class="ptl">$${r.totalUSD}</span></div><div class="pil">${ih||'No Data'}</div></td><td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}"><option value="Pending" ${s==='Pending'?'selected':''}>Pending</option><option value="Shipping" ${s==='Shipping'?'selected':''}>Shipping</option><option value="Completed" ${s==='Completed'?'selected':''}>Completed</option><option value="Success" ${s==='Success'?'selected':''}>Payment Successful</option><option value="Rejected" ${s==='Rejected'?'selected':''}>Rejected</option></select></td><td class="cc"><div class="cd"><strong>Name:</strong> ${r.clientDetails?.name||'Guest'}</div><div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone||'-'}</div><div class="cd"><strong>Email:</strong> ${r.clientDetails?.email||'-'}</div><div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address||'-'}</div></td><td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td></tr>`;
     }).join('');
-
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
   } catch (e) { res.status(500).send('Error loading orders'); }
 });
 
-// ─── ERROR HANDLING MIDDLEWARE ───────────────────────────────────────────────
+// ─── ERROR HANDLING ─────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+app.use((err, req, res, next) => { console.error('Unhandled error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
 app.listen(port, () => console.log(`🚀 Secure Server running on port ${port}`));
