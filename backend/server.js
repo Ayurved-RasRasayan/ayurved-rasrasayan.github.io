@@ -144,7 +144,7 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
       </style></head><body>
       <div class="header"><h1>📦 Stock Manager</h1><a href="/api/view-orders" class="btn">← Back to Orders</a></div>
       <div class="tw"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Set New</th><th>Action</th></tr></thead>
-      <tbody id="tb"><% products.map(function(p) { var s = p.stock || 0; var b = "<span style=\\"color:#15803d\\">In Stock</span>"; if(s===0) b = "<span style=\\"color:#b91c1c\\">Out</span>"; else if(s<=10) b = "<span style=\\"color:#c2410c\\">Low</span>"; %>
+      <tbody id="tb"><% products.map(function(p) { var s = p.stock || 0; var b = "<span style='color:#15803d'>In Stock</span>"; if(s===0) b = "<span style='color:#b91c1c'>Out</span>"; else if(s<=10) b = "<span style='color:#c2410c'>Low</span>";
       <tr><td data-label="Product"><div class="pi"><img src="<%= p.img %>" class="pimg"><div><strong><%= p.name %></strong><div style="font-size:10px;color:#6b7280"><%= p.sci %></div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280"><%= p.catLabel %></td><td data-label="Current"><%- b %> (<%= s %>)</td><td data-label="New Stock"><input type="number" class="si" id="s-<%= p.id %>" value="<%= s %>" min="0" onchange="document.getElementById('b-<%= p.id %>').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-<%= p.id %>" onclick="save(<%= p.id %>)">Save</button></td></tr>
       <% }); %></tbody></table></div>
       <div id="toast" class="toast"></div>
