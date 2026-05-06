@@ -40,7 +40,7 @@ h1{color:#2d4a22;margin:0;display:flex;align-items:center;gap:10px}
 .tw{background:#fff;border-radius:8px;overflow-x:auto;box-shadow:0 4px 6px rgba(0,0,0,.05)}
 
 /* Table Styles - Percentage Based */
-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:700px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:750px}
 th,td{padding:0;border:1px solid #e5e7eb;vertical-align:top;text-align:left}
 th{background:#2d4a22;color:#fff;font-weight:600;font-size:12px;text-transform:uppercase;padding:12px 10px;text-align:center}
 tr{background:#fff;transition:.2s}
@@ -86,7 +86,7 @@ tr:hover{background:#fafafa}
 .s-Rejected{background:#fef2f2;color:#b91c1c}
 
 /* State Badge Styles */
-.state-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.state-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;justify-content:center}
 .state-pending{background:#fed7aa;color:#9a3412}
 .state-processing{background:#bfdbfe;color:#1e40af}
 .state-shipped{background:#a7f3d0;color:#065f46}
@@ -97,7 +97,7 @@ tr:hover{background:#fafafa}
 .state-select:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
 
 /* Email Badge Styles */
-.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;margin-top:8px;width:100%;justify-content:center}
+.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;justify-content:center}
 @keyframes pi{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 .bq{background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#92400e;border:1px solid #fcd34d}
 .bq::before{content:"⏳ ";margin-right:4px}
@@ -180,6 +180,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   .cd strong{min-width:80px}
   .ph{flex-wrap:wrap;gap:8px}
   .badge{width:auto;display:inline-flex}
+  .state-badge{width:auto;display:inline-flex}
 }
 
 @media (max-width: 480px) {
@@ -442,7 +443,7 @@ async function updateStatus(id, newStatus, selectEl) {
   } 
 }
 
-// State Update Function
+// ⭐ STATE UPDATE FUNCTION WITH LIVE DOM UPDATE (NO PAGE REFRESH) ⭐
 async function updateState(id, newState, selectEl) { 
   selectEl.disabled = true; 
   var originalClass = selectEl.className; 
@@ -455,19 +456,36 @@ async function updateState(id, newState, selectEl) {
     }); 
     var data = await response.json(); 
     if (data.success) {
-      // Update the badge display
-      var stateBadge = document.getElementById('state-badge-' + id);
-      if (stateBadge) {
-        stateBadge.className = 'state-badge state-' + newState.toLowerCase();
-        stateBadge.textContent = newState;
+      // 🎯 LIVE DOM UPDATE - Updates the badge immediately without page refresh
+      var badge = document.getElementById('state-badge-' + id);
+      if (badge) {
+        const icons = {
+          'Pending': '🟠',
+          'Processing': '🔵',
+          'Shipped': '🟢',
+          'Delivered': '✅',
+          'Cancelled': '🔴'
+        };
+        
+        const stateClasses = {
+          'Pending': 'state-pending',
+          'Processing': 'state-processing',
+          'Shipped': 'state-shipped',
+          'Delivered': 'state-delivered',
+          'Cancelled': 'state-cancelled'
+        };
+        
+        // Update the badge class and text in real-time
+        badge.className = 'state-badge ' + stateClasses[newState];
+        badge.innerHTML = (icons[newState] || '🟠') + ' ' + newState;
       }
-      selectEl.className = 'state-select';
       showToast('✅ Order state updated to: ' + newState);
+      selectEl.className = 'state-select';
     } else {
       throw new Error(data.error || 'Update failed');
     }
   } catch (e) { 
-    showToast('❌ Network error - could not update state'); 
+    showToast('❌ Network error - could not update state: ' + e.message); 
     selectEl.className = originalClass; 
   } finally { 
     selectEl.disabled = false; 
