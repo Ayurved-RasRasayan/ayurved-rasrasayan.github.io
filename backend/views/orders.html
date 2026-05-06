@@ -212,10 +212,26 @@
 
         td {
             padding: 16px 12px;
-            border-bottom: 1px solid #e5e7eb;
             vertical-align: top;
         }
 
+        /* ============ HORIZONTAL RED LINE DIVIDER ============ */
+        /* Red line between each row */
+        tr {
+            border-bottom: 2px solid #dc2626;
+        }
+
+        /* Remove border from last row */
+        tr:last-child {
+            border-bottom: none;
+        }
+
+        /* For table cells - remove default borders */
+        td {
+            border-bottom: none;
+        }
+
+        /* Hover effect */
         tr:hover {
             background: #fafafa;
         }
@@ -577,6 +593,11 @@
             
             .client-line {
                 text-align: left;
+            }
+            
+            /* Adjust red line for mobile */
+            tr {
+                border-bottom: 2px solid #dc2626;
             }
         }
     </style>
