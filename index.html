@@ -56,6 +56,8 @@
     .hero-bg-fallback { background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%); }
     .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
     .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+    
+    /* Fancy Dropdown Styles */
     .fancy-select { position: relative; }
     .fancy-select-dropdown {
       position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border-radius: 12px;
@@ -150,7 +152,7 @@
     <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div></div>
   </section>
 
-  <!-- ABOUT & CONTACT (condensed for space) -->
+  <!-- ABOUT & CONTACT -->
   <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 md:px-6 relative"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2><p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, high-value APIs, premium essential oils, authentic Rasa Shastra minerals, and traditional Salts (Namak).</p><div class="grid grid-cols-2 gap-4 md:gap-6"><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4><p class="text-xs md:text-sm text-white/50">COA with every order</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4><p class="text-xs md:text-sm text-white/50">50+ countries served</p></div></div></div><div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5"></div></div></div></div></section>
 
   <section id="contact" class="py-16 md:py-24 lg:py-32"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2><p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p><div class="space-y-4"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm md:text-base font-medium">sales.naturabotanica20@gmail.com</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Phone</p><p class="text-sm md:text-base font-medium">+977 98012 34567</p></div></div></div></div>
@@ -181,7 +183,7 @@
     </div>
   </div>
 
-  <!-- PRODUCT MODAL -->
+  <!-- PRODUCT MODAL WITH DROPDOWNS -->
   <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
   </div>
@@ -226,7 +228,6 @@
     function filterCategory(c){ currentCategory=c; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); renderProducts(getFilteredProducts()); }
     function sortProducts(){ currentSort=document.getElementById('sortSelect').value; renderProducts(getFilteredProducts()); }
     
-    // Inquiry form submission
     async function submitInquiry(e){ e.preventDefault(); const btn=e.target.querySelector('button[type="submit"]'), msgDiv=document.getElementById('formMsg'); btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try{ const res=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany')?.value||'',message:document.getElementById('contactMessage').value})}); if(res.ok){ msgDiv.textContent='✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch(err){ msgDiv.textContent='✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry','error'); } finally{ btn.disabled=false; btn.innerHTML='Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
     
     // Payment functions
@@ -238,9 +239,226 @@
     function clearScreenshot(e){ if(e) e.stopPropagation(); paymentScreenshotBase64=null; document.getElementById('paymentScreenshot').value=""; document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); document.getElementById('progressBar').style.width='0%'; }
     async function submitOrderToBackend(){ const name=document.getElementById('clientName').value.trim(); const phone=document.getElementById('clientPhone').value.trim(); const email=document.getElementById('clientEmail').value.trim(); const address=document.getElementById('clientAddress').value.trim(); if(!name || !phone || !email){ showToast('Please fill all required client fields','error'); return; } if(!paymentScreenshotBase64){ showToast('Please upload payment screenshot','error'); return; } if(!cart.length){ showToast('Cart is empty','error'); return; } const btn=document.getElementById('confirmPayBtn'); const originalHtml=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; lucide.createIcons(); try{ const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUSD=totalNPR/exchangeRate; const paidAmount=selectedPaymentCurrency==='npr'?totalNPR:totalUSD; const currency=selectedPaymentCurrency==='npr'?'NPR':'USD'; const orderData={ items:cart.map(i=>({id:i.id, name:i.name, price:i.price, qty:i.qty})), totalNPR, totalUSD, paidAmount, currency, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64, clientDetails:{name, phone, email, address:address||'N/A'} }; const res=await fetch(`${BACKEND_URL}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(orderData)}); if(res.ok){ showToast('Order placed! We will verify payment and email you confirmation.'); cart=[]; updateCartUI(); paymentScreenshotBase64=null; clearScreenshot(); document.getElementById('clientName').value=''; document.getElementById('clientPhone').value=''; document.getElementById('clientEmail').value=''; document.getElementById('clientAddress').value=''; closePaymentModal(); } else { const err=await res.json(); showToast(err.message||'Order submission failed','error'); } } catch(err){ showToast('Network error. Please try again.','error'); } finally{ btn.disabled=false; btn.innerHTML=originalHtml; lucide.createIcons(); } }
     
-    // Modal functions (simplified product modal)
-    function openModal(id){ const p=products.find(x=>x.id===id); if(!p) return; currentModalProduct=p; const contentDiv=document.getElementById('modalDynamicContent'); contentDiv.innerHTML=`<div class="relative"><img src="${p.img}" class="w-full h-44 object-cover rounded-t-2xl"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium rounded-full">${p.catLabel}</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ${p.id}</div></div><div class="p-4"><div class="flex justify-between items-start mb-1"><h3 class="text-lg font-semibold">${p.name}</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full">#${p.id}</span></div><p class="text-[10px] text-txt-third italic mb-2">${p.sci||''}</p><p class="text-xs text-txt-sub mb-3">${p.desc||''}</p><div class="grid grid-cols-3 gap-2 mb-3"><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50">Unit</p><p class="text-[10px] text-white">${p.unit||'1 kg'}</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50">MOQ</p><p class="text-[10px] text-white">${p.moq||'1'}</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50">Lead</p><p class="text-[10px] text-white">${p.lead||'7d'}</p></div></div><div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3"><div class="flex justify-between"><div><span class="text-[9px] uppercase">Price</span><div class="text-lg font-bold text-brand">NPR ${p.price}</div><div class="text-[9px] text-txt-sub">$${(p.price/exchangeRate).toFixed(2)}</div></div><div><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full">Per ${p.unit||'kg'}</span></div></div></div><div class="flex gap-2"><div class="flex items-center border rounded-lg overflow-hidden"><button onclick="window.modalQtyChange(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs border-x"><button onclick="window.modalQtyChange(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addToCart(${p.id}, parseInt(document.getElementById('modalQty')?.value||1)); closeModal();" class="flex-1 py-1.5 bg-brand text-white text-xs rounded-lg flex items-center justify-center gap-1"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>Add to Cart</button></div></div>`; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(()=>lucide.createIcons(),30); }
-    window.modalQtyChange=function(d){ const inp=document.getElementById('modalQty'); if(inp) inp.value=Math.max(1,(parseInt(inp.value)||1)+d); };
+    // ========== ENHANCED MODAL WITH DROPDOWNS ==========
+    function openModal(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      currentModalProduct = p;
+      
+      const isLiquidProduct = (p.category === 'oils') || (p.unit && p.unit.toLowerCase().includes('ml'));
+      selectedForm = isLiquidProduct ? 'Liquid Form' : 'Whole Plant';
+      selectedUnitValue = isLiquidProduct ? '15ml' : '1kg';
+      
+      const unitOptions = isLiquidProduct ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
+      const formOptions = ['Whole Plant', 'Powder Form', 'Liquid Form'];
+      
+      const modalContainer = document.getElementById('productModal');
+      const contentDiv = document.getElementById('modalDynamicContent');
+      
+      contentDiv.innerHTML = `
+        <div class="relative">
+          <img src="${p.img}" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display='none'">
+          <button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          <div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium rounded-full">${p.catLabel}</div>
+          <div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ${p.id}</div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-start gap-2 mb-1">
+            <h3 class="text-lg font-semibold tracking-tight">${p.name}</h3>
+            <span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#${p.id}</span>
+          </div>
+          <p class="text-[10px] text-txt-third italic mb-2">${p.sci || ''}</p>
+          <p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">${p.desc || 'Premium quality botanical ingredient.'}</p>
+          
+          <!-- TWO DROPDOWNS - Form & Unit -->
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="fancy-select relative" id="formDropdownContainer">
+              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('form')">
+                <div class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selectedFormLabel">${selectedForm}</span></div>
+                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChevron"></i>
+              </div>
+              <div class="fancy-select-dropdown" id="formDropdown">
+                ${formOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')"><i data-lucide="${opt === 'Liquid Form' ? 'droplet' : (opt === 'Powder Form' ? 'cloud' : 'leaf')}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
+              </div>
+            </div>
+            <div class="fancy-select relative" id="unitDropdownContainer">
+              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('unit')">
+                <div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selectedUnitLabel">${selectedUnitValue}</span></div>
+                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChevron"></i>
+              </div>
+              <div class="fancy-select-dropdown" id="unitDropdown">
+                ${unitOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')"><i data-lucide="${opt.includes('ml') ? 'droplet' : 'cube'}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Price Box -->
+          <div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="text-[9px] uppercase text-txt-sub">Price per unit</span>
+                <div class="text-lg font-bold text-brand" id="dynamicModalPrice">NPR ${p.price}</div>
+                <div class="text-[9px] text-txt-sub" id="dynamicModalUsd">$${(p.price / exchangeRate).toFixed(2)}</div>
+                <div id="powderFeeIndicator" class="text-[8px] text-orange-500 mt-1 ${selectedForm === 'Powder Form' ? '' : 'hidden'}">+NPR 50/kg powder fee</div>
+              </div>
+              <div class="text-right">
+                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="formBadge">${selectedForm}</span>
+                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="unitBadge">${selectedUnitValue}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Info Grid -->
+          <div class="grid grid-cols-3 gap-1.5 mb-3">
+            <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Unit</p><p class="text-[10px] text-white font-medium">${p.unit || '1 kg'}</p></div>
+            <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">${p.moq || '1 kg'}</p></div>
+            <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">${p.lead || '7d'}</p></div>
+          </div>
+          
+          <!-- Quantity and Add to Cart -->
+          <div class="flex gap-2">
+            <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
+              <button onclick="window.modalQtyChange(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
+              <input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none">
+              <button onclick="window.modalQtyChange(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
+            </div>
+            <button onclick="window.addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all">
+              <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      `;
+      
+      modalContainer.classList.remove('hidden');
+      modalContainer.classList.add('flex');
+      setTimeout(() => { lucide.createIcons(); window.updateDynamicPrice(); }, 30);
+    }
+    
+    // Dropdown helper functions
+    window.toggleDropdown = function(type) {
+      const container = document.getElementById(`${type}DropdownContainer`);
+      if (!container) return;
+      const all = document.querySelectorAll('.fancy-select');
+      all.forEach(c => { if (c !== container) c.classList.remove('open'); });
+      container.classList.toggle('open');
+      const chev = document.getElementById(`${type}Chevron`);
+      if (chev) chev.classList.toggle('rotate-180');
+    };
+    
+    window.selectFormOption = function(form) {
+      selectedForm = form;
+      document.getElementById('selectedFormLabel').innerText = form;
+      const formBadge = document.getElementById('formBadge');
+      if (formBadge) formBadge.innerText = form;
+      
+      const isLiquid = (form === 'Liquid Form');
+      const unitOptions = isLiquid ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
+      const unitDropdown = document.getElementById('unitDropdown');
+      if (unitDropdown) {
+        unitDropdown.innerHTML = unitOptions.map(opt => 
+          `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')"><i data-lucide="${isLiquid ? 'droplet' : 'cube'}" class="w-3 h-3"></i><span>${opt}</span></div>`
+        ).join('');
+        const newDefaultUnit = isLiquid ? '15ml' : '1kg';
+        selectedUnitValue = newDefaultUnit;
+        document.getElementById('selectedUnitLabel').innerText = newDefaultUnit;
+        const unitBadge = document.getElementById('unitBadge');
+        if (unitBadge) unitBadge.innerText = newDefaultUnit;
+        lucide.createIcons();
+      }
+      
+      const feeIndicator = document.getElementById('powderFeeIndicator');
+      if (feeIndicator) feeIndicator.classList.toggle('hidden', form !== 'Powder Form');
+      
+      const container = document.getElementById('formDropdownContainer');
+      if (container) container.classList.remove('open');
+      const chev = document.getElementById('formChevron');
+      if (chev) chev.classList.remove('rotate-180');
+      window.updateDynamicPrice();
+    };
+    
+    window.selectUnitOption = function(unit) {
+      selectedUnitValue = unit;
+      document.getElementById('selectedUnitLabel').innerText = unit;
+      const unitBadge = document.getElementById('unitBadge');
+      if (unitBadge) unitBadge.innerText = unit;
+      const container = document.getElementById('unitDropdownContainer');
+      if (container) container.classList.remove('open');
+      const chev = document.getElementById('unitChevron');
+      if (chev) chev.classList.remove('rotate-180');
+      window.updateDynamicPrice();
+    };
+    
+    window.updateDynamicPrice = function() {
+      if (!currentModalProduct) return;
+      let unitFactor = 1;
+      const unit = selectedUnitValue;
+      if (unit === '10gm') unitFactor = 0.01;
+      else if (unit === '125gm') unitFactor = 0.125;
+      else if (unit === '250gm') unitFactor = 0.25;
+      else if (unit === '500gm') unitFactor = 0.5;
+      else if (unit === '1kg') unitFactor = 1;
+      else if (unit === '15ml') unitFactor = 0.015;
+      else if (unit === '30ml') unitFactor = 0.03;
+      else if (unit === '50ml') unitFactor = 0.05;
+      else if (unit === '100ml') unitFactor = 0.1;
+      else if (unit === '200ml') unitFactor = 0.2;
+      else if (unit === '500ml') unitFactor = 0.5;
+      else if (unit === '1000ml') unitFactor = 1;
+      
+      let price = currentModalProduct.price * unitFactor;
+      if (selectedForm === 'Powder Form') price += 50 * unitFactor;
+      const finalPrice = Math.round(price * 100) / 100;
+      const priceEl = document.getElementById('dynamicModalPrice');
+      const usdEl = document.getElementById('dynamicModalUsd');
+      if (priceEl) priceEl.innerHTML = `NPR ${finalPrice.toLocaleString()}`;
+      if (usdEl) usdEl.innerHTML = `$${(finalPrice / exchangeRate).toFixed(2)}`;
+    };
+    
+    window.modalQtyChange = function(delta) {
+      const inp = document.getElementById('modalQty');
+      if (inp) inp.value = Math.max(1, (parseInt(inp.value) || 1) + delta);
+    };
+    
+    window.addEnhancedToCart = function() {
+      if (!currentModalProduct) return;
+      const qty = parseInt(document.getElementById('modalQty')?.value) || 1;
+      let unitFactor = 1;
+      const unit = selectedUnitValue;
+      if (unit === '10gm') unitFactor = 0.01;
+      else if (unit === '125gm') unitFactor = 0.125;
+      else if (unit === '250gm') unitFactor = 0.25;
+      else if (unit === '500gm') unitFactor = 0.5;
+      else if (unit === '1kg') unitFactor = 1;
+      else if (unit === '15ml') unitFactor = 0.015;
+      else if (unit === '30ml') unitFactor = 0.03;
+      else if (unit === '50ml') unitFactor = 0.05;
+      else if (unit === '100ml') unitFactor = 0.1;
+      else if (unit === '200ml') unitFactor = 0.2;
+      else if (unit === '500ml') unitFactor = 0.5;
+      else if (unit === '1000ml') unitFactor = 1;
+      
+      let unitPrice = currentModalProduct.price * unitFactor;
+      if (selectedForm === 'Powder Form') unitPrice += 50 * unitFactor;
+      const finalPrice = Math.round(unitPrice * 100) / 100;
+      
+      const cartItem = {
+        id: currentModalProduct.id,
+        name: `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`,
+        img: currentModalProduct.img,
+        unit: selectedUnitValue,
+        form: selectedForm,
+        price: finalPrice,
+        qty: qty
+      };
+      const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.form === selectedForm);
+      if (existing) existing.qty += qty;
+      else cart.push(cartItem);
+      updateCartUI();
+      if (selectedForm === 'Powder Form') showToast(`Added ${qty} x ${selectedUnitValue} (+NPR ${(50 * unitFactor * qty).toFixed(2)} powder fee)`);
+      else showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
+      closeModal();
+    };
+    
     function closeModal(){ document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct=null; }
     
     document.getElementById('cartToggle').addEventListener('click',openCart);
