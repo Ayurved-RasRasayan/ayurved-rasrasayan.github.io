@@ -233,7 +233,65 @@
       }
     }
     
-    function renderProducts(items){ const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } noR.classList.add('hidden'); cnt.textContent=`${items.length}`; grid.innerHTML=items.map((p,i)=>{ const displayInfo = getDisplayPriceInfo(p); const displayPriceNPR = displayInfo.price; const displayPriceUSD = displayPriceNPR / exchangeRate; return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})"><img src="${p.img}" class="w-full h-full object-cover"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span></div></div><div class="p-5"><h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ${displayPriceNPR.toLocaleString()} / ${displayInfo.unitLabel}</span><span class="text-xs text-txt-sub block">$${displayPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${displayInfo.unitLabel}</span></div><button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main text-white text-xs rounded-xl">Add</button></div></div></div>`; }).join(''); lucide.createIcons(); }
+    function renderProducts(items){ 
+  const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); 
+  if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } 
+  noR.classList.add('hidden'); cnt.textContent=`${items.length}`; 
+  grid.innerHTML=items.map((p,i)=>{ 
+    const displayInfo = getDisplayPriceInfo(p); 
+    const displayPriceNPR = displayInfo.price; 
+    const displayPriceUSD = displayPriceNPR / exchangeRate;
+    
+    // Determine stock status and classes
+    let stockStatus = '';
+    let stockClass = '';
+    let disableButton = false;
+    
+    if (p.stock <= 0) {
+      stockStatus = 'Out of Stock';
+      stockClass = 'text-red-600 bg-red-50';
+      disableButton = true;
+    } else if (p.stock < 10) {
+      stockStatus = `Low Stock (${p.stock} left)`;
+      stockClass = 'text-orange-600 bg-orange-50';
+      disableButton = false;
+    } else {
+      stockStatus = 'In Stock';
+      stockClass = 'text-green-600 bg-green-50';
+      disableButton = false;
+    }
+    
+    return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all">
+      <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+        <img src="${p.img}" class="w-full h-full object-cover">
+        <div class="absolute top-3 left-3">
+          <span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span>
+        </div>
+        <div class="absolute top-3 right-3">
+          <span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3>
+          <span class="px-2 py-0.5 text-[10px] font-medium rounded-full ${stockClass}">${stockStatus}</span>
+        </div>
+        <div class="flex items-center justify-between mt-2">
+          <div>
+            <span class="text-xl font-semibold">NPR ${displayPriceNPR.toLocaleString()} / ${displayInfo.unitLabel}</span>
+            <span class="text-xs text-txt-sub block">$${displayPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${displayInfo.unitLabel}</span>
+          </div>
+          <button onclick="addToCart(${p.id})" 
+            ${disableButton ? 'disabled' : ''}
+            class="px-4 py-2 ${disableButton ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'} text-white text-xs rounded-xl transition-all">
+            ${disableButton ? 'Out of Stock' : 'Add to Cart'}
+          </button>
+        </div>
+      </div>
+    </div>`; 
+  }).join(''); 
+  lucide.createIcons(); 
+}
     
     function addToCart(id, qty=1){ const p=products.find(x=>x.id===id); if(p){ const existing=cart.find(i=>i.id===id); if(existing) existing.qty+=qty; else cart.push({id:p.id, name:p.name, price:p.price, qty, img:p.img, unit:p.unit}); updateCartUI(); showToast(`${p.name} added`); } }
     function updateCartUI(){ const totalItems=cart.reduce((s,i)=>s+i.qty,0); const cEl=document.getElementById('cartCount'); if(totalItems>0){ cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent=totalItems; } else cEl.classList.add('hidden'); const cartDiv=document.getElementById('cartItems'); if(cartDiv) cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-4 py-4 border-b"><img src="${i.img}" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">${i.name} <span class="text-[10px] font-mono">#${i.id}</span></h4><p>${i.qty} x NPR ${i.price}</p><button onclick="removeFromCart(${i.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join(''); const total=cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; const footer=document.getElementById('cartFooter'); if(cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); }
