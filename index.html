@@ -1,711 +1,416 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: {
-            brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
-            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917', 'card-dark': '#132316',
-            'txt-main': '#1C1917', 'txt-sub': '#57534E', 'txt-third': '#78716C', 'border-main': '#E7E5E4',
-            'esewa': '#5EBC5D', 'khalti': '#5C2D91',
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
-    ::selection { background: #A3B14B; color: white; }
-    body { font-family: 'Inter', sans-serif; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .anim-up { opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
-    .anim-d1 { animation-delay: 0.1s; } .anim-d2 { animation-delay: 0.2s; } .anim-d3 { animation-delay: 0.3s; } .anim-d4 { animation-delay: 0.4s; }
-    .typewriter { overflow: hidden; white-space: nowrap; border-right: 3px solid #A3B14B; animation: blink-caret 0.75s step-end infinite; }
-    @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #A3B14B; } }
-    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-    .shimmer-effect { position: relative; overflow: hidden; }
-    .shimmer-effect::before { content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%); transform: skewX(-20deg); animation: shimmer 2s infinite; }
-    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.3); }
-    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-    @keyframes slowSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .logo-spin { animation: slowSpin 10s linear infinite; }
-    .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
-    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
-    @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
-    .toast-exit { animation: slideOutRight 0.3s ease-in forwards; }
-    @keyframes slideOutRight { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-    .product-card:hover .product-img { transform: scale(1.05); }
-    .cat-btn.active { background: #1C1917; color: #FAFAF9; }
-    .payment-modal-open #products { filter: blur(4px); opacity: 0.6; pointer-events: none; }
-    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
-    .currency-btn.active-curr { background-color: #1C1917; color: white; }
-    .input-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
-    .upload-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
-    .hero-bg-fallback { background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%); }
-    .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
-    .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
-  </style>
-</head>
-<body class="bg-bg-light text-txt-main">
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Orders</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;margin:0;padding:0;color:#1f2937}
+.c{max-width:1440px;margin:0 auto;padding:16px}
 
-  <!-- NAVBAR -->
-  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
-    <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20"><i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i></div>
-        <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main">NaturaBotanica</span>
-      </a>
-      <div class="hidden md:flex items-center gap-6 md:gap-8">
-        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
-        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
-        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
-        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
-      </div>
-      <div class="flex items-center gap-2 md:gap-4">
-        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
-        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span></button>
-        <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
-      </div>
-    </div>
-  </nav>
+/* Header */
+.hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+h1{color:#2d4a22;margin:0;font-size:1.4rem;display:flex;align-items:center;gap:8px}
+h1 span.sub{font-size:.55em;opacity:.4;font-weight:400}
+.btn-s{background:#2d4a22;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
 
-  <!-- SEARCH BAR -->
-  <div id="searchBar" class="fixed top-20 left-0 right-0 z-40 bg-white border-b border-border-main shadow-lg hidden">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
-      <div class="relative">
-        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
-        <input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
-        <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button>
-      </div>
-      <div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div>
+/* Toolbar */
+.tb{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:12px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.b{padding:8px 16px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:14px}
+.bd{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.bs{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
+#sc{color:#6b7280;font-size:14px}
+
+/* Currency toggle */
+.cur-toggle{display:flex;background:#e5e7eb;border-radius:8px;padding:3px;overflow:hidden}
+.cur-btn{padding:7px 20px;border:none;font-weight:700;font-size:13px;cursor:pointer;background:transparent;color:#6b7280;transition:all .2s;border-radius:6px}
+.cur-btn.active{background:#2d6a2e;color:#fff;box-shadow:0 2px 6px rgba(45,106,46,.3)}
+
+/* Rate bar */
+.rc-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #e5e7eb}
+.rc-label{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
+.rc-rate{font-size:15px;font-weight:800;color:#2d4a22}
+.rc-time{font-size:11px;color:#9ca3af;font-weight:500;margin-left:auto}
+.rc-btn{padding:5px 14px;border-radius:5px;border:none;font-weight:600;font-size:12px;cursor:pointer;transition:.2s}
+.rc-fetch{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.rc-fetch:hover{background:#dbeafe}
+.rc-fetching{background:#f3f4f6;color:#9ca3af;cursor:wait}
+.rc-err{font-size:11px;color:#dc2626;font-weight:500}
+.rc-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.rc-dot.err{background:#ef4444}
+
+/* Total bar */
+.total-bar{max-width:1440px;margin:0 auto 24px;background:#fff;border:1px solid #d1d5db;border-left:4px solid #2d4a22;border-radius:6px;padding:10px 20px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.total-lbl{color:#6b7280;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+.total-val{color:#1a5c1c;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+.total-cur{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;vertical-align:middle;letter-spacing:.3px}
+.total-cur.npr{background:#dbeafe;color:#1e40af}
+.total-cur.usd{background:#fef3c7;color:#92400e}
+
+/* Table wrapper */
+.tw{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.05);overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1280px}
+th,td{padding:0;border:1px solid #e5e7eb;vertical-align:top;text-align:left}
+th{background:#2d4a22;color:#fff;font-weight:600;font-size:11px;text-transform:uppercase;padding:10px 8px;text-align:center;letter-spacing:.5px}
+tr:hover{background:#f8faf8}
+input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
+
+/* ── Column: Checkbox + Date ── */
+.col-check{width:44px;text-align:center;padding:12px 6px;background:#f9fafb}
+.col-date{width:120px;padding:14px;background:#f9fafb;display:flex;flex-direction:column;align-items:center;gap:10px}
+.dt{font-weight:700;color:#2d4a22;font-size:.9rem;white-space:nowrap}
+.pt{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;transition:.2s}
+.pt:hover{opacity:.8;transform:scale(1.05)}
+.no-img{width:44px;height:44px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:9px;color:#aaa}
+
+/* ── Column: Items ── */
+.col-items{width:380px;padding:14px}
+.items-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb}
+.items-label{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
+.pid{font-size:.75rem;background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:4px;font-weight:700;font-family:monospace}
+
+/* Single item block */
+.item-block{padding:8px 0;border-bottom:1px dashed #e5e7eb}
+.item-block:last-of-type{border-bottom:none}
+.item-top{display:flex;align-items:center;gap:10px}
+.item-thumb{width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid #e5e7eb;flex-shrink:0;cursor:pointer}
+.item-thumb:hover{opacity:.8}
+.item-name{font-weight:600;color:#1f2937;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.item-meta{display:flex;align-items:center;gap:6px;margin:4px 0 0 42px;flex-wrap:wrap}
+.item-size{font-size:.78rem;color:#374151;font-weight:600}
+.fb{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:1px 6px;border-radius:3px;white-space:nowrap;line-height:1.6}
+.fb-powder{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+.fb-whole{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.item-calc{display:flex;align-items:center;gap:6px;margin:3px 0 0 42px;font-size:.8rem;color:#4b5563;font-variant-numeric:tabular-nums}
+.item-calc .eq{color:#9ca3af}
+.item-calc .line-total{color:#1a5c1c;font-weight:800;font-size:.85rem;margin-left:auto}
+
+/* Subtotal */
+.subtotal-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid #2d4a22}
+.subtotal-label{color:#2d4a22;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+.subtotal-val{color:#1a5c1c;font-weight:900;font-size:17px;font-variant-numeric:tabular-nums}
+.subtotal-usd{font-size:11px;color:#9ca3af;font-weight:500;margin-left:6px}
+.no-items{color:#9ca3af;font-size:.85rem;font-style:italic;padding:8px 0}
+
+/* ── Column: Status ── */
+.col-status{width:140px;padding:14px;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.ss{padding:8px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:600;cursor:pointer;width:100%;font-size:13px;text-align:center}
+.s-Pending{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.s-Shipping{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.s-Completed{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.s-Success{background:#dcfce7;color:#15803d;border-color:#86efac}
+.s-Rejected{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+.badge{display:flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;animation:pi .4s ease-out forwards}
+@keyframes pi{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.bq{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.bq::before{content:"⏳ "}
+.bsn{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.bsn::before{content:"✅ "}
+.bf{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.bf::before{content:"❌ "}
+
+/* ── Column: Client ── */
+.col-client{padding:14px;flex:1;min-width:0}
+.cl{font-size:.85rem;color:#374151;margin-bottom:5px;display:flex;gap:6px;line-height:1.4}
+.cl strong{color:#111827;min-width:52px;flex-shrink:0;font-size:.78rem;text-transform:uppercase;letter-spacing:.3px;font-weight:700;opacity:.6}
+
+/* ── Column: Payment ── */
+.col-pay{width:94px;padding:14px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center}
+.pay-tag{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:5px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.pay-npr{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+.pay-usd{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.pay-esewa{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.pay-khalti{background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe}
+.pay-na{background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb}
+
+/* ── Column: Actions ── */
+.col-act{width:68px;padding:14px;display:flex;align-items:center;justify-content:center}
+.dr{width:100%;display:flex;justify-content:center;align-items:center;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:8px;border-radius:6px;font-weight:600;cursor:pointer;font-size:11px;text-transform:uppercase;transition:.15s}
+.dr:hover{background:#fecaca}
+
+/* Toast */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:12px 24px;border-radius:50px;opacity:0;transition:.3s;z-index:2000;font-size:14px;width:90%;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Image modal */
+#imgModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:3000;display:none;align-items:center;justify-content:center;cursor:pointer}
+#imgModal.show{display:flex}
+#imgModal img{max-width:90%;max-height:90%;border-radius:8px;cursor:default}
+.ci{position:absolute;top:20px;right:24px;color:#fff;cursor:pointer;font-size:36px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1)}
+.ci:hover{background:rgba(255,255,255,.2)}
+
+/* ═══════════════════════════════
+   MOBILE
+   ═══════════════════════════════ */
+@media(max-width:840px){
+  html,body{overflow-x:hidden;width:100%}
+  ::-webkit-scrollbar{display:none}
+  body{background:#e5e7eb}
+  .c{padding:6px 0;max-width:100%}
+  .tb{flex-direction:column;align-items:stretch;padding:10px 8px;gap:8px;border-radius:0}
+  .b{width:calc(100% - 16px);margin:0 8px;justify-content:center;padding:12px}
+  .cur-toggle{margin:0 8px;justify-content:center}
+  #sc{text-align:center;margin:0 8px}
+  .rc-bar{margin:0 8px 10px;flex-direction:column;align-items:stretch;gap:6px;padding:10px}
+  .rc-time{margin-left:0;text-align:center}
+  .total-bar{margin:0 8px 20px;padding:10px 14px;justify-content:space-between}
+  .total-val{font-size:16px}
+
+  .tw{box-shadow:none;border-radius:0}
+  table{display:block;width:100%;min-width:0;border-spacing:0;border:none}
+  thead{display:none}
+  tbody{display:flex;flex-direction:column;gap:10px;padding:0 8px}
+
+  /* Each row = a card */
+  tr{display:flex;flex-direction:column;width:100%;background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid #e5e7eb;position:relative}
+  td{display:flex;width:100%;padding:0;border:none;flex-direction:column;margin-bottom:0}
+
+  /* Col 1: checkbox → absolute top-right */
+  td:nth-child(1){order:1;position:absolute;top:14px;right:14px;width:auto;z-index:5;padding:0;background:transparent}
+  td:nth-child(1) input{width:20px;height:20px}
+
+  /* Col 2: date + screenshot → top bar */
+  td:nth-child(2){order:2;flex-direction:row;align-items:center;justify-content:space-between;padding:0 0 10px 0;border-bottom:1px solid #f3f4f6;margin-bottom:10px;background:transparent}
+  .dt{font-size:.85rem}
+  .pt,.no-img{width:38px;height:38px;margin-top:0}
+
+  /* Col 3: items */
+  td:nth-child(3){order:3;background:transparent;margin-bottom:10px}
+  .col-items{width:100%;padding:0}
+  .items-header{margin-bottom:8px}
+  .item-meta{margin-left:0}
+  .item-calc{margin-left:0;flex-wrap:wrap}
+  .item-calc .line-total{margin-left:0}
+
+  /* Col 4: status */
+  td:nth-child(4){order:4;background:transparent;margin-bottom:10px}
+  .col-status{width:100%;padding:0;flex-direction:row;gap:8px;align-items:center}
+  .ss{flex:1;font-size:14px;padding:10px}
+  .badge{padding:6px 10px;font-size:10px}
+
+  /* Col 5: client */
+  td:nth-child(5){order:5;background:#f9fafb;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+  .col-client{padding:0;width:100%}
+  .cl{font-size:.82rem;margin-bottom:3px}
+  .cl strong{min-width:48px;font-size:.72rem}
+
+  /* Col 6: payment */
+  td:nth-child(6){order:6;background:transparent;margin-bottom:10px}
+  .col-pay{width:100%;padding:0;flex-direction:row;justify-content:flex-start;gap:6px}
+  .pay-tag{font-size:.72rem;padding:5px 10px}
+
+  /* Col 7: delete */
+  td:nth-child(7){order:7;background:transparent;margin-top:4px}
+  .col-act{width:100%;padding:0}
+  .dr{width:100%;padding:12px;font-size:13px}
+}
+</style></head><body>
+
+<div class="c">
+  <div class="hd">
+    <h1>🌿 NaturaBotanica <span class="sub">Admin</span></h1>
+    <a href="/api/manage-stock" class="btn-s">📦 Manage Stock</a>
+  </div>
+
+  <div class="tb">
+    <button class="b bs" onclick="tSA()">☑️ Select All</button>
+    <button class="b bd" id="bd" disabled onclick="dS()">🗑️ Delete</button>
+    <span id="sc"></span>
+    <div class="cur-toggle">
+      <button class="cur-btn active" id="tbNPR" onclick="setCur('NPR')">🇳🇵 NPR</button>
+      <button class="cur-btn" id="tbUSD" onclick="setCur('USD')">🇺🇸 USD</button>
     </div>
   </div>
 
-  <!-- MOBILE MENU -->
-  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-        <div class="flex flex-col gap-4">
-          <a href="#products" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Products</a>
-          <a href="#categories" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Categories</a>
-          <a href="#about" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">About</a>
-          <a href="#contact" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Contact</a>
-        </div>
-      </div>
-    </div>
+  <div class="rc-bar">
+    <span class="rc-dot" id="rateDot"></span>
+    <span class="rc-label">Exchange Rate</span>
+    <span style="font-size:13px;color:#374151">1 USD =</span>
+    <span class="rc-rate" id="rateDisplay">...</span>
+    <span style="font-size:13px;color:#374151;font-weight:600">NPR</span>
+    <button class="rc-btn rc-fetch" id="rateFetchBtn" onclick="fetchRate()">🔄 Refresh</button>
+    <span class="rc-err" id="rateErr"></span>
+    <span class="rc-time" id="rateTime"></span>
   </div>
 
-  <!-- HERO -->
-  <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    <canvas id="globeCanvas" class="absolute inset-0 z-5 w-full h-full pointer-events-none"></canvas>
-    <div class="absolute inset-0 hero-bg-fallback z-0"><img src="images/hero-bg.jpg" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'"><div class="absolute inset-0 bg-gradient-to-r from-bg-dark via-bg-dark/90 to-transparent"></div><div class="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/50"></div></div>
-    <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] md:w-[600px] md:h-[600px] rounded-full bg-brand/10 blur-[120px] animate-pulse" style="animation-duration:10s"></div>
-    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-      <div>
-        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, APIs, Rasa Shastra & Salts</span></div>
-        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
-        <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.</p>
-        <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25 relative overflow-hidden">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
-          <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 relative overflow-hidden">Get Quote</a>
-        </div>
-        <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
-          <div class="w-px h-8 md:h-10 bg-white/10"></div>
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">8</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
-          <div class="w-px h-8 md:h-10 bg-white/10"></div>
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div>
-        </div>
-      </div>
-      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0"><img src="images/jeM6q.jpg" alt="Chakra" class="relative z-10 max-h-[500px] w-auto object-contain drop-shadow-[0_0_40px_rgba(163,177,75,0.15)]" onerror="this.style.display='none'"></div>
-    </div>
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20" style="animation-duration:2s"><span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span><i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i></div>
-  </section>
-
-  <!-- CATEGORIES -->
-  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
-    <div class="max-w-7xl mx-auto px-4 md:px-6">
-      <div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4">
-        <button onclick="filterCategory('all')" class="cat-btn active group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="all"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="grid-3x3" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">All <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('api')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="api"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="flask-conical" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">APIs <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('oils')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="oils"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="droplets" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Oils <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('extracts')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="extracts"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="beaker" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Extracts <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('mushrooms')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="mushrooms"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="cloud-fog" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Mushrooms <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('herbs')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="herbs"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="sprout" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Herbs <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('rasa')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="rasa"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="gem" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Rasa <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('namak')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="namak"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="hexagon" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Namak <span class="count-cat text-txt-third"></span></span></button>
-        <button onclick="filterCategory('powder')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="powder"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Powders <span class="count-cat text-txt-third"></span></span></button>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTS -->
-  <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
-    <div class="max-w-7xl mx-auto px-4 md:px-6">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
-        <div>
-          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
-          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
-          <div class="flex items-center gap-2 mt-3">
-            <span class="rate-dot" id="rateDot"></span>
-            <p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3"><span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span><select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div>
-      </div>
-      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
-      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-brand/5 blur-[120px]"></div>
-    <div class="max-w-7xl mx-auto px-4 md:px-6 relative">
-      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        <div>
-          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p>
-          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2>
-          <p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, high-value APIs, premium essential oils, authentic Rasa Shastra minerals, and traditional Salts (Namak).</p>
-          <div class="grid grid-cols-2 gap-4 md:gap-6">
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4><p class="text-xs md:text-sm text-white/50">COA with every order</p></div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4><p class="text-xs md:text-sm text-white/50">50+ countries served</p></div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Himalayan Source</h4><p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p></div>
-            <div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Expert Support</h4><p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p></div>
-          </div>
-        </div>
-        <div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5"><img src="images/about-bg.jpg" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'"></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact" class="py-16 md:py-24 lg:py-32">
-    <div class="max-w-7xl mx-auto px-4 md:px-6">
-      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
-        <div>
-          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p>
-          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2>
-          <p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p>
-          <div class="space-y-4">
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm md:text-base font-medium">sales.naturabotanica20@gmail.com</p></div></div>
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Phone</p><p class="text-sm md:text-base font-medium">+977 98012 34567</p></div></div>
-            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Location</p><p class="text-sm md:text-base font-medium">Kathmandu, Nepal</p></div></div>
-          </div>
-        </div>
-        <form id="contactForm" onsubmit="submitForm(event)" class="space-y-5">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5"><input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          <input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          <textarea id="contactMessage" placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea>
-          <button type="submit" id="inquirySubmitBtn" class="ripple-btn w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2 relative overflow-hidden">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button>
-          <div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5">
-    <div class="max-w-7xl mx-auto px-4 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12">
-        <div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-white"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('api');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">APIs</a><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Extracts</a><a href="#" onclick="filterCategory('mushrooms');document.getElementById('products').scrollIntoView({behavior:'smooth'})" class="block text-sm text-white/40 hover:text-white">Mushrooms</a></div></div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white">Contact</a></div></div>
-        <div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white">Terms of Service</a></div></div>
-      </div>
-      <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
-          <span class="hidden md:inline text-white/10">|</span>
-          <div class="flex items-center gap-2" id="footerRate">
-            <span class="rate-dot" id="footerDot"></span>
-            <span class="text-xs text-white/40 font-medium" id="footerRateText">1 USD = ...</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="linkedin" class="w-4 h-4 text-white/50"></i></a>
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="twitter" class="w-4 h-4 text-white/50"></i></a>
-          <a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i data-lucide="instagram" class="w-4 h-4 text-white/50"></i></a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- CART SIDEBAR -->
-  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-      <div class="p-6 border-b border-border-main flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <div id="cartItems" class="flex-1 overflow-y-auto p-6"></div>
-      <div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4">
-        <div class="flex items-center justify-between"><span class="text-txt-sub">Subtotal</span><span id="cartTotal" class="text-xl font-semibold">NPR 0.00</span></div>
-        <button onclick="proceedToInquiry()" class="ripple-btn w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2 relative overflow-hidden">Proceed to Inquiry <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-        <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-300"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">Pay Securely</span><div class="flex-grow border-t border-gray-300"></div></div>
-        <div class="grid grid-cols-2 gap-3"><button onclick="openPaymentModal('esewa')" class="py-3 bg-esewa text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>eSewa</button><button onclick="openPaymentModal('khalti')" class="py-3 bg-khalti text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>Khalti</button></div>
-        <button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500">Clear Cart</button>
-      </div>
-    </div>
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:44px">☐</th>
+          <th style="width:120px">Date / Proof</th>
+          <th style="width:380px">Order Items</th>
+          <th style="width:140px">Status</th>
+          <th>Client</th>
+          <th style="width:94px">Payment</th>
+          <th style="width:68px">Act</th>
+        </tr>
+      </thead>
+      <tbody id="tb">{{ORDERS_ROWS}}</tbody>
+    </table>
   </div>
 
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
-
-  <!-- PAYMENT MODAL -->
-  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh] modal-enter">
-      <div class="p-6 pb-2 flex-shrink-0"><button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 z-10"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1">Complete Payment</h3><p class="text-txt-sub text-sm">Scan QR and upload screenshot.</p></div>
-      <div class="px-6 pb-6 overflow-y-auto">
-        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-4 md:mb-6"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details</h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" required class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
-        <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4"><div class="flex justify-between items-center mb-2"><span class="text-xs font-medium uppercase text-txt-third">Total</span><div class="text-right"><span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0.00</span><span id="paymentTotalSub" class="block text-[10px] text-txt-sub">$0.00</span></div></div><div class="text-xs text-txt-third" id="paymentItemsCount">0 items</div><div class="mt-3 pt-3 border-t border-gray-200"><label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label><div class="flex bg-gray-200 p-1 rounded-lg"><button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold">NPR</button><button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold">USD</button></div></div></div>
-        <div class="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl"><button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium">eSewa</button><button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium">Khalti</button></div>
-        <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner"><img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" onerror="this.style.display='none'"><img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"></div><p class="mt-3 text-sm font-medium">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
-        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width: 0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot.</p></div>
-      </div>
-      <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="ripple-btn w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2 relative overflow-hidden">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
-    </div>
+  <div class="total-bar">
+    <span class="total-lbl">Grand Total</span>
+    <span class="total-val" id="totalVal">Rs. 0</span>
+    <span class="total-cur npr" id="totalCur">NPR</span>
   </div>
+</div>
 
-  <!-- PRODUCT MODAL -->
-  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl modal-enter">
-      
-      <div class="relative">
-        <img id="modalImg" src="" class="w-full h-48 md:h-64 object-cover rounded-t-3xl" onerror="this.style.display='none'">
-        
-        <!-- Close Button -->
-        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white shadow-lg z-10">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-        
-        <!-- Form Dropdown -->
-        <select id="modalFormSelect" class="absolute top-16 right-4 z-10 w-[140px] px-3 py-2 bg-white/95 border border-border-main rounded-xl text-xs font-semibold text-txt-main backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer shadow-lg">
-          <option value="POWDER FORM">POWDER FORM</option>
-          <option value="WHOLE DRIED">WHOLE DRIED</option>
-        </select>
-        
-        <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
-      </div>
-
-      <div class="p-6 md:p-8">
-        <h3 id="modalName" class="text-2xl font-semibold tracking-tight mb-1"></h3><p id="modalSci" class="text-sm text-txt-third italic mb-4"></p><p id="modalCat" class="text-sm text-brand font-medium mb-4"></p>
-        <div class="flex items-center gap-4 mb-6"><div><span id="modalPrice" class="text-3xl font-semibold text-brand">NPR 0</span><span id="modalUnitLabel" class="text-sm text-txt-third">per kg</span><div id="modalPriceUsd" class="text-xs text-txt-sub">$0</div></div></div>
-        <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
-        <div class="grid grid-cols-3 gap-4 mb-8"><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Unit</p><p id="modalUnitBox" class="text-sm text-white font-medium">1 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">MOQ</p><p id="modalMoq" class="text-sm text-white font-medium">25 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Lead Time</p><p id="modalLead" class="text-sm text-white font-medium">7-14 days</p></div></div>
-        
-        <!-- Size Dropdown and Add to Cart -->
-        <div class="flex gap-3">
-          <select id="modalQtySelect" onchange="updateModalPrice()" class="px-4 py-3 border border-border-main rounded-xl bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer min-w-[140px]">
-            <!-- Options populated by JS -->
-          </select>
-          <button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i>Add to Cart</button>
-        </div>
-
-      </div>
-    </div>
-  </div>
+<div id="toast"></div>
+<div id="imgModal" onclick="cI(event)">
+  <span class="ci" onclick="cI(event)">&times;</span>
+  <img id="fI" src="" onclick="event.stopPropagation()">
+</div>
 
 <script>
-const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
-let exchangeRate = 133;
+var API = window.location.pathname.replace('/api/view-orders', '') + '/api';
+var RATE = 133;
+var cur = 'NPR';
 
-let paymentScreenshotBase64 = null;
-let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
-let currentModalProduct = null; let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
+async function loadRateFromDB() {
+  try {
+    var res = await fetch(API + '/exchange-rate');
+    if (!res.ok) { applyRateFallback(133); return; }
+    var data = await res.json();
+    RATE = data.rate || 133;
+    applyRateUI(RATE, data.source, data.fetchedAt);
+    updateAmounts();
+  } catch (e) { applyRateFallback(133); }
+}
 
-/* ═══════════════════════════════════════
-   DYNAMIC UNIT DROPDOWN LOGIC
-   ═══════════════════════════════════════ */
-function getUnitOptions(unitString) {
-  const u = unitString.toLowerCase();
-  if (u.includes('kg') || u.includes('gm')) {
-    return [
-      { label: '125 gm', mult: 0.125 },
-      { label: '250 gm', mult: 0.25 },
-      { label: '500 gm', mult: 0.5 },
-      { label: '1 kg', mult: 1 }
-    ];
-  } else if (u.includes('ml') || u.includes('l')) {
-    return [
-      { label: '15 ml', mult: 0.015 },
-      { label: '50 ml', mult: 0.05 },
-      { label: '100 ml', mult: 0.1 },
-      { label: '200 ml', mult: 0.2 },
-      { label: '500 ml', mult: 0.5 },
-      { label: '1000 ml', mult: 1 }
-    ];
+function applyRateUI(rate, source, fetchedAt) {
+  RATE = rate;
+  document.getElementById('rateDisplay').textContent = rate.toFixed(2);
+  document.getElementById('rateErr').textContent = '';
+  document.getElementById('rateDot').className = 'rc-dot';
+  if (source === 'live' && fetchedAt) {
+    var d = new Date(fetchedAt);
+    document.getElementById('rateTime').textContent = 'Synced: ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
   } else {
-    return [{ label: unitString, mult: 1 }];
+    document.getElementById('rateTime').textContent = 'Default';
+    document.getElementById('rateDot').classList.add('err');
   }
 }
 
-/* ═══════════════════════════════════════
-   FETCH EXCHANGE RATE FROM DATABASE
-   ═══════════════════════════════════════ */
-async function loadExchangeRate() {
+function applyRateFallback(rate) {
+  RATE = rate;
+  document.getElementById('rateDisplay').textContent = rate.toFixed(2);
+  document.getElementById('rateTime').textContent = 'Offline';
+  document.getElementById('rateErr').textContent = '';
+  document.getElementById('rateDot').className = 'rc-dot err';
+  updateAmounts();
+}
+
+async function fetchRate() {
+  var btn = document.getElementById('rateFetchBtn');
+  var errEl = document.getElementById('rateErr');
+  btn.textContent = '⏳ Syncing...';
+  btn.className = 'rc-btn rc-fetching';
+  errEl.textContent = '';
   try {
-    const res = await fetch(`${BACKEND_URL}/public/rate`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.rate && data.rate > 0) {
-        exchangeRate = data.rate;
-      }
-    }
+    var res = await fetch(API + '/exchange-rate/fetch');
+    var data = await res.json();
+    if (data.success) {
+      RATE = data.rate;
+      applyRateUI(RATE, 'live', new Date().toISOString());
+      updateAmounts();
+      sT('✅ Rate synced: 1 USD = ' + RATE.toFixed(2) + ' NPR');
+    } else { throw new Error(data.error || 'Unknown error'); }
   } catch (e) {
-    console.warn('Could not fetch rate from DB, using fallback 133');
-  }
-  updateRateDisplays();
-  loadProducts();
-}
-
-function updateRateDisplays() {
-  const r = exchangeRate.toFixed(2);
-  const dot = document.getElementById('rateDot');
-  const label = document.getElementById('rateLabel');
-  if (dot && label) {
-    dot.style.background = '#22c55e';
-    label.textContent = `$ prices calculated at 1 USD = Rs. ${r} (auto-synced)`;
-  }
-  const ft = document.getElementById('footerRateText');
-  const fd = document.getElementById('footerDot');
-  if (ft) ft.textContent = `1 USD = Rs. ${r} NPR`;
-  if (fd) fd.style.background = '#22c55e';
-}
-
-async function loadProducts() {
-  const grid = document.getElementById('productGrid');
-  grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub font-medium">Fetching products...</p></div>'; lucide.createIcons();
-  try {
-    const res = await fetch(`${BACKEND_URL}/products`);
-    if (!res.ok) throw new Error();
-    products = await res.json();
-    updateCategoryCounts();
-    renderProducts(getFilteredProducts());
-  } catch (e) {
-    console.warn('API failed, showing empty state');
-    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="wifi-off" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-lg text-txt-sub font-medium">Failed to load products from database.</p></div>';
-    lucide.createIcons();
+    errEl.textContent = 'Sync failed: ' + (e.message || 'Network error');
+    document.getElementById('rateDot').className = 'rc-dot err';
+    sT('❌ Could not sync rate');
+  } finally {
+    btn.textContent = '🔄 Refresh';
+    btn.className = 'rc-btn rc-fetch';
   }
 }
 
-function updateCategoryCounts() {
-  document.querySelector('[data-cat="all"] .count-cat').textContent = `(${products.length})`;
-  const categories = ['api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'powder']; 
-  categories.forEach(cat => {
-    const count = products.filter(p => p.category === cat).length;
-    const el = document.querySelector(`[data-cat="${cat}"] .count-cat`);
-    if (el) el.textContent = `(${count})`;
+function setCur(c) {
+  cur = c;
+  document.getElementById('tbNPR').classList.toggle('active', c === 'NPR');
+  document.getElementById('tbUSD').classList.toggle('active', c === 'USD');
+  updateAmounts();
+}
+
+function updateAmounts() {
+  var total = 0;
+  document.querySelectorAll('[data-npr]').forEach(function(el) {
+    var npr = parseFloat(el.dataset.npr) || 0;
+    total += npr;
+    if (cur === 'USD') { el.textContent = '$' + (npr / RATE).toFixed(2); }
+    else { el.textContent = 'Rs. ' + npr.toLocaleString('en-NP'); }
   });
+  var tv = document.getElementById('totalVal');
+  var tc = document.getElementById('totalCur');
+  if (cur === 'USD') { tv.textContent = '$' + (total / RATE).toFixed(2); tc.textContent = 'USD'; tc.className = 'total-cur usd'; }
+  else { tv.textContent = 'Rs. ' + total.toLocaleString('en-NP'); tc.textContent = 'NPR'; tc.className = 'total-cur npr'; }
 }
 
-(function initGlobe() { const c = document.getElementById('globeCanvas'); const ctx = c.getContext('2d'); let w, h, r=0; function resize() { w=c.width=window.innerWidth; h=c.height=window.innerHeight; } window.addEventListener('resize', resize); resize(); function draw() { ctx.clearRect(0,0,w,h); const cx=w/2,cy=h/2,R=Math.min(w,h)*0.35; ctx.save(); ctx.translate(cx,cy); ctx.rotate(r*Math.PI/180); ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.strokeStyle='rgba(163,177,75,0.15)'; ctx.stroke(); for(let i=0;i<8;i++){ctx.beginPath();ctx.ellipse(0,0,R,R*0.3,i*(Math.PI/4),0,Math.PI*2);ctx.strokeStyle='rgba(163,177,75,0.1)';ctx.stroke();} for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(-R,-R/2+(i*R/2.5));ctx.lineTo(R,-R/2+(i*R/2.5));ctx.strokeStyle='rgba(163,177,75,0.1)';ctx.stroke();} for(let i=0;i<3;i++){const a=(Date.now()/2000)+(i*(Math.PI*2/3));const sx=Math.cos(a)*(R+30),sy=Math.sin(a)*(R+30);ctx.beginPath();ctx.arc(sx,sy,2,0,Math.PI*2);ctx.fillStyle='#A3B14B';ctx.fill();ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R);ctx.strokeStyle='rgba(163,177,75,0.05)';ctx.stroke();} ctx.restore(); r+=0.1; requestAnimationFrame(draw); } draw(); })();
+function sT(m) { var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
+function oI(s) { if (!s) return; document.getElementById('fI').src = s; document.getElementById('imgModal').classList.add('show'); }
+function cI(e) { if (e.target !== document.getElementById('fI')) { document.getElementById('imgModal').classList.remove('show'); } }
 
-function createRipple(e) { const b=e.currentTarget, d=document.createElement("span"), t=Math.max(b.offsetWidth,b.offsetHeight), rad=t/2; d.style.width=d.style.height=`${t}px`; d.style.left=`${e.clientX-b.offsetLeft-rad}px`; d.style.top=`${e.clientY-b.offsetTop-rad}px`; d.classList.add("ripple"); const rip=b.getElementsByClassName("ripple")[0]; if(rip)rip.remove(); b.appendChild(d); }
-document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',createRipple));
+function gI() { return [...document.querySelectorAll('.rc:checked')].map(function(c) { return c.value; }); }
+function oCC() {
+  var i = gI(), t = document.querySelectorAll('.rc').length;
+  document.getElementById('bd').disabled = i.length === 0;
+  document.getElementById('sc').textContent = i.length > 0 ? i.length + ' selected' : '';
+  document.getElementById('ca').checked = i.length === t && t > 0;
+}
+function tSA() { var c = document.getElementById('ca'); document.querySelectorAll('.rc').forEach(function(x) { x.checked = c.checked; }); oCC(); }
 
-function renderProducts(items) {
-  const grid = document.getElementById('productGrid'), noR = document.getElementById('noResults'), cnt = document.getElementById('productCount');
-  if (!items || !items.length) {
-    grid.innerHTML = '';
-    noR.classList.remove('hidden');
-    cnt.textContent = '0 products';
-    return;
-  }
-  noR.classList.add('hidden');
-  cnt.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
-  grid.innerHTML = items.map((p, i) => {
-    const pN = p.price, pU = pN / exchangeRate, s = p.stock !== undefined ? p.stock : 100, oos = s <= 0, sT = oos ? 'Out of Stock' : `Stock: ${s}`, sC = oos ? 'text-red-500' : 'text-brand',
-      bH = oos ? `<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>` : `<button onclick="quickAddFromGrid(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
-    
-    let badgeText = '';
-    if(p.category === 'api') badgeText = 'API';
-    else if(p.category === 'herbs') badgeText = 'Raw Herb';
-    else if(p.category === 'mushrooms') badgeText = 'Mushroom';
-    else if(p.category === 'oils') badgeText = 'Oil';
-    else if(p.category === 'namak') badgeText = 'Salt';
-    else if(p.category === 'rasa') badgeText = 'Mineral';
-    else if(p.category === 'powder') badgeText = 'Powder';
-    else badgeText = 'Extract';
-
-    return `<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos ? 'opacity-70' : ''}" style="animation:fadeInUp 0.6s ease-out ${i * 0.04}s forwards;opacity:0">
-      <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-        <img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'">
-        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium uppercase rounded-full text-txt-sub shadow-sm">${badgeText}</span></div>
-        <div class="absolute top-3 right-3"><span class="px-2.5 py-1 bg-black/70 text-[10px] font-mono font-bold uppercase rounded-full text-white shadow-sm">ID: ${p.id}</span></div>
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center"><span class="opacity-0 group-hover:opacity-100 px-4 py-2 bg-white/90 rounded-full text-xs font-medium shadow-lg transform translate-y-2 group-hover:translate-y-0">View Details</span></div>
-      </div>
-      <div class="p-5">
-        <p class="text-[10px] text-brand font-medium uppercase tracking-widest mb-1">${p.catLabel}</p>
-        <h3 class="text-base font-semibold mb-0.5 cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3>
-        <p class="text-[11px] text-txt-third italic mb-3">${p.sci}</p>
-        <p class="text-xs text-txt-third mb-3 line-clamp-2">${p.desc}</p>
-        <p class="text-xs font-bold ${sC} mb-3 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> ${sT}</p>
-        <div class="flex items-center justify-between">
-          <div>
-            <span class="text-xl font-semibold">NPR ${pN.toLocaleString()}</span>
-            <span class="text-xs text-txt-sub block">$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })}/${p.unit.replace('1 unit = ', '')}</span>
-          </div>
-          ${bH}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  lucide.createIcons();
+function uI(id, s) {
+  var c = document.getElementById('r-' + id)?.querySelector('.badge');
+  if (!c) return;
+  c.classList.remove('bq', 'bsn', 'bf');
+  if (s === 'Sent') { c.classList.add('bsn'); c.textContent = 'Email Sent'; }
+  else if (s === 'Failed') { c.classList.add('bf'); c.textContent = 'Email Failed'; }
+  else { c.classList.add('bq'); c.textContent = 'Email Queue'; }
+  c.style.animation = 'none'; c.offsetHeight; c.style.animation = 'pi .4s ease-out forwards';
 }
 
-function getFilteredProducts(){let i=currentCategory==='all'?[...products]:products.filter(p=>p.category===currentCategory);switch(currentSort){case'name':i.sort((a,b)=>a.name.localeCompare(b.name));break;case'price-asc':i.sort((a,b)=>a.price-b.price);break;case'price-desc':i.sort((a,b)=>b.price-a.price);break;}return i;}
-function filterCategory(c){currentCategory=c;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));renderProducts(getFilteredProducts());}
-function sortProducts(){currentSort=document.getElementById('sortSelect').value;renderProducts(getFilteredProducts());}
-
-function quickAddFromGrid(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  const options = getUnitOptions(p.unit);
-  const defaultOpt = options[0];
-  const combinedLabel = `${defaultOpt.label} (POWDER FORM)`;
-  addToCart(id, 1, defaultOpt.mult, combinedLabel);
+async function uS(id, ns, el) {
+  el.disabled = true; var oc = el.className; el.className = 'ss';
+  try {
+    var r = await fetch(API + '/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, status: ns }) });
+    var d = await r.json();
+    el.className = 'ss s-' + ns;
+    uI(id, d.emailStatus || 'Queue');
+    if (d.emailStatus === 'Failed') sT('❌ Updated but Email Failed');
+    else if (d.emailStatus === 'Sent') sT('✅ Updated & Email Sent');
+    else sT('✅ Status updated');
+  } catch (e) { sT('❌ Network error'); el.className = oc; }
+  finally { el.disabled = false; }
 }
 
-function addToCart(id, qty=1, multiplier=1, selectedLabel='1 kg (POWDER FORM)'){
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  if ((p.stock || 100) <= 0) return showToast('Out of stock', 'error');
-  
-  const cartId = `${id}-${selectedLabel.replace(/\s/g, '')}`;
-  const calculatedPrice = p.price * multiplier;
-  
-  const e = cart.find(i => i.cartId === cartId);
-  if (e) { 
-    e.qty += qty; 
-  } else {
-    cart.push({ 
-      cartId: cartId,
-      id: p.id, 
-      name: p.name, 
-      sci: p.sci, 
-      img: p.img, 
-      baseUnit: p.unit,
-      selectedLabel: selectedLabel, 
-      multiplier: multiplier,
-      price: calculatedPrice,
-      qty: qty 
-    });
-  }
-  updateCartUI();
-  showToast(`${p.name} (${selectedLabel}) added`);
+async function d1(id, btn) {
+  if (!confirm('Delete this order?')) return;
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    var r = await fetch(API + '/delete-order/' + id, { method: 'DELETE });
+    var d = await r.json();
+    if (d.success) {
+      document.getElementById('r-' + id).style.opacity = '0';
+      setTimeout(function() { document.getElementById('r-' + id).remove(); oCC(); updateAmounts(); }, 300);
+      sT('🗑️ Deleted');
+    } else { btn.disabled = false; btn.textContent = 'Del'; }
+  } catch (e) { sT('❌ Error'); btn.disabled = false; btn.textContent = 'Del'; }
 }
 
-function removeFromCart(cartId){cart=cart.filter(i=>i.cartId!==cartId);updateCartUI();}
-function updateQty(cartId,d){const i=cart.find(x=>x.cartId===cartId);if(!i)return;i.qty=Math.max(1,i.qty+d);updateCartUI();}
-function clearCart(){cart=[];updateCartUI();showToast('Cart cleared','info');}
-
-function updateCartUI() {
-  const cEl = document.getElementById('cartCount'), tI = cart.reduce((s, i) => s + i.qty, 0), 
-        tP = cart.reduce((s, i) => s + i.price * i.qty, 0), tU = tP / exchangeRate;
-        
-  if (tI > 0) {
-    cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent = tI;
-  } else {
-    cEl.classList.add('hidden'); cEl.classList.remove('flex');
-  }
-  
-  document.getElementById('cartItemCount').textContent = `(${tI} items)`;
-  document.getElementById('cartTotal').textContent = `NPR ${tP.toLocaleString()} ($${tU.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
-  
-  const cI = document.getElementById('cartItems'), cF = document.getElementById('cartFooter');
-  if (!cart.length) {
-    cI.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub">Cart is empty</p></div>';
-    cF.classList.add('hidden'); lucide.createIcons(); return;
-  }
-  
-  cF.classList.remove('hidden');
-  cI.innerHTML = cart.map(i => {
-    const lineTotal = i.price * i.qty;
-    return `<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
-      <img src="${i.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
-      <div class="flex-1 min-w-0">
-        <div class="flex justify-between">
-          <div><h4 class="text-sm font-medium truncate">${i.name} <span class="text-[10px] text-txt-third font-mono">#${i.id}</span></h4><p class="text-[11px] text-brand font-semibold italic">${i.selectedLabel}</p></div>
-          <button onclick="removeFromCart('${i.cartId}')" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
-        </div>
-        <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()} / ${i.selectedLabel}</p>
-        <div class="flex justify-between mt-2">
-          <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
-            <button onclick="updateQty('${i.cartId}',-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
-            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">Qty ${i.qty}</span>
-            <button onclick="updateQty('${i.cartId}',1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
-          </div>
-          <span class="text-sm font-semibold">NPR ${lineTotal.toLocaleString()}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  lucide.createIcons();
+async function dS() {
+  var i = gI();
+  if (i.length === 0 || !confirm('Delete ' + i.length + ' orders?')) return;
+  var btn = document.getElementById('bd'); btn.disabled = true; btn.innerHTML = '⏳...';
+  try {
+    var r = await fetch(API + '/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: i }) });
+    var d = await r.json();
+    if (d.success) {
+      d.deleted.forEach(function(id) { var el = document.getElementById('r-' + id); if (el) { el.style.opacity = '0'; setTimeout(function() { el.remove(); }, 300); } });
+      sT('🗑️ Deleted ' + d.deleted.length);
+      setTimeout(function() { oCC(); updateAmounts(); }, 350);
+    } else sT('❌ Error');
+  } catch (e) { sT('❌ Error'); }
+  finally { btn.innerHTML = '🗑️ Delete'; btn.disabled = false; oCC(); }
 }
 
-function openCart(){document.getElementById('cartOverlay').classList.remove('hidden');requestAnimationFrame(()=>document.getElementById('cartPanel').style.transform='translateX(0)');}
-function closeCart(){document.getElementById('cartPanel').style.transform='translateX(100%)';setTimeout(()=>document.getElementById('cartOverlay').classList.add('hidden'),300);}
-function proceedToInquiry(){if(!cart.length)return;closeCart();const m=document.getElementById('contactMessage'), tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;let s="\n\n--- Cart ---\n";cart.forEach(i=>{s+=`- #${i.id} ${i.name} (${i.selectedLabel}) x ${i.qty} @ NPR ${i.price.toLocaleString()}\n`;});s+=`Total: NPR ${tN.toLocaleString()} (~$${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;m.value+=s;document.getElementById('contact').scrollIntoView({behavior:'smooth'});showToast('Added to inquiry');}
-
-function handleFileUpload(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('Max 5MB','error');return;}document.getElementById('uploadPlaceholder').classList.add('hidden');document.getElementById('uploadProgressContainer').classList.remove('hidden');const r=new FileReader();r.onload=function(ev){paymentScreenshotBase64=ev.target.result;document.getElementById('progressBar').style.width='100%';setTimeout(()=>{document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.remove('hidden');document.getElementById('imagePreview').src=paymentScreenshotBase64;lucide.createIcons();},300);};r.readAsDataURL(f);}
-function clearScreenshot(e){if(e)e.stopPropagation();paymentScreenshotBase64=null;document.getElementById('paymentScreenshot').value="";document.getElementById('uploadPlaceholder').classList.remove('hidden');document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.add('hidden');document.getElementById('progressBar').style.width='0%';}
-
-function openPaymentModal(m){selectedPaymentMethod=m;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;paymentScreenshotBase64=null;clearScreenshot();document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('active'));document.getElementById(`tab-${m}`).classList.add('active');document.getElementById('paymentMethodLabel').textContent=m==='esewa'?'eSewa':'Khalti';document.getElementById('qr-esewa').classList.toggle('hidden',m!=='esewa');document.getElementById('qr-khalti').classList.toggle('hidden',m!=='khalti');updatePaymentTotals(tU,tN);document.getElementById('paymentItemsCount').textContent=`${cart.reduce((s,i)=>s+i.qty,0)} items`;const md=document.getElementById('paymentModal');md.classList.remove('hidden');md.classList.add('flex');document.body.classList.add('payment-modal-open');lucide.createIcons();}
-function setPaymentCurrency(c){selectedPaymentCurrency=c;const tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;document.querySelectorAll('.currency-btn').forEach(b=>b.classList.remove('active-curr'));document.getElementById(c==='npr'?'btnNPR':'btnUSD').classList.add('active-curr');updatePaymentTotals(tU,tN);}
-function updatePaymentTotals(u,n){const m=document.getElementById('paymentTotal'),s=document.getElementById('paymentTotalSub');if(selectedPaymentCurrency==='npr'){m.textContent=`NPR ${n.toLocaleString()}`;s.textContent=`($${u.toLocaleString('en-US',{minimumFractionDigits:2})})`;}else{m.textContent=`$${u.toLocaleString('en-US',{minimumFractionDigits:2})}`;s.textContent=`(NPR ${n.toLocaleString()})`;}}
-function closePaymentModal(){document.getElementById('paymentModal').classList.add('hidden');document.getElementById('paymentModal').classList.remove('flex');document.body.classList.remove('payment-modal-open');}
-function switchPaymentTab(m){selectedPaymentMethod=m;openPaymentModal(m);}
-
-async function submitOrderToBackend(){
-  const btn=document.getElementById('confirmPayBtn'), nI=document.getElementById('clientName'), pH=document.getElementById('clientPhone'), eI=document.getElementById('clientEmail'), aI=document.getElementById('clientAddress'), dZ=document.getElementById('dropZone'), uE=document.getElementById('uploadError');
-  let v=true;
-  if(!nI.value.trim()){nI.classList.add('input-error');v=false;}else nI.classList.remove('input-error');
-  if(!pH.value.trim()){pH.classList.add('input-error');v=false;}else pH.classList.remove('input-error');
-  if(!eI.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eI.value.trim())){eI.classList.add('input-error');v=false;}else eI.classList.remove('input-error');
-  if(!paymentScreenshotBase64){dZ.classList.add('upload-error');uE.classList.remove('hidden');v=false;}else{dZ.classList.remove('upload-error');uE.classList.add('hidden');}
-  if(!v){showToast('Fill required fields','error');return;}
-
-  const oT=btn.innerHTML, tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate, fA=selectedPaymentCurrency==='npr'?tN:tU, cS=selectedPaymentCurrency==='npr'?'NPR':'USD';
-  btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Verifying...';lucide.createIcons();
-  try{
-    const r=await fetch(`${BACKEND_URL}/orders`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        items: cart.map(item => ({ id: item.id, name: item.name, img: item.img, selectedLabel: item.selectedLabel, price: item.price, qty: item.qty })),
-        totalUSD:tU, totalNPR:tN, paidAmount:fA, currency:cS, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64,
-        clientDetails:{name:nI.value.trim(), phone:pH.value.trim(), email:eI.value.trim(), address:aI.value.trim()||'N/A'}
-      })
-    });
-    if(r.ok){
-      showToast('Order placed successfully!');cart=[];[nI,pH,eI,aI].forEach(i=>i.value="");paymentScreenshotBase64=null;clearScreenshot();updateCartUI();closePaymentModal();
-    } else {
-      const errData = await r.json();
-      const errMsg = errData.errors ? errData.errors.join(', ') : 'Error placing order';
-      showToast(errMsg, 'error');
-    }
-  }catch(e){showToast('Network error','error');}
-  finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}
-}
-
-function openModal(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  currentModalProduct = p;
-  
-  // Reset Form Dropdown to 'POWDER FORM' on modal open
-  document.getElementById('modalFormSelect').value = 'POWDER FORM';
-
-  // Populate Size Dropdown
-  const select = document.getElementById('modalQtySelect');
-  const options = getUnitOptions(p.unit);
-  select.innerHTML = options.map(opt => 
-    `<option value="${opt.mult}" data-label="${opt.label}">${opt.label}</option>`
-  ).join('');
-
-  let badgeText = '';
-  if(p.category === 'api') badgeText = 'API';
-  else if(p.category === 'herbs') badgeText = 'Raw Herb';
-  else if(p.category === 'mushrooms') badgeText = 'Mushroom';
-  else if(p.category === 'oils') badgeText = 'Essential Oil';
-  else if(p.category === 'namak') badgeText = 'Salt';
-  else if(p.category === 'rasa') badgeText = 'Rasa Uparasa';
-  else if(p.category === 'powder') badgeText = 'Herb Powder';
-  else badgeText = 'Extract';
-
-  document.getElementById('modalImg').src = p.img;
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalSci').textContent = p.sci;
-  document.getElementById('modalCat').textContent = p.catLabel;
-  document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalBadge').textContent = badgeText;
-  document.getElementById('modalMoq').textContent = p.moq;
-  document.getElementById('modalLead').textContent = p.lead;
-  document.getElementById('modalUnitBox').textContent = p.unit;
-  
-  // Add to cart logic (Combines Size + Form Type)
-  document.getElementById('modalAddBtn').onclick = () => {
-    const selectedOption = select.options[select.selectedIndex];
-    const mult = parseFloat(selectedOption.value);
-    const sizeLabel = selectedOption.text;
-    const formType = document.getElementById('modalFormSelect').value;
-    
-    // E.g. "125 gm (POWDER FORM)" or "1 kg (WHOLE DRIED)"
-    const combinedLabel = `${sizeLabel} (${formType})`; 
-    
-    addToCart(p.id, 1, mult, combinedLabel); 
-    closeModal();
-  };
-  
-  const md = document.getElementById('productModal');
-  md.classList.remove('hidden');
-  md.classList.add('flex');
-  
-  updateModalPrice(); 
-  lucide.createIcons();
-}
-
-function updateModalPrice() {
-  if (!currentModalProduct) return;
-  const select = document.getElementById('modalQtySelect');
-  const selectedOption = select.options[select.selectedIndex];
-  const mult = parseFloat(selectedOption.value);
-  const label = selectedOption.text;
-  
-  const basePrice = currentModalProduct.price;
-  const calculatedNPR = basePrice * mult;
-  const calculatedUSD = calculatedNPR / exchangeRate;
-
-  document.getElementById('modalPrice').textContent = `NPR ${Math.round(calculatedNPR).toLocaleString()}`;
-  document.getElementById('modalUnitLabel').textContent = `for ${label}`;
-  document.getElementById('modalPriceUsd').textContent = `$${calculatedUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-}
-
-function closeModal(){document.getElementById('productModal').classList.add('hidden');document.getElementById('productModal').classList.remove('flex');currentModalProduct=null;}
-
-document.getElementById('searchToggle').addEventListener('click',()=>{const b=document.getElementById('searchBar');b.classList.toggle('hidden');if(!b.classList.contains('hidden'))document.getElementById('searchInput').focus();});
-document.getElementById('searchClose').addEventListener('click',()=>document.getElementById('searchBar').classList.add('hidden'));
-document.getElementById('searchInput').addEventListener('input',function(){const q=this.value.toLowerCase().trim(), el=document.getElementById('searchResults');if(q.length<2){el.innerHTML='';return;}const m=products.filter(p=>p.name.toLowerCase().includes(q)||p.sci.toLowerCase().includes(q)||p.catLabel.toLowerCase().includes(q)).slice(0,8);if(!m.length){el.innerHTML='<p class="text-sm text-txt-third py-4 text-center">No products found</p>';return;}el.innerHTML=m.map(p=>{const pN=p.price, pU=pN/exchangeRate;return`<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl text-left"><img src="${p.img}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${p.name}</p><p class="text-[11px] text-txt-third italic">${p.sci}</p></div><div class="text-right"><span class="text-sm font-semibold text-brand">NPR ${pN.toLocaleString()}</span><span class="block text-[10px] text-txt-sub">$${pU.toLocaleString()}</span></div></button>`;}).join('');});
-
-function showToast(m, type='success'){
-  const container=document.getElementById('toastContainer'), el=document.createElement('div');
-  el.className='toast-enter flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl shadow-xl border max-w-sm pointer-events-auto';
-  const iconName=type==='success'?'check-circle':type==='error'?'alert-circle':'info';
-  el.innerHTML=`<i data-lucide="${iconName}" class="w-5 h-5 ${type==='error'?'text-red-500':'text-brand'}"></i><span class="text-sm font-medium">${m}</span>`;
-  container.appendChild(el);lucide.createIcons();
-  setTimeout(()=>{el.classList.remove('toast-enter');el.classList.add('toast-exit');setTimeout(()=>el.remove(),300);},3000);
-}
-
-function closeMobile(){document.getElementById('mobilePanel').style.transform='translateX(100%)';setTimeout(()=>{document.getElementById('mobileOverlay').classList.add('hidden');},300);}
-document.getElementById('mobileMenu').addEventListener('click',()=>{document.getElementById('mobileOverlay').classList.remove('hidden');requestAnimationFrame(()=>document.getElementById('mobilePanel').style.transform='translateX(0)');});
-document.getElementById('mobileClose').addEventListener('click',closeMobile);
-document.getElementById('mobileOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMobile();});
-
-document.getElementById('cartToggle').addEventListener('click',openCart);
-document.getElementById('cartOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCart();});
-document.getElementById('productModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-document.getElementById('paymentModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePaymentModal();});
-
-window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>100){n.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)';n.style.borderBottom='1px solid rgba(231,229,228,0.5)';}else{n.style.boxShadow='none';n.style.borderBottom='none';}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeModal();closeMobile();document.getElementById('searchBar').classList.add('hidden');closePaymentModal();}if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('searchToggle').click();}});
-
-async function submitForm(e){e.preventDefault();const btn=document.getElementById('inquirySubmitBtn'), msg=document.getElementById('formMsg'), oT=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...';msg.classList.add('hidden');lucide.createIcons();try{const r=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany').value,message:document.getElementById('contactMessage').value})});if(r.ok){msg.textContent='✓ Thank you! Inquiry sent.';msg.classList.remove('hidden','text-red-500');msg.classList.add('text-brand');e.target.reset();}else throw new Error();}catch(e){msg.textContent='✕ Error sending inquiry.';msg.classList.remove('hidden','text-brand');msg.classList.add('text-red-500');}finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}}
-
-/* ═══ BOOT ═══ */
-loadExchangeRate();
-lucide.createIcons();
-</script>
-</body>
-</html>
+loadRateFromDB();
+</script></body></html>
