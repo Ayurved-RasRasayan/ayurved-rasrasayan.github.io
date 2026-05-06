@@ -345,8 +345,7 @@
     </div>
   </div>
 
-    <!-- ENHANCED PRODUCT MODAL - CORRECTLY SIZED -->
-  <!-- ENHANCED PRODUCT MODAL - PROPERLY SIZED WITH WORKING CONTROLS -->
+      <!-- ENHANCED PRODUCT MODAL - WITH LIQUID FORM OPTION -->
   <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent">
       <!-- content dynamically injected -->
@@ -501,17 +500,31 @@ function renderProducts(items) {
   lucide.createIcons();
 }
 
-// ENHANCED MODAL - FULLY WORKING WITH SMALLER BUTTONS
+// ENHANCED MODAL - WITH LIQUID FORM OPTION
 function openModal(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentModalProduct = p;
-  selectedForm = (p.category === 'herbs' || p.category === 'powder') ? 'Whole Plant' : 'Powder Form';
-  selectedUnitValue = (p.category === 'oils') ? '15ml' : '1kg';
   
-  const isLiquid = p.category === 'oils';
+  // Determine if product is liquid (oil category or unit contains ml)
+  const isLiquidProduct = (p.category === 'oils') || (p.unit && p.unit.toLowerCase().includes('ml'));
+  
+  // Auto-select appropriate form based on product type
+  if (isLiquidProduct) {
+    selectedForm = 'Liquid Form';
+  } else {
+    selectedForm = 'Whole Plant';
+  }
+  
+  // Set unit based on product type
+  selectedUnitValue = isLiquidProduct ? '15ml' : '1kg';
+  
+  // Unit options based on product type
+  const isLiquid = isLiquidProduct;
   const unitOptions = isLiquid ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
-  const formOptions = ['Whole Plant', 'Powder Form'];
+  
+  // Form options: Three options now - Whole Plant, Powder Form, Liquid Form
+  const formOptions = ['Whole Plant', 'Powder Form', 'Liquid Form'];
   
   const modalContainer = document.getElementById('productModal');
   const contentDiv = document.getElementById('modalDynamicContent');
@@ -527,7 +540,7 @@ function openModal(id) {
       <p class="text-[10px] text-txt-third italic mb-2">${p.sci || ''}</p>
       <p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">${p.desc || 'Premium quality botanical ingredient.'}</p>
       
-      <!-- TWO DROPDOWNS -->
+      <!-- TWO DROPDOWNS - Form (3 options) & Unit -->
       <div class="grid grid-cols-2 gap-2 mb-3">
         <div class="fancy-select relative" id="formDropdownContainer">
           <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('form')">
@@ -535,7 +548,7 @@ function openModal(id) {
             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChevron"></i>
           </div>
           <div class="fancy-select-dropdown" id="formDropdown">
-            ${formOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')"><i data-lucide="leaf" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
+            ${formOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')"><i data-lucide="${opt === 'Liquid Form' ? 'droplet' : (opt === 'Powder Form' ? 'cloud' : 'leaf')}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
           </div>
         </div>
         <div class="fancy-select relative" id="unitDropdownContainer">
@@ -544,7 +557,7 @@ function openModal(id) {
             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChevron"></i>
           </div>
           <div class="fancy-select-dropdown" id="unitDropdown">
-            ${unitOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')"><i data-lucide="droplet" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
+            ${unitOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')"><i data-lucide="${opt.includes('ml') ? 'droplet' : 'cube'}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
           </div>
         </div>
       </div>
@@ -600,12 +613,36 @@ window.toggleDropdown = function(type) {
   if (chev) chev.classList.toggle('rotate-180');
 };
 
-// Select Form Option
+// Select Form Option (Now includes Liquid Form)
 window.selectFormOption = function(form) {
   selectedForm = form;
   document.getElementById('selectedFormLabel').innerText = form;
   const formBadge = document.getElementById('formBadge');
   if (formBadge) formBadge.innerText = form;
+  
+  // Auto-update unit options based on selected form
+  const isLiquid = (form === 'Liquid Form');
+  const unitOptions = isLiquid ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
+  
+  // Update unit dropdown options dynamically
+  const unitDropdown = document.getElementById('unitDropdown');
+  if (unitDropdown) {
+    unitDropdown.innerHTML = unitOptions.map(opt => 
+      `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')">
+        <i data-lucide="${isLiquid ? 'droplet' : 'cube'}" class="w-3 h-3"></i>
+        <span>${opt}</span>
+      </div>`
+    ).join('');
+    
+    // Auto-select appropriate default unit
+    const newDefaultUnit = isLiquid ? '15ml' : '1kg';
+    selectedUnitValue = newDefaultUnit;
+    document.getElementById('selectedUnitLabel').innerText = newDefaultUnit;
+    const unitBadge = document.getElementById('unitBadge');
+    if (unitBadge) unitBadge.innerText = newDefaultUnit;
+    lucide.createIcons();
+  }
+  
   const container = document.getElementById('formDropdownContainer');
   if (container) container.classList.remove('open');
   const chev = document.getElementById('formChevron');
@@ -678,24 +715,62 @@ window.addEnhancedToCart = function() {
   else if (unit === '200ml') unitFactor = 0.2;
   else if (unit === '500ml') unitFactor = 0.5;
   else if (unit === '1000ml') unitFactor = 1;
-  const finalPrice = currentModalProduct.price * unitFactor;
+  const finalPrice = Math.round(currentModalProduct.price * unitFactor * 100) / 100;
   const cartItem = {
     id: currentModalProduct.id,
     name: `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`,
     sci: currentModalProduct.sci,
     img: currentModalProduct.img,
     unit: selectedUnitValue,
+    form: selectedForm,
     price: finalPrice,
     qty: qty,
     originalId: currentModalProduct.id
   };
-  const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.name === cartItem.name);
+  const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.form === selectedForm);
   if (existing) existing.qty += qty;
   else cart.push(cartItem);
   updateCartUI();
   showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
   closeModal();
 };
+
+// Close modal function
+function closeModal() {
+  const modal = document.getElementById('productModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  currentModalProduct = null;
+}
+
+// Override the existing addToCart to work with enhanced version
+function addToCart(id, qty=1) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  
+  // Check if product is liquid
+  const isLiquidProduct = (p.category === 'oils') || (p.unit && p.unit.toLowerCase().includes('ml'));
+  const defaultForm = isLiquidProduct ? 'Liquid Form' : 'Whole Plant';
+  const defaultUnit = isLiquidProduct ? '15ml' : '1kg';
+  
+  const cartItem = {
+    id: p.id,
+    name: `${p.name} (${defaultForm}, ${defaultUnit})`,
+    price: p.price,
+    qty: qty,
+    img: p.img,
+    unit: defaultUnit,
+    form: defaultForm
+  };
+  
+  const existing = cart.find(i => i.id === cartItem.id && i.unit === defaultUnit && i.form === defaultForm);
+  if (existing) existing.qty += qty;
+  else cart.push(cartItem);
+  updateCartUI();
+  showToast(`${p.name} added`);
+}
 
 // Close modal function
 function closeModal() {
