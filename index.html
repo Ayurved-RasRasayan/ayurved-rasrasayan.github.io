@@ -139,7 +139,6 @@
   <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
-      <!-- Grid automatically adapts, but ensure button for 'powder' exists -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4">
         <button onclick="filterCategory('all')" class="cat-btn active group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="all"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="grid-3x3" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">All <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('api')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="api"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="flask-conical" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">APIs <span class="count-cat text-txt-third"></span></span></button>
@@ -149,8 +148,6 @@
         <button onclick="filterCategory('herbs')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="herbs"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="sprout" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Herbs <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('rasa')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="rasa"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="gem" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Rasa <span class="count-cat text-txt-third"></span></span></button>
         <button onclick="filterCategory('namak')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="namak"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="hexagon" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Namak <span class="count-cat text-txt-third"></span></span></button>
-        
-        <!-- NEW: Herbs Powder Category Button -->
         <button onclick="filterCategory('powder')" class="cat-btn group p-3 md:p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="powder"><div class="w-9 h-9 md:w-11 md:h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20"><i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i></div><span class="text-[10px] md:text-xs font-medium">Powders <span class="count-cat text-txt-third"></span></span></button>
       </div>
     </div>
@@ -163,7 +160,6 @@
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
           <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
-          <!-- NEW: Exchange rate indicator near pricing -->
           <div class="flex items-center gap-2 mt-3">
             <span class="rate-dot" id="rateDot"></span>
             <p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p>
@@ -232,7 +228,6 @@
         <div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white">Contact</a></div></div>
         <div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white">Terms of Service</a></div></div>
       </div>
-      <!-- NEW: Exchange rate in footer -->
       <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p>
@@ -292,7 +287,15 @@
         <div class="flex items-center gap-4 mb-6"><div><span id="modalPrice" class="text-3xl font-semibold text-brand">NPR 0</span><span id="modalUnitLabel" class="text-sm text-txt-third">per kg</span><div id="modalPriceUsd" class="text-xs text-txt-sub">$0</div></div></div>
         <p id="modalDesc" class="text-txt-sub leading-relaxed mb-6"></p>
         <div class="grid grid-cols-3 gap-4 mb-8"><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Unit</p><p id="modalUnitBox" class="text-sm text-white font-medium">1 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">MOQ</p><p id="modalMoq" class="text-sm text-white font-medium">25 kg</p></div><div class="p-3 rounded-xl bg-bg-dark2 text-center"><p class="text-xs text-white/50 mb-1">Lead Time</p><p id="modalLead" class="text-sm text-white font-medium">7-14 days</p></div></div>
-        <div class="flex gap-3"><div class="flex items-center border border-border-main rounded-xl overflow-hidden"><button onclick="modalQtyChange(-1)" class="px-4 py-3 hover:bg-black/5"><i data-lucide="minus" class="w-4 h-4"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-16 text-center py-3 text-sm font-medium border-x border-border-main focus:outline-none"><button onclick="modalQtyChange(1)" class="px-4 py-3 hover:bg-black/5"><i data-lucide="plus" class="w-4 h-4"></i></button></div><button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i>Add to Cart</button></div>
+        
+        <!-- UPDATED QUANTITY SELECTOR -->
+        <div class="flex gap-3">
+          <select id="modalQtySelect" onchange="updateModalPrice()" class="px-4 py-3 border border-border-main rounded-xl bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer min-w-[140px]">
+            <!-- Options populated by JS -->
+          </select>
+          <button id="modalAddBtn" class="flex-1 py-3 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i>Add to Cart</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -306,11 +309,31 @@ let products = []; let cart = []; let currentCategory = 'all'; let currentSort =
 let currentModalProduct = null; let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
 
 /* ═══════════════════════════════════════
-   AUTO-SYNC CONFIGURATION
+   DYNAMIC UNIT DROPDOWN LOGIC
    ═══════════════════════════════════════ */
-// NOTE: No hardcoded 'newLocalItems' here. 
-// We rely 100% on products.json (Backend) for data.
-// To add products, simply edit backend/products.json and restart server.
+function getUnitOptions(unitString) {
+  const u = unitString.toLowerCase();
+  if (u.includes('kg') || u.includes('gm')) {
+    return [
+      { label: '125 gm', mult: 0.125 },
+      { label: '250 gm', mult: 0.25 },
+      { label: '500 gm', mult: 0.5 },
+      { label: '1 kg', mult: 1 }
+    ];
+  } else if (u.includes('ml') || u.includes('l')) {
+    return [
+      { label: '15 ml', mult: 0.015 },
+      { label: '50 ml', mult: 0.05 },
+      { label: '100 ml', mult: 0.1 },
+      { label: '200 ml', mult: 0.2 },
+      { label: '500 ml', mult: 0.5 },
+      { label: '1000 ml', mult: 1 }
+    ];
+  } else {
+    // Fallback for items sold per piece, pack, etc.
+    return [{ label: unitString, mult: 1 }];
+  }
+}
 
 /* ═══════════════════════════════════════
    FETCH EXCHANGE RATE FROM DATABASE
@@ -327,22 +350,18 @@ async function loadExchangeRate() {
   } catch (e) {
     console.warn('Could not fetch rate from DB, using fallback 133');
   }
-  /* NEW: Update rate displays on storefront */
   updateRateDisplays();
   loadProducts();
 }
 
-/* NEW: Update all rate indicators on the page */
 function updateRateDisplays() {
   const r = exchangeRate.toFixed(2);
-  // Products section indicator
   const dot = document.getElementById('rateDot');
   const label = document.getElementById('rateLabel');
   if (dot && label) {
     dot.style.background = '#22c55e';
     label.textContent = `$ prices calculated at 1 USD = Rs. ${r} (auto-synced)`;
   }
-  // Footer rate
   const ft = document.getElementById('footerRateText');
   const fd = document.getElementById('footerDot');
   if (ft) ft.textContent = `1 USD = Rs. ${r} NPR`;
@@ -355,9 +374,7 @@ async function loadProducts() {
   try {
     const res = await fetch(`${BACKEND_URL}/products`);
     if (!res.ok) throw new Error();
-    // SIMPLIFIED: Just take whatever the DB gives us
     products = await res.json();
-    
     updateCategoryCounts();
     renderProducts(getFilteredProducts());
   } catch (e) {
@@ -369,7 +386,6 @@ async function loadProducts() {
 
 function updateCategoryCounts() {
   document.querySelector('[data-cat="all"] .count-cat').textContent = `(${products.length})`;
-  // Include 'powder' in this list to count it automatically
   const categories = ['api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'powder']; 
   categories.forEach(cat => {
     const count = products.filter(p => p.category === cat).length;
@@ -395,9 +411,8 @@ function renderProducts(items) {
   cnt.textContent = `${items.length} product${items.length !== 1 ? 's' : ''}`;
   grid.innerHTML = items.map((p, i) => {
     const pN = p.price, pU = pN / exchangeRate, s = p.stock !== undefined ? p.stock : 100, oos = s <= 0, sT = oos ? 'Out of Stock' : `Stock: ${s}`, sC = oos ? 'text-red-500' : 'text-brand',
-      bH = oos ? `<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>` : `<button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
+      bH = oos ? `<button disabled class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-300 text-gray-500 text-xs font-medium rounded-xl cursor-not-allowed"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Sold Out</button>` : `<button onclick="quickAddFromGrid(${p.id})" class="flex items-center gap-1.5 px-4 py-2.5 bg-txt-main text-white text-xs font-medium rounded-xl hover:bg-black transition-all shadow-md"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>`;
     
-    // Dynamic Badge Logic based on category
     let badgeText = '';
     if(p.category === 'api') badgeText = 'API';
     else if(p.category === 'herbs') badgeText = 'Raw Herb';
@@ -405,7 +420,7 @@ function renderProducts(items) {
     else if(p.category === 'oils') badgeText = 'Oil';
     else if(p.category === 'namak') badgeText = 'Salt';
     else if(p.category === 'rasa') badgeText = 'Mineral';
-    else if(p.category === 'powder') badgeText = 'Powder'; // New Category
+    else if(p.category === 'powder') badgeText = 'Powder';
     else badgeText = 'Extract';
 
     return `<div class="product-card shimmer-effect group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-500 ${oos ? 'opacity-70' : ''}" style="animation:fadeInUp 0.6s ease-out ${i * 0.04}s forwards;opacity:0">
@@ -438,59 +453,84 @@ function getFilteredProducts(){let i=currentCategory==='all'?[...products]:produ
 function filterCategory(c){currentCategory=c;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));renderProducts(getFilteredProducts());}
 function sortProducts(){currentSort=document.getElementById('sortSelect').value;renderProducts(getFilteredProducts());}
 
-function addToCart(id, qty=1){
+function quickAddFromGrid(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const options = getUnitOptions(p.unit);
+  const defaultOpt = options[0]; // Adds the smallest available unit
+  addToCart(id, 1, defaultOpt.mult, defaultOpt.label);
+}
+
+function addToCart(id, qty=1, multiplier=1, selectedLabel='1 kg'){
   const p = products.find(x => x.id === id);
   if (!p) return;
   if ((p.stock || 100) <= 0) return showToast('Out of stock', 'error');
-  const e = cart.find(i => i.id === id);
-  if (e) { e.qty += qty; } else {
-    cart.push({ id: p.id, name: p.name, sci: p.sci, img: p.img, unit: p.unit, price: p.price, qty: qty });
+  
+  const cartId = `${id}-${selectedLabel.replace(/\s/g, '')}`;
+  const calculatedPrice = p.price * multiplier;
+  
+  const e = cart.find(i => i.cartId === cartId);
+  if (e) { 
+    e.qty += qty; 
+  } else {
+    cart.push({ 
+      cartId: cartId,
+      id: p.id, 
+      name: p.name, 
+      sci: p.sci, 
+      img: p.img, 
+      baseUnit: p.unit,
+      selectedLabel: selectedLabel, 
+      multiplier: multiplier,
+      price: calculatedPrice, // Price for THIS specific variant
+      qty: qty 
+    });
   }
   updateCartUI();
-  showToast(`${p.name} added`);
+  showToast(`${p.name} (${selectedLabel}) added`);
 }
 
-function removeFromCart(id){cart=cart.filter(i=>i.id!==id);updateCartUI();}
-function updateQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;i.qty=Math.max(1,i.qty+d);updateCartUI();}
+function removeFromCart(cartId){cart=cart.filter(i=>i.cartId!==cartId);updateCartUI();}
+function updateQty(cartId,d){const i=cart.find(x=>x.cartId===cartId);if(!i)return;i.qty=Math.max(1,i.qty+d);updateCartUI();}
 function clearCart(){cart=[];updateCartUI();showToast('Cart cleared','info');}
 
 function updateCartUI() {
-  const cEl = document.getElementById('cartCount'), tI = cart.reduce((s, i) => s + i.qty, 0), tP = cart.reduce((s, i) => s + i.price * i.qty, 0), tU = tP / exchangeRate;
+  const cEl = document.getElementById('cartCount'), tI = cart.reduce((s, i) => s + i.qty, 0), 
+        tP = cart.reduce((s, i) => s + i.price * i.qty, 0), tU = tP / exchangeRate;
+        
   if (tI > 0) {
-    cEl.classList.remove('hidden');
-    cEl.classList.add('flex');
-    cEl.textContent = tI;
+    cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent = tI;
   } else {
-    cEl.classList.add('hidden');
-    cEl.classList.remove('flex');
+    cEl.classList.add('hidden'); cEl.classList.remove('flex');
   }
+  
   document.getElementById('cartItemCount').textContent = `(${tI} items)`;
   document.getElementById('cartTotal').textContent = `NPR ${tP.toLocaleString()} ($${tU.toLocaleString('en-US', { minimumFractionDigits: 2 })})`;
+  
   const cI = document.getElementById('cartItems'), cF = document.getElementById('cartFooter');
   if (!cart.length) {
     cI.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-center"><i data-lucide="package-open" class="w-16 h-16 text-txt-third/30 mb-4"></i><p class="text-txt-sub">Cart is empty</p></div>';
-    cF.classList.add('hidden');
-    lucide.createIcons();
-    return;
+    cF.classList.add('hidden'); lucide.createIcons(); return;
   }
+  
   cF.classList.remove('hidden');
   cI.innerHTML = cart.map(i => {
-    const t = i.price * i.qty;
+    const lineTotal = i.price * i.qty;
     return `<div class="flex gap-4 py-4 border-b border-border-main last:border-0">
       <img src="${i.img}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">
       <div class="flex-1 min-w-0">
         <div class="flex justify-between">
-          <div><h4 class="text-sm font-medium truncate">${i.name} <span class="text-[10px] text-txt-third font-mono">#${i.id}</span></h4><p class="text-[11px] text-txt-third italic">${i.sci}</p></div>
-          <button onclick="removeFromCart(${i.id})" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
+          <div><h4 class="text-sm font-medium truncate">${i.name} <span class="text-[10px] text-txt-third font-mono">#${i.id}</span></h4><p class="text-[11px] text-brand font-semibold italic">${i.selectedLabel}</p></div>
+          <button onclick="removeFromCart('${i.cartId}')" class="p-1 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-txt-third hover:text-red-500"></i></button>
         </div>
-        <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()}/(${i.unit})</p>
+        <p class="text-xs text-txt-third mt-1">NPR ${i.price.toLocaleString()} / ${i.selectedLabel}</p>
         <div class="flex justify-between mt-2">
           <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
-            <button onclick="updateQty(${i.id},-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
-            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">Qty ${i.qty} x (${i.unit})</span>
-            <button onclick="updateQty(${i.id},1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
+            <button onclick="updateQty('${i.cartId}',-1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
+            <span class="px-3 py-1 text-xs font-medium border-x border-border-main">Qty ${i.qty}</span>
+            <button onclick="updateQty('${i.cartId}',1)" class="px-2.5 py-1 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
           </div>
-          <span class="text-sm font-semibold">NPR ${t.toLocaleString()}</span>
+          <span class="text-sm font-semibold">NPR ${lineTotal.toLocaleString()}</span>
         </div>
       </div>
     </div>`;
@@ -500,7 +540,7 @@ function updateCartUI() {
 
 function openCart(){document.getElementById('cartOverlay').classList.remove('hidden');requestAnimationFrame(()=>document.getElementById('cartPanel').style.transform='translateX(0)');}
 function closeCart(){document.getElementById('cartPanel').style.transform='translateX(100%)';setTimeout(()=>document.getElementById('cartOverlay').classList.add('hidden'),300);}
-function proceedToInquiry(){if(!cart.length)return;closeCart();const m=document.getElementById('contactMessage'), tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;let s="\n\n--- Cart ---\n";cart.forEach(i=>{s+=`- #${i.id} ${i.name} (${i.qty} @ NPR ${i.price.toLocaleString()})\n`;});s+=`Total: NPR ${tN.toLocaleString()} (~$${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;m.value+=s;document.getElementById('contact').scrollIntoView({behavior:'smooth'});showToast('Added to inquiry');}
+function proceedToInquiry(){if(!cart.length)return;closeCart();const m=document.getElementById('contactMessage'), tN=cart.reduce((s,i)=>s+i.price*i.qty,0), tU=tN/exchangeRate;let s="\n\n--- Cart ---\n";cart.forEach(i=>{s+=`- #${i.id} ${i.name} (${i.selectedLabel}) x ${i.qty} @ NPR ${i.price.toLocaleString()}\n`;});s+=`Total: NPR ${tN.toLocaleString()} (~$${tU.toLocaleString('en-US',{minimumFractionDigits:2})})`;m.value+=s;document.getElementById('contact').scrollIntoView({behavior:'smooth'});showToast('Added to inquiry');}
 
 function handleFileUpload(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('Max 5MB','error');return;}document.getElementById('uploadPlaceholder').classList.add('hidden');document.getElementById('uploadProgressContainer').classList.remove('hidden');const r=new FileReader();r.onload=function(ev){paymentScreenshotBase64=ev.target.result;document.getElementById('progressBar').style.width='100%';setTimeout(()=>{document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.remove('hidden');document.getElementById('imagePreview').src=paymentScreenshotBase64;lucide.createIcons();},300);};r.readAsDataURL(f);}
 function clearScreenshot(e){if(e)e.stopPropagation();paymentScreenshotBase64=null;document.getElementById('paymentScreenshot').value="";document.getElementById('uploadPlaceholder').classList.remove('hidden');document.getElementById('uploadProgressContainer').classList.add('hidden');document.getElementById('imagePreviewContainer').classList.add('hidden');document.getElementById('progressBar').style.width='0%';}
@@ -527,7 +567,7 @@ async function submitOrderToBackend(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, qty: item.qty })),
+        items: cart.map(item => ({ id: item.id, name: item.name, selectedLabel: item.selectedLabel, price: item.price, qty: item.qty })),
         totalUSD:tU, totalNPR:tN, paidAmount:fA, currency:cS, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64,
         clientDetails:{name:nI.value.trim(), phone:pH.value.trim(), email:eI.value.trim(), address:aI.value.trim()||'N/A'}
       })
@@ -547,17 +587,14 @@ function openModal(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentModalProduct = p;
-  const pN = p.price, pU = pN / exchangeRate, u = p.unit;
-  document.getElementById('modalImg').src = p.img;
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalSci').textContent = p.sci;
-  document.getElementById('modalCat').textContent = p.catLabel;
-  document.getElementById('modalPrice').textContent = `NPR ${pN.toLocaleString()}`;
-  document.getElementById('modalUnitLabel').textContent = `per ${u.replace('1 unit = ', '')}`;
-  document.getElementById('modalPriceUsd').textContent = `$${pU.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${u.replace('1 unit = ', '')}`;
-  document.getElementById('modalDesc').textContent = p.desc;
   
-  // Badge logic in modal
+  // Populate Dropdown
+  const select = document.getElementById('modalQtySelect');
+  const options = getUnitOptions(p.unit);
+  select.innerHTML = options.map(opt => 
+    `<option value="${opt.mult}" data-label="${opt.label}">${opt.label}</option>`
+  ).join('');
+
   let badgeText = '';
   if(p.category === 'api') badgeText = 'API';
   else if(p.category === 'herbs') badgeText = 'Raw Herb';
@@ -565,23 +602,52 @@ function openModal(id) {
   else if(p.category === 'oils') badgeText = 'Essential Oil';
   else if(p.category === 'namak') badgeText = 'Salt';
   else if(p.category === 'rasa') badgeText = 'Rasa Uparasa';
-  else if(p.category === 'powder') badgeText = 'Herb Powder'; // New
+  else if(p.category === 'powder') badgeText = 'Herb Powder';
   else badgeText = 'Extract';
-  document.getElementById('modalBadge').textContent = badgeText;
 
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalSci').textContent = p.sci;
+  document.getElementById('modalCat').textContent = p.catLabel;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalBadge').textContent = badgeText;
   document.getElementById('modalMoq').textContent = p.moq;
   document.getElementById('modalLead').textContent = p.lead;
-  document.getElementById('modalQty').value = 1;
-  document.getElementById('modalUnitBox').textContent = u;
-  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); };
+  document.getElementById('modalUnitBox').textContent = p.unit;
+  
+  document.getElementById('modalAddBtn').onclick = () => {
+    const selectedOption = select.options[select.selectedIndex];
+    const mult = parseFloat(selectedOption.value);
+    const label = selectedOption.text;
+    addToCart(p.id, 1, mult, label); 
+    closeModal();
+  };
+  
   const md = document.getElementById('productModal');
   md.classList.remove('hidden');
   md.classList.add('flex');
+  
+  updateModalPrice(); 
   lucide.createIcons();
 }
+
+function updateModalPrice() {
+  if (!currentModalProduct) return;
+  const select = document.getElementById('modalQtySelect');
+  const selectedOption = select.options[select.selectedIndex];
+  const mult = parseFloat(selectedOption.value);
+  const label = selectedOption.text;
   
+  const basePrice = currentModalProduct.price;
+  const calculatedNPR = basePrice * mult;
+  const calculatedUSD = calculatedNPR / exchangeRate;
+
+  document.getElementById('modalPrice').textContent = `NPR ${Math.round(calculatedNPR).toLocaleString()}`;
+  document.getElementById('modalUnitLabel').textContent = `for ${label}`;
+  document.getElementById('modalPriceUsd').textContent = `$${calculatedUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+}
+
 function closeModal(){document.getElementById('productModal').classList.add('hidden');document.getElementById('productModal').classList.remove('flex');currentModalProduct=null;}
-function modalQtyChange(d){const i=document.getElementById('modalQty');i.value=Math.max(1,(parseInt(i.value)||1)+d);}
 
 document.getElementById('searchToggle').addEventListener('click',()=>{const b=document.getElementById('searchBar');b.classList.toggle('hidden');if(!b.classList.contains('hidden'))document.getElementById('searchInput').focus();});
 document.getElementById('searchClose').addEventListener('click',()=>document.getElementById('searchBar').classList.add('hidden'));
@@ -611,7 +677,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeMo
 
 async function submitForm(e){e.preventDefault();const btn=document.getElementById('inquirySubmitBtn'), msg=document.getElementById('formMsg'), oT=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...';msg.classList.add('hidden');lucide.createIcons();try{const r=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany').value,message:document.getElementById('contactMessage').value})});if(r.ok){msg.textContent='✓ Thank you! Inquiry sent.';msg.classList.remove('hidden','text-red-500');msg.classList.add('text-brand');e.target.reset();}else throw new Error();}catch(e){msg.textContent='✕ Error sending inquiry.';msg.classList.remove('hidden','text-brand');msg.classList.add('text-red-500');}finally{btn.disabled=false;btn.innerHTML=oT;lucide.createIcons();}}
 
-/* ═══ BOOT: fetch rate first, then load products ═══ */
+/* ═══ BOOT ═══ */
 loadExchangeRate();
 lucide.createIcons();
-</script></body></html>
+</script>
+</body>
+</html>
