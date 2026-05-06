@@ -594,6 +594,10 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
 
       let itemsHtml = '';
       const items = Array.isArray(r.items) ? r.items : [];
+      
+      // Get Product ID of the first item for the header
+      const firstItemId = items.length > 0 ? (items[0].id || '') : '';
+
       if (items.length === 0) {
         itemsHtml = '<div class="no-items">No items data</div>';
       } else {
@@ -609,29 +613,26 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
             ? `<img class="it" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
             : '<div class="it"></div>';
 
-          // Line 1: Name, Form Badge, Size (to match "Amla POWDER FORM 500 gm")
-          // Line 2: Right aligned calculation (to match "225 × (Qty 1) = Rs. 225")
+          // Layout: Left (Name+Form) | Middle (Size) | Right (Math)
           itemsHtml += `
-            <div class="ir">
-              <div class="iline1">
+            <div class="ir" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; width:100%;">
+              <!-- Left: Image, Name, Form -->
+              <div style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;">
                 ${imgTag}
                 <span class="in">${name}</span>
                 ${parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : ''}
-                <span class="isz">${parsed.size}</span>
               </div>
-              <div class="iline2" style="text-align: right; justify-content: flex-end;">
-                ${price} × (Qty ${qty}) = Rs. ${lineTotal}
-              </div>
+              <!-- Middle: Size (500 gm) -->
+              <span class="isz" style="margin:0 10px;">${parsed.size}</span>
+              <!-- Right: Calculation -->
+              <span style="white-space:nowrap; font-weight:500;">${price} × (Qty ${qty}) = Rs. ${lineTotal}</span>
             </div>`;
         });
       }
 
-      const curCls = currency === 'USD' ? 'usd' : 'npr';
-      const curFlag = currency === 'USD' ? '🇺🇸' : '🇳🇵';
-      let payTag = '';
-      if (payMethod === 'esewa') payTag = `<span class="py-badge py-esewa">📱 eSewa</span>`;
-      else if (payMethod === 'khalti') payTag = `<span class="py-badge py-khalti">📱 Khalti</span>`;
-      else payTag = `<span class="py-badge" style="background:#f3f4f6;color:#9ca3af;border:1px solid #d1d5db">—</span>`;
+      const payTag = (payMethod === 'esewa') ? `<span class="py-badge py-esewa">📱 eSewa</span>` :
+                      (payMethod === 'khalti') ? `<span class="py-badge py-khalti">📱 Khalti</span>` :
+                      `<span class="py-badge" style="background:#f3f4f6;color:#9ca3af;border:1px solid #d1d5db">—</span>`;
 
       return `<tr id="r-${orderId}">
         <td class="col-check"><input type="checkbox" class="rc" value="${orderId}" onchange="oCC()"/></td>
@@ -640,17 +641,17 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           ${thumbHtml}
         </td>
         <td class="cp">
-          <div class="ph">
+          <!-- Header: Order Items (Left) | Product ID (Middle) | Order ID (Right) -->
+          <div class="ph" style="display:flex; justify-content:space-between; align-items:center;">
             <span class="ph-label">Order Items</span>
+            <span class="pid" style="margin:auto;">${firstItemId ? '#' + firstItemId : ''}</span>
             <span class="pid">#${orderId.substring(0, 8)}</span>
           </div>
           ${itemsHtml}
-          <div class="ot">
-            <span class="ot-label">Subtotal</span>
-            <div>
-              <span class="ov" data-npr="${nprTotal}">= Rs. ${nprTotal.toLocaleString('en-NP')}</span>
-              <span class="ov-usd">($${usdTotal})</span>
-            </div>
+          <!-- Footer: Total (Renamed from Subtotal) -->
+          <div class="ot" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:2px dashed #9ca3af;">
+            <span class="ot-label">Total</span>
+            <span class="ov" data-npr="${nprTotal}">= Rs. ${nprTotal.toLocaleString('en-NP')}</span>
           </div>
         </td>
         <td class="cs">
@@ -665,8 +666,8 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           <div class="cd"><strong>Email</strong><span>${r.clientDetails?.email || '—'}</span></div>
           <div class="cd"><strong>Addr</strong><span>${r.clientDetails?.address || '—'}</span></div>
         </td>
+        <!-- Payment Column: Removed Currency Badge -->
         <td class="py">
-          <span class="py-badge py-${curCls}">${curFlag} ${currency}</span>
           ${payTag}
         </td>
         <td class="ca">
