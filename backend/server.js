@@ -138,7 +138,7 @@ const orderSchema = new mongoose.Schema({
   paymentScreenshot: String,
   clientDetails: { name: String, phone: String, email: String, address: String },
   status: { type: String, default: 'Pending' },
-  order_state: { type: String, default: 'Pending' }, // NEW: State column
+  order_state: { type: String, default: 'Pending' },
   emailStatus: { type: String, default: 'Queue' },
   timestamp: { type: Date, default: Date.now }
 });
@@ -523,7 +523,7 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ⭐ NEW ROUTE: UPDATE ORDER STATE ⭐
+// ⭐ ROUTE: UPDATE ORDER STATE (with Live DOM Update support) ⭐
 app.put('/api/update-order-state', checkAuth, async (req, res) => {
   try {
     const { id, state } = req.body;
@@ -620,7 +620,7 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
-// ⭐ UPDATED ROUTE: VIEW ORDERS WITH STATE COLUMN ⭐
+// ⭐ UPDATED ROUTE: VIEW ORDERS WITH STATE COLUMN (Live DOM Update ready) ⭐
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
@@ -651,7 +651,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
         : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
       const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
       
-      // State badge color mapping
+      // State badge color mapping for CSS classes
       const getStateBadgeClass = (state) => {
         switch(state) {
           case 'Processing': return 'state-processing';
