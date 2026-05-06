@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -181,7 +181,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* ============ TABLE STYLES WITH DARK THICK VERTICAL BORDERS ============ */
+        /* ============ TABLE STYLES ============ */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -221,13 +221,46 @@
             background: #fafafa;
         }
 
-        /* Column Widths */
+        /* ============ UPDATED COLUMN WIDTHS ============ */
         .col-checkbox { width: 3%; }
-        .col-date { width: 12%; }
-        .col-items { width: 35%; }
+        .col-date { width: 8%; }
+        .col-items { width: 45%; }
         .col-status { width: 12%; }
-        .col-client { width: 33%; }
+        .col-client { width: 27%; }
         .col-action { width: 5%; }
+
+        /* ============ CENTER ALIGNMENT FOR SPECIFIC COLUMNS ============ */
+        /* Center align Date column */
+        .col-date,
+        td:nth-child(2) {
+            text-align: center;
+        }
+
+        /* Center align Status column */
+        .col-status,
+        td:nth-child(4) {
+            text-align: center;
+        }
+
+        /* Center align Client column headers and cells */
+        .col-client,
+        td:nth-child(5) {
+            text-align: center;
+        }
+
+        /* Keep Items and Action left-aligned */
+        .col-items,
+        td:nth-child(3),
+        .col-action,
+        td:nth-child(6) {
+            text-align: left;
+        }
+
+        /* Checkbox column center */
+        .col-checkbox,
+        td:nth-child(1) {
+            text-align: center;
+        }
 
         /* Checkbox */
         .checkbox {
@@ -264,7 +297,7 @@
             transform: scale(1.05);
         }
 
-        /* Items Cell */
+        /* Items Cell - Left Aligned */
         .order-id {
             background: #e0e7ff;
             color: #3730a3;
@@ -346,7 +379,7 @@
             font-size: 18px;
         }
 
-        /* Status Cell */
+        /* Status Cell - Center Aligned */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -394,10 +427,11 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
-        /* Client Cell */
+        /* Client Cell - Center Aligned */
         .client-line {
             font-size: 13px;
             margin-bottom: 6px;
+            text-align: center;
         }
 
         .client-label {
@@ -527,6 +561,10 @@
             }
             
             .item-total {
+                text-align: left;
+            }
+            
+            .client-line {
                 text-align: left;
             }
         }
