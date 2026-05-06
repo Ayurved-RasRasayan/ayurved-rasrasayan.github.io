@@ -70,7 +70,7 @@ async function sendClientEmail(toEmail, toName, orderId, status) {
 async function sendAdminAlert(orderId, data) {
   try {
     let itemsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:10px;"><tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb;padding:8px;">Item</th><th style="border:1px solid #e5e7eb;padding:8px;">Qty</th><th style="border:1px solid #e5e7eb;padding:8px;">Price</th></tr>';
-    (data.items || []).forEach(i => { itemsHtml += `<tr><td style="border:1px solid #e5e7eb;padding:8px;">${i.name}</td><td style="border:1px solid #e5e7eb;padding:8px;text-align:center;">${i.qty||1}</td><td style="border:1px solid #e5e7eb;padding:8px;">$${i.price||0}</td></tr>`; });
+    (data.items || []).forEach(i => { itemsHtml += `<tr><td style="border:1px solid #e5e7eb;padding:8px;">${i.name}</td><td style="border:1px solid #e5e7eb;padding:8px;text-align:center;">${i.qty||1}<tr><td style="border:1px solid #e5e7eb;padding:8px;">$${i.price||0}</td></tr>`; });
     await axios.post('https://api.brevo.com/v3/smtp/email', {
       sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
       to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
@@ -339,6 +339,46 @@ app.get('/api/health', async (req, res) => {
     await mongoose.connection.db.admin().ping();
     res.json({ status: 'healthy' });
   } catch (e) { res.status(503).json({ status: 'unhealthy' }); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── ROUTE: ORDERS DATA API (JSON) ──────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ============ NEW: JSON API for orders data ============
+app.get('/api/view-orders-data', checkAuth, async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
+        
+        // Return clean JSON data
+        const cleanOrders = orders.map(order => ({
+            _id: order._id,
+            items: order.items || [],
+            totalUSD: order.totalUSD,
+            totalNPR: order.totalNPR,
+            paidAmount: order.paidAmount,
+            currency: order.currency,
+            paymentMethod: order.paymentMethod,
+            paymentScreenshot: order.paymentScreenshot,
+            clientDetails: order.clientDetails,
+            status: order.status || 'Pending',
+            order_state: order.order_state || 'Pending',
+            emailStatus: order.emailStatus || 'Queue',
+            timestamp: order.timestamp
+        }));
+        
+        res.json({ 
+            success: true, 
+            orders: cleanOrders,
+            count: cleanOrders.length
+        });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -739,7 +779,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
         </td>
         <td class="ca">
           ${deleteButton}
-        </td>
+        <td>
       </tr>`;
     }).join('');
     
