@@ -607,18 +607,20 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
 
           const imgTag = imgSrc
             ? `<img class="it" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
-            : '<div class="it"></div>'; // Placeholder if no image
+            : '<div class="it"></div>';
 
+          // Line 1: Name, Form Badge, Size (to match "Amla POWDER FORM 500 gm")
+          // Line 2: Right aligned calculation (to match "225 × (Qty 1) = Rs. 225")
           itemsHtml += `
             <div class="ir">
               <div class="iline1">
                 ${imgTag}
                 <span class="in">${name}</span>
-                <span class="isz">${parsed.size}</span>
                 ${parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : ''}
+                <span class="isz">${parsed.size}</span>
               </div>
-              <div class="iline2">
-                <span>${price} × (Qty ${qty}) = Rs. ${lineTotal}</span>
+              <div class="iline2" style="text-align: right; justify-content: flex-end;">
+                ${price} × (Qty ${qty}) = Rs. ${lineTotal}
               </div>
             </div>`;
         });
