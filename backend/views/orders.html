@@ -1,703 +1,973 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Orders - NaturaBotanica</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,sans-serif;background:#f3f4f6;margin:0;padding:0;color:#1f2937}
-.c{max-width:1400px;margin:0 auto;padding:16px}
-.hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
-h1{color:#2d4a22;margin:0;display:flex;align-items:center;gap:10px}
-.btn-s{background:#2d4a22;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s}
-.btn-s:hover{background:#1f3618;transform:translateY(-1px)}
-.tb{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:12px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.b{padding:8px 16px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:14px;transition:all .2s}
-.bd{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-.bd:hover:not(:disabled){background:#fecaca;transform:translateY(-1px)}
-.bd:disabled{opacity:0.5;cursor:not-allowed}
-.bs{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
-.bs:hover{background:#e5e7eb}
-#sc{color:#6b7280;font-size:14px;font-weight:500}
-.cur-toggle{display:flex;align-items:center;gap:0;background:#e5e7eb;border-radius:8px;padding:3px;overflow:hidden}
-.cur-btn{padding:7px 20px;border:none;font-weight:700;font-size:13px;cursor:pointer;background:transparent;color:#6b7280;transition:all .25s;letter-spacing:.3px;border-radius:6px}
-.cur-btn.active{background:#2d6a2e;color:#fff;box-shadow:0 2px 6px rgba(45,106,46,.35)}
-.cur-btn:not(.active):hover{color:#374151;background:rgba(0,0,0,.05)}
-.rc-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #e5e7eb}
-.rc-label{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-.rc-rate{font-size:15px;font-weight:800;color:#2d4a22}
-.rc-time{font-size:11px;color:#9ca3af;font-weight:500;margin-left:auto}
-.rc-btn{padding:5px 14px;border-radius:5px;border:none;font-weight:600;font-size:12px;cursor:pointer;transition:.2s}
-.rc-fetch{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-.rc-fetch:hover{background:#dbeafe;transform:translateY(-1px)}
-.rc-fetching{background:#f3f4f6;color:#9ca3af;cursor:wait}
-.rc-err{font-size:11px;color:#dc2626;font-weight:500}
-.rc-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0}
-.rc-dot.err{background:#ef4444}
-.total-bar{max-width:1400px;margin:0 auto 24px;background:#fff;border:1px solid #d1d5db;border-left:4px solid #2d4a22;border-radius:6px;padding:10px 20px;display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap}
-.total-lbl{color:#6b7280;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
-.total-val{color:#1a5c1c;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
-.total-cur{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;vertical-align:middle;letter-spacing:.3px}
-.total-cur.npr{background:#dbeafe;color:#1e40af}
-.total-cur.usd{background:#fef3c7;color:#92400e}
-.tw{background:#fff;border-radius:8px;overflow-x:auto;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders - NaturaBotanica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Table Styles - 6 COLUMNS */
-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:800px}
-th,td{padding:0;border:1px solid #e5e7eb;vertical-align:top;text-align:left}
-th{background:#2d4a22;color:#fff;font-weight:600;font-size:12px;text-transform:uppercase;padding:12px 10px;text-align:center}
-tr{background:#fff;transition:.2s}
-tr:hover{background:#fafafa}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 20px;
+        }
 
-/* Column Widths - 6 COLUMNS */
-.col-checkbox{width:3%}
-.col-date{width:12%}
-.col-items{width:35%}
-.col-status{width:12%}
-.col-client{width:33%}
-.col-action{width:5%}
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-/* Cell Styles */
-.cdp{width:100%;padding:15px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;background:#f9fafb;gap:8px}
-.dt{font-weight:700;color:#2d4a22;font-size:.95rem;text-align:center}
-.pt{width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid #d1d5db;cursor:pointer;transition:transform .2s}
-.pt:hover{transform:scale(1.05)}
-.cp{width:100%;padding:15px}
-.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid #e5e7eb;padding-bottom:8px}
-.ph-label{color:#6b7280;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.pid{font-size:.8rem;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:4px;font-weight:700}
-.pil{font-size:.9rem;color:#4b5563;line-height:1.5}
-.ir{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #e5e7eb;gap:12px;flex-wrap:wrap}
-.ir:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-.it{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #d1d5db;flex-shrink:0}
-.ix{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
-.in{font-weight:600;color:#1f2937;font-size:.9rem;white-space:normal;word-break:break-word;line-height:1.4}
-.iq{font-size:.8rem;color:#374151;font-weight:500;white-space:nowrap;display:flex;gap:8px;align-items:center}
-.ot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:2px solid #2d4a22}
-.ot-label{color:#2d4a22;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
-.ov{color:#1a5c1c;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
-.cs{width:100%;padding:15px;display:flex;flex-direction:column;gap:10px;justify-content:center}
-.ss{padding:8px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:600;cursor:pointer;width:100%;font-size:13px;transition:all .2s}
-.ss:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
-.s-Pending{background:#fff7ed;color:#c2410c}
-.s-Shipping{background:#eff6ff;color:#1d4ed8}
-.s-Completed{background:#f0fdf4;color:#15803d}
-.s-Success{background:#dcfce7;color:#15803d}
-.s-Rejected{background:#fef2f2;color:#b91c1c}
+        /* Header */
+        .header {
+            background: #2d4a22;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-/* Email Badge Styles */
-.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;justify-content:center;width:100%}
-@keyframes pi{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
-.bq{background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#92400e;border:1px solid #fcd34d}
-.bq::before{content:"⏳ ";margin-right:4px}
-.bsn{background:linear-gradient(135deg,#ecfccb,#d9f99d);color:#365314;border:1px solid #bef264}
-.bsn::before{content:"✅ ";margin-right:4px}
-.bf{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;border:1px solid #fca5a5}
-.bf::before{content:"❌ ";margin-right:4px}
+        .header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.cc{width:100%;padding:15px}
-.cd{font-size:.9rem;color:#374151;margin-bottom:6px;display:flex;flex-wrap:wrap}
-.cd strong{color:#111827;min-width:70px;display:inline-block}
-.ca{width:100%;padding:15px;display:flex;align-items:center;justify-content:center}
-.dr{display:flex;justify-content:center;align-items:center;width:100%;background:#dc2626;color:#fff;border:none;padding:10px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s}
-.dr:hover{background:#b91c1c;transform:translateY(-1px)}
-input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
-#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:12px 24px;border-radius:50px;opacity:0;transition:.3s;z-index:2000;font-size:14px;width:90%;text-align:center;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#imgModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;display:none;align-items:center;justify-content:center}
-#imgModal.show{display:flex}
-#imgModal img{max-width:90%;max-height:90%;border-radius:8px}
-.ci{position:absolute;top:20px;right:20px;color:#fff;cursor:pointer;font-size:40px}
+        .btn-stock {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .c{padding:8px}
-  .tb{flex-direction:column;align-items:stretch;padding:12px}
-  .b{width:100%}
-  .cur-toggle{justify-content:center;width:100%}
-  .cur-btn{flex:1}
-  .rc-bar{flex-direction:column;align-items:stretch}
-  .rc-time{margin-left:0;text-align:center}
-  .total-bar{justify-content:space-between}
-  .tw{overflow-x:visible}
-  thead{display:none}
-  table,table tbody{display:block;width:100%}
-  tr{display:flex;flex-direction:column;margin-bottom:16px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e5e7eb;position:relative}
-  td{display:flex;width:100%;padding:0;border:none;margin-bottom:12px;flex-direction:column}
-  td:last-child{margin-bottom:0}
-  td:nth-child(1){order:1;position:absolute;top:16px;right:16px;width:auto;margin:0;background:#fff;padding:4px;border-radius:6px;z-index:1}
-  td:nth-child(2){order:2;margin-bottom:16px}
-  td:nth-child(3){order:3;margin-bottom:16px}
-  td:nth-child(4){order:4;margin-bottom:16px}
-  td:nth-child(5){order:5;margin-bottom:16px}
-  .cdp{flex-direction:row;gap:12px;padding:0;background:transparent}
-  .cp{padding:0}
-  .cs{padding:0}
-  .cc{padding:0}
-  .ca{padding:0}
-  .dr{padding:12px}
-}
-</style>
+        .btn-stock:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2d4a22;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f3618;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #fecaca;
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .selected-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Currency Toggle */
+        .currency-toggle {
+            display: flex;
+            background: #e5e7eb;
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .currency-btn {
+            padding: 6px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .currency-btn.active {
+            background: #2d6a2e;
+            color: white;
+        }
+
+        /* Exchange Rate Bar */
+        .rate-bar {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border: 1px solid #e5e7eb;
+        }
+
+        .rate-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .rate-dot.error {
+            background: #ef4444;
+        }
+
+        .rate-value {
+            font-weight: 800;
+            color: #2d4a22;
+            font-size: 15px;
+        }
+
+        /* Table */
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th {
+            background: #2d4a22;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        /* Column Widths */
+        .col-checkbox { width: 3%; }
+        .col-date { width: 12%; }
+        .col-items { width: 35%; }
+        .col-status { width: 12%; }
+        .col-client { width: 33%; }
+        .col-action { width: 5%; }
+
+        /* Checkbox */
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2d4a22;
+        }
+
+        /* Date Cell */
+        .date-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-text {
+            font-weight: 700;
+            color: #2d4a22;
+            text-align: center;
+        }
+
+        .proof-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+        }
+
+        .proof-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Items Cell */
+        .order-id {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .items-list {
+            margin-top: 10px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .item-detail {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .item-total {
+            font-weight: 700;
+            color: #1a5c1c;
+            font-size: 13px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid #2d4a22;
+        }
+
+        .total-label {
+            font-weight: 900;
+            color: #2d4a22;
+            font-size: 14px;
+        }
+
+        .total-value {
+            font-weight: 900;
+            color: #1a5c1c;
+            font-size: 18px;
+        }
+
+        /* Status Cell */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .badge-queue {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .badge-sent {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .badge-failed {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .status-select.s-Pending { background: #fff7ed; color: #c2410c; }
+        .status-select.s-Shipping { background: #eff6ff; color: #1d4ed8; }
+        .status-select.s-Completed { background: #f0fdf4; color: #15803d; }
+        .status-select.s-Success { background: #dcfce7; color: #15803d; }
+        .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
+
+        /* Client Cell */
+        .client-line {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .client-label {
+            font-weight: 600;
+            color: #4b5563;
+            min-width: 60px;
+            display: inline-block;
+        }
+
+        /* Action Cell */
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        /* Total Bar */
+        .total-bar {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-left: 4px solid #2d4a22;
+            border-radius: 6px;
+            padding: 12px 24px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .total-bar-label {
+            font-weight: 900;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .total-bar-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #1a5c1c;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            transition: 0.3s;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<div class="c">
-  <div class="hd">
-    <h1>🌿 NaturaBotanica <span style="font-size:.6em;opacity:.5;font-weight:400">Admin Orders</span></h1>
-    <a href="/api/manage-stock" class="btn-s">📦 Manage Stock</a>
-  </div>
-  
-  <div class="tb">
-    <button class="b bs" onclick="toggleSelectAll()">☑️ Select All</button>
-    <button class="b bd" id="bd" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
-    <span id="sc"></span>
-    <div class="cur-toggle">
-      <button class="cur-btn active" id="tbNPR" onclick="setCur('NPR')">🇳🇵 NPR</button>
-      <button class="cur-btn" id="tbUSD" onclick="setCur('USD')">🇺🇸 USD</button>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>🌿 NaturaBotanica <span style="font-size:0.6em;opacity:0.6;">Admin Orders</span></h1>
+        <a href="/api/manage-stock" class="btn-stock">📦 Manage Stock</a>
     </div>
-  </div>
-  
-  <div class="rc-bar">
-    <span class="rc-dot" id="rateDot"></span>
-    <span class="rc-label">💱 Exchange Rate</span>
-    <span style="font-size:13px;color:#374151">1 USD =</span>
-    <span class="rc-rate" id="rateDisplay">...</span>
-    <span style="font-size:13px;color:#374151;font-weight:600">NPR</span>
-    <button class="rc-btn rc-fetch" id="rateFetchBtn" onclick="fetchRate()">🔄 Refresh</button>
-    <span class="rc-err" id="rateErr"></span>
-    <span class="rc-time" id="rateTime"></span>
-  </div>
-  
-  <div class="tw">
-    <table id="ordersTable">
-      <thead>
-        <tr>
-          <th class="col-checkbox"><input type="checkbox" id="ca" onchange="toggleSelectAll()"/></th>
-          <th class="col-date">📅 Date / 🖼️ Proof</th>
-          <th class="col-items">🛍️ Items</th>
-          <th class="col-status">⚙️ Status / Email</th>
-          <th class="col-client">👤 Client Details</th>
-          <th class="col-action">🗑️ Action</th>
-        </tr>
-      </thead>
-      <tbody id="ordersTableBody">
-        <tr><td colspan="6" style="text-align:center;padding:40px;">Loading orders...</td></tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <div class="total-bar">
-    <span class="total-lbl">💰 Grand Total</span>
-    <span class="total-val" id="totalVal">NPR 0</span>
-    <span class="total-cur npr" id="totalCur">NPR</span>
-  </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div>
+            <button class="btn btn-secondary" onclick="selectAll()">☑️ Select All</button>
+            <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
+            <span id="selectedCount" class="selected-count"></span>
+        </div>
+        <div class="currency-toggle">
+            <button class="currency-btn active" id="btnNPR" onclick="setCurrency('NPR')">🇳🇵 NPR</button>
+            <button class="currency-btn" id="btnUSD" onclick="setCurrency('USD')">🇺🇸 USD</button>
+        </div>
+    </div>
+
+    <!-- Exchange Rate Bar -->
+    <div class="rate-bar">
+        <span id="rateDot" class="rate-dot"></span>
+        <span>💱 Exchange Rate</span>
+        <span>1 USD =</span>
+        <span id="rateValue" class="rate-value">...</span>
+        <span>NPR</span>
+        <button class="btn btn-secondary" onclick="refreshRate()" style="padding:4px 12px;">🔄 Refresh</button>
+        <span id="rateError" style="color:#dc2626;font-size:12px;"></span>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-wrapper">
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th class="col-checkbox">☑</th>
+                    <th class="col-date">📅 Date / Proof</th>
+                    <th class="col-items">🛍️ Items</th>
+                    <th class="col-status">⚙️ Status</th>
+                    <th class="col-client">👤 Client Details</th>
+                    <th class="col-action">🗑️ Action</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr><td colspan="6" style="text-align:center;padding:40px;">Loading orders...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Total Bar -->
+    <div class="total-bar">
+        <span class="total-bar-label">💰 Grand Total</span>
+        <span id="grandTotal" class="total-bar-value">NPR 0</span>
+    </div>
 </div>
 
-<div id="toast">Notification</div>
-<div id="imgModal" onclick="closeImage(event)">
-  <span class="ci" onclick="closeImage(event)">&times;</span>
-  <img id="modalImage" src="" onclick="event.stopPropagation()">
+<div id="toast" class="toast">Notification</div>
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img id="modalImage" src="" onclick="event.stopPropagation()">
 </div>
 
 <script>
-// API Configuration
-const API_BASE = window.location.origin;
-let exchangeRate = 133;
-let currentCurrency = 'NPR';
-let allOrders = [];
+    // ============ CONFIGURATION ============
+    const API_BASE = window.location.origin;
+    let exchangeRate = 133;
+    let currentCurrency = 'NPR';
+    let allOrders = [];
 
-// Get Auth Credentials
-function getAuthCredentials() {
-    let username = localStorage.getItem('admin_username');
-    let password = localStorage.getItem('admin_password');
-    
-    if (!username || !password) {
-        username = prompt('Enter admin username:');
-        password = prompt('Enter admin password:');
+    // ============ AUTHENTICATION ============
+    function getAuth() {
+        let username = localStorage.getItem('admin_username');
+        let password = localStorage.getItem('admin_password');
         
-        if (username && password) {
-            localStorage.setItem('admin_username', username);
-            localStorage.setItem('admin_password', password);
-        } else {
-            return null;
-        }
-    }
-    
-    return { username, password, credentials: btoa(username + ':' + password) };
-}
-
-// ============ FETCH ORDERS FROM DATABASE ============
-async function fetchOrders() {
-    try {
-        showToast('Loading orders...');
-        
-        const auth = getAuthCredentials();
-        if (!auth) {
-            throw new Error('Authentication required');
-        }
-        
-        const response = await fetch(API_BASE + '/api/view-orders-data', {
-            headers: {
-                'Authorization': 'Basic ' + auth.credentials
+        if (!username || !password) {
+            username = prompt('Enter admin username:');
+            password = prompt('Enter admin password:');
+            if (username && password) {
+                localStorage.setItem('admin_username', username);
+                localStorage.setItem('admin_password', password);
+            } else {
+                return null;
             }
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('admin_username');
-            localStorage.removeItem('admin_password');
-            throw new Error('Authentication failed. Please login again.');
         }
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.orders) {
-            allOrders = data.orders;
-            renderOrdersTable(allOrders);
-            updateTotalAmount();
-            showToast(`✅ Loaded ${allOrders.length} orders`);
-        } else {
-            throw new Error(data.error || 'Failed to load orders');
-        }
-    } catch (error) {
-        console.error('Fetch orders error:', error);
-        showToast('❌ Failed to load orders: ' + error.message);
-        document.getElementById('ordersTableBody').innerHTML = `
-            <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
-                ❌ Failed to load orders: ${error.message}<br>
-                <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry Login</button>
-            </td></tr>
-        `;
+        return { credentials: btoa(username + ':' + password) };
     }
-}
 
-// ============ RENDER ORDERS TABLE (6 COLUMNS - CORRECT MAPPING) ============
-function renderOrdersTable(orders) {
-    const tbody = document.getElementById('ordersTableBody');
-    
-    if (!orders || orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">🛒 No orders found.</td></tr>`;
-        return;
-    }
-    
-    let rows = '';
-    
-    orders.forEach(order => {
-        const orderId = order._id;
-        const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB', {
-            day: '2-digit', month: '2-digit', year: 'numeric'
-        });
-        const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', {
-            hour: '2-digit', minute: '2-digit'
-        });
-        
-        const orderStatus = order.status || 'Pending';
-        const emailStatus = order.emailStatus || 'Queue';
-        const totalNPR = Math.round(order.totalNPR || 0);
-        
-        // Email badge
-        let emailBadge = '';
-        if (emailStatus === 'Sent') emailBadge = '<span class="badge bsn">✅ Email Sent</span>';
-        else if (emailStatus === 'Failed') emailBadge = '<span class="badge bf">❌ Email Failed</span>';
-        else emailBadge = '<span class="badge bq">⏳ Email Queue</span>';
-        
-        // Items HTML
-        let itemsHtml = '';
-        if (order.items && order.items.length > 0) {
-            itemsHtml = order.items.map(item => {
-                const qty = item.qty || 1;
-                const price = item.price || 0;
-                const lineTotal = qty * price;
-                return `
-                    <div class="ir">
-                        <div class="ix">
-                            <span class="in">${escapeHtml(item.name)}</span>
-                        </div>
-                        <div class="iq">x${qty} @ NPR ${price.toLocaleString('en-NP')}</div>
-                        <div style="font-weight:700;color:#1a5c1c;">= NPR ${lineTotal.toLocaleString('en-NP')}</div>
-                    </div>
-                `;
-            }).join('');
-        } else {
-            itemsHtml = '<div style="color:#999;text-align:center;">No items</div>';
-        }
-        
-        // Payment screenshot
-        const screenshotHtml = order.paymentScreenshot 
-            ? `<img src="${order.paymentScreenshot}" class="pt" onclick="openImage('${order.paymentScreenshot}')" alt="Payment Proof">`
-            : '<div style="width:40px;height:40px;background:#f3f4f6;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Img</div>';
-        
-        // Total HTML
-        const totalHtml = `
-            <div class="ot">
-                <span class="ot-label">Total</span>
-                <span class="ov" data-npr="${totalNPR}">NPR ${totalNPR.toLocaleString('en-NP')}</span>
-            </div>
-        `;
-        
-        // Status dropdown
-        const statusSelect = `<select onchange="updateStatus('${orderId}', this.value, this)" class="ss s-${orderStatus}">
-            <option value="Pending" ${orderStatus === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
-            <option value="Shipping" ${orderStatus === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
-            <option value="Completed" ${orderStatus === 'Completed' ? 'selected' : ''}>✅ Completed</option>
-            <option value="Success" ${orderStatus === 'Success' ? 'selected' : ''}>💰 Payment Successful</option>
-            <option value="Rejected" ${orderStatus === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
-        </select>`;
-        
-        // Client details
-        const clientDetails = `
-            <div class="cd"><strong>👤 Name:</strong> ${escapeHtml(order.clientDetails?.name || 'Guest')}</div>
-            <div class="cd"><strong>📞 Phone:</strong> ${escapeHtml(order.clientDetails?.phone || '-')}</div>
-            <div class="cd"><strong>✉️ Email:</strong> ${escapeHtml(order.clientDetails?.email || '-')}</div>
-            <div class="cd"><strong>📍 Address:</strong> ${escapeHtml(order.clientDetails?.address || '-')}</div>
-            <div class="cd"><strong>💳 Payment:</strong> ${order.paymentMethod || 'N/A'}</div>
-        `;
-        
-        // Delete button
-        const deleteButton = `<button class="dr" onclick="deleteOrder('${orderId}', this)">🗑️ Delete</button>`;
-        
-        // ⭐ 6 COLUMNS - CORRECT ORDER ⭐
-        // Column 1: Checkbox + Date + Screenshot
-        // Column 2: Order ID + Items + Total
-        // Column 3: Email Badge + Status Dropdown
-        // Column 4: Client Details
-        // Column 5: Delete Button (Action)
-        rows += `
-            <tr id="order-row-${orderId}">
-                <td class="cdp" align="center">
-                    <input type="checkbox" class="order-checkbox" value="${orderId}" onchange="updateSelectionCount()">
-                    <div class="dt">${orderDate}<br><small>${orderTime}</small></div>
-                    ${screenshotHtml}
-                </td>
-                <td class="cp">
-                    <div class="ph">
-                        <span class="ph-label">🆔 Order ID</span>
-                        <span class="pid">#${orderId.toString().substring(0, 8)}</span>
-                    </div>
-                    <div class="pil">${itemsHtml}</div>
-                    ${totalHtml}
-                </td>
-                <td class="cs">
-                    ${emailBadge}
-                    ${statusSelect}
-                </td>
-                <td class="cc">
-                    ${clientDetails}
-                </td>
-                <td class="ca">
-                    ${deleteButton}
-                </td>
-            </tr>
-        `;
-    });
-    
-    tbody.innerHTML = rows;
-}
-
-// ============ UPDATE ORDER STATUS ============
-async function updateStatus(orderId, newStatus, selectEl) {
-    selectEl.disabled = true;
-    const originalClass = selectEl.className;
-    
-    const auth = getAuthCredentials();
-    if (!auth) {
-        showToast('Authentication required');
-        selectEl.disabled = false;
-        return;
-    }
-    
-    try {
-        const response = await fetch(API_BASE + '/api/update-status', {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + auth.credentials
-            },
-            body: JSON.stringify({ id: orderId, status: newStatus })
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('admin_username');
-            localStorage.removeItem('admin_password');
-            throw new Error('Session expired');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            selectEl.className = 'ss s-' + newStatus;
-            showToast(`✅ Status updated to ${newStatus}`);
+    // ============ FETCH ORDERS ============
+    async function fetchOrders() {
+        try {
+            const auth = getAuth();
+            if (!auth) throw new Error('Authentication required');
             
-            const emailBadge = document.querySelector(`#order-row-${orderId} .badge`);
-            if (emailBadge) {
-                if (data.emailStatus === 'Sent') {
-                    emailBadge.className = 'badge bsn';
-                    emailBadge.innerHTML = '✅ Email Sent';
-                } else if (data.emailStatus === 'Failed') {
-                    emailBadge.className = 'badge bf';
-                    emailBadge.innerHTML = '❌ Email Failed';
-                }
-            }
-        } else {
-            throw new Error(data.error || 'Update failed');
-        }
-    } catch (error) {
-        showToast('❌ Failed to update status: ' + error.message);
-        selectEl.className = originalClass;
-    } finally {
-        selectEl.disabled = false;
-    }
-}
-
-// ============ DELETE FUNCTIONS ============
-function getSelectedOrders() {
-    return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
-}
-
-function updateSelectionCount() {
-    const selected = getSelectedOrders();
-    const total = document.querySelectorAll('.order-checkbox').length;
-    document.getElementById('bd').disabled = selected.length === 0;
-    document.getElementById('sc').textContent = selected.length > 0 ? `${selected.length} selected` : '';
-    document.getElementById('ca').checked = selected.length === total && total > 0;
-}
-
-function toggleSelectAll() {
-    const checkAll = document.getElementById('ca');
-    document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = checkAll.checked);
-    updateSelectionCount();
-}
-
-async function deleteOrder(orderId, btn) {
-    if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
-    
-    const auth = getAuthCredentials();
-    if (!auth) {
-        showToast('Authentication required');
-        return;
-    }
-    
-    btn.disabled = true;
-    btn.innerHTML = '⏳...';
-    
-    try {
-        const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': 'Basic ' + auth.credentials
-            }
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('admin_username');
-            localStorage.removeItem('admin_password');
-            throw new Error('Session expired');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            const row = document.getElementById(`order-row-${orderId}`);
-            row.style.opacity = '0';
-            row.style.transition = 'opacity 0.3s';
-            setTimeout(() => {
-                row.remove();
-                updateSelectionCount();
-                updateTotalAmount();
-                showToast('✅ Order deleted');
-            }, 300);
-        } else {
-            throw new Error(data.error || 'Delete failed');
-        }
-    } catch (error) {
-        showToast('❌ Delete failed: ' + error.message);
-        btn.disabled = false;
-        btn.innerHTML = '🗑️ Delete';
-    }
-}
-
-async function deleteSelected() {
-    const selected = getSelectedOrders();
-    if (selected.length === 0) return;
-    if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
-    
-    const auth = getAuthCredentials();
-    if (!auth) {
-        showToast('Authentication required');
-        return;
-    }
-    
-    const btn = document.getElementById('bd');
-    btn.disabled = true;
-    btn.innerHTML = '⏳ Deleting...';
-    
-    try {
-        const response = await fetch(API_BASE + '/api/delete-orders', {
-            method: 'DELETE',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + auth.credentials
-            },
-            body: JSON.stringify({ ids: selected })
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('admin_username');
-            localStorage.removeItem('admin_password');
-            throw new Error('Session expired');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            selected.forEach(id => {
-                const row = document.getElementById(`order-row-${id}`);
-                if (row) row.remove();
+            showToast('Loading orders...');
+            
+            const response = await fetch(API_BASE + '/api/view-orders-data', {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
-            showToast(`✅ Deleted ${selected.length} order(s)`);
-            updateSelectionCount();
-            updateTotalAmount();
-        } else {
-            throw new Error(data.error || 'Delete failed');
+            
+            if (response.status === 401) {
+                localStorage.removeItem('admin_username');
+                localStorage.removeItem('admin_password');
+                throw new Error('Login failed. Please try again.');
+            }
+            
+            if (!response.ok) throw new Error('Failed to fetch orders');
+            
+            const data = await response.json();
+            
+            if (data.success && data.orders) {
+                allOrders = data.orders;
+                renderTable();
+                showToast(`✅ Loaded ${allOrders.length} orders`);
+            } else {
+                throw new Error(data.error || 'No orders found');
+            }
+        } catch (error) {
+            showToast('❌ ' + error.message);
+            document.getElementById('ordersTableBody').innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
+                    ❌ ${error.message}<br>
+                    <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry</button>
+                </td></tr>
+            `;
         }
-    } catch (error) {
-        showToast('❌ Bulk delete failed: ' + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '🗑️ Delete Selected';
-        updateSelectionCount();
     }
-}
 
-// ============ CURRENCY FUNCTIONS ============
-function updateTotalAmount() {
-    let total = 0;
-    document.querySelectorAll('.ov').forEach(el => {
-        const npr = parseFloat(el.dataset.npr) || 0;
-        total += npr;
-    });
-    
-    const totalVal = document.getElementById('totalVal');
-    const totalCur = document.getElementById('totalCur');
-    
-    if (currentCurrency === 'USD') {
-        totalVal.textContent = '$' + (total / exchangeRate).toFixed(2);
-        totalCur.textContent = 'USD';
-        totalCur.className = 'total-cur usd';
-    } else {
-        totalVal.textContent = 'NPR ' + total.toLocaleString('en-NP');
-        totalCur.textContent = 'NPR';
-        totalCur.className = 'total-cur npr';
-    }
-}
-
-function setCur(currency) {
-    currentCurrency = currency;
-    document.getElementById('tbNPR').classList.toggle('active', currency === 'NPR');
-    document.getElementById('tbUSD').classList.toggle('active', currency === 'USD');
-    updateTotalAmount();
-    
-    document.querySelectorAll('.ov').forEach(el => {
-        const npr = parseFloat(el.dataset.npr) || 0;
-        if (currency === 'USD') {
-            el.textContent = '$' + (npr / exchangeRate).toFixed(2);
-        } else {
-            el.textContent = 'NPR ' + npr.toLocaleString('en-NP');
+    // ============ RENDER TABLE ============
+    function renderTable() {
+        const tbody = document.getElementById('ordersTableBody');
+        
+        if (!allOrders || allOrders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
+            updateGrandTotal();
+            return;
         }
-    });
-}
+        
+        let html = '';
+        
+        for (const order of allOrders) {
+            const orderId = order._id;
+            const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB');
+            const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const status = order.status || 'Pending';
+            const emailStatus = order.emailStatus || 'Queue';
+            const totalNPR = Math.round(order.totalNPR || 0);
+            const client = order.clientDetails || {};
+            
+            // Email badge class
+            let emailBadgeClass = 'badge-queue';
+            let emailBadgeText = '⏳ Queue';
+            if (emailStatus === 'Sent') {
+                emailBadgeClass = 'badge-sent';
+                emailBadgeText = '✅ Sent';
+            } else if (emailStatus === 'Failed') {
+                emailBadgeClass = 'badge-failed';
+                emailBadgeText = '❌ Failed';
+            }
+            
+            // Items HTML
+            let itemsHtml = '';
+            if (order.items && order.items.length > 0) {
+                itemsHtml = order.items.map(item => {
+                    const qty = item.qty || 1;
+                    const price = item.price || 0;
+                    const lineTotal = qty * price;
+                    return `
+                        <div class="item-row">
+                            <span class="item-name">${escapeHtml(item.name)}</span>
+                            <span class="item-detail">x${qty} @ NPR ${price.toLocaleString()}</span>
+                            <span class="item-total">NPR ${lineTotal.toLocaleString()}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                itemsHtml = '<div style="color:#999;">No items</div>';
+            }
+            
+            // Display total based on currency
+            let displayTotal = currentCurrency === 'USD' 
+                ? `$${(totalNPR / exchangeRate).toFixed(2)}`
+                : `NPR ${totalNPR.toLocaleString()}`;
+            
+            html += `
+                <tr id="row-${orderId}">
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="checkbox order-checkbox" value="${orderId}" onchange="updateSelectedCount()">
+                    </td>
+                    <td>
+                        <div class="date-cell">
+                            <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
+                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;"></div>'}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="order-id">#${orderId.toString().substring(0, 8)}</span>
+                        <div class="items-list">${itemsHtml}</div>
+                        <div class="total-row">
+                            <span class="total-label">Total</span>
+                            <span class="total-value" data-npr="${totalNPR}">${displayTotal}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="badge ${emailBadgeClass}">${emailBadgeText}</div>
+                        <select class="status-select s-${status}" onchange="updateStatus('${orderId}', this.value, this)">
+                            <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="Shipping" ${status === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+                            <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                            <option value="Success" ${status === 'Success' ? 'selected' : ''}>💰 Payment Successful</option>
+                            <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="client-line"><span class="client-label">👤 Name:</span> ${escapeHtml(client.name || 'Guest')}</div>
+                        <div class="client-line"><span class="client-label">📞 Phone:</span> ${escapeHtml(client.phone || '-')}</div>
+                        <div class="client-line"><span class="client-label">✉️ Email:</span> ${escapeHtml(client.email || '-')}</div>
+                        <div class="client-line"><span class="client-label">📍 Address:</span> ${escapeHtml(client.address || '-')}</div>
+                        <div class="client-line"><span class="client-label">💳 Payment:</span> ${order.paymentMethod || 'N/A'}</div>
+                    </td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteOrder('${orderId}', this)">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        tbody.innerHTML = html;
+        updateGrandTotal();
+    }
 
-// ============ EXCHANGE RATE ============
-async function loadExchangeRate() {
-    try {
-        const response = await fetch(API_BASE + '/api/public/rate');
-        if (response.ok) {
+    // ============ UPDATE STATUS ============
+    async function updateStatus(orderId, newStatus, selectEl) {
+        selectEl.disabled = true;
+        const auth = getAuth();
+        if (!auth) {
+            showToast('Authentication required');
+            selectEl.disabled = false;
+            return;
+        }
+        
+        try {
+            const response = await fetch(API_BASE + '/api/update-status', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + auth.credentials
+                },
+                body: JSON.stringify({ id: orderId, status: newStatus })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                selectEl.className = `status-select s-${newStatus}`;
+                showToast(`✅ Status updated to ${newStatus}`);
+                
+                // Update email badge
+                const badgeDiv = selectEl.parentElement.querySelector('.badge');
+                if (badgeDiv) {
+                    if (data.emailStatus === 'Sent') {
+                        badgeDiv.className = 'badge badge-sent';
+                        badgeDiv.innerHTML = '✅ Sent';
+                    } else if (data.emailStatus === 'Failed') {
+                        badgeDiv.className = 'badge badge-failed';
+                        badgeDiv.innerHTML = '❌ Failed';
+                    }
+                }
+            } else {
+                throw new Error(data.error || 'Update failed');
+            }
+        } catch (error) {
+            showToast('❌ ' + error.message);
+        } finally {
+            selectEl.disabled = false;
+        }
+    }
+
+    // ============ DELETE ORDER ============
+    async function deleteOrder(orderId, btn) {
+        if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
+        
+        btn.disabled = true;
+        btn.textContent = '...';
+        const auth = getAuth();
+        
+        try {
+            const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const row = document.getElementById(`row-${orderId}`);
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    updateSelectedCount();
+                    fetchOrders();
+                }, 200);
+                showToast('✅ Order deleted');
+            } else {
+                throw new Error('Delete failed');
+            }
+        } catch (error) {
+            showToast('❌ Delete failed');
+            btn.disabled = false;
+            btn.textContent = '🗑️ Delete';
+        }
+    }
+
+    // ============ BULK DELETE ============
+    function getSelectedOrders() {
+        return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
+    }
+    
+    function updateSelectedCount() {
+        const selected = getSelectedOrders();
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const countSpan = document.getElementById('selectedCount');
+        
+        deleteBtn.disabled = selected.length === 0;
+        countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
+        
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const total = document.querySelectorAll('.order-checkbox').length;
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = selected.length === total && total > 0;
+        }
+    }
+    
+    function selectAll() {
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const allChecked = [...checkboxes].every(cb => cb.checked);
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+        updateSelectedCount();
+    }
+    
+    async function deleteSelected() {
+        const selected = getSelectedOrders();
+        if (selected.length === 0) return;
+        if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
+        
+        const auth = getAuth();
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = '⏳...';
+        
+        try {
+            const response = await fetch(API_BASE + '/api/delete-orders', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + auth.credentials
+                },
+                body: JSON.stringify({ ids: selected })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast(`✅ Deleted ${selected.length} order(s)`);
+                fetchOrders(); // Refresh the table
+            } else {
+                throw new Error('Bulk delete failed');
+            }
+        } catch (error) {
+            showToast('❌ Bulk delete failed');
+        } finally {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = '🗑️ Delete Selected';
+            updateSelectedCount();
+        }
+    }
+
+    // ============ CURRENCY ============
+    function setCurrency(currency) {
+        currentCurrency = currency;
+        document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
+        document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
+        
+        // Update all total displays
+        document.querySelectorAll('[data-npr]').forEach(el => {
+            const npr = parseFloat(el.dataset.npr);
+            if (currency === 'USD') {
+                el.textContent = `$${(npr / exchangeRate).toFixed(2)}`;
+            } else {
+                el.textContent = `NPR ${npr.toLocaleString()}`;
+            }
+        });
+        
+        updateGrandTotal();
+    }
+    
+    function updateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll('[data-npr]').forEach(el => {
+            total += parseFloat(el.dataset.npr) || 0;
+        });
+        
+        const grandTotalEl = document.getElementById('grandTotal');
+        if (currentCurrency === 'USD') {
+            grandTotalEl.textContent = `$${(total / exchangeRate).toFixed(2)}`;
+        } else {
+            grandTotalEl.textContent = `NPR ${total.toLocaleString()}`;
+        }
+    }
+
+    // ============ EXCHANGE RATE ============
+    async function loadExchangeRate() {
+        try {
+            const response = await fetch(API_BASE + '/api/public/rate');
+            if (response.ok) {
+                const data = await response.json();
+                exchangeRate = data.rate || 133;
+                document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+                document.getElementById('rateDot').className = 'rate-dot';
+            }
+        } catch (error) {
+            document.getElementById('rateDot').className = 'rate-dot error';
+        }
+    }
+    
+    async function refreshRate() {
+        const auth = getAuth();
+        if (!auth) {
+            showToast('Authentication required');
+            return;
+        }
+        
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳...';
+        
+        try {
+            const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
             const data = await response.json();
             exchangeRate = data.rate || 133;
-            document.getElementById('rateDisplay').textContent = exchangeRate.toFixed(2);
-            document.getElementById('rateTime').textContent = 'Default';
-            document.getElementById('rateDot').className = 'rc-dot';
-        }
-    } catch (error) {
-        console.error('Rate load error:', error);
-        document.getElementById('rateDot').className = 'rc-dot err';
-    }
-}
-
-async function fetchRate() {
-    const auth = getAuthCredentials();
-    if (!auth) {
-        showToast('Authentication required');
-        return;
-    }
-    
-    const btn = document.getElementById('rateFetchBtn');
-    btn.textContent = '⏳ Syncing...';
-    btn.disabled = true;
-    
-    try {
-        const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
-            headers: {
-                'Authorization': 'Basic ' + auth.credentials
-            }
-        });
-        const data = await response.json();
-        if (data.success || data.rate) {
-            exchangeRate = data.rate || 133;
-            document.getElementById('rateDisplay').textContent = exchangeRate.toFixed(2);
+            document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
             showToast('✅ Rate updated');
-            setCur(currentCurrency);
+            setCurrency(currentCurrency);
+        } catch (error) {
+            showToast('❌ Failed to sync rate');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🔄 Refresh';
         }
-    } catch (error) {
-        showToast('❌ Failed to sync rate');
-    } finally {
-        btn.textContent = '🔄 Refresh';
-        btn.disabled = false;
     }
-}
 
-// ============ HELPER FUNCTIONS ============
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function showToast(message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-function openImage(src) {
-    document.getElementById('modalImage').src = src;
-    document.getElementById('imgModal').classList.add('show');
-}
-
-function closeImage(event) {
-    if (event.target !== document.getElementById('modalImage')) {
-        document.getElementById('imgModal').classList.remove('show');
+    // ============ HELPER FUNCTIONS ============
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
-}
+    
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function openImage(src) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('imageModal').classList.add('show');
+    }
+    
+    function closeModal() {
+        document.getElementById('imageModal').classList.remove('show');
+    }
 
-// ============ INITIALIZATION ============
-async function init() {
-    await loadExchangeRate();
-    await fetchOrders();
-}
-
-// Make functions global
-window.toggleSelectAll = toggleSelectAll;
-window.updateSelectionCount = updateSelectionCount;
-window.setCur = setCur;
-window.fetchRate = fetchRate;
-window.updateStatus = updateStatus;
-window.deleteOrder = deleteOrder;
-window.deleteSelected = deleteSelected;
-window.openImage = openImage;
-window.closeImage = closeImage;
-
-init();
+    // ============ INITIALIZATION ============
+    async function init() {
+        await loadExchangeRate();
+        await fetchOrders();
+    }
+    
+    // Make functions global
+    window.selectAll = selectAll;
+    window.deleteSelected = deleteSelected;
+    window.updateSelectedCount = updateSelectedCount;
+    window.setCurrency = setCurrency;
+    window.refreshRate = refreshRate;
+    window.updateStatus = updateStatus;
+    window.deleteOrder = deleteOrder;
+    window.openImage = openImage;
+    window.closeModal = closeModal;
+    
+    init();
 </script>
-</body></html>
+</body>
+</html>
