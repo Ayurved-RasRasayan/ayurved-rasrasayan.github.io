@@ -20,7 +20,7 @@ if (missing.length > 0) {
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── MIDDLEWARE & HELPERS ────────────────────────────────────────────────
+// ─── MIDDLEWARE ───────────────────────────────────────────────────────────
 function checkAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -36,82 +36,10 @@ function checkAuth(req, res, next) {
   return res.status(401).send('Access Denied');
 }
 
-function validateOrder(data) {
-  const errors = [];
-  if (!data.items || !Array.isArray(data.items) || data.items.length === 0) errors.push('Items array is required');
-  else data.items.forEach((item, i) => {
-    if (!item.name) errors.push(`Item ${i}: missing name`);
-    if (typeof item.price !== 'number' || item.price < 0) errors.push(`Item ${i}: invalid price`);
-  });
-  if (typeof data.totalUSD !== 'number' || data.totalUSD < 0) errors.push('Invalid totalUSD');
-  if (!data.clientDetails || typeof data.clientDetails !== 'object') errors.push('Client details required');
-  else {
-    if (!data.clientDetails.name || typeof data.clientDetails.name !== 'string') errors.push('Client name required');
-    if (!data.clientDetails.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.clientDetails.email)) errors.push('Valid email required');
-    if (!data.clientDetails.phone) errors.push('Phone number required');
-  }
-  return errors;
-}
-
-// ─── EMAIL FUNCTIONS ─────────────────────────────────────────────────────────
-async function sendClientEmail(toEmail, toName, orderId, status) {
-  try {
-    let displayStatus = status === 'Success' ? 'Payment Successful' : status;
-    const res = await axios.post('https://api.brevo.com/v3/smtp/email', {
-      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
-      to: [{ email: toEmail, name: toName }],
-      subject: `Order Update: #${orderId}`,
-      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} is now: <strong>${displayStatus}</strong>.</p><p>Thank you!</p>`
-    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
-    return !!res.data?.messageId;
-  } catch (e) { console.error('[EMAIL] ❌ Error:', e.response?.data || e.message); return false; }
-}
-
-async function sendAdminAlert(orderId, data) {
-  try {
-    let itemsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:10px;"><tr style="background:#f9fafb;"><th style="border:1px solid #e5e7eb;padding:8px;">Item</th><th style="border:1px solid #e5e7eb;padding:8px;">Qty</th><th style="border:1px solid #e5e7eb;padding:8px;">Price</th></tr>';
-    (data.items || []).forEach(i => { itemsHtml += `<tr><td style="border:1px solid #e5e7eb;padding:8px;">${i.name}</td><td style="border:1px solid #e5e7eb;padding:8px;text-align:center;">${i.qty||1}</td><td style="border:1px solid #e5e7eb;padding:8px;">$${i.price||0}</td></tr>`; });
-    await axios.post('https://api.brevo.com/v3/smtp/email', {
-      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
-      to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
-      subject: `🛒 NEW ORDER: #${orderId} - ${data.clientDetails.name}`,
-      htmlContent: `<div style="font-family:Arial;color:#333;"><h2 style="color:#2d4a22;">New Order (#${orderId})</h2><p><b>Name:</b> ${data.clientDetails.name}<br><b>Email:</b> ${data.clientDetails.email}<br><b>Phone:</b> ${data.clientDetails.phone}</p><p><b>Total:</b> $${data.totalUSD} (${data.totalNPR} NPR)</p>${itemsHtml}${data.paymentScreenshot ? `<p>📸 <a href="${data.paymentScreenshot}" target="_blank">View Screenshot</a></p>` : ''}</div>`
-    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
-  } catch (e) { console.error('Admin Alert Error:', e.message); }
-}
-
-async function sendInquiryAlert(data) {
-  try {
-    const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
-    await axios.post('https://api.brevo.com/v3/smtp/email', {
-      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
-      to: [{ email: process.env.RECEIVER_EMAIL, name: 'Sales Team' }],
-      subject: `📨 New Inquiry: ${fullName} (${data.company || 'Individual'})`,
-      htmlContent: `
-        <div style="font-family:Arial;color:#333;padding:20px;border:1px solid #eee;">
-          <h2 style="color:#A3B14B;">New Inquiry Received</h2>
-          <p style="background:#f9fafb;padding:10px;border-radius:5px;">
-            <strong>Name:</strong> ${fullName}<br>
-            <strong>Email:</strong> ${data.email}<br>
-            <strong>Phone:</strong> ${data.phone || 'N/A'}<br>
-            <strong>Company:</strong> ${data.company || 'N/A'}
-          </p>
-          <div style="margin-top:20px;">
-            <strong>Message:</strong>
-            <p style="background:#fff;padding:15px;border:1px solid #eee;margin-top:5px;">${data.message}</p>
-          </div>
-        </div>
-      `
-    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
-    return true;
-  } catch (e) {
-    console.error('[INQUIRY EMAIL] ❌ Error:', e.response?.data || e.message);
-    return false;
-  }
-}
-
-// ─── DATABASE CONNECT & SCHEMAS ────────────────────────────────────────────
-mongoose.connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB Connected')).catch(err => { console.error('❌ MongoDB Error:', err); process.exit(1); });
+// ─── MONGOOSE SCHEMAS ──────────────────────────────────────────────────────
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(e => { console.error('❌ MongoDB connection error:', e); process.exit(1); });
 
 const productSchema = new mongoose.Schema({
   id: Number,
@@ -158,7 +86,7 @@ const Order = mongoose.model('Order', orderSchema);
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 const Setting = mongoose.model('Setting', settingSchema);
 
-// ─── HELPER: Get/Set DB Setting ─────────────────────────────────────────────
+// ─── HELPER FUNCTIONS ──────────────────────────────────────────────────────
 async function getSetting(key, defaultVal) {
   const doc = await Setting.findOne({ key });
   return doc ? doc.value : defaultVal;
@@ -167,10 +95,75 @@ async function setSetting(key, value) {
   await Setting.updateOne({ key }, { value }, { upsert: true });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── PRODUCT SYNC ENGINE (NEW) ──────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
+// ─── EMAIL FUNCTIONS ──────────────────────────────────────────────────────
+async function sendClientEmail(toEmail, toName, orderId, status) {
+  try {
+    let displayStatus = status === 'Success' ? 'Payment Successful' : status;
+    const res = await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
+      to: [{ email: toEmail, name: toName }],
+      subject: `Order Update: #${orderId}`,
+      htmlContent: `<h3>Hello ${toName},</h3><p>Your order #${orderId} is now: <strong>${displayStatus}</strong>.</p><p>Thank you!</p>`
+    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
+    return !!res.data?.messageId;
+  } catch (e) { console.error('[EMAIL] ❌ Error:', e.response?.data || e.message); return false; }
+}
 
+async function sendAdminAlert(orderId, data) {
+  try {
+    let itemsHtml = '<table style="width:100%;border-collapse:collapse;margin-top:10px;">' +
+      '<tr style="background:#f9fafb;">' +
+      '<th style="border:1px solid #e5e7eb;padding:8px;">Item</th>' +
+      '<th style="border:1px solid #e5e7eb;padding:8px;">Qty</th>' +
+      '<th style="border:1px solid #e5e7eb;padding:8px;">Price</th></tr>';
+    (data.items || []).forEach(i => {
+      itemsHtml += `<tr><td style="border:1px solid #e5e7eb;padding:8px;">${i.name}</td><td style="border:1px solid #e5e7eb;padding:8px;text-align:center;">${i.qty || 1}</td><td style="border:1px solid #e5e7eb;padding:8px;">$${i.price || 0}</td></tr>`;
+    });
+    await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
+      to: [{ email: 'sales.naturabotanica20@gmail.com', name: 'Sales Team' }],
+      subject: `🛒 NEW ORDER: #${orderId} - ${data.clientDetails.name}`,
+      htmlContent: `<div style="font-family:Arial;color:#333;"><h2 style="color:#2d4a22;">New Order (#${orderId})</h2>` +
+        `<p><b>Name:</b> ${data.clientDetails.name}<br><b>Email:</b> ${data.clientDetails.email}<br><b>Phone:</b> ${data.clientDetails.phone}</p>` +
+        `<p><b>Total:</b> $${data.totalUSD} (${data.totalNPR} NPR)</p>` +
+        itemsHtml +
+        (data.paymentScreenshot ? `<p>📸 <a href="${data.paymentScreenshot}" target="_blank">View Screenshot</a></p>` : '') +
+        `</div>`
+    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
+  } catch (e) { console.error('Admin Alert Error:', e.message); }
+}
+
+async function sendInquiryAlert(data) {
+  try {
+    const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+    await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { name: 'NaturaBotanica', email: 'sales.naturabotanica20@gmail.com' },
+      to: [{ email: process.env.RECEIVER_EMAIL, name: 'Sales Team' }],
+      subject: `📨 New Inquiry: ${fullName} (${data.company || 'Individual'})`,
+      htmlContent: `
+        <div style="font-family:Arial;color:#333;padding:20px;border:1px solid #eee;">
+          <h2 style="color:#A3B14B;">New Inquiry Received</h2>
+          <p style="background:#f9fafb;padding:10px;border-radius:5px;">
+            <strong>Name:</strong> ${fullName}<br>
+            <strong>Email:</strong> ${data.email}<br>
+            <strong>Phone:</strong> ${data.phone || 'N/A'}<br>
+            <strong>Company:</strong> ${data.company || 'N/A'}
+          </p>
+          <div style="margin-top:20px;">
+            <strong>Message:</strong>
+            <p style="background:#fff;padding:15px;border:1px solid #eee;margin-top:5px;">${data.message}</p>
+          </div>
+        </div>
+      `
+    }, { headers: { 'api-key': process.env.EMAIL_PASS, 'content-type': 'application/json' } });
+    return true;
+  } catch (e) {
+    console.error('[INQUIRY EMAIL] ❌ Error:', e.response?.data || e.message);
+    return false;
+  }
+}
+
+// ─── PRODUCTS SYNC ENGINE ───────────────────────────────────────────────────
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
 
 async function syncProductsToDB(productsArray, { removeOrphans = false, resetStock = false } = {}) {
@@ -184,7 +177,6 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
 
   for (const p of productsArray) {
     const existing = await Product.findOne({ id: p.id });
-
     if (existing) {
       const updateData = { ...p };
       if (!resetStock) {
@@ -244,7 +236,6 @@ function startFileWatcher() {
   try {
     const watcher = fs.watch(PRODUCTS_FILE, (eventType) => {
       if (eventType !== 'change') return;
-
       if (syncDebounce) clearTimeout(syncDebounce);
       syncDebounce = setTimeout(async () => {
         console.log('[WATCHER] 📂 products.json changed — syncing to DB...');
@@ -254,13 +245,11 @@ function startFileWatcher() {
         } else {
           console.error('[WATCHER] ❌ Sync failed');
         }
-      }, 500); // 500ms debounce
+      }, 500);
     });
-
     watcher.on('error', (err) => {
       console.error('[WATCHER] ❌ File watch error:', err.message);
     });
-
     watcherReady = true;
     console.log('[WATCHER] 👀 Watching products.json for changes...');
   } catch (e) {
@@ -285,9 +274,11 @@ async function syncExchangeRate() {
   return null;
 }
 
+// Initial rate sync and periodic sync every 6 hours
 syncExchangeRate();
 setInterval(syncExchangeRate, 6 * 60 * 60 * 1000);
 
+// ─── ROUTES ─────────────────────────────────────────────────────────────────
 app.get('/api/exchange-rate', checkAuth, async (req, res) => {
   try {
     const rate = await getSetting('exchange_rate', 133);
@@ -318,237 +309,10 @@ app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
-app.get('/api/health', async (req, res) => {
-  try {
-    await mongoose.connection.db.admin().ping();
-    res.json({ status: 'healthy' });
-  } catch (e) { res.status(503).json({ status: 'unhealthy' }); }
-});
-
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find().sort({ id: 1 }).lean();
-    const clean = products.map(({ _id, __v, ...rest }) => rest);
-    res.json(clean);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-app.get('/api/products/:id', async (req, res) => {
-  try {
-    const product = await Product.findOne({ id: Number(req.params.id) }).lean();
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-    const { _id, __v, ...rest } = product;
-    res.json(rest);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-app.post('/api/products', checkAuth, async (req, res) => {
-  try {
-    const { id, name, price, category } = req.body;
-    if (!id || !name || price === undefined) {
-      return res.status(400).json({ success: false, error: 'id, name, and price are required' });
-    }
-
-    const existing = await Product.findOne({ id });
-    if (existing) {
-      return res.status(409).json({ success: false, error: `Product with id ${id} already exists` });
-    }
-
-    const newProduct = new Product({ ...req.body, stock: req.body.stock ?? 100 });
-    await newProduct.save();
-
-    await syncDBToFile();
-
-    console.log(`[PRODUCT] ✅ Added: #${id} ${name}`);
-    res.status(201).json({ success: true, product: newProduct.toObject() });
-  } catch (e) {
-    console.error('[PRODUCT] ❌ Add error:', e.message);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.put('/api/products/:id', checkAuth, async (req, res) => {
-  try {
-    const productId = Number(req.params.id);
-    const existing = await Product.findOne({ id: productId });
-    if (!existing) {
-      return res.status(404).json({ success: false, error: 'Product not found' });
-    }
-
-    const updateData = { ...req.body };
-    if (req.body.stock === undefined) {
-      delete updateData.stock;
-    }
-
-    await Product.updateOne({ id: productId }, { $set: updateData });
-    await syncDBToFile();
-
-    console.log(`[PRODUCT] ✏️ Updated: #${productId}`);
-    res.json({ success: true });
-  } catch (e) {
-    console.error('[PRODUCT] ❌ Update error:', e.message);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.delete('/api/products/:id', checkAuth, async (req, res) => {
-  try {
-    const productId = Number(req.params.id);
-    const result = await Product.deleteOne({ id: productId });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ success: false, error: 'Product not found' });
-    }
-
-    await syncDBToFile();
-
-    console.log(`[PRODUCT] 🗑️ Deleted: #${productId}`);
-    res.json({ success: true });
-  } catch (e) {
-    console.error('[PRODUCT] ❌ Delete error:', e.message);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.post('/api/products/bulk', checkAuth, async (req, res) => {
-  try {
-    if (!Array.isArray(req.body.products)) {
-      return res.status(400).json({ success: false, error: 'products array required' });
-    }
-
-    const result = await syncProductsToDB(req.body.products, { removeOrphans: false, resetStock: false });
-    await syncDBToFile();
-
-    res.json({ success: true, ...result });
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.get('/api/seed', checkAuth, async (req, res) => {
-  try {
-    await Product.deleteMany({});
-    const myProducts = require('./products.json');
-    await Product.insertMany(myProducts);
-    res.json({ success: true, count: myProducts.length, message: 'Full re-seed complete' });
-  } catch (e) { res.status(500).send(e.message); }
-});
-
-app.get('/api/sync-products', checkAuth, async (req, res) => {
-  try {
-    const result = await syncFileToDB({ removeOrphans: true });
-    if (result) {
-      res.json({ success: true, ...result });
-    } else {
-      res.status(500).json({ success: false, error: 'Sync failed' });
-    }
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.get('/api/seed-stock', checkAuth, async (req, res) => {
-  try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); }
-});
-
-app.post('/api/orders', async (req, res) => {
-  try {
-    const errors = validateOrder(req.body);
-    if (errors.length > 0) return res.status(400).json({ success: false, errors });
-    req.body.clientDetails.name = req.body.clientDetails.name.trim().substring(0, 100);
-    req.body.clientDetails.email = req.body.clientDetails.email.trim().toLowerCase();
-    req.body.clientDetails.phone = req.body.clientDetails.phone.trim().substring(0, 20);
-    const savedOrder = await new Order(req.body).save();
-    await sendAdminAlert(savedOrder._id, req.body);
-    res.status(201).json({ success: true, orderId: savedOrder._id });
-  } catch (e) { res.status(500).json({ success: false, error: 'Server error' }); }
-});
-
-const STOCK_DEDUCT_STATUSES = ['Completed', 'Success', 'Shipping'];
-
-app.put('/api/update-status', checkAuth, async (req, res) => {
-  try {
-    const { id, status } = req.body;
-    const order = await Order.findOne({ _id: id });
-    if (!order) return res.status(404).json({ success: false });
-
-    const wasDeducted = STOCK_DEDUCT_STATUSES.includes(order.status);
-    const shouldDeduct = STOCK_DEDUCT_STATUSES.includes(status);
-
-    await Order.updateOne({ _id: id }, { status, emailStatus: 'Queue' });
-
-    if (shouldDeduct && !wasDeducted) {
-      for (const item of (order.items || [])) {
-        await Product.updateOne({ id: item.id }, { $inc: { stock: -(parseInt(item.qty) || 1) } });
-      }
-    } else if (!shouldDeduct && wasDeducted) {
-      for (const item of (order.items || [])) {
-        await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
-      }
-    }
-
-    let emailStat = 'Queue';
-    if (order.clientDetails?.email?.includes('@')) {
-      emailStat = await sendClientEmail(order.clientDetails.email, order.clientDetails.name, id, status) ? 'Sent' : 'Failed';
-      await Order.updateOne({ _id: id }, { emailStatus: emailStat });
-    }
-    res.json({ success: true, emailStatus: emailStat });
-  } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
-});
-
-app.post('/api/inquiries', async (req, res) => {
-  try {
-    if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
-      return res.status(400).json({ success: false, error: 'Missing fields' });
-    }
-    await new Inquiry(req.body).save();
-    await sendInquiryAlert(req.body);
-    res.json({ success: true });
-  } catch (e) {
-    console.error('❌ Inquiry Save Error:', e);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
-  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
-});
-app.delete('/api/delete-orders', checkAuth, async (req, res) => {
-  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch (e) { res.status(500).json({ success: false }); }
-});
-
-app.put('/api/update-stock', checkAuth, async (req, res) => {
-  try {
-    await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
-    await syncDBToFile();
-    res.json({ success: true });
-  } catch (e) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/manage-stock', checkAuth, async (req, res) => {
-  try {
-    const products = await Product.find().sort({ id: 1 });
-    let rows = products.map(p => {
-      const s = p.stock || 0;
-      let badge = '<span style="color:#15803d">In Stock</span>';
-      if (s === 0) badge = '<span style="color:#b91c1c">Out</span>';
-      else if (s <= 10) badge = '<span style="color:#c2410c">Low</span>';
-      return `<tr><td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg" onerror="this.style.display='none'"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td><td data-label="Current">${badge} (${s})</td><td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td></tr>`;
-    }).join('');
-    let html = fs.readFileSync(path.join(__dirname, 'views/stock.html'), 'utf8');
-    res.send(html.replace('{{STOCK_ROWS}}', rows));
-  } catch (e) { res.status(500).send('Error loading stock'); }
-});
-
+// Serve the main view orders page
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
-
     const allProds = await Product.find({}, { id: 1, img: 1 }).lean();
     const imgMap = {};
     allProds.forEach(p => { if (p.id) imgMap[p.id] = p.img || ''; });
@@ -572,11 +336,10 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       const orderId = r._id.toString();
 
       const dateStr = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
       const thumbHtml = r.paymentScreenshot
         ? `<img class="pt" src="${r.paymentScreenshot}" onclick="oI(this.src)" alt="Proof">`
         : `<div class="no-img">No img</div>`;
-
+      
       let emailBadge = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') emailBadge = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') emailBadge = '<span class="badge bf">Failed</span>';
@@ -594,8 +357,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
 
       let itemsHtml = '';
       const items = Array.isArray(r.items) ? r.items : [];
-      
-      // Get Product ID of the first item for the header
       const firstItemId = items.length > 0 ? (items[0].id || '') : '';
 
       if (items.length === 0) {
@@ -608,23 +369,19 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           const price = item.price || 0;
           const lineTotal = qty * price;
           const parsed = parseLabel(item.selectedLabel);
-
           const imgTag = imgSrc
             ? `<img class="it" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
             : '<div class="it"></div>';
 
-          // Layout: Left (Name+Form) | Middle (Size) | Right (Math)
+          // Construct the item layout
           itemsHtml += `
             <div class="ir" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; width:100%;">
-              <!-- Left: Image, Name, Form -->
               <div style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;">
                 ${imgTag}
                 <span class="in">${name}</span>
                 ${parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : ''}
               </div>
-              <!-- Middle: Size (500 gm) -->
               <span class="isz" style="margin:0 10px;">${parsed.size}</span>
-              <!-- Right: Calculation -->
               <span style="white-space:nowrap; font-weight:500;">${price} × (Qty ${qty}) = Rs. ${lineTotal}</span>
             </div>`;
         });
@@ -634,6 +391,7 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
                       (payMethod === 'khalti') ? `<span class="py-badge py-khalti">📱 Khalti</span>` :
                       `<span class="py-badge" style="background:#f3f4f6;color:#9ca3af;border:1px solid #d1d5db">—</span>`;
 
+      // Final row HTML
       return `<tr id="r-${orderId}">
         <td class="col-check"><input type="checkbox" class="rc" value="${orderId}" onchange="oCC()"/></td>
         <td class="cdp">
@@ -641,14 +399,12 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           ${thumbHtml}
         </td>
         <td class="cp">
-          <!-- Header: Order Items (Left) | Product ID (Middle) | Order ID (Right) -->
           <div class="ph" style="display:flex; justify-content:space-between; align-items:center;">
             <span class="ph-label">Order Items</span>
             <span class="pid" style="margin:auto;">${firstItemId ? '#' + firstItemId : ''}</span>
             <span class="pid">#${orderId.substring(0, 8)}</span>
           </div>
           ${itemsHtml}
-          <!-- Footer: Total (Renamed from Subtotal) -->
           <div class="ot" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:2px dashed #9ca3af;">
             <span class="ot-label">Total</span>
             <span class="ov" data-npr="${nprTotal}">= Rs. ${nprTotal.toLocaleString('en-NP')}</span>
@@ -666,24 +422,26 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           <div class="cd"><strong>Email</strong><span>${r.clientDetails?.email || '—'}</span></div>
           <div class="cd"><strong>Addr</strong><span>${r.clientDetails?.address || '—'}</span></div>
         </td>
-        <!-- Payment Column: Removed Currency Badge -->
         <td class="py">
           ${payTag}
         </td>
         <td class="ca">
-          <button class="dr" onclick="d1('${orderId}',this)">Del</button>
+          <button class="dr" onclick="d1('${orderId}', this)">Del</button>
         </td>
       </tr>`;
     }).join('');
 
-    const html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
-    res.send(html.replace('{{ORDERS_ROWS}}', rows));
+    // Read the HTML template
+    const htmlTemplate = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
+    // Insert the generated rows
+    res.send(htmlTemplate.replace('{{ORDERS_ROWS}}', rows));
   } catch (e) {
     console.error('View Orders Error:', e);
     res.status(500).send('Error loading orders');
   }
 });
 
+// ─── STARTUP AND FILE WATCHER ──────────────────────────────────────────────
 async function startup() {
   console.log('[STARTUP] 🔄 Syncing products.json → Database...');
   const syncResult = await syncFileToDB({ removeOrphans: true });
@@ -692,10 +450,13 @@ async function startup() {
   }
   startFileWatcher();
 }
-
 startup();
 
+// ─── SERVER LISTEN ──────────────────────────────────────────────────────────
+app.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
+});
+
+// ─── FALLBACK ROUTE ─────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => { console.error('Unhandled error:', err); res.status(500).json({ error: 'Internal server error' }); });
-
-app.listen(port, () => console.log(`🚀 Secure Server running on port ${port}`));
