@@ -191,16 +191,14 @@
 
         /* Dark, thick vertical borders for all cells */
         td, th {
-            border-left: 2px solid #2d3748;   /* Dark navy/black vertical line */
-            border-right: 2px solid #2d3748;  /* Dark navy/black vertical line */
+            border-left: 2px solid #2d3748;
+            border-right: 2px solid #2d3748;
         }
 
-        /* Remove double borders */
         table {
             border-collapse: collapse;
         }
 
-        /* Header styling */
         th {
             background: #1a2e1a;
             color: white;
@@ -213,14 +211,12 @@
             border-bottom: 2px solid #0d1f0d;
         }
 
-        /* Cell styling */
         td {
             padding: 16px 12px;
             border-bottom: 1px solid #e5e7eb;
             vertical-align: top;
         }
 
-        /* Hover effect */
         tr:hover {
             background: #fafafa;
         }
@@ -289,27 +285,44 @@
             align-items: center;
             padding: 8px 0;
             border-bottom: 1px dashed #e5e7eb;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .item-row:last-child {
             border-bottom: none;
         }
 
+        .item-info {
+            flex: 2;
+            min-width: 150px;
+        }
+
         .item-name {
             font-weight: 600;
             font-size: 13px;
-            flex: 1;
+            display: block;
+        }
+
+        .item-product-id {
+            font-size: 10px;
+            color: #6b7280;
+            font-family: monospace;
+            margin-top: 2px;
         }
 
         .item-detail {
             font-size: 12px;
             color: #6b7280;
+            min-width: 80px;
         }
 
         .item-total {
             font-weight: 700;
             color: #1a5c1c;
             font-size: 13px;
+            min-width: 80px;
+            text-align: right;
         }
 
         .total-row {
@@ -508,8 +521,13 @@
                 overflow-x: scroll;
             }
             
-            td, th {
-                white-space: normal;
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .item-total {
+                text-align: left;
             }
         }
     </style>
@@ -553,7 +571,7 @@
                 <tr>
                     <th class="col-checkbox">☑</th>
                     <th class="col-date">📅 Date / Proof</th>
-                    <th class="col-items">🛍️ Items</th>
+                    <th class="col-items">🛍️ Items (ID | Name | Qty | Price)</th>
                     <th class="col-status">⚙️ Status</th>
                     <th class="col-client">👤 Client Details</th>
                     <th class="col-action">🗑️ Action</th>
@@ -675,23 +693,28 @@
                 emailBadgeText = '❌ Failed';
             }
             
-            // Items HTML
+            // Items HTML with Product ID displayed
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
                 itemsHtml = order.items.map(item => {
                     const qty = item.qty || 1;
                     const price = item.price || 0;
                     const lineTotal = qty * price;
+                    const productId = item.id || item.productId || 'N/A';
+                    
                     return `
                         <div class="item-row">
-                            <span class="item-name">${escapeHtml(item.name)}</span>
+                            <div class="item-info">
+                                <span class="item-name">${escapeHtml(item.name)}</span>
+                                <div class="item-product-id">🆔 Product ID: ${escapeHtml(productId.toString())}</div>
+                            </div>
                             <span class="item-detail">x${qty} @ NPR ${price.toLocaleString()}</span>
-                            <span class="item-total">NPR ${lineTotal.toLocaleString()}</span>
+                            <span class="item-total">= NPR ${lineTotal.toLocaleString()}</span>
                         </div>
                     `;
                 }).join('');
             } else {
-                itemsHtml = '<div style="color:#999;">No items</div>';
+                itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
             
             // Display total based on currency
@@ -707,14 +730,14 @@
                     <td>
                         <div class="date-cell">
                             <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
-                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;"></div>'}
+                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
                         </div>
                     </td>
                     <td>
-                        <span class="order-id">#${orderId.toString().substring(0, 8)}</span>
+                        <span class="order-id">Order #${orderId.toString().substring(0, 8)}</span>
                         <div class="items-list">${itemsHtml}</div>
                         <div class="total-row">
-                            <span class="total-label">Total</span>
+                            <span class="total-label">📦 TOTAL</span>
                             <span class="total-value" data-npr="${totalNPR}">${displayTotal}</span>
                         </div>
                     </td>
@@ -839,8 +862,6 @@
         
         deleteBtn.disabled = selected.length === 0;
         countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
-        
-        const total = document.querySelectorAll('.order-checkbox').length;
     }
     
     function selectAll() {
