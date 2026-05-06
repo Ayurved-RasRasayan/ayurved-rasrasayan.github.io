@@ -173,13 +173,6 @@ async function setSetting(key, value) {
 
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
 
-/**
- * Upsert products from an array into the DB.
- * - Adds new products
- * - Updates existing products (matched by `id`)
- * - Optionally removes products not in the source array
- * - Preserves `stock` for existing products unless `resetStock` is true
- */
 async function syncProductsToDB(productsArray, { removeOrphans = false, resetStock = false } = {}) {
   if (!Array.isArray(productsArray) || productsArray.length === 0) {
     console.warn('[SYNC] Empty or invalid products array, skipping.');
@@ -187,16 +180,12 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
   }
 
   let added = 0, updated = 0, removed = 0;
-
-  // Build a set of incoming IDs
   const incomingIds = new Set(productsArray.map(p => p.id));
 
-  // Upsert each product
   for (const p of productsArray) {
     const existing = await Product.findOne({ id: p.id });
 
     if (existing) {
-      // Preserve stock unless explicitly resetting
       const updateData = { ...p };
       if (!resetStock) {
         updateData.stock = existing.stock;
@@ -204,14 +193,12 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
       await Product.updateOne({ id: p.id }, { $set: updateData });
       updated++;
     } else {
-      // New product — use stock from JSON or default to 100
       const newProduct = { ...p, stock: p.stock ?? 100 };
       await new Product(newProduct).save();
       added++;
     }
   }
 
-  // Remove products in DB that are NOT in the source
   if (removeOrphans) {
     const dbProducts = await Product.find({}, { id: 1 });
     for (const dbp of dbProducts) {
@@ -226,14 +213,9 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
   return { added, updated, removed };
 }
 
-/**
- * Write current DB products back to products.json file.
- * Used when products are modified via API so the file stays in sync.
- */
 async function syncDBToFile() {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
-    // Remove Mongo-specific fields
     const clean = products.map(({ _id, __v, ...rest }) => rest);
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(clean, null, 2), 'utf8');
     console.log(`[SYNC] 📝 products.json updated (${clean.length} products)`);
@@ -244,9 +226,6 @@ async function syncDBToFile() {
   }
 }
 
-/**
- * Read products.json and sync to DB.
- */
 async function syncFileToDB({ removeOrphans = false, resetStock = false } = {}) {
   try {
     const raw = fs.readFileSync(PRODUCTS_FILE, 'utf8');
@@ -258,7 +237,6 @@ async function syncFileToDB({ removeOrphans = false, resetStock = false } = {}) 
   }
 }
 
-// ─── FILE WATCHER: Auto-detect changes to products.json ────────────────
 let watcherReady = false;
 let syncDebounce = null;
 
@@ -267,7 +245,6 @@ function startFileWatcher() {
     const watcher = fs.watch(PRODUCTS_FILE, (eventType) => {
       if (eventType !== 'change') return;
 
-      // Debounce: avoid triggering multiple times for a single save
       if (syncDebounce) clearTimeout(syncDebounce);
       syncDebounce = setTimeout(async () => {
         console.log('[WATCHER] 📂 products.json changed — syncing to DB...');
@@ -291,10 +268,6 @@ function startFileWatcher() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── AUTO-SYNC EXCHANGE RATE ────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
 async function syncExchangeRate() {
   try {
     const apiRes = await axios.get('https://open.er-api.com/v6/latest/USD', { timeout: 10000 });
@@ -315,11 +288,6 @@ async function syncExchangeRate() {
 syncExchangeRate();
 setInterval(syncExchangeRate, 6 * 60 * 60 * 1000);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── ROUTES ─────────────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ─── ROUTE: GET EXCHANGE RATE ────────────────────────────────────────────
 app.get('/api/exchange-rate', checkAuth, async (req, res) => {
   try {
     const rate = await getSetting('exchange_rate', 133);
@@ -350,7 +318,6 @@ app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE: BASE & HEALTH ────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
   try {
@@ -359,15 +326,9 @@ app.get('/api/health', async (req, res) => {
   } catch (e) { res.status(503).json({ status: 'unhealthy' }); }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── ROUTE: PRODUCTS (ENHANCED WITH CRUD + SYNC) ────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
-// GET all products (public — used by frontend storefront)
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
-    // Strip Mongo fields for cleaner response
     const clean = products.map(({ _id, __v, ...rest }) => rest);
     res.json(clean);
   } catch (e) {
@@ -375,7 +336,6 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-// GET single product by id
 app.get('/api/products/:id', async (req, res) => {
   try {
     const product = await Product.findOne({ id: Number(req.params.id) }).lean();
@@ -387,7 +347,6 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-// POST: Add a new product (admin only) → saves to DB + updates products.json
 app.post('/api/products', checkAuth, async (req, res) => {
   try {
     const { id, name, price, category } = req.body;
@@ -395,7 +354,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'id, name, and price are required' });
     }
 
-    // Check for duplicate id
     const existing = await Product.findOne({ id });
     if (existing) {
       return res.status(409).json({ success: false, error: `Product with id ${id} already exists` });
@@ -404,7 +362,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
     const newProduct = new Product({ ...req.body, stock: req.body.stock ?? 100 });
     await newProduct.save();
 
-    // Update products.json to keep file in sync
     await syncDBToFile();
 
     console.log(`[PRODUCT] ✅ Added: #${id} ${name}`);
@@ -415,7 +372,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
   }
 });
 
-// PUT: Update a product (admin only) → updates DB + updates products.json
 app.put('/api/products/:id', checkAuth, async (req, res) => {
   try {
     const productId = Number(req.params.id);
@@ -424,15 +380,12 @@ app.put('/api/products/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    // Prevent overwriting stock unless explicitly sent
     const updateData = { ...req.body };
     if (req.body.stock === undefined) {
-      delete updateData.stock; // preserve existing stock
+      delete updateData.stock;
     }
 
     await Product.updateOne({ id: productId }, { $set: updateData });
-
-    // Update products.json
     await syncDBToFile();
 
     console.log(`[PRODUCT] ✏️ Updated: #${productId}`);
@@ -443,7 +396,6 @@ app.put('/api/products/:id', checkAuth, async (req, res) => {
   }
 });
 
-// DELETE: Remove a product (admin only) → removes from DB + updates products.json
 app.delete('/api/products/:id', checkAuth, async (req, res) => {
   try {
     const productId = Number(req.params.id);
@@ -453,7 +405,6 @@ app.delete('/api/products/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    // Update products.json
     await syncDBToFile();
 
     console.log(`[PRODUCT] 🗑️ Deleted: #${productId}`);
@@ -464,7 +415,6 @@ app.delete('/api/products/:id', checkAuth, async (req, res) => {
   }
 });
 
-// POST: Bulk import products (admin only) → upserts all + updates file
 app.post('/api/products/bulk', checkAuth, async (req, res) => {
   try {
     if (!Array.isArray(req.body.products)) {
@@ -480,8 +430,6 @@ app.post('/api/products/bulk', checkAuth, async (req, res) => {
   }
 });
 
-// ─── SEED ROUTES (keep legacy support) ──────────────────────────────────
-// Full re-seed (wipes and replaces all products — preserves stock from JSON)
 app.get('/api/seed', checkAuth, async (req, res) => {
   try {
     await Product.deleteMany({});
@@ -491,7 +439,6 @@ app.get('/api/seed', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send(e.message); }
 });
 
-// Smart sync: file → DB (add new, update changed, remove deleted)
 app.get('/api/sync-products', checkAuth, async (req, res) => {
   try {
     const result = await syncFileToDB({ removeOrphans: true });
@@ -508,10 +455,6 @@ app.get('/api/sync-products', checkAuth, async (req, res) => {
 app.get('/api/seed-stock', checkAuth, async (req, res) => {
   try { await Product.updateMany({}, { $set: { stock: 100 } }); res.send('Stocks reset'); } catch (e) { res.status(500).send(e.message); }
 });
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── ROUTE: ORDERS ──────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
 
 app.post('/api/orders', async (req, res) => {
   try {
@@ -558,7 +501,6 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ─── ROUTE: INQUIRIES ───────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
     if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
@@ -573,7 +515,6 @@ app.post('/api/inquiries', async (req, res) => {
   }
 });
 
-// ─── ROUTE: DELETE / MANAGE ─────────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -584,7 +525,7 @@ app.delete('/api/delete-orders', checkAuth, async (req, res) => {
 app.put('/api/update-stock', checkAuth, async (req, res) => {
   try {
     await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
-    await syncDBToFile(); // Keep file in sync
+    await syncDBToFile();
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -608,12 +549,10 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
 
-    // Image lookup from Products (fallback for orders missing item.img)
     const allProds = await Product.find({}, { id: 1, img: 1 }).lean();
     const imgMap = {};
     allProds.forEach(p => { if (p.id) imgMap[p.id] = p.img || ''; });
 
-    // Parse "125 gm (POWDER FORM)" → { size, form, cls }
     function parseLabel(label) {
       if (!label) return { size: '', form: '', cls: '' };
       const m = label.match(/^(.+?)\s*\((.+?)\)$/);
@@ -622,7 +561,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       return { size: m[1].trim(), form, cls: form.includes('POWDER') ? 'powder' : 'whole' };
     }
 
-    // Escape for inline onclick
     function esc(s) { return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
     const rows = orders.map(r => {
@@ -633,20 +571,16 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       const payMethod = (r.paymentMethod || '').toLowerCase();
       const orderId = r._id.toString();
 
-      // Date
       const dateStr = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-      // Screenshot thumbnail
       const thumbHtml = r.paymentScreenshot
         ? `<img class="pt" src="${r.paymentScreenshot}" onclick="oI(this.src)" alt="Proof">`
         : `<div class="no-img">No img</div>`;
 
-      // Email badge
       let emailBadge = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') emailBadge = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') emailBadge = '<span class="badge bf">Failed</span>';
 
-      // Status options
       const statuses = [
         { val: 'Pending', label: 'Pending' },
         { val: 'Shipping', label: 'Shipping' },
@@ -658,7 +592,6 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
         `<option value="${st.val}"${status === st.val ? ' selected' : ''}>${st.label}</option>`
       ).join('');
 
-      // Items
       let itemsHtml = '';
       const items = Array.isArray(r.items) ? r.items : [];
       if (items.length === 0) {
@@ -666,80 +599,75 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
       } else {
         items.forEach(item => {
           const imgSrc = item.img || imgMap[item.id] || '';
-          const imgTag = imgSrc
-            ? `<img class="item-thumb" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
-            : '';
           const name = item.name || 'Unknown';
           const qty = item.qty || 1;
           const price = item.price || 0;
           const lineTotal = qty * price;
           const parsed = parseLabel(item.selectedLabel);
 
-          const sizeTag = parsed.size ? `<span class="item-size">${parsed.size}</span>` : '';
-          const formTag = parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : '';
+          const imgTag = imgSrc
+            ? `<img class="it" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
+            : '<div class="it"></div>'; // Placeholder if no image
 
           itemsHtml += `
-            <div class="item-block">
-              <div class="item-top">
+            <div class="ir">
+              <div class="iline1">
                 ${imgTag}
-                <span class="item-name">${name}</span>
+                <span class="in">${name}</span>
+                <span class="isz">${parsed.size}</span>
+                ${parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : ''}
               </div>
-              ${(sizeTag || formTag) ? `<div class="item-meta">${sizeTag}${formTag}</div>` : ''}
-              <div class="item-calc">
-                <span>NPR ${price.toLocaleString('en-NP')}</span>
-                <span class="eq">× ${qty}</span>
-                <span class="eq">=</span>
-                <span class="line-total">NPR ${lineTotal.toLocaleString('en-NP')}</span>
+              <div class="iline2">
+                <span>${price} × (Qty ${qty}) = Rs. ${lineTotal}</span>
               </div>
             </div>`;
         });
       }
 
-      // Payment badges
       const curCls = currency === 'USD' ? 'usd' : 'npr';
       const curFlag = currency === 'USD' ? '🇺🇸' : '🇳🇵';
       let payTag = '';
-      if (payMethod === 'esewa') payTag = `<span class="pay-tag pay-esewa">📱 eSewa</span>`;
-      else if (payMethod === 'khalti') payTag = `<span class="pay-tag pay-khalti">📱 Khalti</span>`;
-      else payTag = `<span class="pay-tag pay-na">—</span>`;
+      if (payMethod === 'esewa') payTag = `<span class="py-badge py-esewa">📱 eSewa</span>`;
+      else if (payMethod === 'khalti') payTag = `<span class="py-badge py-khalti">📱 Khalti</span>`;
+      else payTag = `<span class="py-badge" style="background:#f3f4f6;color:#9ca3af;border:1px solid #d1d5db">—</span>`;
 
       return `<tr id="r-${orderId}">
         <td class="col-check"><input type="checkbox" class="rc" value="${orderId}" onchange="oCC()"/></td>
-        <td class="col-date">
+        <td class="cdp">
           <span class="dt">${dateStr}</span>
           ${thumbHtml}
         </td>
-        <td class="col-items">
-          <div class="items-header">
-            <span class="items-label">Order Items</span>
+        <td class="cp">
+          <div class="ph">
+            <span class="ph-label">Order Items</span>
             <span class="pid">#${orderId.substring(0, 8)}</span>
           </div>
           ${itemsHtml}
-          <div class="subtotal-row">
-            <span class="subtotal-label">Subtotal</span>
+          <div class="ot">
+            <span class="ot-label">Subtotal</span>
             <div>
-              <span class="subtotal-val" data-npr="${nprTotal}">Rs. ${nprTotal.toLocaleString('en-NP')}</span>
-              <span class="subtotal-usd">($${usdTotal})</span>
+              <span class="ov" data-npr="${nprTotal}">= Rs. ${nprTotal.toLocaleString('en-NP')}</span>
+              <span class="ov-usd">($${usdTotal})</span>
             </div>
           </div>
         </td>
-        <td class="col-status">
+        <td class="cs">
           <select onchange="uS('${orderId}',this.value,this)" class="ss s-${status}">
             ${optionsHtml}
           </select>
           ${emailBadge}
         </td>
-        <td class="col-client">
-          <div class="cl"><strong>Name</strong><span>${r.clientDetails?.name || 'Guest'}</span></div>
-          <div class="cl"><strong>Phone</strong><span>${r.clientDetails?.phone || '—'}</span></div>
-          <div class="cl"><strong>Email</strong><span>${r.clientDetails?.email || '—'}</span></div>
-          <div class="cl"><strong>Addr</strong><span>${r.clientDetails?.address || '—'}</span></div>
+        <td class="cc">
+          <div class="cd"><strong>Name</strong><span>${r.clientDetails?.name || 'Guest'}</span></div>
+          <div class="cd"><strong>Phone</strong><span>${r.clientDetails?.phone || '—'}</span></div>
+          <div class="cd"><strong>Email</strong><span>${r.clientDetails?.email || '—'}</span></div>
+          <div class="cd"><strong>Addr</strong><span>${r.clientDetails?.address || '—'}</span></div>
         </td>
-        <td class="col-pay">
-          <span class="pay-tag pay-${curCls}">${curFlag} ${currency}</span>
+        <td class="py">
+          <span class="py-badge py-${curCls}">${curFlag} ${currency}</span>
           ${payTag}
         </td>
-        <td class="col-act">
+        <td class="ca">
           <button class="dr" onclick="d1('${orderId}',this)">Del</button>
         </td>
       </tr>`;
@@ -753,25 +681,17 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── STARTUP: Initial Sync + File Watcher ───────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
 async function startup() {
-  // 1. Smart-sync products.json → DB on startup
   console.log('[STARTUP] 🔄 Syncing products.json → Database...');
   const syncResult = await syncFileToDB({ removeOrphans: true });
   if (syncResult) {
     console.log(`[STARTUP] ✅ Product sync: +${syncResult.added} ~${syncResult.updated} -${syncResult.removed}`);
   }
-
-  // 2. Start file watcher for live changes
   startFileWatcher();
 }
 
 startup();
 
-// ─── 404 & ERROR HANDLERS ───────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => { console.error('Unhandled error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
