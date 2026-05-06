@@ -20,17 +20,6 @@ if (missing.length > 0) {
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-// ─── HELPER FUNCTION: Escape HTML ────────────────────────────────────────
-function escapeHtml(text) {
-  if (!text) return '';
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 // ─── MIDDLEWARE & HELPERS ────────────────────────────────────────────────
 function checkAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -356,6 +345,7 @@ app.get('/api/health', async (req, res) => {
 // ─── ROUTE: ORDERS DATA API (JSON) ──────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
+// JSON API for orders data (used by orders.html)
 app.get('/api/view-orders-data', checkAuth, async (req, res) => {
     try {
         const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
@@ -531,22 +521,16 @@ app.post('/api/orders', async (req, res) => {
   try {
     const errors = validateOrder(req.body);
     if (errors.length > 0) return res.status(400).json({ success: false, errors });
-    
     req.body.clientDetails.name = req.body.clientDetails.name.trim().substring(0, 100);
     req.body.clientDetails.email = req.body.clientDetails.email.trim().toLowerCase();
     req.body.clientDetails.phone = req.body.clientDetails.phone.trim().substring(0, 20);
     
-    const orderData = { ...req.body, order_state: 'Pending' };
+    const orderData = {
+      ...req.body,
+      order_state: 'Pending'
+    };
+    
     const savedOrder = await new Order(orderData).save();
-    
-    // DEDUCT STOCK AFTER ORDER IS SAVED
-    for (const item of (req.body.items || [])) {
-      const productId = Number(item.id);
-      const qty = item.qty || 1;
-      await Product.updateOne({ id: productId }, { $inc: { stock: -qty } });
-    }
-    await syncDBToFile(); // Sync stock changes to products.json
-    
     await sendAdminAlert(savedOrder._id, req.body);
     res.status(201).json({ success: true, orderId: savedOrder._id });
   } catch (e) { 
@@ -577,8 +561,6 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
         await Product.updateOne({ id: item.id }, { $inc: { stock: (parseInt(item.qty) || 1) } });
       }
     }
-    
-    await syncDBToFile(); // Sync stock changes
 
     let emailStat = 'Queue';
     if (order.clientDetails?.email?.includes('@')) {
@@ -643,144 +625,30 @@ app.delete('/api/delete-orders', checkAuth, async (req, res) => {
   try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── STOCK MANAGEMENT ROUTES ───────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
+app.put('/api/update-stock', checkAuth, async (req, res) => {
+  try {
+    await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
+    await syncDBToFile();
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ success: false }); }
+});
 
-// GET manage-stock page (HTML)
 app.get('/api/manage-stock', checkAuth, async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 });
     let rows = products.map(p => {
       const s = p.stock || 0;
       let badge = '<span style="color:#15803d">In Stock</span>';
-      if (s === 0) badge = '<span style="color:#b91c1c">Out of Stock</span>';
-      else if (s <= 10) badge = '<span style="color:#c2410c">Low Stock</span>';
-      return `<tr>
-        <td data-label="Product"><div class="pi"><img src="${p.img || ''}" class="pimg" onerror="this.style.display='none'"><div><strong>${escapeHtml(p.name)}</strong><div style="font-size:10px;color:#6b7280">${p.sci || ''}</div><div style="font-size:9px;color:#9ca3af;margin-top:2px">ID: ${p.id}</div></div></div></td>
-        <td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel || p.category || '-'}</td>
-        <td data-label="Current Stock"><span style="font-weight:700">${s}</span> ${badge}</td>
-        <td data-label="Set New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" step="1" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td>
-        <td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td>
-      </tr>`;
+      if (s === 0) badge = '<span style="color:#b91c1c">Out</span>';
+      else if (s <= 10) badge = '<span style="color:#c2410c">Low</span>';
+      return `<tr><td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg" onerror="this.style.display='none'"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td><td data-label="Current">${badge} (${s})</td><td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td></tr>`;
     }).join('');
-    
     let html = fs.readFileSync(path.join(__dirname, 'views/stock.html'), 'utf8');
     res.send(html.replace('{{STOCK_ROWS}}', rows));
-  } catch (e) { 
-    console.error('Stock page error:', e);
-    res.status(500).send('Error loading stock page'); 
-  }
+  } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
-// PUT update single product stock (called by stock.html)
-app.put('/api/update-stock', checkAuth, async (req, res) => {
-  try {
-    const { id, stock } = req.body;
-    
-    if (stock === undefined || stock < 0) {
-      return res.status(400).json({ success: false, error: 'Invalid stock value' });
-    }
-    
-    const product = await Product.findOne({ id: Number(id) });
-    if (!product) {
-      return res.status(404).json({ success: false, error: 'Product not found' });
-    }
-    
-    await Product.updateOne({ id: Number(id) }, { $set: { stock: stock } });
-    await syncDBToFile(); // Sync to products.json
-    
-    console.log(`[STOCK] ✅ Product #${id} stock updated to ${stock}`);
-    res.json({ success: true, message: 'Stock updated' });
-  } catch (e) {
-    console.error('Update stock error:', e);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// POST batch update stock (deduct after order - already handled in /api/orders)
-// This endpoint is for manual bulk updates
-app.post('/api/update-stock-batch', checkAuth, async (req, res) => {
-  try {
-    const { items } = req.body;
-    
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ success: false, error: 'Items array required' });
-    }
-    
-    const results = [];
-    
-    for (const item of items) {
-      const productId = Number(item.id);
-      const quantity = item.quantity || item.qty || 1;
-      
-      const product = await Product.findOne({ id: productId });
-      if (!product) {
-        results.push({ id: productId, success: false, error: 'Product not found' });
-        continue;
-      }
-      
-      if (product.stock < quantity) {
-        results.push({ 
-          id: productId, 
-          success: false, 
-          error: `Insufficient stock. Available: ${product.stock}, Requested: ${quantity}` 
-        });
-        continue;
-      }
-      
-      const newStock = product.stock - quantity;
-      await Product.updateOne({ id: productId }, { $set: { stock: newStock } });
-      results.push({ id: productId, success: true, newStock });
-    }
-    
-    await syncDBToFile();
-    
-    const allSuccess = results.every(r => r.success);
-    res.json({ 
-      success: allSuccess, 
-      results,
-      message: allSuccess ? 'Stock updated' : 'Some updates failed'
-    });
-  } catch (e) {
-    console.error('Batch stock update error:', e);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// GET all products with stock (JSON API)
-app.get('/api/admin/products', checkAuth, async (req, res) => {
-  try {
-    const products = await Product.find().sort({ id: 1 }).lean();
-    const cleanProducts = products.map(({ _id, __v, ...rest }) => rest);
-    res.json({ success: true, products: cleanProducts });
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// GET low stock alerts
-app.get('/api/admin/stock/alerts', checkAuth, async (req, res) => {
-  try {
-    const threshold = parseInt(req.query.threshold) || 10;
-    const lowStock = await Product.find({ stock: { $lte: threshold }, stock: { $gt: 0 } }).sort({ stock: 1 }).lean();
-    const outOfStock = await Product.find({ stock: 0 }).lean();
-    
-    res.json({ 
-      success: true, 
-      lowStock: lowStock.map(p => ({ id: p.id, name: p.name, stock: p.stock })),
-      outOfStock: outOfStock.map(p => ({ id: p.id, name: p.name })),
-      threshold
-    });
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ─── MAIN ORDERS VIEW ROUTE - HTML PAGE ─────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
+// ⭐ MAIN ORDERS VIEW ROUTE - HTML PAGE ⭐
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
