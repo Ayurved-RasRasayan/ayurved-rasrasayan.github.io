@@ -290,10 +290,10 @@
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
         
-        <!-- Form Dropdown (Positioned below close button) -->
+        <!-- Form Dropdown -->
         <select id="modalFormSelect" class="absolute top-16 right-4 z-10 w-[140px] px-3 py-2 bg-white/95 border border-border-main rounded-xl text-xs font-semibold text-txt-main backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer shadow-lg">
-          <option value="Powder">POWDER form</option>
-          <option value="Whole Dried">WHOLE DRIED</option>
+          <option value="POWDER FORM">POWDER FORM</option>
+          <option value="WHOLE DRIED">WHOLE DRIED</option>
         </select>
         
         <div id="modalBadge" class="absolute top-4 left-4 px-3 py-1 bg-brand text-white text-xs font-medium rounded-full uppercase tracking-wider"></div>
@@ -347,7 +347,6 @@ function getUnitOptions(unitString) {
       { label: '1000 ml', mult: 1 }
     ];
   } else {
-    // Fallback for items sold per piece, pack, etc.
     return [{ label: unitString, mult: 1 }];
   }
 }
@@ -474,17 +473,16 @@ function quickAddFromGrid(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   const options = getUnitOptions(p.unit);
-  const defaultOpt = options[0]; // Adds the smallest available unit
-  const combinedLabel = `${defaultOpt.label} (Powder)`; // Defaults to Powder form on quick add
+  const defaultOpt = options[0];
+  const combinedLabel = `${defaultOpt.label} (POWDER FORM)`;
   addToCart(id, 1, defaultOpt.mult, combinedLabel);
 }
 
-function addToCart(id, qty=1, multiplier=1, selectedLabel='1 kg (Powder)'){
+function addToCart(id, qty=1, multiplier=1, selectedLabel='1 kg (POWDER FORM)'){
   const p = products.find(x => x.id === id);
   if (!p) return;
   if ((p.stock || 100) <= 0) return showToast('Out of stock', 'error');
   
-  // Create a unique ID for the cart line based on product ID, size, and form type
   const cartId = `${id}-${selectedLabel.replace(/\s/g, '')}`;
   const calculatedPrice = p.price * multiplier;
   
@@ -501,7 +499,7 @@ function addToCart(id, qty=1, multiplier=1, selectedLabel='1 kg (Powder)'){
       baseUnit: p.unit,
       selectedLabel: selectedLabel, 
       multiplier: multiplier,
-      price: calculatedPrice, // Price for THIS specific size & form variant
+      price: calculatedPrice,
       qty: qty 
     });
   }
@@ -607,8 +605,8 @@ function openModal(id) {
   if (!p) return;
   currentModalProduct = p;
   
-  // Reset Form Dropdown to 'Powder' on modal open
-  document.getElementById('modalFormSelect').value = 'Powder';
+  // Reset Form Dropdown to 'POWDER FORM' on modal open
+  document.getElementById('modalFormSelect').value = 'POWDER FORM';
 
   // Populate Size Dropdown
   const select = document.getElementById('modalQtySelect');
@@ -644,7 +642,7 @@ function openModal(id) {
     const sizeLabel = selectedOption.text;
     const formType = document.getElementById('modalFormSelect').value;
     
-    // E.g. "125 gm (Powder)" or "1 kg (Whole Dried)"
+    // E.g. "125 gm (POWDER FORM)" or "1 kg (WHOLE DRIED)"
     const combinedLabel = `${sizeLabel} (${formType})`; 
     
     addToCart(p.id, 1, mult, combinedLabel); 
