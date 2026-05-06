@@ -203,7 +203,6 @@
             background: #1a2e1a;
             color: white;
             padding: 14px 12px;
-            text-align: left;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
@@ -221,7 +220,7 @@
             background: #fafafa;
         }
 
-        /* ============ UPDATED COLUMN WIDTHS ============ */
+        /* ============ COLUMN WIDTHS ============ */
         .col-checkbox { width: 3%; }
         .col-date { width: 8%; }
         .col-items { width: 45%; }
@@ -229,37 +228,50 @@
         .col-client { width: 27%; }
         .col-action { width: 5%; }
 
-        /* ============ CENTER ALIGNMENT FOR SPECIFIC COLUMNS ============ */
-        /* Center align Date column */
+        /* ============ COLUMN ALIGNMENT ============ */
+        /* Checkbox Column - Center */
+        .col-checkbox,
+        td:nth-child(1) {
+            text-align: center;
+        }
+
+        /* Date Column - Center */
         .col-date,
         td:nth-child(2) {
             text-align: center;
         }
 
-        /* Center align Status column */
+        /* Items Column - HEADER Center, DATA Left */
+        .col-items {
+            text-align: center;
+        }
+        td:nth-child(3) {
+            text-align: left;
+        }
+
+        /* Status Column - Center */
         .col-status,
         td:nth-child(4) {
             text-align: center;
         }
 
-        /* Center align Client column headers and cells */
-        .col-client,
-        td:nth-child(5) {
+        /* Client Column - HEADER Center, DATA Left */
+        .col-client {
             text-align: center;
         }
-
-        /* Keep Items and Action left-aligned */
-        .col-items,
-        td:nth-child(3),
-        .col-action,
-        td:nth-child(6) {
+        td:nth-child(5) {
             text-align: left;
         }
 
-        /* Checkbox column center */
-        .col-checkbox,
-        td:nth-child(1) {
+        /* Action Column - Center */
+        .col-action,
+        td:nth-child(6) {
             text-align: center;
+        }
+
+        /* Client inner lines - Left aligned */
+        .client-line {
+            text-align: left;
         }
 
         /* Checkbox */
@@ -427,11 +439,10 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
-        /* Client Cell - Center Aligned */
+        /* Client Cell - Left Aligned */
         .client-line {
             font-size: 13px;
             margin-bottom: 6px;
-            text-align: center;
         }
 
         .client-label {
@@ -762,7 +773,7 @@
             
             html += `
                 <tr id="row-${orderId}">
-                    <td style="text-align:center;">
+                    <td>
                         <input type="checkbox" class="checkbox order-checkbox" value="${orderId}" onchange="updateSelectedCount()">
                     </td>
                     <td>
