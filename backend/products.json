@@ -979,4 +979,20 @@
     "img": "images/triphala-powder.jpg",
     "desc": "Traditional blend of Amla, Bibhitaki, and Harad powders. Digestive cleanser."
   }
+  {
+    "id": 71,
+    "name": "shilajit",
+    "sci": "Mixed Formula",
+    "category": "Extracts",
+    "catLabel": "Resin",
+    "price": 1200,
+    "unit": "1 kg",
+    "moq": "",
+    "lead": "7 days",
+    "stock": 200,
+    "img": "images/shilajit.jpg",
+    "desc": "Shilajit is a sticky, tar-like natural substance oozing from Himalayan rocks, formed over centuries by decomposed plant matter. In health, it is valued as a powerful rejuvenator, known to boost energy, enhance cognitive function, and support overall vitality."
+  }
+  
 ]
+
