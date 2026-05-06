@@ -71,6 +71,9 @@
     .fancy-option:last-child { border-bottom: none; }
     .fancy-option:hover { background: #fefce8; color: #A3B14B; padding-left: 16px; }
     .rotate-180 { transform: rotate(180deg); }
+    
+    /* Required field indicator */
+    .required-star { color: #ef4444; margin-left: 2px; }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -172,11 +175,11 @@
     <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh] modal-enter">
       <div class="p-6 pb-2 flex-shrink-0"><button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 z-10"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1">Complete Payment</h3><p class="text-txt-sub text-sm">Scan QR and upload screenshot.</p></div>
       <div class="px-6 pb-6 overflow-y-auto">
-        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-4"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details</h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" required class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
+        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-4"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details <span class="text-red-500">(All fields required)</span></h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand required-field"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand required-field"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" required class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand required-field"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
         <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4"><div class="flex justify-between items-center mb-2"><span class="text-xs font-medium uppercase text-txt-third">Total</span><div class="text-right"><span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0.00</span><span id="paymentTotalSub" class="block text-[10px] text-txt-sub">$0.00</span></div></div><div class="text-xs text-txt-third" id="paymentItemsCount">0 items</div><div class="mt-3 pt-3 border-t border-gray-200"><label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label><div class="flex bg-gray-200 p-1 rounded-lg"><button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold">NPR</button><button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold">USD</button></div></div></div>
         <div class="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl"><button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium">eSewa</button><button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium">Khalti</button></div>
         <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner"><img id="qr-esewa" src="https://placehold.co/200x200/A3B14B/white?text=eSewa+QR" class="w-full h-full object-contain"><img id="qr-khalti" src="https://placehold.co/200x200/5C2D91/white?text=Khalti+QR" class="w-full h-full object-contain hidden"></div><p class="mt-3 text-sm font-medium">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
-        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width: 0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot.</p></div>
+        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0 required-field" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB) <span class="text-red-500">*</span></p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width: 0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot. This field is required.</p></div>
       </div>
       <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="ripple-btn w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2 relative overflow-hidden">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
     </div>
@@ -191,7 +194,7 @@
     const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
     let exchangeRate = 133;
     let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
-    let currentModalProduct = null; let selectedForm = "Whole Plant"; let selectedUnitValue = "1kg";
+    let currentModalProduct = null; let selectedForm = "Whole Form"; let selectedUnitValue = "1kg";
     let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
     let paymentScreenshotBase64 = null;
 
@@ -216,11 +219,9 @@
     function renderCatButtons(){ const cats=['all','api','oils','extracts','mushrooms','herbs','rasa','namak','powder']; document.getElementById('catButtons').innerHTML=cats.map(c=>`<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="grid-3x3" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c}</span></button>`).join(''); lucide.createIcons(); }
     function getFilteredProducts(){ let i=currentCategory==='all'?[...products]:products.filter(p=>p.category===currentCategory); if(currentSort==='price-asc') i.sort((a,b)=>a.price-b.price); else if(currentSort==='price-desc') i.sort((a,b)=>b.price-a.price); else i.sort((a,b)=>a.name.localeCompare(b.name)); return i; }
     
-    // Helper function to get display price and unit label for product card
     function getDisplayPriceInfo(product) {
       const isLiquid = product.category === 'oils' || (product.unit && product.unit.toLowerCase().includes('ml'));
       if (isLiquid) {
-        // Convert to price per 1000ml
         let basePricePerUnit = product.price;
         let baseUnit = product.unit || "100 ml";
         let mlValue = parseFloat(baseUnit);
@@ -247,14 +248,38 @@
     
     async function submitInquiry(e){ e.preventDefault(); const btn=e.target.querySelector('button[type="submit"]'), msgDiv=document.getElementById('formMsg'); btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try{ const res=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany')?.value||'',message:document.getElementById('contactMessage').value})}); if(res.ok){ msgDiv.textContent='✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch(err){ msgDiv.textContent='✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry','error'); } finally{ btn.disabled=false; btn.innerHTML='Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
     
-    // Payment functions
+    // Payment functions with compulsory validation
     function openPaymentModal(method){ selectedPaymentMethod=method; const total=cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('paymentTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('paymentTotalSub').innerHTML=`$${(total/exchangeRate).toFixed(2)}`; document.getElementById('paymentItemsCount').innerHTML=`${cart.reduce((s,i)=>s+i.qty,0)} items`; document.querySelectorAll('.pay-tab').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${method}`).classList.add('active'); document.getElementById('paymentMethodLabel').innerHTML=method==='esewa'?'eSewa':'Khalti'; document.getElementById('qr-esewa').classList.toggle('hidden',method!=='esewa'); document.getElementById('qr-khalti').classList.toggle('hidden',method!=='khalti'); document.getElementById('paymentModal').classList.remove('hidden'); document.getElementById('paymentModal').classList.add('flex'); document.body.classList.add('payment-modal-open'); }
     function closePaymentModal(){ document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('flex'); document.body.classList.remove('payment-modal-open'); }
     function switchPaymentTab(method){ selectedPaymentMethod=method; openPaymentModal(method); }
     function setPaymentCurrency(curr){ selectedPaymentCurrency=curr; const total=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUsd=total/exchangeRate; if(curr==='npr'){ document.getElementById('paymentTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('paymentTotalSub').innerHTML=`$${totalUsd.toFixed(2)}`; } else { document.getElementById('paymentTotal').innerHTML=`$${totalUsd.toFixed(2)}`; document.getElementById('paymentTotalSub').innerHTML=`NPR ${total.toLocaleString()}`; } document.querySelectorAll('.currency-btn').forEach(b=>b.classList.remove('active-curr')); document.getElementById(curr==='npr'?'btnNPR':'btnUSD').classList.add('active-curr'); }
     function handleFileUpload(e){ const f=e.target.files[0]; if(!f) return; if(f.size>5*1024*1024){ showToast('Max 5MB','error'); return; } document.getElementById('uploadPlaceholder').classList.add('hidden'); document.getElementById('uploadProgressContainer').classList.remove('hidden'); const reader=new FileReader(); reader.onload=function(ev){ paymentScreenshotBase64=ev.target.result; document.getElementById('progressBar').style.width='100%'; setTimeout(()=>{ document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); document.getElementById('imagePreview').src=paymentScreenshotBase64; lucide.createIcons(); },300); }; reader.readAsDataURL(f); }
     function clearScreenshot(e){ if(e) e.stopPropagation(); paymentScreenshotBase64=null; document.getElementById('paymentScreenshot').value=""; document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); document.getElementById('progressBar').style.width='0%'; }
-    async function submitOrderToBackend(){ const name=document.getElementById('clientName').value.trim(); const phone=document.getElementById('clientPhone').value.trim(); const email=document.getElementById('clientEmail').value.trim(); const address=document.getElementById('clientAddress').value.trim(); if(!name || !phone || !email){ showToast('Please fill all required client fields','error'); return; } if(!paymentScreenshotBase64){ showToast('Please upload payment screenshot','error'); return; } if(!cart.length){ showToast('Cart is empty','error'); return; } const btn=document.getElementById('confirmPayBtn'); const originalHtml=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; lucide.createIcons(); try{ const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUSD=totalNPR/exchangeRate; const paidAmount=selectedPaymentCurrency==='npr'?totalNPR:totalUSD; const currency=selectedPaymentCurrency==='npr'?'NPR':'USD'; const orderData={ items:cart.map(i=>({id:i.id, name:i.name, price:i.price, qty:i.qty})), totalNPR, totalUSD, paidAmount, currency, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64, clientDetails:{name, phone, email, address:address||'N/A'} }; const res=await fetch(`${BACKEND_URL}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(orderData)}); if(res.ok){ showToast('Order placed! We will verify payment and email you confirmation.'); cart=[]; updateCartUI(); paymentScreenshotBase64=null; clearScreenshot(); document.getElementById('clientName').value=''; document.getElementById('clientPhone').value=''; document.getElementById('clientEmail').value=''; document.getElementById('clientAddress').value=''; closePaymentModal(); } else { const err=await res.json(); showToast(err.message||'Order submission failed','error'); } } catch(err){ showToast('Network error. Please try again.','error'); } finally{ btn.disabled=false; btn.innerHTML=originalHtml; lucide.createIcons(); } }
+    
+    // Compulsory validation for payment submission
+    async function submitOrderToBackend(){ 
+      const name=document.getElementById('clientName').value.trim(); 
+      const phone=document.getElementById('clientPhone').value.trim(); 
+      const email=document.getElementById('clientEmail').value.trim(); 
+      const address=document.getElementById('clientAddress').value.trim(); 
+      
+      // COMPULSORY VALIDATION - All fields required
+      if(!name){ showToast('Please enter your full name','error'); document.getElementById('clientName').classList.add('input-error'); return; }
+      if(!phone){ showToast('Please enter your phone number','error'); document.getElementById('clientPhone').classList.add('input-error'); return; }
+      if(!email){ showToast('Please enter your email address','error'); document.getElementById('clientEmail').classList.add('input-error'); return; }
+      if(!email.includes('@') || !email.includes('.')){ showToast('Please enter a valid email address','error'); document.getElementById('clientEmail').classList.add('input-error'); return; }
+      if(!paymentScreenshotBase64){ showToast('Please upload a payment screenshot','error'); document.getElementById('dropZone').classList.add('upload-error'); document.getElementById('uploadError').classList.remove('hidden'); return; }
+      if(!cart.length){ showToast('Cart is empty','error'); return; }
+      
+      // Remove error styles if validation passes
+      document.getElementById('clientName')?.classList.remove('input-error');
+      document.getElementById('clientPhone')?.classList.remove('input-error');
+      document.getElementById('clientEmail')?.classList.remove('input-error');
+      document.getElementById('dropZone')?.classList.remove('upload-error');
+      document.getElementById('uploadError')?.classList.add('hidden');
+      
+      const btn=document.getElementById('confirmPayBtn'); const originalHtml=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; lucide.createIcons(); 
+      try{ const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUSD=totalNPR/exchangeRate; const paidAmount=selectedPaymentCurrency==='npr'?totalNPR:totalUSD; const currency=selectedPaymentCurrency==='npr'?'NPR':'USD'; const orderData={ items:cart.map(i=>({id:i.id, name:i.name, price:i.price, qty:i.qty})), totalNPR, totalUSD, paidAmount, currency, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64, clientDetails:{name, phone, email, address:address||'N/A'} }; const res=await fetch(`${BACKEND_URL}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(orderData)}); if(res.ok){ showToast('Order placed! We will verify payment and email you confirmation.'); cart=[]; updateCartUI(); paymentScreenshotBase64=null; clearScreenshot(); document.getElementById('clientName').value=''; document.getElementById('clientPhone').value=''; document.getElementById('clientEmail').value=''; document.getElementById('clientAddress').value=''; closePaymentModal(); } else { const err=await res.json(); showToast(err.message||'Order submission failed','error'); } } catch(err){ showToast('Network error. Please try again.','error'); } finally{ btn.disabled=false; btn.innerHTML=originalHtml; lucide.createIcons(); } }
     
     // ========== ENHANCED MODAL WITH DROPDOWNS ==========
     function openModal(id) {
@@ -263,11 +288,24 @@
       currentModalProduct = p;
       
       const isLiquidProduct = (p.category === 'oils') || (p.unit && p.unit.toLowerCase().includes('ml'));
-      selectedForm = isLiquidProduct ? 'Liquid Form' : 'Whole Plant';
+      
+      // For liquid products, default to Liquid Form; for others, default to Whole Form
+      if (isLiquidProduct) {
+        selectedForm = 'Liquid Form';
+      } else {
+        selectedForm = 'Whole Form';
+      }
       selectedUnitValue = isLiquidProduct ? '15ml' : '1kg';
       
       const unitOptions = isLiquidProduct ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
-      const formOptions = ['Whole Plant', 'Powder Form', 'Liquid Form'];
+      
+      // Form options - remove "Whole Form" for liquid/oil products
+      let formOptions = [];
+      if (isLiquidProduct) {
+        formOptions = ['Powder Form', 'Liquid Form'];
+      } else {
+        formOptions = ['Whole Form', 'Powder Form', 'Liquid Form'];
+      }
       
       const modalContainer = document.getElementById('productModal');
       const contentDiv = document.getElementById('modalDynamicContent');
@@ -309,7 +347,7 @@
             </div>
           </div>
           
-          <!-- Price Box - Powder fee calculated in NPR first -->
+          <!-- Price Box -->
           <div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3">
             <div class="flex justify-between items-center">
               <div>
@@ -422,9 +460,7 @@
       else if (unit === '500ml') unitFactor = 0.5;
       else if (unit === '1000ml') unitFactor = 1;
       
-      // Calculate price in NPR first
       let priceNPR = currentModalProduct.price * unitFactor;
-      // Add powder fee in NPR if applicable
       if (selectedForm === 'Powder Form') {
         priceNPR += 50 * unitFactor;
       }
@@ -460,7 +496,6 @@
       else if (unit === '500ml') unitFactor = 0.5;
       else if (unit === '1000ml') unitFactor = 1;
       
-      // Calculate price in NPR first
       let unitPriceNPR = currentModalProduct.price * unitFactor;
       if (selectedForm === 'Powder Form') {
         unitPriceNPR += 50 * unitFactor;
