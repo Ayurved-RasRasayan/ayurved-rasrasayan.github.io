@@ -50,19 +50,19 @@ tr:hover{background:#fafafa}
 .col-checkbox{width:3%}
 .col-date{width:10%}
 .col-items{width:32%}
-.col-state{width:10%}
+.col-form{width:10%}
 .col-status{width:10%}
 .col-client{width:30%}
 .col-action{width:5%}
 
-/* State Filter Form in Header */
-.state-filter-form {
+/* Form Filter in Header */
+.form-filter-form {
     display: flex;
     flex-direction: column;
     gap: 8px;
     align-items: center;
 }
-.state-filter-select {
+.form-filter-select {
     width: 100%;
     padding: 6px 8px;
     border-radius: 6px;
@@ -73,11 +73,11 @@ tr:hover{background:#fafafa}
     font-weight: 600;
     cursor: pointer;
 }
-.state-filter-select option {
+.form-filter-select option {
     background: #2d4a22;
     color: white;
 }
-.state-filter-select:hover {
+.form-filter-select:hover {
     background: rgba(255,255,255,0.3);
 }
 .filter-badge {
@@ -130,14 +130,14 @@ tr:hover{background:#fafafa}
 .s-Success{background:#dcfce7;color:#15803d}
 .s-Rejected{background:#fef2f2;color:#b91c1c}
 
-/* State Badge Styles */
-.state-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;justify-content:center}
-.state-pending{background:#fed7aa;color:#9a3412}
-.state-processing{background:#bfdbfe;color:#1e40af}
-.state-shipped{background:#a7f3d0;color:#065f46}
-.state-delivered{background:#86efac;color:#14532d}
-.state-cancelled{background:#fecaca;color:#991b1b}
-.state-select{padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:500;cursor:pointer;width:100%;font-size:12px;transition:all .2s}
+/* Form Badge Styles */
+.form-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;justify-content:center}
+.form-pending{background:#fed7aa;color:#9a3412}
+.form-processing{background:#bfdbfe;color:#1e40af}
+.form-shipped{background:#a7f3d0;color:#065f46}
+.form-delivered{background:#86efac;color:#14532d}
+.form-cancelled{background:#fecaca;color:#991b1b}
+.form-select{padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:500;cursor:pointer;width:100%;font-size:12px;transition:all .2s}
 
 /* Email Badge Styles */
 .badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;justify-content:center;width:100%}
@@ -163,8 +163,8 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
 #imgModal img{max-width:90%;max-height:90%;border-radius:8px}
 .ci{position:absolute;top:20px;right:20px;color:#fff;cursor:pointer;font-size:40px}
 
-/* Bulk State Update Bar */
-.bulk-state-bar {
+/* Bulk Update Bar */
+.bulk-form-bar {
     background: #f0fdf4;
     padding: 10px 15px;
     border-radius: 8px;
@@ -175,10 +175,10 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
     flex-wrap: wrap;
     border: 1px solid #86efac;
 }
-.bulk-state-bar.show {
+.bulk-form-bar.show {
     display: flex;
 }
-.bulk-state-select {
+.bulk-form-select {
     padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid #86efac;
@@ -244,7 +244,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   <div class="tb">
     <button class="b bs" onclick="toggleSelectAll()">☑️ Select All</button>
     <button class="b bd" id="bd" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
-    <button class="b bs" id="bulkStateBtn" onclick="showBulkStateBar()">🏷️ Bulk Update State</button>
+    <button class="b bs" id="bulkFormBtn" onclick="showBulkFormBar()">📝 Bulk Update Form</button>
     <span id="sc"></span>
     <div class="cur-toggle">
       <button class="cur-btn active" id="tbNPR" onclick="setCur('NPR')">🇳🇵 NPR</button>
@@ -252,18 +252,18 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
     </div>
   </div>
 
-  <!-- Bulk State Update Bar -->
-  <div class="bulk-state-bar" id="bulkStateBar">
-    <span>📦 Update selected orders to:</span>
-    <select id="bulkStateSelect" class="bulk-state-select">
+  <!-- Bulk Form Update Bar -->
+  <div class="bulk-form-bar" id="bulkFormBar">
+    <span>📝 Update selected orders to:</span>
+    <select id="bulkFormSelect" class="bulk-form-select">
       <option value="Pending">🟠 Pending</option>
       <option value="Processing">🔵 Processing</option>
       <option value="Shipped">🟢 Shipped</option>
       <option value="Delivered">✅ Delivered</option>
       <option value="Cancelled">🔴 Cancelled</option>
     </select>
-    <button class="bulk-apply-btn" onclick="bulkUpdateState()">Apply to Selected</button>
-    <button class="bulk-cancel-btn" onclick="hideBulkStateBar()">Cancel</button>
+    <button class="bulk-apply-btn" onclick="bulkUpdateForm()">Apply to Selected</button>
+    <button class="bulk-cancel-btn" onclick="hideBulkFormBar()">Cancel</button>
   </div>
   
   <div class="rc-bar">
@@ -284,11 +284,11 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
           <th class="col-checkbox"><input type="checkbox" id="ca" onchange="toggleSelectAll()"/></th>
           <th class="col-date">📅 Date / 🖼️ Proof</th>
           <th class="col-items">🛍️ Items</th>
-          <th class="col-state">
-            <div class="state-filter-form">
-              <span>📍 STATE</span>
-              <select id="stateFilter" class="state-filter-select" onchange="filterByState()">
-                <option value="all">📊 All States</option>
+          <th class="col-form">
+            <div class="form-filter-form">
+              <span>📝 FORM</span>
+              <select id="formFilter" class="form-filter-select" onchange="filterByForm()">
+                <option value="all">📊 All Forms</option>
                 <option value="Pending">🟠 Pending</option>
                 <option value="Processing">🔵 Processing</option>
                 <option value="Shipped">🟢 Shipped</option>
@@ -296,7 +296,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
                 <option value="Cancelled">🔴 Cancelled</option>
               </select>
               <span id="filterBadge" class="filter-badge"></span>
-              <button id="clearFilterBtn" class="clear-filter" onclick="clearStateFilter()" style="display:none;">✕ Clear</button>
+              <button id="clearFilterBtn" class="clear-filter" onclick="clearFormFilter()" style="display:none;">✕ Clear</button>
             </div>
           </th>
           <th class="col-status">⚙️ Status</th>
@@ -329,14 +329,49 @@ const API_BASE = window.location.origin;
 let exchangeRate = 133;
 let currentCurrency = 'NPR';
 let allOrders = [];
-let currentStateFilter = 'all';
+let currentFormFilter = 'all';
+
+// Get Auth Credentials
+function getAuthCredentials() {
+    let username = localStorage.getItem('admin_username');
+    let password = localStorage.getItem('admin_password');
+    
+    if (!username || !password) {
+        username = prompt('Enter admin username:');
+        password = prompt('Enter admin password:');
+        
+        if (username && password) {
+            localStorage.setItem('admin_username', username);
+            localStorage.setItem('admin_password', password);
+        } else {
+            return null;
+        }
+    }
+    
+    return { username, password, credentials: btoa(username + ':' + password) };
+}
 
 // ============ FETCH ORDERS FROM DATABASE ============
 async function fetchOrders() {
     try {
         showToast('Loading orders...');
         
-        const response = await fetch(API_BASE + '/api/view-orders-data');
+        const auth = getAuthCredentials();
+        if (!auth) {
+            throw new Error('Authentication required');
+        }
+        
+        const response = await fetch(API_BASE + '/api/view-orders-data', {
+            headers: {
+                'Authorization': 'Basic ' + auth.credentials
+            }
+        });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            throw new Error('Authentication failed. Please login again.');
+        }
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -357,30 +392,30 @@ async function fetchOrders() {
         showToast('❌ Failed to load orders: ' + error.message);
         document.getElementById('ordersTableBody').innerHTML = `
             <tr><td colspan="7" style="text-align:center;padding:40px;color:#dc2626;">
-                ❌ Failed to load orders. Make sure you're logged in.<br>
-                <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;">Retry</button>
+                ❌ Failed to load orders: ${error.message}<br>
+                <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry Login</button>
             </td></tr>
         `;
     }
 }
 
-// ============ FILTER BY STATE ============
-function filterByState() {
-    const filterSelect = document.getElementById('stateFilter');
-    currentStateFilter = filterSelect.value;
+// ============ FILTER BY FORM ============
+function filterByForm() {
+    const filterSelect = document.getElementById('formFilter');
+    currentFormFilter = filterSelect.value;
     
     const filterBadge = document.getElementById('filterBadge');
     const clearBtn = document.getElementById('clearFilterBtn');
     
-    if (currentStateFilter !== 'all') {
-        const stateNames = {
+    if (currentFormFilter !== 'all') {
+        const formNames = {
             'Pending': '🟠 Pending',
             'Processing': '🔵 Processing', 
             'Shipped': '🟢 Shipped',
             'Delivered': '✅ Delivered',
             'Cancelled': '🔴 Cancelled'
         };
-        filterBadge.textContent = `Filter: ${stateNames[currentStateFilter]}`;
+        filterBadge.textContent = `Filter: ${formNames[currentFormFilter]}`;
         clearBtn.style.display = 'inline-block';
     } else {
         filterBadge.textContent = '';
@@ -388,22 +423,22 @@ function filterByState() {
     }
     
     applyFilterAndRender();
-    showToast(`Filtered by: ${currentStateFilter === 'all' ? 'All States' : currentStateFilter}`);
+    showToast(`Filtered by: ${currentFormFilter === 'all' ? 'All Forms' : currentFormFilter}`);
 }
 
-function clearStateFilter() {
-    const filterSelect = document.getElementById('stateFilter');
+function clearFormFilter() {
+    const filterSelect = document.getElementById('formFilter');
     filterSelect.value = 'all';
-    currentStateFilter = 'all';
-    filterByState();
+    currentFormFilter = 'all';
+    filterByForm();
 }
 
 function applyFilterAndRender() {
     let filteredOrders = allOrders;
     
-    if (currentStateFilter !== 'all') {
+    if (currentFormFilter !== 'all') {
         filteredOrders = allOrders.filter(order => 
-            (order.order_state || 'Pending') === currentStateFilter
+            (order.order_state || 'Pending') === currentFormFilter
         );
     }
     
@@ -432,7 +467,7 @@ function updateFilteredTotal(filteredOrders) {
 }
 
 function updateTotalAmount() {
-    updateFilteredTotal(currentStateFilter === 'all' ? allOrders : allOrders.filter(o => (o.order_state || 'Pending') === currentStateFilter));
+    updateFilteredTotal(currentFormFilter === 'all' ? allOrders : allOrders.filter(o => (o.order_state || 'Pending') === currentFormFilter));
 }
 
 // ============ RENDER ORDERS TABLE ============
@@ -440,11 +475,7 @@ function renderOrdersTable(orders) {
     const tbody = document.getElementById('ordersTableBody');
     
     if (!orders || orders.length === 0) {
-        tbody.innerHTML = `
-            <tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280;">
-                🛒 No orders found matching the filter.
-            </td></tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#6b7280;">🛒 No orders found matching the filter.</td></tr>`;
         return;
     }
     
@@ -460,7 +491,7 @@ function renderOrdersTable(orders) {
         });
         
         const orderStatus = order.status || 'Pending';
-        const orderState = order.order_state || 'Pending';
+        const orderForm = order.order_state || 'Pending';
         const emailStatus = order.emailStatus || 'Queue';
         const totalNPR = Math.round(order.totalNPR || 0);
         
@@ -504,19 +535,19 @@ function renderOrdersTable(orders) {
             </div>
         `;
         
-        // State badge
-        const getStateClass = (state) => {
-            switch(state) {
-                case 'Processing': return 'state-processing';
-                case 'Shipped': return 'state-shipped';
-                case 'Delivered': return 'state-delivered';
-                case 'Cancelled': return 'state-cancelled';
-                default: return 'state-pending';
+        // Form badge
+        const getFormClass = (form) => {
+            switch(form) {
+                case 'Processing': return 'form-processing';
+                case 'Shipped': return 'form-shipped';
+                case 'Delivered': return 'form-delivered';
+                case 'Cancelled': return 'form-cancelled';
+                default: return 'form-pending';
             }
         };
         
-        const getStateIcon = (state) => {
-            switch(state) {
+        const getFormIcon = (form) => {
+            switch(form) {
                 case 'Processing': return '🔵';
                 case 'Shipped': return '🟢';
                 case 'Delivered': return '✅';
@@ -541,15 +572,15 @@ function renderOrdersTable(orders) {
                     ${totalHtml}
                 </td>
                 <td class="cs">
-                    <select onchange="updateState('${orderId}', this.value, this)" class="state-select" style="margin-bottom:8px">
-                        <option value="Pending" ${orderState === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
-                        <option value="Processing" ${orderState === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
-                        <option value="Shipped" ${orderState === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
-                        <option value="Delivered" ${orderState === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
-                        <option value="Cancelled" ${orderState === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
+                    <select onchange="updateForm('${orderId}', this.value, this)" class="form-select" style="margin-bottom:8px">
+                        <option value="Pending" ${orderForm === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
+                        <option value="Processing" ${orderForm === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
+                        <option value="Shipped" ${orderForm === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
+                        <option value="Delivered" ${orderForm === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+                        <option value="Cancelled" ${orderForm === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
                     </select>
-                    <span id="state-badge-${orderId}" class="state-badge ${getStateClass(orderState)}">
-                        ${getStateIcon(orderState)} ${orderState}
+                    <span id="form-badge-${orderId}" class="form-badge ${getFormClass(orderForm)}">
+                        ${getFormIcon(orderForm)} ${orderForm}
                     </span>
                 </td>
                 <td class="cs">
@@ -579,34 +610,39 @@ function renderOrdersTable(orders) {
     tbody.innerHTML = rows;
 }
 
-// ============ BULK STATE UPDATE ============
-function showBulkStateBar() {
+// ============ BULK FORM UPDATE ============
+function showBulkFormBar() {
     const selected = getSelectedOrders();
     if (selected.length === 0) {
         showToast('Please select at least one order first');
         return;
     }
-    document.getElementById('bulkStateBar').classList.add('show');
-    document.getElementById('sc').textContent = `${selected.length} selected for bulk update`;
+    document.getElementById('bulkFormBar').classList.add('show');
 }
 
-function hideBulkStateBar() {
-    document.getElementById('bulkStateBar').classList.remove('show');
+function hideBulkFormBar() {
+    document.getElementById('bulkFormBar').classList.remove('show');
     updateSelectionCount();
 }
 
-async function bulkUpdateState() {
+async function bulkUpdateForm() {
     const selected = getSelectedOrders();
     if (selected.length === 0) {
         showToast('No orders selected');
         return;
     }
     
-    const newState = document.getElementById('bulkStateSelect').value;
+    const newForm = document.getElementById('bulkFormSelect').value;
     
-    if (!confirm(`Update ${selected.length} order(s) to ${newState}?`)) return;
+    if (!confirm(`Update ${selected.length} order(s) to ${newForm}?`)) return;
     
-    showToast(`Updating ${selected.length} orders to ${newState}...`);
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        return;
+    }
+    
+    showToast(`Updating ${selected.length} orders to ${newForm}...`);
     
     let successCount = 0;
     let failCount = 0;
@@ -615,16 +651,18 @@ async function bulkUpdateState() {
         try {
             const response = await fetch(API_BASE + '/api/update-order-state', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: orderId, state: newState })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + auth.credentials
+                },
+                body: JSON.stringify({ id: orderId, state: newForm })
             });
             
             const data = await response.json();
             
             if (data.success) {
                 successCount++;
-                // Update UI
-                const badge = document.getElementById(`state-badge-${orderId}`);
+                const badge = document.getElementById(`form-badge-${orderId}`);
                 if (badge) {
                     const icons = {
                         'Pending': '🟠',
@@ -634,19 +672,17 @@ async function bulkUpdateState() {
                         'Cancelled': '🔴'
                     };
                     const classes = {
-                        'Pending': 'state-pending',
-                        'Processing': 'state-processing',
-                        'Shipped': 'state-shipped',
-                        'Delivered': 'state-delivered',
-                        'Cancelled': 'state-cancelled'
+                        'Pending': 'form-pending',
+                        'Processing': 'form-processing',
+                        'Shipped': 'form-shipped',
+                        'Delivered': 'form-delivered',
+                        'Cancelled': 'form-cancelled'
                     };
-                    badge.className = `state-badge ${classes[newState]}`;
-                    badge.innerHTML = `${icons[newState] || '🟠'} ${newState}`;
+                    badge.className = `form-badge ${classes[newForm]}`;
+                    badge.innerHTML = `${icons[newForm] || '🟠'} ${newForm}`;
                 }
-                
-                // Update dropdown
-                const select = document.querySelector(`#order-row-${orderId} .state-select`);
-                if (select) select.value = newState;
+                const select = document.querySelector(`#order-row-${orderId} .form-select`);
+                if (select) select.value = newForm;
             } else {
                 failCount++;
             }
@@ -655,11 +691,10 @@ async function bulkUpdateState() {
         }
     }
     
-    hideBulkStateBar();
-    showToast(`✅ Updated ${successCount} orders to ${newState}${failCount > 0 ? ` (${failCount} failed)` : ''}`);
+    hideBulkFormBar();
+    showToast(`✅ Updated ${successCount} orders to ${newForm}${failCount > 0 ? ` (${failCount} failed)` : ''}`);
     
-    // Refresh filter display
-    if (currentStateFilter !== 'all') {
+    if (currentFormFilter !== 'all') {
         applyFilterAndRender();
     }
 }
@@ -669,12 +704,28 @@ async function updateStatus(orderId, newStatus, selectEl) {
     selectEl.disabled = true;
     const originalClass = selectEl.className;
     
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        selectEl.disabled = false;
+        return;
+    }
+    
     try {
         const response = await fetch(API_BASE + '/api/update-status', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + auth.credentials
+            },
             body: JSON.stringify({ id: orderId, status: newStatus })
         });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            throw new Error('Session expired');
+        }
         
         const data = await response.json();
         
@@ -703,22 +754,38 @@ async function updateStatus(orderId, newStatus, selectEl) {
     }
 }
 
-// ============ UPDATE ORDER STATE ============
-async function updateState(orderId, newState, selectEl) {
+// ============ UPDATE FORM ============
+async function updateForm(orderId, newForm, selectEl) {
     selectEl.disabled = true;
     const originalClass = selectEl.className;
+    
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        selectEl.disabled = false;
+        return;
+    }
     
     try {
         const response = await fetch(API_BASE + '/api/update-order-state', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: orderId, state: newState })
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + auth.credentials
+            },
+            body: JSON.stringify({ id: orderId, state: newForm })
         });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            throw new Error('Session expired');
+        }
         
         const data = await response.json();
         
         if (data.success) {
-            const badge = document.getElementById(`state-badge-${orderId}`);
+            const badge = document.getElementById(`form-badge-${orderId}`);
             if (badge) {
                 const icons = {
                     'Pending': '🟠',
@@ -728,27 +795,26 @@ async function updateState(orderId, newState, selectEl) {
                     'Cancelled': '🔴'
                 };
                 const classes = {
-                    'Pending': 'state-pending',
-                    'Processing': 'state-processing',
-                    'Shipped': 'state-shipped',
-                    'Delivered': 'state-delivered',
-                    'Cancelled': 'state-cancelled'
+                    'Pending': 'form-pending',
+                    'Processing': 'form-processing',
+                    'Shipped': 'form-shipped',
+                    'Delivered': 'form-delivered',
+                    'Cancelled': 'form-cancelled'
                 };
-                badge.className = `state-badge ${classes[newState]}`;
-                badge.innerHTML = `${icons[newState] || '🟠'} ${newState}`;
+                badge.className = `form-badge ${classes[newForm]}`;
+                badge.innerHTML = `${icons[newForm] || '🟠'} ${newForm}`;
             }
-            showToast(`✅ State updated to ${newState}`);
-            selectEl.className = 'state-select';
+            showToast(`✅ Form updated to ${newForm}`);
+            selectEl.className = 'form-select';
             
-            // Refresh filter if needed
-            if (currentStateFilter !== 'all' && currentStateFilter !== newState) {
+            if (currentFormFilter !== 'all' && currentFormFilter !== newForm) {
                 applyFilterAndRender();
             }
         } else {
             throw new Error(data.error || 'Update failed');
         }
     } catch (error) {
-        showToast('❌ Failed to update state: ' + error.message);
+        showToast('❌ Failed to update form: ' + error.message);
         selectEl.className = originalClass;
     } finally {
         selectEl.disabled = false;
@@ -777,13 +843,28 @@ function toggleSelectAll() {
 async function deleteOrder(orderId, btn) {
     if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
     
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        return;
+    }
+    
     btn.disabled = true;
     btn.innerHTML = '⏳...';
     
     try {
         const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Basic ' + auth.credentials
+            }
         });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            throw new Error('Session expired');
+        }
         
         const data = await response.json();
         
@@ -794,7 +875,6 @@ async function deleteOrder(orderId, btn) {
             setTimeout(() => {
                 row.remove();
                 updateSelectionCount();
-                fetchOrders(); // Refresh to update counts
                 showToast('✅ Order deleted');
             }, 300);
         } else {
@@ -812,6 +892,12 @@ async function deleteSelected() {
     if (selected.length === 0) return;
     if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
     
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        return;
+    }
+    
     const btn = document.getElementById('bd');
     btn.disabled = true;
     btn.innerHTML = '⏳ Deleting...';
@@ -819,9 +905,18 @@ async function deleteSelected() {
     try {
         const response = await fetch(API_BASE + '/api/delete-orders', {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + auth.credentials
+            },
             body: JSON.stringify({ ids: selected })
         });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            throw new Error('Session expired');
+        }
         
         const data = await response.json();
         
@@ -832,7 +927,6 @@ async function deleteSelected() {
             });
             showToast(`✅ Deleted ${selected.length} order(s)`);
             updateSelectionCount();
-            fetchOrders(); // Refresh to update counts
         } else {
             throw new Error(data.error || 'Delete failed');
         }
@@ -865,12 +959,12 @@ function setCur(currency) {
 // ============ EXCHANGE RATE ============
 async function loadExchangeRate() {
     try {
-        const response = await fetch(API_BASE + '/api/exchange-rate');
+        const response = await fetch(API_BASE + '/api/public/rate');
         if (response.ok) {
             const data = await response.json();
             exchangeRate = data.rate || 133;
             document.getElementById('rateDisplay').textContent = exchangeRate.toFixed(2);
-            document.getElementById('rateTime').textContent = data.source === 'live' ? 'Live' : 'Default';
+            document.getElementById('rateTime').textContent = 'Default';
             document.getElementById('rateDot').className = 'rc-dot';
         }
     } catch (error) {
@@ -880,12 +974,22 @@ async function loadExchangeRate() {
 }
 
 async function fetchRate() {
+    const auth = getAuthCredentials();
+    if (!auth) {
+        showToast('Authentication required');
+        return;
+    }
+    
     const btn = document.getElementById('rateFetchBtn');
     btn.textContent = '⏳ Syncing...';
     btn.disabled = true;
     
     try {
-        const response = await fetch(API_BASE + '/api/exchange-rate/fetch');
+        const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
+            headers: {
+                'Authorization': 'Basic ' + auth.credentials
+            }
+        });
         const data = await response.json();
         if (data.success || data.rate) {
             exchangeRate = data.rate || 133;
@@ -939,16 +1043,16 @@ window.updateSelectionCount = updateSelectionCount;
 window.setCur = setCur;
 window.fetchRate = fetchRate;
 window.updateStatus = updateStatus;
-window.updateState = updateState;
+window.updateForm = updateForm;
 window.deleteOrder = deleteOrder;
 window.deleteSelected = deleteSelected;
 window.openImage = openImage;
 window.closeImage = closeImage;
-window.filterByState = filterByState;
-window.clearStateFilter = clearStateFilter;
-window.showBulkStateBar = showBulkStateBar;
-window.hideBulkStateBar = hideBulkStateBar;
-window.bulkUpdateState = bulkUpdateState;
+window.filterByForm = filterByForm;
+window.clearFormFilter = clearFormFilter;
+window.showBulkFormBar = showBulkFormBar;
+window.hideBulkFormBar = hideBulkFormBar;
+window.bulkUpdateForm = bulkUpdateForm;
 
 init();
 </script>
