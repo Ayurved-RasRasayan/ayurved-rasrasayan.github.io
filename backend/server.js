@@ -127,6 +127,7 @@ const productSchema = new mongoose.Schema({
   desc: String,
   stock: { type: Number, default: 100 }
 });
+
 const orderSchema = new mongoose.Schema({
   items: Array,
   totalUSD: Number,
@@ -137,9 +138,11 @@ const orderSchema = new mongoose.Schema({
   paymentScreenshot: String,
   clientDetails: { name: String, phone: String, email: String, address: String },
   status: { type: String, default: 'Pending' },
+  order_state: { type: String, default: 'Pending' }, // NEW: State column
   emailStatus: { type: String, default: 'Queue' },
   timestamp: { type: Date, default: Date.now }
 });
+
 const inquirySchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
@@ -148,6 +151,7 @@ const inquirySchema = new mongoose.Schema({
   message: String,
   timestamp: { type: Date, default: Date.now }
 });
+
 const settingSchema = new mongoose.Schema({
   key: { type: String, unique: true },
   value: mongoose.Schema.Types.Mixed
@@ -168,18 +172,11 @@ async function setSetting(key, value) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ─── PRODUCT SYNC ENGINE (NEW) ──────────────────────────────────────────
+// ─── PRODUCT SYNC ENGINE ──────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
 
-/**
- * Upsert products from an array into the DB.
- * - Adds new products
- * - Updates existing products (matched by `id`)
- * - Optionally removes products not in the source array
- * - Preserves `stock` for existing products unless `resetStock` is true
- */
 async function syncProductsToDB(productsArray, { removeOrphans = false, resetStock = false } = {}) {
   if (!Array.isArray(productsArray) || productsArray.length === 0) {
     console.warn('[SYNC] Empty or invalid products array, skipping.');
@@ -187,16 +184,12 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
   }
 
   let added = 0, updated = 0, removed = 0;
-
-  // Build a set of incoming IDs
   const incomingIds = new Set(productsArray.map(p => p.id));
 
-  // Upsert each product
   for (const p of productsArray) {
     const existing = await Product.findOne({ id: p.id });
 
     if (existing) {
-      // Preserve stock unless explicitly resetting
       const updateData = { ...p };
       if (!resetStock) {
         updateData.stock = existing.stock;
@@ -204,14 +197,12 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
       await Product.updateOne({ id: p.id }, { $set: updateData });
       updated++;
     } else {
-      // New product — use stock from JSON or default to 100
       const newProduct = { ...p, stock: p.stock ?? 100 };
       await new Product(newProduct).save();
       added++;
     }
   }
 
-  // Remove products in DB that are NOT in the source
   if (removeOrphans) {
     const dbProducts = await Product.find({}, { id: 1 });
     for (const dbp of dbProducts) {
@@ -226,14 +217,9 @@ async function syncProductsToDB(productsArray, { removeOrphans = false, resetSto
   return { added, updated, removed };
 }
 
-/**
- * Write current DB products back to products.json file.
- * Used when products are modified via API so the file stays in sync.
- */
 async function syncDBToFile() {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
-    // Remove Mongo-specific fields
     const clean = products.map(({ _id, __v, ...rest }) => rest);
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(clean, null, 2), 'utf8');
     console.log(`[SYNC] 📝 products.json updated (${clean.length} products)`);
@@ -244,9 +230,6 @@ async function syncDBToFile() {
   }
 }
 
-/**
- * Read products.json and sync to DB.
- */
 async function syncFileToDB({ removeOrphans = false, resetStock = false } = {}) {
   try {
     const raw = fs.readFileSync(PRODUCTS_FILE, 'utf8');
@@ -258,7 +241,7 @@ async function syncFileToDB({ removeOrphans = false, resetStock = false } = {}) 
   }
 }
 
-// ─── FILE WATCHER: Auto-detect changes to products.json ────────────────
+// ─── FILE WATCHER ────────────────────────────────────────────────
 let watcherReady = false;
 let syncDebounce = null;
 
@@ -267,7 +250,6 @@ function startFileWatcher() {
     const watcher = fs.watch(PRODUCTS_FILE, (eventType) => {
       if (eventType !== 'change') return;
 
-      // Debounce: avoid triggering multiple times for a single save
       if (syncDebounce) clearTimeout(syncDebounce);
       syncDebounce = setTimeout(async () => {
         console.log('[WATCHER] 📂 products.json changed — syncing to DB...');
@@ -277,7 +259,7 @@ function startFileWatcher() {
         } else {
           console.error('[WATCHER] ❌ Sync failed');
         }
-      }, 500); // 500ms debounce
+      }, 500);
     });
 
     watcher.on('error', (err) => {
@@ -363,11 +345,9 @@ app.get('/api/health', async (req, res) => {
 // ─── ROUTE: PRODUCTS (ENHANCED WITH CRUD + SYNC) ────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
-// GET all products (public — used by frontend storefront)
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
-    // Strip Mongo fields for cleaner response
     const clean = products.map(({ _id, __v, ...rest }) => rest);
     res.json(clean);
   } catch (e) {
@@ -375,7 +355,6 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-// GET single product by id
 app.get('/api/products/:id', async (req, res) => {
   try {
     const product = await Product.findOne({ id: Number(req.params.id) }).lean();
@@ -387,7 +366,6 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-// POST: Add a new product (admin only) → saves to DB + updates products.json
 app.post('/api/products', checkAuth, async (req, res) => {
   try {
     const { id, name, price, category } = req.body;
@@ -395,7 +373,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'id, name, and price are required' });
     }
 
-    // Check for duplicate id
     const existing = await Product.findOne({ id });
     if (existing) {
       return res.status(409).json({ success: false, error: `Product with id ${id} already exists` });
@@ -403,8 +380,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
 
     const newProduct = new Product({ ...req.body, stock: req.body.stock ?? 100 });
     await newProduct.save();
-
-    // Update products.json to keep file in sync
     await syncDBToFile();
 
     console.log(`[PRODUCT] ✅ Added: #${id} ${name}`);
@@ -415,7 +390,6 @@ app.post('/api/products', checkAuth, async (req, res) => {
   }
 });
 
-// PUT: Update a product (admin only) → updates DB + updates products.json
 app.put('/api/products/:id', checkAuth, async (req, res) => {
   try {
     const productId = Number(req.params.id);
@@ -424,15 +398,12 @@ app.put('/api/products/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    // Prevent overwriting stock unless explicitly sent
     const updateData = { ...req.body };
     if (req.body.stock === undefined) {
-      delete updateData.stock; // preserve existing stock
+      delete updateData.stock;
     }
 
     await Product.updateOne({ id: productId }, { $set: updateData });
-
-    // Update products.json
     await syncDBToFile();
 
     console.log(`[PRODUCT] ✏️ Updated: #${productId}`);
@@ -443,7 +414,6 @@ app.put('/api/products/:id', checkAuth, async (req, res) => {
   }
 });
 
-// DELETE: Remove a product (admin only) → removes from DB + updates products.json
 app.delete('/api/products/:id', checkAuth, async (req, res) => {
   try {
     const productId = Number(req.params.id);
@@ -453,7 +423,6 @@ app.delete('/api/products/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    // Update products.json
     await syncDBToFile();
 
     console.log(`[PRODUCT] 🗑️ Deleted: #${productId}`);
@@ -464,7 +433,6 @@ app.delete('/api/products/:id', checkAuth, async (req, res) => {
   }
 });
 
-// POST: Bulk import products (admin only) → upserts all + updates file
 app.post('/api/products/bulk', checkAuth, async (req, res) => {
   try {
     if (!Array.isArray(req.body.products)) {
@@ -480,8 +448,6 @@ app.post('/api/products/bulk', checkAuth, async (req, res) => {
   }
 });
 
-// ─── SEED ROUTES (keep legacy support) ──────────────────────────────────
-// Full re-seed (wipes and replaces all products — preserves stock from JSON)
 app.get('/api/seed', checkAuth, async (req, res) => {
   try {
     await Product.deleteMany({});
@@ -491,7 +457,6 @@ app.get('/api/seed', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send(e.message); }
 });
 
-// Smart sync: file → DB (add new, update changed, remove deleted)
 app.get('/api/sync-products', checkAuth, async (req, res) => {
   try {
     const result = await syncFileToDB({ removeOrphans: true });
@@ -558,6 +523,56 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
+// ⭐ NEW ROUTE: UPDATE ORDER STATE ⭐
+app.put('/api/update-order-state', checkAuth, async (req, res) => {
+  try {
+    const { id, state } = req.body;
+    
+    // Validate input
+    if (!id || !state) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing id or state' 
+      });
+    }
+    
+    // Validate state value
+    const validStates = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    if (!validStates.includes(state)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid state value. Must be one of: ' + validStates.join(', ')
+      });
+    }
+    
+    // Find and update the order
+    const order = await Order.findOne({ _id: id });
+    if (!order) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Order not found' 
+      });
+    }
+    
+    // Update the order state
+    await Order.updateOne({ _id: id }, { $set: { order_state: state } });
+    
+    console.log(`[STATE] ✅ Order ${id} state updated to: ${state}`);
+    res.json({ 
+      success: true, 
+      message: 'Order state updated successfully',
+      state: state 
+    });
+    
+  } catch (e) { 
+    console.error('[STATE] ❌ Error updating order state:', e.message);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error: ' + e.message 
+    });
+  }
+});
+
 // ─── ROUTE: INQUIRIES ───────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
@@ -577,6 +592,7 @@ app.post('/api/inquiries', async (req, res) => {
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
 });
+
 app.delete('/api/delete-orders', checkAuth, async (req, res) => {
   try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -584,7 +600,7 @@ app.delete('/api/delete-orders', checkAuth, async (req, res) => {
 app.put('/api/update-stock', checkAuth, async (req, res) => {
   try {
     await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
-    await syncDBToFile(); // Keep file in sync
+    await syncDBToFile();
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -604,11 +620,13 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
+// ⭐ UPDATED ROUTE: VIEW ORDERS WITH STATE COLUMN ⭐
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
+      const orderState = r.order_state || 'Pending';
       const nprAmount = Math.round(r.totalNPR) || 0;
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
@@ -632,6 +650,28 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
         ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
         : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
       const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+      
+      // State badge color mapping
+      const getStateBadgeClass = (state) => {
+        switch(state) {
+          case 'Processing': return 'state-processing';
+          case 'Shipped': return 'state-shipped';
+          case 'Delivered': return 'state-delivered';
+          case 'Cancelled': return 'state-cancelled';
+          default: return 'state-pending';
+        }
+      };
+      
+      const getStateIcon = (state) => {
+        switch(state) {
+          case 'Processing': return '🔵';
+          case 'Shipped': return '🟢';
+          case 'Delivered': return '✅';
+          case 'Cancelled': return '🔴';
+          default: return '🟠';
+        }
+      };
+      
       return `<tr id="r-${r._id}">
         <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
         <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
@@ -647,14 +687,26 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
           <option value="Success" ${s === 'Success' ? 'selected' : ''}>Payment Successful</option>
           <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>Rejected</option>
         </select></td>
+        <td class="cs">
+          <select onchange="updateState('${r._id}', this.value, this)" class="state-select" style="margin-bottom:8px">
+            <option value="Pending" ${orderState === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
+            <option value="Processing" ${orderState === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
+            <option value="Shipped" ${orderState === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
+            <option value="Delivered" ${orderState === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+            <option value="Cancelled" ${orderState === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
+          </select>
+          <span id="state-badge-${r._id}" class="state-badge ${getStateBadgeClass(orderState)}">
+            ${getStateIcon(orderState)} ${orderState}
+          </span>
+         </td>
         <td class="cc">
           <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
           <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
           <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email || '-'}</div>
           <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address || '-'}</div>
-        </td>
+         </td>
         <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
-      </tr>`;
+       </tr>`;
     }).join('');
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
@@ -666,14 +718,11 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function startup() {
-  // 1. Smart-sync products.json → DB on startup
   console.log('[STARTUP] 🔄 Syncing products.json → Database...');
   const syncResult = await syncFileToDB({ removeOrphans: true });
   if (syncResult) {
     console.log(`[STARTUP] ✅ Product sync: +${syncResult.added} ~${syncResult.updated} -${syncResult.removed}`);
   }
-
-  // 2. Start file watcher for live changes
   startFileWatcher();
 }
 
