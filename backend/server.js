@@ -387,7 +387,9 @@ app.get('/api/view-orders-data', checkAuth, async (req, res) => {
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
+    // Include stock field - remove only _id and __v
     const clean = products.map(({ _id, __v, ...rest }) => rest);
+    // 'rest' now includes stock field automatically
     res.json(clean);
   } catch (e) {
     res.status(500).json({ error: e.message });
