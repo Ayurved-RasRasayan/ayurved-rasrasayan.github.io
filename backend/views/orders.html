@@ -46,12 +46,12 @@ th{background:#2d4a22;color:#fff;font-weight:600;font-size:12px;text-transform:u
 tr{background:#fff;transition:.2s}
 tr:hover{background:#fafafa}
 
-/* Column Widths - Percentage Based (7 columns total) */
+/* Column Widths - Percentage Based (CORRECT ORDER: State before Status) */
 .col-checkbox{width:3%}
 .col-date{width:10%}
-.col-items{width:35%}
+.col-items{width:32%}
+.col-state{width:10%}
 .col-status{width:10%}
-.col-state{width:7%}
 .col-client{width:30%}
 .col-action{width:5%}
 
@@ -92,12 +92,11 @@ tr:hover{background:#fafafa}
 .state-shipped{background:#a7f3d0;color:#065f46}
 .state-delivered{background:#86efac;color:#14532d}
 .state-cancelled{background:#fecaca;color:#991b1b}
-
 .state-select{padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:500;cursor:pointer;width:100%;font-size:12px;transition:all .2s}
 .state-select:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
 
 /* Email Badge Styles */
-.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;justify-content:center}
+.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;justify-content:center;width:100%}
 @keyframes pi{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 .bq{background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#92400e;border:1px solid #fcd34d}
 .bq::before{content:"⏳ ";margin-right:4px}
@@ -156,14 +155,13 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   td{display:flex;width:100%;padding:0;border:none;margin-bottom:12px;flex-direction:column}
   td:last-child{margin-bottom:0}
   
-  /* Reorder cells for mobile (7 columns) */
+  /* Reorder cells for mobile (6 columns total after combining checkbox/date) */
   td:nth-child(1){order:1;position:absolute;top:16px;right:16px;width:auto;margin:0;background:#fff;padding:4px;border-radius:6px;z-index:1}
-  td:nth-child(2){order:2;flex-direction:row;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding-bottom:12px;margin-bottom:12px}
+  td:nth-child(2){order:2;margin-bottom:16px;background:#f9fafb;border-radius:8px;padding:12px}
   td:nth-child(3){order:3;margin-bottom:16px}
   td:nth-child(4){order:4;margin-bottom:16px}
-  td:nth-child(5){order:5;margin-bottom:16px}
-  td:nth-child(6){order:6;background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px}
-  td:nth-child(7){order:7}
+  td:nth-child(5){order:5;background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px}
+  td:nth-child(6){order:6}
   
   /* Mobile cell content adjustments */
   .cdp{flex-direction:row;gap:12px;padding:0;background:transparent}
@@ -202,8 +200,8 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   </div>
   
   <div class="tb">
-    <button class="b bs" onclick="tSA()">☑️ Select All</button>
-    <button class="b bd" id="bd" disabled onclick="dS()">🗑️ Delete Selected</button>
+    <button class="b bs" onclick="toggleSelectAll()">☑️ Select All</button>
+    <button class="b bd" id="bd" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
     <span id="sc"></span>
     <div class="cur-toggle">
       <button class="cur-btn active" id="tbNPR" onclick="setCur('NPR')">🇳🇵 NPR</button>
@@ -226,11 +224,11 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
     <table>
       <thead>
         <tr>
-          <th class="col-checkbox"><input type="checkbox" id="ca" onchange="tSA()"/></th>
+          <th class="col-checkbox"><input type="checkbox" id="ca" onchange="toggleSelectAll()"/></th>
           <th class="col-date">📅 Date / 🖼️ Proof</th>
           <th class="col-items">🛍️ Items</th>
-          <th class="col-status">⚙️ Status</th>
           <th class="col-state">📍 State</th>
+          <th class="col-status">⚙️ Status</th>
           <th class="col-client">👤 Client Details</th>
           <th class="col-action">🗑️ Action</th>
         </tr>
@@ -247,8 +245,8 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
 </div>
 
 <div id="toast">Notification</div>
-<div id="imgModal" onclick="cI(event)">
-  <span class="ci" onclick="cI(event)">&times;</span>
+<div id="imgModal" onclick="closeImage(event)">
+  <span class="ci" onclick="closeImage(event)">&times;</span>
   <img id="fI" src="" onclick="event.stopPropagation()">
 </div>
 
@@ -390,9 +388,6 @@ function updateSelectionCount() {
   document.getElementById('bd').disabled = selected.length === 0; 
   document.getElementById('sc').textContent = selected.length > 0 ? selected.length + ' selected' : ''; 
   document.getElementById('ca').checked = selected.length === total && total > 0; 
-  document.querySelectorAll('.rc').forEach(function(c) { 
-    document.getElementById('r-' + c.value)?.classList.toggle('selected', c.checked); 
-  }); 
 }
 
 function toggleSelectAll() { 
@@ -403,18 +398,18 @@ function toggleSelectAll() {
 
 // Order Status Update
 function updateEmailBadge(id, status) { 
-  var badge = document.getElementById('r-' + id)?.querySelector('.badge'); 
+  var badge = document.querySelector('#r-' + id + ' .badge'); 
   if (!badge) return; 
   badge.classList.remove('bq', 'bsn', 'bf'); 
   if (status === 'Sent') { 
     badge.classList.add('bsn'); 
-    badge.textContent = 'Email Sent'; 
+    badge.textContent = '✅ Email Sent'; 
   } else if (status === 'Failed') { 
     badge.classList.add('bf'); 
-    badge.textContent = 'Email Failed'; 
+    badge.textContent = '❌ Email Failed'; 
   } else { 
     badge.classList.add('bq'); 
-    badge.textContent = 'Email Queue'; 
+    badge.textContent = '⏳ Email Queue'; 
   } 
   badge.style.animation = 'none'; 
   badge.offsetHeight; 
@@ -458,7 +453,6 @@ async function updateState(id, newState, selectEl) {
     }); 
     var data = await response.json(); 
     if (data.success) {
-      // Live DOM update for the state badge
       var badge = document.getElementById('state-badge-' + id);
       if (badge) {
         const icons = {
@@ -468,7 +462,6 @@ async function updateState(id, newState, selectEl) {
           'Delivered': '✅',
           'Cancelled': '🔴'
         };
-        
         const stateClasses = {
           'Pending': 'state-pending',
           'Processing': 'state-processing',
@@ -476,7 +469,6 @@ async function updateState(id, newState, selectEl) {
           'Delivered': 'state-delivered',
           'Cancelled': 'state-cancelled'
         };
-        
         badge.className = 'state-badge ' + stateClasses[newState];
         badge.innerHTML = (icons[newState] || '🟠') + ' ' + newState;
       }
@@ -493,15 +485,12 @@ async function updateState(id, newState, selectEl) {
   } 
 }
 
-// Delete Functions - Enhanced with better UX
+// Delete Functions
 async function deleteOrder(id, btn) { 
   if (!confirm('⚠️ Are you sure you want to delete this order?\n\nThis action cannot be undone!')) return; 
-  
-  // Show loading state on the button
   var originalText = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '⏳ Deleting...';
-  
   try { 
     var response = await fetch(API + '/delete-order/' + id, { method: 'DELETE' }); 
     var data = await response.json(); 
@@ -530,12 +519,10 @@ async function deleteOrder(id, btn) {
 async function deleteSelected() { 
   var selected = getSelectedIds(); 
   if (selected.length === 0 || !confirm('⚠️ Delete ' + selected.length + ' order(s)?\n\nThis action cannot be undone!')) return; 
-  
   var btn = document.getElementById('bd'); 
   var originalText = btn.innerHTML;
   btn.disabled = true; 
   btn.innerHTML = '⏳ Deleting...'; 
-  
   try { 
     var response = await fetch(API + '/delete-orders', { 
       method: 'DELETE', 
@@ -572,16 +559,17 @@ async function deleteSelected() {
 // Initialize
 loadRateFromDB();
 
-// Global function references for inline event handlers
-window.tSA = toggleSelectAll;
-window.oCC = updateSelectionCount;
+// Global function references
+window.toggleSelectAll = toggleSelectAll;
+window.updateSelectionCount = updateSelectionCount;
 window.setCur = setCur;
 window.fetchRate = fetchRate;
-window.oI = openImage;
-window.cI = closeImage;
-window.uS = updateStatus;
+window.openImage = openImage;
+window.closeImage = closeImage;
+window.updateStatus = updateStatus;
 window.updateState = updateState;
-window.d1 = deleteOrder;
-window.dS = deleteSelected;
+window.deleteOrder = deleteOrder;
+window.deleteSelected = deleteSelected;
+window.getSelectedIds = getSelectedIds;
 </script>
 </body></html>
