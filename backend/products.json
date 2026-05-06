@@ -10,7 +10,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/10-dab-iii.jpg",
-    "desc": "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%."
+    "desc": "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel. Extracted from Taxus species (yew) needles and bark. Pharmaceutical grade with HPLC purity >98%.",
+    "stock": 100
   },
   {
     "id": 2,
@@ -23,7 +24,8 @@
     "moq": "",
     "lead": "21-30 days",
     "img": "images/paclitaxel.jpg",
-    "desc": "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available."
+    "desc": "Premium anti-cancer drug (Taxol) extracted from Taxus species. Used in treatment of ovarian, breast, lung, and pancreatic cancers. USP/EP grade available.",
+    "stock": 100
   },
   {
     "id": 3,
@@ -36,7 +38,8 @@
     "moq": "",
     "lead": "21-30 days",
     "img": "images/docetaxel.jpg",
-    "desc": "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers."
+    "desc": "Semi-synthetic taxane derivative used as chemotherapy agent. More water-soluble than paclitaxel. Indicated for breast, prostate, gastric, and head/neck cancers.",
+    "stock": 100
   },
   {
     "id": 4,
@@ -49,7 +52,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/agarwood-oil.jpg",
-    "desc": "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery."
+    "desc": "Ultra-premium Oud oil from wild Aquilaria trees. Hydro-distilled from infected heartwood. Rich, complex woody aroma prized in high-end perfumery.",
+    "stock": 100
   },
   {
     "id": 5,
@@ -62,7 +66,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/cardamom-oil.jpg",
-    "desc": "True green cardamom essential oil. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring and aromatherapy."
+    "desc": "True green cardamom essential oil. Steam-distilled from seeds. Warm, spicy-sweet aroma with eucalyptol notes. Used in food flavoring and aromatherapy.",
+    "stock": 100
   },
   {
     "id": 6,
@@ -75,7 +80,8 @@
     "moq": "",
     "lead": "10-15 days",
     "img": "images/jatamansi-oil.jpg",
-    "desc": "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine."
+    "desc": "Rare Himalayan spikenard essential oil. Steam-distilled from dried rhizomes. Deeply grounding aroma used in aromatherapy, perfumery, and Ayurvedic medicine.",
+    "stock": 100
   },
   {
     "id": 7,
@@ -88,7 +94,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/timur-oil.jpg",
-    "desc": "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care."
+    "desc": "Nepali timur (Szechuan pepper) essential oil. Unique numbing, citrusy aroma. Used in traditional medicine for digestive issues and dental care.",
+    "stock": 100
   },
   {
     "id": 8,
@@ -101,7 +108,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/true-cinnamon-oil.jpg",
-    "desc": "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil."
+    "desc": "Ceylon cinnamon bark essential oil. Steam-distilled from inner bark. Rich in cinnamaldehyde with warm, sweet-spicy aroma. Superior to cassia oil.",
+    "stock": 100
   },
   {
     "id": 9,
@@ -114,9 +122,9 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/white-sandalwood-oil.jpg",
-    "desc": "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices."
+    "desc": "Premium East Indian sandalwood essential oil. Creamy, smooth, long-lasting woody scent. Key ingredient in luxury perfumes, cosmetics, and spiritual practices.",
+    "stock": 100
   },
-  
   {
     "id": 10,
     "name": "Chirita Extract",
@@ -128,7 +136,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/chirita-extract.jpg",
-    "desc": "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids."
+    "desc": "Rare Himalayan Chirita plant extract. Traditionally used in folk medicine for respiratory and inflammatory conditions. Contains unique flavonoids.",
+    "stock": 100
   },
   {
     "id": 11,
@@ -141,7 +150,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/coffee-bean-extract.jpg",
-    "desc": "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations."
+    "desc": "Green coffee bean extract standardized to 50% chlorogenic acids. Used in weight management supplements and antioxidant formulations.",
+    "stock": 100
   },
   {
     "id": 12,
@@ -154,7 +164,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/coleus-extract.jpg",
-    "desc": "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator."
+    "desc": "Ghanti ful (Coleus) root extract standardized to 10% or 20% forskolin. Used for weight management, cardiovascular support, and as a cAMP activator.",
+    "stock": 100
   },
   {
     "id": 13,
@@ -167,7 +178,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/colchicine.jpg",
-    "desc": "Pharmaceutical-grade colchicine extracted from Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. HPLC assay >99%."
+    "desc": "Pharmaceutical-grade colchicine extracted from Gloriosa superba. Used in treatment of gout and Familial Mediterranean Fever. HPLC assay >99%.",
+    "stock": 100
   },
   {
     "id": 14,
@@ -180,7 +192,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/ginger-extract.jpg",
-    "desc": "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support."
+    "desc": "Standardized ginger extract with guaranteed gingerol and shogaol content. Used for nausea relief, digestive health, and anti-inflammatory support.",
+    "stock": 100
   },
   {
     "id": 15,
@@ -193,7 +206,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/green-tea-extract.jpg",
-    "desc": "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support."
+    "desc": "Premium green tea extract standardized to 50% EGCG. Powerful antioxidant for weight management, cardiovascular health, and cognitive support.",
+    "stock": 100
   },
   {
     "id": 16,
@@ -206,7 +220,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/kutki-root-extract.jpg",
-    "desc": "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations."
+    "desc": "Premium Himalayan Kutki extract. Standardized for kutkin content. Powerful hepatoprotective used in Ayurvedic liver formulations.",
+    "stock": 100
   },
   {
     "id": 17,
@@ -219,7 +234,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/reishi-mushroom-extract.jpg",
-    "desc": "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity."
+    "desc": "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity.",
+    "stock": 100
   },
   {
     "id": 18,
@@ -232,7 +248,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/rhodiola-extract.jpg",
-    "desc": "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance and stress resilience."
+    "desc": "Arctic/Himalayan golden root extract standardized to 3% rosavins and 1% salidroside. Premier adaptogen for mental performance and stress resilience.",
+    "stock": 100
   },
   {
     "id": 19,
@@ -245,7 +262,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/turmeric-extract.jpg",
-    "desc": "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements and pharmaceutical formulations."
+    "desc": "Standardized turmeric rhizome extract with 95% curcuminoids. Leading anti-inflammatory botanical used worldwide in supplements and pharmaceutical formulations.",
+    "stock": 100
   },
   {
     "id": 20,
@@ -258,7 +276,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/zedoary-root-extract.jpg",
-    "desc": "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory."
+    "desc": "Kachur (Zedoary) rhizome extract. Traditional Ayurvedic herb used for digestive disorders, wound healing, and as an anti-inflammatory.",
+    "stock": 100
   },
   {
     "id": 21,
@@ -271,7 +290,8 @@
     "moq": "",
     "lead": "7-14 days",
     "img": "images/caterpillar-fungus-grade-a.jpg",
-    "desc": "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from high Himalayas. Whole, intact specimens with optimal ratio."
+    "desc": "Premium Grade A Yarsagumba (Caterpillar Fungus). Wild-harvested from high Himalayas. Whole, intact specimens with optimal ratio.",
+    "stock": 100
   },
   {
     "id": 22,
@@ -284,7 +304,8 @@
     "moq": "",
     "lead": "7-14 days",
     "img": "images/caterpillar-fungus-grade-b.jpg",
-    "desc": "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A."
+    "desc": "Grade B Yarsagumba with minor cosmetic imperfections but full potency. Slightly broken or smaller specimens. Same bioactive profile as Grade A.",
+    "stock": 100
   },
   {
     "id": 23,
@@ -297,7 +318,8 @@
     "moq": "250 g",
     "lead": "7-14 days",
     "img": "images/caterpillar-fungus-grade-c.jpg",
-    "desc": "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display."
+    "desc": "Grade C Yarsagumba — broken fragments and smaller pieces. Ideal for extraction and powder production rather than whole display.",
+    "stock": 100
   },
   {
     "id": 24,
@@ -310,7 +332,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/morel-mushroom.jpg",
-    "desc": "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests. Dried whole for extended shelf life. Prized in gourmet cuisine."
+    "desc": "Wild Himalayan morel mushrooms (Guchi). Hand-picked from temperate forests. Dried whole for extended shelf life. Prized in gourmet cuisine.",
+    "stock": 100
   },
   {
     "id": 25,
@@ -323,7 +346,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/reishi-mushroom.jpg",
-    "desc": "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids."
+    "desc": "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids.",
+    "stock": 100
   },
   {
     "id": 26,
@@ -336,7 +360,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/chirata.jpg",
-    "desc": "Whole dried Chirita herb (Bhunimba). Extremely bitter Swertia species from Himalayas. Used for liver disorders, malaria, and fever."
+    "desc": "Whole dried Chirita herb (Bhunimba). Extremely bitter Swertia species from Himalayas. Used for liver disorders, malaria, and fever.",
+    "stock": 100
   },
   {
     "id": 27,
@@ -349,7 +374,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/himalayan-larkspur.jpg",
-    "desc": "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions."
+    "desc": "Dried roots of Nirmasi (Himalayan Larkspur). Important Unani and Ayurvedic herb used for joint pain, paralysis, and neurological conditions.",
+    "stock": 100
   },
   {
     "id": 28,
@@ -362,7 +388,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/himalayan-paris.jpg",
-    "desc": "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties."
+    "desc": "Critically important Himalayan medicinal plant (Satuwa). Rhizomes contain potent saponins with anticancer and antimicrobial properties.",
+    "stock": 100
   },
   {
     "id": 29,
@@ -375,7 +402,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/himalayan-wild-garlic.jpg",
-    "desc": "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at high altitude. Smaller but more potent than cultivated garlic."
+    "desc": "Wild-harvested Himalayan garlic bulbs (Ban Lasun). Found at high altitude. Smaller but more potent than cultivated garlic.",
+    "stock": 100
   },
   {
     "id": 30,
@@ -388,7 +416,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/large-cardamom.jpg",
-    "desc": "Dried pods of Nepali large cardamom (Alaichi). Grown in eastern Himalayan foothills. Smoky, camphoraceous flavor distinct from green cardamom."
+    "desc": "Dried pods of Nepali large cardamom (Alaichi). Grown in eastern Himalayan foothills. Smoky, camphoraceous flavor distinct from green cardamom.",
+    "stock": 100
   },
   {
     "id": 31,
@@ -401,7 +430,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/solomons-seal.jpg",
-    "desc": "Dried rhizomes of Khiraula from Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions."
+    "desc": "Dried rhizomes of Khiraula from Himalayas. Traditional tonic herb used for joint health, rejuvenation, and respiratory conditions.",
+    "stock": 100
   },
   {
     "id": 32,
@@ -414,7 +444,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/wild-asparagus.jpg",
-    "desc": "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV)."
+    "desc": "Wild-harvested Shatavari tuberous roots. Premier Ayurvedic female tonic and adaptogen. Rich in saponins (shatavarin I-IV).",
+    "stock": 100
   },
   {
     "id": 33,
@@ -427,7 +458,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/amlasar-gandhak.jpg",
-    "desc": "Sulphur processed in Indian Gooseberry (Amla) juice. Used primarily for skin diseases, itching, and respiratory ailments due to its heating and purifying properties."
+    "desc": "Sulphur processed in Indian Gooseberry (Amla) juice. Used primarily for skin diseases, itching, and respiratory ailments due to its heating and purifying properties.",
+    "stock": 100
   },
   {
     "id": 34,
@@ -440,7 +472,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/danda-gandhak.jpg",
-    "desc": "Crude Sulphur in stick/crystal form. Requires extensive purification (Shodhana) before internal use. Effective in fungal infections and arthritis."
+    "desc": "Crude Sulphur in stick/crystal form. Requires extensive purification (Shodhana) before internal use. Effective in fungal infections and arthritis.",
+    "stock": 100
   },
   {
     "id": 35,
@@ -453,7 +486,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/darchikna.jpg",
-    "desc": "Yellow Orpiment (Harital). Used in treating skin diseases, fevers, and asthma. Highly toxic and requires rigorous purification processes in Rasa Shastra."
+    "desc": "Yellow Orpiment (Harital). Used in treating skin diseases, fevers, and asthma. Highly toxic and requires rigorous purification processes in Rasa Shastra.",
+    "stock": 100
   },
   {
     "id": 36,
@@ -466,7 +500,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/hartal-hariyawal.jpg",
-    "desc": "A specific green variety of Realgar (Manahshila). Used in traditional formulations for respiratory conditions, fever, and blood disorders after detoxification."
+    "desc": "A specific green variety of Realgar (Manahshila). Used in traditional formulations for respiratory conditions, fever, and blood disorders after detoxification.",
+    "stock": 100
   },
   {
     "id": 37,
@@ -479,7 +514,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/hartal-patri.jpg",
-    "desc": "Leaf-like formation of Hartal. Used externally in skin pastes and internally (after Samskara) for chronic asthma and cough. Requires expert handling."
+    "desc": "Leaf-like formation of Hartal. Used externally in skin pastes and internally (after Samskara) for chronic asthma and cough. Requires expert handling.",
+    "stock": 100
   },
   {
     "id": 38,
@@ -492,7 +528,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/mansil.jpg",
-    "desc": "Mercuric Sulphide ore. The primary source of Parada (Mercury) in Rasa Shastra. Used in nervine tonics and for enhancing immune function."
+    "desc": "Mercuric Sulphide ore. The primary source of Parada (Mercury) in Rasa Shastra. Used in nervine tonics and for enhancing immune function.",
+    "stock": 100
   },
   {
     "id": 39,
@@ -505,7 +542,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/neela.jpg",
-    "desc": "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas."
+    "desc": "Blue mineral (Lapis Lazuli). Used for its cooling properties, treating eye diseases, and urinary disorders. Key ingredient in cooling Bhasmas.",
+    "stock": 100
   },
   {
     "id": 40,
@@ -518,7 +556,8 @@
     "moq": "",
     "lead": "21-28 days",
     "img": "images/para.jpg",
-    "desc": "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed."
+    "desc": "Elemental Mercury (Parada). The 'King of Rasas'. Base for most Rasaushadhis. Used for rejuvenation (Rasayana) and treating chronic diseases when properly processed.",
+    "stock": 100
   },
   {
     "id": 41,
@@ -531,7 +570,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/raskapoor.jpg",
-    "desc": "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics."
+    "desc": "Sublimed Sulphur (Gandhak). Fine powder obtained by sublimation. Superior purity compared to crude forms. Used in Ayurvedic antibiotics.",
+    "stock": 100
   },
   {
     "id": 42,
@@ -544,7 +584,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/sankhiya.jpg",
-    "desc": "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion."
+    "desc": "Often refers to processed Tin (Vanga) or a specific liquid distillate. Used in genito-urinary disorders, diabetes, and for improving digestion.",
+    "stock": 100
   },
   {
     "id": 43,
@@ -557,7 +598,8 @@
     "moq": "",
     "lead": "14-21 days",
     "img": "images/singraf.jpg",
-    "desc": "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders."
+    "desc": "Red Sulphide of Mercury. Distinct from Mansil by its crystalline structure and processing method. Used in treating nervous system disorders.",
+    "stock": 100
   },
   {
     "id": 44,
@@ -570,7 +612,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/camphor.jpg",
-    "desc": "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery."
+    "desc": "Pure Camphor crystals. Used in religious ceremonies, medicine (for pain relief and congestion), and as a flavoring agent in traditional confectionery.",
+    "stock": 100
   },
   {
     "id": 45,
@@ -583,7 +626,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/jawakhar.jpg",
-    "desc": "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying."
+    "desc": "Jawa Khar. A specific variety of Alum used in traditional dyeing and medicinal pickling processes. Astringent and purifying.",
+    "stock": 100
   },
   {
     "id": 46,
@@ -596,7 +640,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/kala-namak.jpg",
-    "desc": "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda."
+    "desc": "Sulphur-rich salt with a distinctive pungent smell. Essential in Indian savory dishes (chaats, raitas) and used for its digestive properties in Ayurveda.",
+    "stock": 100
   },
   {
     "id": 47,
@@ -609,7 +654,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/kala-sajji-khar.jpg",
-    "desc": "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties."
+    "desc": "Kala Sajji Khar (Black Alum). Darker variant of alum used in tanning and traditional medicine for its astringent properties.",
+    "stock": 100
   },
   {
     "id": 48,
@@ -622,7 +668,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/kalmi-shora.jpg",
-    "desc": "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties."
+    "desc": "Sajikshara (Washing Soda). Naturally occurring sodium carbonate. Used in Ayurvedic formulations for urinary disorders, indigestion, and cleaning properties.",
+    "stock": 100
   },
   {
     "id": 49,
@@ -635,7 +682,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/mithi-soda.jpg",
-    "desc": "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies."
+    "desc": "Shudh Sora (Baking Soda). Purified sodium bicarbonate. Used as an antacid, in digestive formulations, and for alkalizing body in traditional therapies.",
+    "stock": 100
   },
   {
     "id": 50,
@@ -648,7 +696,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/nausadar-fali.jpg",
-    "desc": "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones."
+    "desc": "Crystalline lumps of Nausadar (Sal Ammoniac). Used in cough syrups, expectorants, and in traditional remedies for kidney and gallbladder stones.",
+    "stock": 100
   },
   {
     "id": 51,
@@ -661,7 +710,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/phatkri.jpg",
-    "desc": "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin."
+    "desc": "Phitkari (Alum). White potash alum. Widely used as an astringent, in water purification, aftershave lotions, and for tightening skin.",
+    "stock": 100
   },
   {
     "id": 52,
@@ -674,7 +724,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/red-phatkri.jpg",
-    "desc": "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects."
+    "desc": "Red variety of Phitkari. Similar uses to white alum but often preferred in specific Ayurvedic eye treatments and for its cooling effects.",
+    "stock": 100
   },
   {
     "id": 53,
@@ -687,7 +738,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/safed-sajji-khar.jpg",
-    "desc": "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments."
+    "desc": "Safed Sajji Khar (White Alum). Crystalline white alum. Used for water purification, food preservation, and in Ayurvedic eye treatments.",
+    "stock": 100
   },
   {
     "id": 54,
@@ -700,7 +752,8 @@
     "moq": "",
     "lead": "5-7 days",
     "img": "images/samudri-namak.jpg",
-    "desc": "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy."
+    "desc": "Natural Sea Salt. Unrefined salt obtained from seawater. Contains trace minerals. Used for bathing, culinary purposes, and in salt therapy.",
+    "stock": 100
   },
   {
     "id": 55,
@@ -713,7 +766,8 @@
     "moq": "50 kg",
     "lead": "7-10 days",
     "img": "images/sedha-namak.jpg",
-    "desc": "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance."
+    "desc": "Sendha Namak. Crystalline rock salt mined from salt deposits. Fasting salt used in religious diets. Believed to aid digestion and electrolyte balance.",
+    "stock": 100
   },
   {
     "id": 56,
@@ -726,7 +780,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/surkh-sajjikhar.jpg",
-    "desc": "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties."
+    "desc": "Surkh Sajjikhar (Red Alum). Potent alum variety used in tanning, dyeing, and specific Ayurvedic formulations requiring heating properties.",
+    "stock": 100
   },
   {
     "id": 57,
@@ -739,7 +794,8 @@
     "moq": "",
     "lead": "10-14 days",
     "img": "images/thikri-nausadar.jpg",
-    "desc": "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations."
+    "desc": "Solid block/lump form of Nausadar. Highly concentrated Ammonium Chloride. Used in metallurgy, dry batteries, and in specific Ayurvedic preparations.",
+    "stock": 100
   },
   {
     "id": 58,
@@ -752,7 +808,8 @@
     "moq": "",
     "lead": "7-10 days",
     "img": "images/amrit-dhara.jpg",
-    "desc": "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households."
+    "desc": "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households.",
+    "stock": 100
   },
   {
     "id": 59,
