@@ -40,19 +40,20 @@ h1{color:#2d4a22;margin:0;display:flex;align-items:center;gap:10px}
 .tw{background:#fff;border-radius:8px;overflow-x:auto;box-shadow:0 4px 6px rgba(0,0,0,.05)}
 
 /* Table Styles - Percentage Based */
-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:600px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:700px}
 th,td{padding:0;border:1px solid #e5e7eb;vertical-align:top;text-align:left}
 th{background:#2d4a22;color:#fff;font-weight:600;font-size:12px;text-transform:uppercase;padding:12px 10px;text-align:center}
 tr{background:#fff;transition:.2s}
 tr:hover{background:#fafafa}
 
-/* Column Widths - Percentage Based */
-.col-checkbox{width:5%}
-.col-date{width:15%}
+/* Column Widths - Percentage Based (7 columns total) */
+.col-checkbox{width:3%}
+.col-date{width:10%}
 .col-items{width:35%}
-.col-status{width:15%}
-.col-client{width:20%}
-.col-action{width:10%}
+.col-status{width:10%}
+.col-state{width:7%}
+.col-client{width:30%}
+.col-action{width:5%}
 
 /* Cell Styles */
 .cdp{width:100%;padding:15px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;background:#f9fafb;gap:8px}
@@ -83,8 +84,20 @@ tr:hover{background:#fafafa}
 .s-Completed{background:#f0fdf4;color:#15803d}
 .s-Success{background:#dcfce7;color:#15803d}
 .s-Rejected{background:#fef2f2;color:#b91c1c}
-.cc{width:100%;padding:15px}
-.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards}
+
+/* State Badge Styles */
+.state-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.state-pending{background:#fed7aa;color:#9a3412}
+.state-processing{background:#bfdbfe;color:#1e40af}
+.state-shipped{background:#a7f3d0;color:#065f46}
+.state-delivered{background:#86efac;color:#14532d}
+.state-cancelled{background:#fecaca;color:#991b1b}
+
+.state-select{padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-weight:500;cursor:pointer;width:100%;font-size:12px;transition:all .2s}
+.state-select:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+
+/* Email Badge Styles */
+.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;animation:pi .5s cubic-bezier(.175,.885,.32,1.275) forwards;margin-top:8px;width:100%;justify-content:center}
 @keyframes pi{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 .bq{background:linear-gradient(135deg,#fffbeb,#fef3c7);color:#92400e;border:1px solid #fcd34d}
 .bq::before{content:"⏳ ";margin-right:4px}
@@ -92,6 +105,8 @@ tr:hover{background:#fafafa}
 .bsn::before{content:"✅ ";margin-right:4px}
 .bf{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;border:1px solid #fca5a5}
 .bf::before{content:"❌ ";margin-right:4px}
+
+.cc{width:100%;padding:15px}
 .cd{font-size:.9rem;color:#374151;margin-bottom:6px;display:flex;flex-wrap:wrap}
 .cd strong{color:#111827;min-width:70px;display:inline-block}
 .ca{width:100%;padding:15px;display:flex;align-items:center;justify-content:center}
@@ -107,9 +122,14 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
 .ci:hover{transform:scale(1.1)}
 
 /* Responsive Adjustments */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .col-items{width:30%}
-  .col-client{width:25%}
+  .col-client{width:32%}
+}
+
+@media (max-width: 1024px) {
+  .col-items{width:28%}
+  .col-client{width:30%}
   .in{font-size:.85rem}
   .it{width:35px;height:35px}
   .cd{font-size:.85rem}
@@ -130,17 +150,18 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   .tw{overflow-x:visible}
   thead{display:none}
   table,table tbody{display:block;width:100%}
-  tr{display:flex;flex-direction:column;margin-bottom:16px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e5e7eb}
+  tr{display:flex;flex-direction:column;margin-bottom:16px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e5e7eb;position:relative}
   td{display:flex;width:100%;padding:0;border:none;margin-bottom:12px;flex-direction:column}
   td:last-child{margin-bottom:0}
   
-  /* Reorder cells for mobile */
+  /* Reorder cells for mobile (7 columns) */
   td:nth-child(1){order:1;position:absolute;top:16px;right:16px;width:auto;margin:0;background:#fff;padding:4px;border-radius:6px;z-index:1}
   td:nth-child(2){order:2;flex-direction:row;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;padding-bottom:12px;margin-bottom:12px}
   td:nth-child(3){order:3;margin-bottom:16px}
   td:nth-child(4){order:4;margin-bottom:16px}
-  td:nth-child(5){order:5;background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px}
-  td:nth-child(6){order:6}
+  td:nth-child(5){order:5;margin-bottom:16px}
+  td:nth-child(6){order:6;background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px}
+  td:nth-child(7){order:7}
   
   /* Mobile cell content adjustments */
   .cdp{flex-direction:row;gap:12px;padding:0;background:transparent}
@@ -152,11 +173,13 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   .iq{white-space:normal}
   .cs{padding:0}
   .ss{width:100%}
+  .state-select{width:100%}
   .cc{padding:0}
   .ca{padding:0}
   .dr{padding:10px}
   .cd strong{min-width:80px}
   .ph{flex-wrap:wrap;gap:8px}
+  .badge{width:auto;display:inline-flex}
 }
 
 @media (max-width: 480px) {
@@ -204,6 +227,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
           <th class="col-date">📅 Date / 🖼️ Proof</th>
           <th class="col-items">🛍️ Items</th>
           <th class="col-status">⚙️ Status</th>
+          <th class="col-state">📍 State</th>
           <th class="col-client">👤 Client Details</th>
           <th class="col-action">🗑️ Action</th>
         </tr>
@@ -418,6 +442,38 @@ async function updateStatus(id, newStatus, selectEl) {
   } 
 }
 
+// State Update Function
+async function updateState(id, newState, selectEl) { 
+  selectEl.disabled = true; 
+  var originalClass = selectEl.className; 
+  selectEl.className = 'state-select'; 
+  try { 
+    var response = await fetch(API + '/update-order-state', { 
+      method: 'PUT', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ id: id, state: newState }) 
+    }); 
+    var data = await response.json(); 
+    if (data.success) {
+      // Update the badge display
+      var stateBadge = document.getElementById('state-badge-' + id);
+      if (stateBadge) {
+        stateBadge.className = 'state-badge state-' + newState.toLowerCase();
+        stateBadge.textContent = newState;
+      }
+      selectEl.className = 'state-select';
+      showToast('✅ Order state updated to: ' + newState);
+    } else {
+      throw new Error(data.error || 'Update failed');
+    }
+  } catch (e) { 
+    showToast('❌ Network error - could not update state'); 
+    selectEl.className = originalClass; 
+  } finally { 
+    selectEl.disabled = false; 
+  } 
+}
+
 // Delete Functions
 async function deleteOrder(id, btn) { 
   if (!confirm('⚠️ Are you sure you want to delete this order? This action cannot be undone!')) return; 
@@ -498,6 +554,7 @@ window.fetchRate = fetchRate;
 window.oI = openImage;
 window.cI = closeImage;
 window.uS = updateStatus;
+window.updateState = updateState;
 window.d1 = deleteOrder;
 window.dS = deleteSelected;
 </script>
