@@ -345,40 +345,148 @@ app.get('/api/health', async (req, res) => {
 // ─── ROUTE: ORDERS DATA API (JSON) ──────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ============ NEW: JSON API for orders data ============
-app.get('/api/view-orders-data', checkAuth, async (req, res) => {
-    try {
-        const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
-        
-        // Return clean JSON data
-        const cleanOrders = orders.map(order => ({
-            _id: order._id,
-            items: order.items || [],
-            totalUSD: order.totalUSD,
-            totalNPR: order.totalNPR,
-            paidAmount: order.paidAmount,
-            currency: order.currency,
-            paymentMethod: order.paymentMethod,
-            paymentScreenshot: order.paymentScreenshot,
-            clientDetails: order.clientDetails,
-            status: order.status || 'Pending',
-            order_state: order.order_state || 'Pending',
-            emailStatus: order.emailStatus || 'Queue',
-            timestamp: order.timestamp
-        }));
-        
-        res.json({ 
-            success: true, 
-            orders: cleanOrders,
-            count: cleanOrders.length
-        });
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message 
-        });
-    }
+// ⭐ FIXED: MAIN ORDERS VIEW ROUTE - 7 COLUMN ORDER ⭐
+app.get('/api/view-orders', checkAuth, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
+    
+    let rows = orders.map(r => {
+      const s = r.status || 'Pending';
+      const orderState = r.order_state || 'Pending';
+      const nprAmount = Math.round(r.totalNPR) || 0;
+      
+      // Email badge
+      let eb = '<span class="badge bq">Queue</span>';
+      if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
+      else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
+      
+      const d = new Date(r.timestamp).toLocaleDateString('en-GB', { 
+        day: '2-digit', month: '2-digit', year: 'numeric' 
+      });
+      
+      // Generate items HTML
+      let ih = '';
+      try {
+        const it = Array.isArray(r.items) ? r.items : [];
+        if (it.length > 0) {
+          ih = it.map(i => {
+            const img = i.img ? `<img src="${i.img}" class="it" onerror="this.style.display='none'">` : '';
+            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
+            const qty = i.qty || 1;
+            const price = i.price || 0;
+            const lineTotal = qty * price;
+            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} ${pid}</span></div><div class="iq">x${qty} @ NPR ${price.toLocaleString('en-NP')}</div><div style="font-weight:700;color:#1a5c1c;">= NPR ${lineTotal.toLocaleString('en-NP')}</div></div>`;
+          }).join('');
+        } else {
+          ih = '<div style="color:#999;text-align:center;">No items</div>';
+        }
+      } catch(e) {
+        ih = '<div style="color:#999;">Error loading items</div>';
+      }
+      
+      // Payment screenshot
+      const imgHtml = r.paymentScreenshot
+        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="openImage(this.src)" alt="Payment Proof">`
+        : `<div style="width:40px;height:40px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#9ca3af;">No Img</div>`;
+      
+      // Total HTML
+      const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+      
+      // State badge helper
+      const getStateBadgeClass = (state) => {
+        const classes = {
+          'Processing': 'state-processing',
+          'Shipped': 'state-shipped',
+          'Delivered': 'state-delivered',
+          'Cancelled': 'state-cancelled'
+        };
+        return classes[state] || 'state-pending';
+      };
+      
+      const getStateIcon = (state) => {
+        const icons = {
+          'Processing': '🔵',
+          'Shipped': '🟢',
+          'Delivered': '✅',
+          'Cancelled': '🔴'
+        };
+        return icons[state] || '🟠';
+      };
+      
+      // State dropdown and badge
+      const stateSelect = `<select onchange="updateState('${r._id}', this.value, this)" class="state-select" style="margin-bottom:8px;width:100%;">
+        <option value="Pending" ${orderState === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
+        <option value="Processing" ${orderState === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
+        <option value="Shipped" ${orderState === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
+        <option value="Delivered" ${orderState === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+        <option value="Cancelled" ${orderState === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
+      </select>`;
+      
+      const stateBadge = `<span id="state-badge-${r._id}" class="state-badge ${getStateBadgeClass(orderState)}" style="margin-top:5px;display:inline-block;">
+        ${getStateIcon(orderState)} ${orderState}
+      </span>`;
+      
+      // Status dropdown
+      const statusSelect = `<select onchange="updateStatus('${r._id}', this.value, this)" class="ss s-${s}" style="width:100%;">
+        <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+        <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+        <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+        <option value="Success" ${s === 'Success' ? 'selected' : ''}>💰 Payment Successful</option>
+        <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+      </select>`;
+      
+      // Client details
+      const clientDetails = `
+        <div class="cd"><strong>👤 Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
+        <div class="cd"><strong>📞 Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
+        <div class="cd"><strong>✉️ Email:</strong> ${r.clientDetails?.email || '-'}</div>
+        <div class="cd"><strong>📍 Address:</strong> ${r.clientDetails?.address || '-'}</div>
+        <div class="cd"><strong>💳 Payment:</strong> ${r.paymentMethod || 'N/A'}</div>
+      `;
+      
+      // Delete button
+      const deleteButton = `<button class="dr" onclick="deleteOrder('${r._id}', this)" title="Delete Order">🗑️ Del</button>`;
+      
+      // ⭐ CORRECT 7-COLUMN TD ORDER (Matches HTML headers) ⭐
+      // Order: 1.Checkbox/Date, 2.Items, 3.State, 4.Status, 5.Client, 6.Action
+      // Note: HTML has 7 columns but Checkbox and Date are combined in one TD
+      return `<tr id="r-${r._id}">
+        <td class="cdp" align="center">
+          <input type="checkbox" class="rc" value="${r._id}" onchange="updateSelectionCount()" style="margin-bottom:10px;">
+          <div class="dt">${d}</div>
+          ${imgHtml}
+        </td>
+        <td class="cp">
+          <div class="ph">
+            <span class="ph-label">🆔 Order ID</span>
+            <span class="pid">#${r._id.toString().substring(0, 8)}</span>
+          </div>
+          <div class="pil">${ih}</div>
+          ${totalHtml}
+        </td>
+        <td class="cs">
+          ${stateSelect}
+          ${stateBadge}
+        </td>
+        <td class="cs">
+          ${eb}
+          ${statusSelect}
+        </td>
+        <td class="cc">
+          ${clientDetails}
+        </td>
+        <td class="ca">
+          ${deleteButton}
+        </td>
+      </tr>`;
+    }).join('');
+    
+    let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
+    res.send(html.replace('{{ORDERS_ROWS}}', rows));
+  } catch (e) { 
+    console.error('View orders error:', e);
+    res.status(500).send('Error loading orders'); 
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
