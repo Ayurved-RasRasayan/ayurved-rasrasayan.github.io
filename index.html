@@ -57,7 +57,6 @@
     .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
     .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
     
-    /* Fancy Dropdown Styles */
     .fancy-select { position: relative; }
     .fancy-select-dropdown {
       position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border-radius: 12px;
@@ -216,7 +215,25 @@
     }
     function renderCatButtons(){ const cats=['all','api','oils','extracts','mushrooms','herbs','rasa','namak','powder']; document.getElementById('catButtons').innerHTML=cats.map(c=>`<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="grid-3x3" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c}</span></button>`).join(''); lucide.createIcons(); }
     function getFilteredProducts(){ let i=currentCategory==='all'?[...products]:products.filter(p=>p.category===currentCategory); if(currentSort==='price-asc') i.sort((a,b)=>a.price-b.price); else if(currentSort==='price-desc') i.sort((a,b)=>b.price-a.price); else i.sort((a,b)=>a.name.localeCompare(b.name)); return i; }
-    function renderProducts(items){ const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } noR.classList.add('hidden'); cnt.textContent=`${items.length}`; grid.innerHTML=items.map((p,i)=>`<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})"><img src="${p.img}" class="w-full h-full object-cover"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span></div></div><div class="p-5"><h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3><p class="text-[10px] text-txt-third font-mono mb-2">#${p.id}</p><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ${p.price}</span><span class="text-xs text-txt-sub block">$${(p.price/exchangeRate).toFixed(2)}</span></div><button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main text-white text-xs rounded-xl">Add</button></div></div></div>`).join(''); lucide.createIcons(); }
+    
+    // Helper function to get display price and unit label for product card
+    function getDisplayPriceInfo(product) {
+      const isLiquid = product.category === 'oils' || (product.unit && product.unit.toLowerCase().includes('ml'));
+      if (isLiquid) {
+        // Convert to price per 1000ml
+        let basePricePerUnit = product.price;
+        let baseUnit = product.unit || "100 ml";
+        let mlValue = parseFloat(baseUnit);
+        if (isNaN(mlValue)) mlValue = 100;
+        let pricePer1000ml = (basePricePerUnit / mlValue) * 1000;
+        return { price: Math.round(pricePer1000ml * 100) / 100, unitLabel: "1000ml" };
+      } else {
+        return { price: product.price, unitLabel: "kg" };
+      }
+    }
+    
+    function renderProducts(items){ const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } noR.classList.add('hidden'); cnt.textContent=`${items.length}`; grid.innerHTML=items.map((p,i)=>{ const displayInfo = getDisplayPriceInfo(p); const displayPriceNPR = displayInfo.price; const displayPriceUSD = displayPriceNPR / exchangeRate; return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})"><img src="${p.img}" class="w-full h-full object-cover"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span></div></div><div class="p-5"><h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ${displayPriceNPR.toLocaleString()} / ${displayInfo.unitLabel}</span><span class="text-xs text-txt-sub block">$${displayPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${displayInfo.unitLabel}</span></div><button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main text-white text-xs rounded-xl">Add</button></div></div></div>`; }).join(''); lucide.createIcons(); }
+    
     function addToCart(id, qty=1){ const p=products.find(x=>x.id===id); if(p){ const existing=cart.find(i=>i.id===id); if(existing) existing.qty+=qty; else cart.push({id:p.id, name:p.name, price:p.price, qty, img:p.img, unit:p.unit}); updateCartUI(); showToast(`${p.name} added`); } }
     function updateCartUI(){ const totalItems=cart.reduce((s,i)=>s+i.qty,0); const cEl=document.getElementById('cartCount'); if(totalItems>0){ cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent=totalItems; } else cEl.classList.add('hidden'); const cartDiv=document.getElementById('cartItems'); if(cartDiv) cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-4 py-4 border-b"><img src="${i.img}" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">${i.name} <span class="text-[10px] font-mono">#${i.id}</span></h4><p>${i.qty} x NPR ${i.price}</p><button onclick="removeFromCart(${i.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join(''); const total=cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; const footer=document.getElementById('cartFooter'); if(cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); }
     function removeFromCart(id){ cart=cart.filter(i=>i.id!==id); updateCartUI(); showToast('Removed'); }
@@ -292,14 +309,14 @@
             </div>
           </div>
           
-          <!-- Price Box -->
+          <!-- Price Box - Powder fee calculated in NPR first -->
           <div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3">
             <div class="flex justify-between items-center">
               <div>
                 <span class="text-[9px] uppercase text-txt-sub">Price per unit</span>
                 <div class="text-lg font-bold text-brand" id="dynamicModalPrice">NPR ${p.price}</div>
                 <div class="text-[9px] text-txt-sub" id="dynamicModalUsd">$${(p.price / exchangeRate).toFixed(2)}</div>
-                <div id="powderFeeIndicator" class="text-[8px] text-orange-500 mt-1 ${selectedForm === 'Powder Form' ? '' : 'hidden'}">+NPR 50/kg powder fee</div>
+                <div id="powderFeeIndicator" class="text-[8px] text-orange-500 mt-1 ${selectedForm === 'Powder Form' ? '' : 'hidden'}">+NPR 50/kg powder fee (added in NPR)</div>
               </div>
               <div class="text-right">
                 <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="formBadge">${selectedForm}</span>
@@ -405,13 +422,19 @@
       else if (unit === '500ml') unitFactor = 0.5;
       else if (unit === '1000ml') unitFactor = 1;
       
-      let price = currentModalProduct.price * unitFactor;
-      if (selectedForm === 'Powder Form') price += 50 * unitFactor;
-      const finalPrice = Math.round(price * 100) / 100;
+      // Calculate price in NPR first
+      let priceNPR = currentModalProduct.price * unitFactor;
+      // Add powder fee in NPR if applicable
+      if (selectedForm === 'Powder Form') {
+        priceNPR += 50 * unitFactor;
+      }
+      const finalPriceNPR = Math.round(priceNPR * 100) / 100;
+      const finalPriceUSD = finalPriceNPR / exchangeRate;
+      
       const priceEl = document.getElementById('dynamicModalPrice');
       const usdEl = document.getElementById('dynamicModalUsd');
-      if (priceEl) priceEl.innerHTML = `NPR ${finalPrice.toLocaleString()}`;
-      if (usdEl) usdEl.innerHTML = `$${(finalPrice / exchangeRate).toFixed(2)}`;
+      if (priceEl) priceEl.innerHTML = `NPR ${finalPriceNPR.toLocaleString()}`;
+      if (usdEl) usdEl.innerHTML = `$${finalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
     };
     
     window.modalQtyChange = function(delta) {
@@ -437,9 +460,12 @@
       else if (unit === '500ml') unitFactor = 0.5;
       else if (unit === '1000ml') unitFactor = 1;
       
-      let unitPrice = currentModalProduct.price * unitFactor;
-      if (selectedForm === 'Powder Form') unitPrice += 50 * unitFactor;
-      const finalPrice = Math.round(unitPrice * 100) / 100;
+      // Calculate price in NPR first
+      let unitPriceNPR = currentModalProduct.price * unitFactor;
+      if (selectedForm === 'Powder Form') {
+        unitPriceNPR += 50 * unitFactor;
+      }
+      const finalPriceNPR = Math.round(unitPriceNPR * 100) / 100;
       
       const cartItem = {
         id: currentModalProduct.id,
@@ -447,15 +473,19 @@
         img: currentModalProduct.img,
         unit: selectedUnitValue,
         form: selectedForm,
-        price: finalPrice,
+        price: finalPriceNPR,
         qty: qty
       };
       const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.form === selectedForm);
       if (existing) existing.qty += qty;
       else cart.push(cartItem);
       updateCartUI();
-      if (selectedForm === 'Powder Form') showToast(`Added ${qty} x ${selectedUnitValue} (+NPR ${(50 * unitFactor * qty).toFixed(2)} powder fee)`);
-      else showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
+      if (selectedForm === 'Powder Form') {
+        const extraFeeNPR = (50 * unitFactor * qty).toFixed(2);
+        showToast(`Added ${qty} x ${selectedUnitValue} (+NPR ${extraFeeNPR} powder fee)`);
+      } else {
+        showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
+      }
       closeModal();
     };
     
