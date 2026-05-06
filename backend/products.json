@@ -748,8 +748,8 @@
     "category": "oils",
     "catLabel": "Oils",
     "price": 100,
-    "unit": "1 unit = 15 ml",
-    "moq": "15 ml",
+    "unit": "1000 ml",
+    "moq": "",
     "lead": "7-10 days",
     "img": "images/amrit-dhara.jpg",
     "desc": "A potent traditional essential oil blend often used for relief from stomach aches, headaches, and common colds. Distilled from a mixture of camphor, ajwain, and nilgiri. A staple in Nepalese households."
