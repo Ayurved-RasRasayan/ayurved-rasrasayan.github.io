@@ -232,7 +232,6 @@
         return { price: product.price, unitLabel: "kg" };
       }
     }
-    
     function renderProducts(items){ 
   const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); 
   if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } 
@@ -240,25 +239,16 @@
   grid.innerHTML=items.map((p,i)=>{ 
     const displayInfo = getDisplayPriceInfo(p); 
     const displayPriceNPR = displayInfo.price; 
-    const displayPriceUSD = displayPriceNPR / exchangeRate;
+    const displayPriceUSD = displayPriceNPR / exchangeRate; 
     
-    // Determine stock status and classes
-    let stockStatus = '';
-    let stockClass = '';
-    let disableButton = false;
-    
+    // Stock status badge
+    let stockBadge = '';
     if (p.stock <= 0) {
-      stockStatus = 'Out of Stock';
-      stockClass = 'text-red-600 bg-red-50';
-      disableButton = true;
+      stockBadge = '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>';
     } else if (p.stock < 10) {
-      stockStatus = `Low Stock (${p.stock} left)`;
-      stockClass = 'text-orange-600 bg-orange-50';
-      disableButton = false;
+      stockBadge = `<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium rounded-full">Low Stock (${p.stock})</span>`;
     } else {
-      stockStatus = 'In Stock';
-      stockClass = 'text-green-600 bg-green-50';
-      disableButton = false;
+      stockBadge = '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium rounded-full">In Stock</span>';
     }
     
     return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all">
@@ -274,17 +264,18 @@
       <div class="p-5">
         <div class="flex items-center justify-between mb-1">
           <h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(${p.id})">${p.name}</h3>
-          <span class="px-2 py-0.5 text-[10px] font-medium rounded-full ${stockClass}">${stockStatus}</span>
+          ${stockBadge}
         </div>
         <div class="flex items-center justify-between mt-2">
           <div>
             <span class="text-xl font-semibold">NPR ${displayPriceNPR.toLocaleString()} / ${displayInfo.unitLabel}</span>
             <span class="text-xs text-txt-sub block">$${displayPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${displayInfo.unitLabel}</span>
           </div>
+          <!-- UPDATED BUTTON CODE HERE -->
           <button onclick="addToCart(${p.id})" 
-            ${disableButton ? 'disabled' : ''}
-            class="px-4 py-2 ${disableButton ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'} text-white text-xs rounded-xl transition-all">
-            ${disableButton ? 'Out of Stock' : 'Add to Cart'}
+            ${p.stock <= 0 ? 'disabled' : ''}
+            class="px-4 py-2 ${p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'} text-white text-xs rounded-xl transition-all">
+            ${p.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
           </button>
         </div>
       </div>
