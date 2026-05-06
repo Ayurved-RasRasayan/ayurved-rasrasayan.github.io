@@ -608,163 +608,144 @@ app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
 
-    // Build image lookup map from Products collection (for orders missing item.img)
-    const allProducts = await Product.find({}, { id: 1, img: 1 }).lean();
-    const imageMap = {};
-    allProducts.forEach(p => { imageMap[p.id] = p.img || ''; });
+    // Image lookup from Products (fallback for orders missing item.img)
+    const allProds = await Product.find({}, { id: 1, img: 1 }).lean();
+    const imgMap = {};
+    allProds.forEach(p => { if (p.id) imgMap[p.id] = p.img || ''; });
 
-    // Helper: parse "125 gm (POWDER FORM)" → { size, form, cls }
+    // Parse "125 gm (POWDER FORM)" → { size, form, cls }
     function parseLabel(label) {
       if (!label) return { size: '', form: '', cls: '' };
       const m = label.match(/^(.+?)\s*\((.+?)\)$/);
       if (!m) return { size: label, form: '', cls: '' };
       const form = m[2].trim().toUpperCase();
-      return {
-        size: m[1].trim(),
-        form: form,
-        cls: form.includes('POWDER') ? 'powder' : 'whole'
-      };
+      return { size: m[1].trim(), form, cls: form.includes('POWDER') ? 'powder' : 'whole' };
     }
 
-    let rows = orders.map(r => {
-      const s = r.status || 'Pending';
-      const nprAmount = Math.round(r.totalNPR) || 0;
-      const usdAmount = r.totalUSD || 0;
-      const currency = (r.currency || 'NPR').toUpperCase();
-      const payMethod = r.paymentMethod || '';
-      const payMethodCap = payMethod.charAt(0).toUpperCase() + payMethod.slice(1).toLowerCase();
+    // Escape for inline onclick
+    function esc(s) { return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
-      // Email badge
-      let eb = '<span class="badge bq">Queue</span>';
-      if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
-      else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
+    const rows = orders.map(r => {
+      const status = r.status || 'Pending';
+      const nprTotal = Math.round(r.totalNPR) || 0;
+      const usdTotal = (r.totalUSD || 0).toFixed(2);
+      const currency = (r.currency || 'NPR').toUpperCase();
+      const payMethod = (r.paymentMethod || '').toLowerCase();
+      const orderId = r._id.toString();
 
       // Date
-      const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const dateStr = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-      // Payment screenshot
-      const imgHtml = r.paymentScreenshot
-        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
-        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
+      // Screenshot thumbnail
+      const thumbHtml = r.paymentScreenshot
+        ? `<img class="pt" src="${r.paymentScreenshot}" onclick="oI(this.src)" alt="Proof">`
+        : `<div class="no-img">No img</div>`;
+
+      // Email badge
+      let emailBadge = '<span class="badge bq">Queue</span>';
+      if (r.emailStatus === 'Sent') emailBadge = '<span class="badge bsn">Sent</span>';
+      else if (r.emailStatus === 'Failed') emailBadge = '<span class="badge bf">Failed</span>';
+
+      // Status options
+      const statuses = [
+        { val: 'Pending', label: 'Pending' },
+        { val: 'Shipping', label: 'Shipping' },
+        { val: 'Completed', label: 'Completed' },
+        { val: 'Success', label: 'Payment OK' },
+        { val: 'Rejected', label: 'Rejected' }
+      ];
+      const optionsHtml = statuses.map(st =>
+        `<option value="${st.val}"${status === st.val ? ' selected' : ''}>${st.label}</option>`
+      ).join('');
+
+      // Items
+      let itemsHtml = '';
+      const items = Array.isArray(r.items) ? r.items : [];
+      if (items.length === 0) {
+        itemsHtml = '<div class="no-items">No items data</div>';
+      } else {
+        items.forEach(item => {
+          const imgSrc = item.img || imgMap[item.id] || '';
+          const imgTag = imgSrc
+            ? `<img class="item-thumb" src="${imgSrc}" onerror="this.style.display='none'" onclick="oI('${esc(imgSrc)}')">`
+            : '';
+          const name = item.name || 'Unknown';
+          const qty = item.qty || 1;
+          const price = item.price || 0;
+          const lineTotal = qty * price;
+          const parsed = parseLabel(item.selectedLabel);
+
+          const sizeTag = parsed.size ? `<span class="item-size">${parsed.size}</span>` : '';
+          const formTag = parsed.form ? `<span class="fb fb-${parsed.cls}">${parsed.form}</span>` : '';
+
+          itemsHtml += `
+            <div class="item-block">
+              <div class="item-top">
+                ${imgTag}
+                <span class="item-name">${name}</span>
+              </div>
+              ${(sizeTag || formTag) ? `<div class="item-meta">${sizeTag}${formTag}</div>` : ''}
+              <div class="item-calc">
+                <span>NPR ${price.toLocaleString('en-NP')}</span>
+                <span class="eq">× ${qty}</span>
+                <span class="eq">=</span>
+                <span class="line-total">NPR ${lineTotal.toLocaleString('en-NP')}</span>
+              </div>
+            </div>`;
+        });
+      }
 
       // Payment badges
-      const curClass = currency === 'USD' ? 'usd' : 'npr';
+      const curCls = currency === 'USD' ? 'usd' : 'npr';
       const curFlag = currency === 'USD' ? '🇺🇸' : '🇳🇵';
-      const pmClass = payMethod.toLowerCase() === 'khalti' ? 'khalti' : 'esewa';
-      const pmIcon = '📱';
+      let payTag = '';
+      if (payMethod === 'esewa') payTag = `<span class="pay-tag pay-esewa">📱 eSewa</span>`;
+      else if (payMethod === 'khalti') payTag = `<span class="pay-tag pay-khalti">📱 Khalti</span>`;
+      else payTag = `<span class="pay-tag pay-na">—</span>`;
 
-      // Build items HTML
-      let ih = '';
-      try {
-        const it = Array.isArray(r.items) ? r.items : [];
-        if (it.length > 0) {
-          ih = it.map(item => {
-            // Image: priority 1 = item.img, priority 2 = imageMap lookup, priority 3 = hidden
-            const itemImg = item.img || imageMap[item.id] || '';
-            const imgTag = itemImg
-              ? `<img class="it" src="${itemImg}" onerror="this.style.display='none'" onclick="oI('${itemImg}')"/>`
-              : '';
-
-            const itemName = item.name || 'Unknown';
-            const qty = item.qty || 1;
-            const price = item.price || 0;
-            const lineTotal = qty * price;
-
-            // Parse selectedLabel for size + form type
-            const parsed = parseLabel(item.selectedLabel);
-
-            // Form type badge
-            let formBadge = '';
-            if (parsed.form) {
-              formBadge = `<span class="fb fb-${parsed.cls}">${parsed.form}</span>`;
-            }
-
-            // Size display
-            const sizeDisplay = parsed.size ? `<span class="isz">${parsed.size}</span>` : '';
-
-            return `
-              <div class="ir">
-                ${imgTag}
-                <div class="ix">
-                  <span class="in" title="${itemName}">${itemName}</span>
-                </div>
-              </div>
-              <div class="idr">
-                ${sizeDisplay}
-                ${formBadge}
-              </div>
-              <div class="icr">
-                <span>NPR ${price.toLocaleString('en-NP')} × Qty ${qty}</span>
-                <span>=</span>
-                <span class="ilt">NPR ${lineTotal.toLocaleString('en-NP')}</span>
-              </div>`;
-          }).join('');
-        }
-      } catch (e) {}
-
-      // Status select options
-      const statusOptions = ['Pending', 'Shipping', 'Completed', 'Success', 'Rejected'];
-      const statusLabels = { Success: 'Payment Successful' };
-      const optionsHtml = statusOptions.map(st => {
-        const label = statusLabels[st] || st;
-        return `<option value="${st}" ${s === st ? 'selected' : ''}>${label}</option>`;
-      }).join('');
-
-      // Total row with USD
-      const totalHtml = `
-        <div class="ot">
-          <span class="ot-label">Subtotal</span>
-          <div>
-            <span class="ov" data-npr="${nprAmount}">= Rs. ${nprAmount.toLocaleString('en-NP')}</span>
-            <span class="ov-usd">($${usdAmount.toFixed(2)})</span>
+      return `<tr id="r-${orderId}">
+        <td class="col-check"><input type="checkbox" class="rc" value="${orderId}" onchange="oCC()"/></td>
+        <td class="col-date">
+          <span class="dt">${dateStr}</span>
+          ${thumbHtml}
+        </td>
+        <td class="col-items">
+          <div class="items-header">
+            <span class="items-label">Order Items</span>
+            <span class="pid">#${orderId.substring(0, 8)}</span>
           </div>
-        </div>`;
-
-      return `<tr id="r-${r._id}">
-        <td class="cdp">
-          <input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/>
-          <div>
-            <span class="dt">${d}</span>
-            ${imgHtml}
+          ${itemsHtml}
+          <div class="subtotal-row">
+            <span class="subtotal-label">Subtotal</span>
+            <div>
+              <span class="subtotal-val" data-npr="${nprTotal}">Rs. ${nprTotal.toLocaleString('en-NP')}</span>
+              <span class="subtotal-usd">($${usdTotal})</span>
+            </div>
           </div>
         </td>
-        <td class="cp">
-          <div class="ph">
-            <span class="ph-label">Order Items</span>
-            <span class="pid">#${r._id.toString().substring(0, 8)}</span>
-          </div>
-          ${ih || '<div class="pil" style="color:#9ca3af">No items data</div>'}
-          ${totalHtml}
-        </td>
-        <td class="cs">
-          <select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
+        <td class="col-status">
+          <select onchange="uS('${orderId}',this.value,this)" class="ss s-${status}">
             ${optionsHtml}
           </select>
-          ${eb}
+          ${emailBadge}
         </td>
-        <td class="cc">
-          <div class="cd"><strong>Name</strong> ${r.clientDetails?.name || 'Guest'}</div>
-          <div class="cd"><strong>Phone</strong> ${r.clientDetails?.phone || '-'}</div>
-          <div class="cd"><strong>Email</strong> ${r.clientDetails?.email || '-'}</div>
-          <div class="cd"><strong>Addr</strong> ${r.clientDetails?.address || '-'}</div>
+        <td class="col-client">
+          <div class="cl"><strong>Name</strong><span>${r.clientDetails?.name || 'Guest'}</span></div>
+          <div class="cl"><strong>Phone</strong><span>${r.clientDetails?.phone || '—'}</span></div>
+          <div class="cl"><strong>Email</strong><span>${r.clientDetails?.email || '—'}</span></div>
+          <div class="cl"><strong>Addr</strong><span>${r.clientDetails?.address || '—'}</span></div>
         </td>
-        <td class="py">
-          <span class="py-badge py-${curClass}">
-            <span class="py-icon">${curFlag}</span>
-            ${currency}
-          </span>
-          ${payMethod ? `<span class="py-badge py-${pmClass}">
-            <span class="py-icon">${pmIcon}</span>
-            ${payMethodCap}
-          </span>` : ''}
+        <td class="col-pay">
+          <span class="pay-tag pay-${curCls}">${curFlag} ${currency}</span>
+          ${payTag}
         </td>
-        <td class="ca">
-          <button class="dr" onclick="d1('${r._id}',this)">Del</button>
+        <td class="col-act">
+          <button class="dr" onclick="d1('${orderId}',this)">Del</button>
         </td>
       </tr>`;
     }).join('');
 
-    let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
+    const html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
   } catch (e) {
     console.error('View Orders Error:', e);
