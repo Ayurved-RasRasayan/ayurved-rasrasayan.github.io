@@ -110,8 +110,9 @@ tr:hover{background:#fafafa}
 .cd{font-size:.9rem;color:#374151;margin-bottom:6px;display:flex;flex-wrap:wrap}
 .cd strong{color:#111827;min-width:70px;display:inline-block}
 .ca{width:100%;padding:15px;display:flex;align-items:center;justify-content:center}
-.dr{display:flex;justify-content:center;align-items:center;width:100%;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:8px 12px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px;transition:all .2s}
-.dr:hover{background:#fecaca;transform:translateY(-1px)}
+.dr{display:flex;justify-content:center;align-items:center;width:100%;background:#dc2626;color:#fff;border:none;padding:10px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.dr:hover{background:#b91c1c;transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.dr:disabled{opacity:0.6;cursor:not-allowed;transform:none}
 input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
 #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:12px 24px;border-radius:50px;opacity:0;transition:.3s;z-index:2000;font-size:14px;width:90%;text-align:center;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -133,6 +134,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   .in{font-size:.85rem}
   .it{width:35px;height:35px}
   .cd{font-size:.85rem}
+  .dr{padding:8px 10px;font-size:12px}
 }
 
 @media (max-width: 768px) {
@@ -176,7 +178,7 @@ input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2d4a22}
   .state-select{width:100%}
   .cc{padding:0}
   .ca{padding:0}
-  .dr{padding:10px}
+  .dr{padding:12px;font-size:14px;width:100%}
   .cd strong{min-width:80px}
   .ph{flex-wrap:wrap;gap:8px}
   .badge{width:auto;display:inline-flex}
@@ -443,7 +445,7 @@ async function updateStatus(id, newStatus, selectEl) {
   } 
 }
 
-// ⭐ STATE UPDATE FUNCTION WITH LIVE DOM UPDATE (NO PAGE REFRESH) ⭐
+// State Update Function with Live DOM Update
 async function updateState(id, newState, selectEl) { 
   selectEl.disabled = true; 
   var originalClass = selectEl.className; 
@@ -456,7 +458,7 @@ async function updateState(id, newState, selectEl) {
     }); 
     var data = await response.json(); 
     if (data.success) {
-      // 🎯 LIVE DOM UPDATE - Updates the badge immediately without page refresh
+      // Live DOM update for the state badge
       var badge = document.getElementById('state-badge-' + id);
       if (badge) {
         const icons = {
@@ -475,7 +477,6 @@ async function updateState(id, newState, selectEl) {
           'Cancelled': 'state-cancelled'
         };
         
-        // Update the badge class and text in real-time
         badge.className = 'state-badge ' + stateClasses[newState];
         badge.innerHTML = (icons[newState] || '🟠') + ' ' + newState;
       }
@@ -492,11 +493,15 @@ async function updateState(id, newState, selectEl) {
   } 
 }
 
-// Delete Functions
+// Delete Functions - Enhanced with better UX
 async function deleteOrder(id, btn) { 
-  if (!confirm('⚠️ Are you sure you want to delete this order? This action cannot be undone!')) return; 
-  btn.disabled = true; 
-  btn.textContent = '...'; 
+  if (!confirm('⚠️ Are you sure you want to delete this order?\n\nThis action cannot be undone!')) return; 
+  
+  // Show loading state on the button
+  var originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Deleting...';
+  
   try { 
     var response = await fetch(API + '/delete-order/' + id, { method: 'DELETE' }); 
     var data = await response.json(); 
@@ -508,26 +513,29 @@ async function deleteOrder(id, btn) {
         row.remove(); 
         updateSelectionCount(); 
         updateAmounts(); 
+        showToast('✅ Order deleted successfully'); 
       }, 300); 
-      showToast('🗑️ Order deleted successfully'); 
     } else { 
       btn.disabled = false; 
-      btn.textContent = 'Del'; 
+      btn.innerHTML = originalText;
       showToast('❌ Failed to delete order'); 
     } 
   } catch (e) { 
     showToast('❌ Network error - could not delete'); 
     btn.disabled = false; 
-    btn.textContent = 'Del'; 
+    btn.innerHTML = originalText;
   } 
 }
 
 async function deleteSelected() { 
   var selected = getSelectedIds(); 
-  if (selected.length === 0 || !confirm('⚠️ Delete ' + selected.length + ' order(s)? This cannot be undone!')) return; 
+  if (selected.length === 0 || !confirm('⚠️ Delete ' + selected.length + ' order(s)?\n\nThis action cannot be undone!')) return; 
+  
   var btn = document.getElementById('bd'); 
+  var originalText = btn.innerHTML;
   btn.disabled = true; 
   btn.innerHTML = '⏳ Deleting...'; 
+  
   try { 
     var response = await fetch(API + '/delete-orders', { 
       method: 'DELETE', 
@@ -544,7 +552,7 @@ async function deleteSelected() {
           setTimeout(function() { row.remove(); }, 300); 
         } 
       }); 
-      showToast('🗑️ Deleted ' + data.deleted.length + ' order(s)'); 
+      showToast('✅ Deleted ' + data.deleted.length + ' order(s)'); 
       setTimeout(function() { 
         updateSelectionCount(); 
         updateAmounts(); 
@@ -555,7 +563,7 @@ async function deleteSelected() {
   } catch (e) { 
     showToast('❌ Network error - bulk delete failed'); 
   } finally { 
-    btn.innerHTML = '🗑️ Delete Selected'; 
+    btn.innerHTML = originalText; 
     btn.disabled = false; 
     updateSelectionCount(); 
   } 
