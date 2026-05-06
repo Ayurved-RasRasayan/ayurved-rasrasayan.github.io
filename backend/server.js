@@ -607,58 +607,169 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
+
+    // Build image lookup map from Products collection (for orders missing item.img)
+    const allProducts = await Product.find({}, { id: 1, img: 1 }).lean();
+    const imageMap = {};
+    allProducts.forEach(p => { imageMap[p.id] = p.img || ''; });
+
+    // Helper: parse "125 gm (POWDER FORM)" → { size, form, cls }
+    function parseLabel(label) {
+      if (!label) return { size: '', form: '', cls: '' };
+      const m = label.match(/^(.+?)\s*\((.+?)\)$/);
+      if (!m) return { size: label, form: '', cls: '' };
+      const form = m[2].trim().toUpperCase();
+      return {
+        size: m[1].trim(),
+        form: form,
+        cls: form.includes('POWDER') ? 'powder' : 'whole'
+      };
+    }
+
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
       const nprAmount = Math.round(r.totalNPR) || 0;
+      const usdAmount = r.totalUSD || 0;
+      const currency = (r.currency || 'NPR').toUpperCase();
+      const payMethod = r.paymentMethod || '';
+      const payMethodCap = payMethod.charAt(0).toUpperCase() + payMethod.slice(1).toLowerCase();
+
+      // Email badge
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
+
+      // Date
       const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+      // Payment screenshot
+      const imgHtml = r.paymentScreenshot
+        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
+        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
+
+      // Payment badges
+      const curClass = currency === 'USD' ? 'usd' : 'npr';
+      const curFlag = currency === 'USD' ? '🇺🇸' : '🇳🇵';
+      const pmClass = payMethod.toLowerCase() === 'khalti' ? 'khalti' : 'esewa';
+      const pmIcon = '📱';
+
+      // Build items HTML
       let ih = '';
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
-          ih = it.map(i => {
-            const img = i.img ? `<img src="${i.img}" class="it">` : '';
-            const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
-            const qty = i.qty || 1;
-            const price = i.price || 0;
+          ih = it.map(item => {
+            // Image: priority 1 = item.img, priority 2 = imageMap lookup, priority 3 = hidden
+            const itemImg = item.img || imageMap[item.id] || '';
+            const imgTag = itemImg
+              ? `<img class="it" src="${itemImg}" onerror="this.style.display='none'" onclick="oI('${itemImg}')"/>`
+              : '';
+
+            const itemName = item.name || 'Unknown';
+            const qty = item.qty || 1;
+            const price = item.price || 0;
             const lineTotal = qty * price;
-            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+
+            // Parse selectedLabel for size + form type
+            const parsed = parseLabel(item.selectedLabel);
+
+            // Form type badge
+            let formBadge = '';
+            if (parsed.form) {
+              formBadge = `<span class="fb fb-${parsed.cls}">${parsed.form}</span>`;
+            }
+
+            // Size display
+            const sizeDisplay = parsed.size ? `<span class="isz">${parsed.size}</span>` : '';
+
+            return `
+              <div class="ir">
+                ${imgTag}
+                <div class="ix">
+                  <span class="in" title="${itemName}">${itemName}</span>
+                </div>
+              </div>
+              <div class="idr">
+                ${sizeDisplay}
+                ${formBadge}
+              </div>
+              <div class="icr">
+                <span>NPR ${price.toLocaleString('en-NP')} × Qty ${qty}</span>
+                <span>=</span>
+                <span class="ilt">NPR ${lineTotal.toLocaleString('en-NP')}</span>
+              </div>`;
           }).join('');
         }
       } catch (e) {}
-      const imgHtml = r.paymentScreenshot
-        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
-        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
-      const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+
+      // Status select options
+      const statusOptions = ['Pending', 'Shipping', 'Completed', 'Success', 'Rejected'];
+      const statusLabels = { Success: 'Payment Successful' };
+      const optionsHtml = statusOptions.map(st => {
+        const label = statusLabels[st] || st;
+        return `<option value="${st}" ${s === st ? 'selected' : ''}>${label}</option>`;
+      }).join('');
+
+      // Total row with USD
+      const totalHtml = `
+        <div class="ot">
+          <span class="ot-label">Subtotal</span>
+          <div>
+            <span class="ov" data-npr="${nprAmount}">= Rs. ${nprAmount.toLocaleString('en-NP')}</span>
+            <span class="ov-usd">($${usdAmount.toFixed(2)})</span>
+          </div>
+        </div>`;
+
       return `<tr id="r-${r._id}">
-        <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
-        <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
+        <td class="cdp">
+          <input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/>
+          <div>
+            <span class="dt">${d}</span>
+            ${imgHtml}
+          </div>
+        </td>
         <td class="cp">
-          <div class="ph"><span class="ph-label">Order Id</span><span class="pid">#${r._id.toString().substring(0, 8)}</span></div>
-          <div class="pil">${ih || 'No Data'}</div>
+          <div class="ph">
+            <span class="ph-label">Order Items</span>
+            <span class="pid">#${r._id.toString().substring(0, 8)}</span>
+          </div>
+          ${ih || '<div class="pil" style="color:#9ca3af">No items data</div>'}
           ${totalHtml}
         </td>
-        <td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
-          <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>Pending</option>
-          <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>Shipping</option>
-          <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>Completed</option>
-          <option value="Success" ${s === 'Success' ? 'selected' : ''}>Payment Successful</option>
-          <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>Rejected</option>
-        </select></td>
-        <td class="cc">
-          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
-          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
-          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email || '-'}</div>
-          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address || '-'}</div>
+        <td class="cs">
+          <select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
+            ${optionsHtml}
+          </select>
+          ${eb}
         </td>
-        <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
+        <td class="cc">
+          <div class="cd"><strong>Name</strong> ${r.clientDetails?.name || 'Guest'}</div>
+          <div class="cd"><strong>Phone</strong> ${r.clientDetails?.phone || '-'}</div>
+          <div class="cd"><strong>Email</strong> ${r.clientDetails?.email || '-'}</div>
+          <div class="cd"><strong>Addr</strong> ${r.clientDetails?.address || '-'}</div>
+        </td>
+        <td class="py">
+          <span class="py-badge py-${curClass}">
+            <span class="py-icon">${curFlag}</span>
+            ${currency}
+          </span>
+          ${payMethod ? `<span class="py-badge py-${pmClass}">
+            <span class="py-icon">${pmIcon}</span>
+            ${payMethodCap}
+          </span>` : ''}
+        </td>
+        <td class="ca">
+          <button class="dr" onclick="d1('${r._id}',this)">Del</button>
+        </td>
       </tr>`;
     }).join('');
+
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
-  } catch (e) { res.status(500).send('Error loading orders'); }
+  } catch (e) {
+    console.error('View Orders Error:', e);
+    res.status(500).send('Error loading orders');
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
