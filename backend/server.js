@@ -342,7 +342,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ─── ROUTE: PRODUCTS (ENHANCED WITH CRUD + SYNC) ────────────────────────
+// ─── ROUTE: PRODUCTS ────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
 app.get('/api/products', async (req, res) => {
@@ -485,10 +485,20 @@ app.post('/api/orders', async (req, res) => {
     req.body.clientDetails.name = req.body.clientDetails.name.trim().substring(0, 100);
     req.body.clientDetails.email = req.body.clientDetails.email.trim().toLowerCase();
     req.body.clientDetails.phone = req.body.clientDetails.phone.trim().substring(0, 20);
-    const savedOrder = await new Order(req.body).save();
+    
+    // Set default order_state
+    const orderData = {
+      ...req.body,
+      order_state: 'Pending'
+    };
+    
+    const savedOrder = await new Order(orderData).save();
     await sendAdminAlert(savedOrder._id, req.body);
     res.status(201).json({ success: true, orderId: savedOrder._id });
-  } catch (e) { res.status(500).json({ success: false, error: 'Server error' }); }
+  } catch (e) { 
+    console.error('Order creation error:', e);
+    res.status(500).json({ success: false, error: 'Server error' }); 
+  }
 });
 
 const STOCK_DEDUCT_STATUSES = ['Completed', 'Success', 'Shipping'];
@@ -523,53 +533,33 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ⭐ ROUTE: UPDATE ORDER STATE (with Live DOM Update support) ⭐
+// ─── ROUTE: UPDATE ORDER STATE ─────────────────────────────────────────
 app.put('/api/update-order-state', checkAuth, async (req, res) => {
   try {
     const { id, state } = req.body;
     
-    // Validate input
     if (!id || !state) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing id or state' 
-      });
+      return res.status(400).json({ success: false, error: 'Missing id or state' });
     }
     
-    // Validate state value
     const validStates = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
     if (!validStates.includes(state)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Invalid state value. Must be one of: ' + validStates.join(', ')
-      });
+      return res.status(400).json({ success: false, error: 'Invalid state value' });
     }
     
-    // Find and update the order
     const order = await Order.findOne({ _id: id });
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Order not found' 
-      });
+      return res.status(404).json({ success: false, error: 'Order not found' });
     }
     
-    // Update the order state
     await Order.updateOne({ _id: id }, { $set: { order_state: state } });
     
     console.log(`[STATE] ✅ Order ${id} state updated to: ${state}`);
-    res.json({ 
-      success: true, 
-      message: 'Order state updated successfully',
-      state: state 
-    });
+    res.json({ success: true, message: 'Order state updated successfully', state: state });
     
   } catch (e) { 
     console.error('[STATE] ❌ Error updating order state:', e.message);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error: ' + e.message 
-    });
+    res.status(500).json({ success: false, error: 'Internal server error: ' + e.message });
   }
 });
 
@@ -620,97 +610,145 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
-// ⭐ UPDATED ROUTE: VIEW ORDERS WITH STATE COLUMN (Live DOM Update ready) ⭐
+// ⭐ MAIN ORDERS VIEW ROUTE - CORRECT COLUMN ORDER (State before Status) ⭐
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
+    
     let rows = orders.map(r => {
       const s = r.status || 'Pending';
       const orderState = r.order_state || 'Pending';
       const nprAmount = Math.round(r.totalNPR) || 0;
+      
+      // Email badge
       let eb = '<span class="badge bq">Queue</span>';
       if (r.emailStatus === 'Sent') eb = '<span class="badge bsn">Sent</span>';
       else if (r.emailStatus === 'Failed') eb = '<span class="badge bf">Failed</span>';
-      const d = new Date(r.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      
+      const d = new Date(r.timestamp).toLocaleDateString('en-GB', { 
+        day: '2-digit', month: '2-digit', year: 'numeric' 
+      });
+      
+      // Generate items HTML
       let ih = '';
       try {
         const it = Array.isArray(r.items) ? r.items : [];
         if (it.length > 0) {
           ih = it.map(i => {
-            const img = i.img ? `<img src="${i.img}" class="it">` : '';
+            const img = i.img ? `<img src="${i.img}" class="it" onerror="this.style.display='none'">` : '';
             const pid = i.id ? `<span class="iid">ID #${i.id}</span>` : '';
             const qty = i.qty || 1;
             const price = i.price || 0;
             const lineTotal = qty * price;
-            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} <span class="iid">${pid}</span></span></div><span class="iq" style="flex-shrink:0;margin-left:8px">x${qty} @ ${price.toLocaleString('en-NP')}</span><span style="flex-shrink:0;font-weight:700;color:#1a5c1c;font-size:12px;white-space:nowrap;margin-left:8px">= Rs. ${lineTotal.toLocaleString('en-NP')}</span></div>`;
+            return `<div class="ir"><div class="ix">${img}<span class="in" title="${i.name}">${i.name} ${pid}</span></div><div class="iq">x${qty} @ NPR ${price.toLocaleString('en-NP')}</div><div style="font-weight:700;color:#1a5c1c;">= NPR ${lineTotal.toLocaleString('en-NP')}</div></div>`;
           }).join('');
+        } else {
+          ih = '<div style="color:#999;text-align:center;">No items</div>';
         }
-      } catch (e) {}
-      const imgHtml = r.paymentScreenshot
-        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="oI(this.src)" alt="P">`
-        : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#999;margin-top:10px">No Img</div>`;
-      const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">= NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+      } catch(e) {
+        ih = '<div style="color:#999;">Error loading items</div>';
+      }
       
-      // State badge color mapping for CSS classes
+      // Payment screenshot
+      const imgHtml = r.paymentScreenshot
+        ? `<img src="${r.paymentScreenshot}" class="pt" onclick="openImage(this.src)" alt="Payment Proof">`
+        : `<div style="width:40px;height:40px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#9ca3af;">No Img</div>`;
+      
+      // Total HTML
+      const totalHtml = `<div class="ot"><span class="ot-label">Total</span><span class="ov" data-npr="${nprAmount}">NPR ${nprAmount.toLocaleString('en-NP')}</span></div>`;
+      
+      // State badge helper
       const getStateBadgeClass = (state) => {
-        switch(state) {
-          case 'Processing': return 'state-processing';
-          case 'Shipped': return 'state-shipped';
-          case 'Delivered': return 'state-delivered';
-          case 'Cancelled': return 'state-cancelled';
-          default: return 'state-pending';
-        }
+        const classes = {
+          'Processing': 'state-processing',
+          'Shipped': 'state-shipped',
+          'Delivered': 'state-delivered',
+          'Cancelled': 'state-cancelled'
+        };
+        return classes[state] || 'state-pending';
       };
       
       const getStateIcon = (state) => {
-        switch(state) {
-          case 'Processing': return '🔵';
-          case 'Shipped': return '🟢';
-          case 'Delivered': return '✅';
-          case 'Cancelled': return '🔴';
-          default: return '🟠';
-        }
+        const icons = {
+          'Processing': '🔵',
+          'Shipped': '🟢',
+          'Delivered': '✅',
+          'Cancelled': '🔴'
+        };
+        return icons[state] || '🟠';
       };
       
+      // State dropdown and badge
+      const stateSelect = `<select onchange="updateState('${r._id}', this.value, this)" class="state-select" style="margin-bottom:8px;width:100%;">
+        <option value="Pending" ${orderState === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
+        <option value="Processing" ${orderState === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
+        <option value="Shipped" ${orderState === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
+        <option value="Delivered" ${orderState === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+        <option value="Cancelled" ${orderState === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
+      </select>`;
+      
+      const stateBadge = `<span id="state-badge-${r._id}" class="state-badge ${getStateBadgeClass(orderState)}" style="margin-top:5px;display:inline-block;">
+        ${getStateIcon(orderState)} ${orderState}
+      </span>`;
+      
+      // Status dropdown
+      const statusSelect = `<select onchange="updateStatus('${r._id}', this.value, this)" class="ss s-${s}" style="width:100%;">
+        <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+        <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+        <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+        <option value="Success" ${s === 'Success' ? 'selected' : ''}>💰 Payment Successful</option>
+        <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+      </select>`;
+      
+      // Client details
+      const clientDetails = `
+        <div class="cd"><strong>👤 Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
+        <div class="cd"><strong>📞 Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
+        <div class="cd"><strong>✉️ Email:</strong> ${r.clientDetails?.email || '-'}</div>
+        <div class="cd"><strong>📍 Address:</strong> ${r.clientDetails?.address || '-'}</div>
+      `;
+      
+      // Delete button
+      const deleteButton = `<button class="dr" onclick="deleteOrder('${r._id}', this)" title="Delete Order">🗑️ Del</button>`;
+      
+      // ⭐ CORRECT TD ORDER: Checkbox/Date → Items → State → Status → Client → Action ⭐
       return `<tr id="r-${r._id}">
-        <td><input type="checkbox" class="rc" value="${r._id}" onchange="oCC()"/></td>
-        <td class="cdp"><span class="dt">${d}</span>${imgHtml}</td>
+        <td class="cdp" align="center">
+          <input type="checkbox" class="rc" value="${r._id}" onchange="updateSelectionCount()" style="margin-bottom:10px;">
+          <div class="dt">${d}</div>
+          ${imgHtml}
+        </td>
         <td class="cp">
-          <div class="ph"><span class="ph-label">Order Id</span><span class="pid">#${r._id.toString().substring(0, 8)}</span></div>
-          <div class="pil">${ih || 'No Data'}</div>
+          <div class="ph">
+            <span class="ph-label">🆔 Order ID</span>
+            <span class="pid">#${r._id.toString().substring(0, 8)}</span>
+          </div>
+          <div class="pil">${ih}</div>
           ${totalHtml}
         </td>
-        <td class="cs">${eb}<select onchange="uS('${r._id}',this.value,this)" class="ss s-${s}">
-          <option value="Pending" ${s === 'Pending' ? 'selected' : ''}>Pending</option>
-          <option value="Shipping" ${s === 'Shipping' ? 'selected' : ''}>Shipping</option>
-          <option value="Completed" ${s === 'Completed' ? 'selected' : ''}>Completed</option>
-          <option value="Success" ${s === 'Success' ? 'selected' : ''}>Payment Successful</option>
-          <option value="Rejected" ${s === 'Rejected' ? 'selected' : ''}>Rejected</option>
-        </select></td>
         <td class="cs">
-          <select onchange="updateState('${r._id}', this.value, this)" class="state-select" style="margin-bottom:8px">
-            <option value="Pending" ${orderState === 'Pending' ? 'selected' : ''}>🟠 Pending</option>
-            <option value="Processing" ${orderState === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
-            <option value="Shipped" ${orderState === 'Shipped' ? 'selected' : ''}>🟢 Shipped</option>
-            <option value="Delivered" ${orderState === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
-            <option value="Cancelled" ${orderState === 'Cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
-          </select>
-          <span id="state-badge-${r._id}" class="state-badge ${getStateBadgeClass(orderState)}">
-            ${getStateIcon(orderState)} ${orderState}
-          </span>
-         </td>
+          ${stateSelect}
+          ${stateBadge}
+        </td>
+        <td class="cs">
+          ${eb}
+          ${statusSelect}
+        </td>
         <td class="cc">
-          <div class="cd"><strong>Name:</strong> ${r.clientDetails?.name || 'Guest'}</div>
-          <div class="cd"><strong>Phone:</strong> ${r.clientDetails?.phone || '-'}</div>
-          <div class="cd"><strong>Email:</strong> ${r.clientDetails?.email || '-'}</div>
-          <div class="cd"><strong>Addr:</strong> ${r.clientDetails?.address || '-'}</div>
-         </td>
-        <td class="ca"><button class="dr" onclick="d1('${r._id}',this)">Del</button></td>
-       </tr>`;
+          ${clientDetails}
+        </td>
+        <td class="ca">
+          ${deleteButton}
+        </td>
+      </tr>`;
     }).join('');
+    
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
     res.send(html.replace('{{ORDERS_ROWS}}', rows));
-  } catch (e) { res.status(500).send('Error loading orders'); }
+  } catch (e) { 
+    console.error('View orders error:', e);
+    res.status(500).send('Error loading orders'); 
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
