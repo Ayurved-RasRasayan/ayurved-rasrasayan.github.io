@@ -1160,5 +1160,33 @@
     "img": "images/tetepati-soap.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 83,
+    "name": "Rittha",
+    "sci": "Rittha",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/rittha.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 84,
+    "name": "Shikakai",
+    "sci": "Shikakai",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/shikakai.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
