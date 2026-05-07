@@ -69,6 +69,33 @@
       background: #fefce8;
       padding-left: 1rem;
     }
+
+    .qr-container {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      border: 2px dashed #e7e5e4;
+      text-align: center;
+    }
+
+    .file-upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-upload-area:hover {
+      border-color: #A3B14B;
+      background: rgba(163, 177, 75, 0.03);
+    }
+
+    .file-upload-area.has-file {
+      border-color: #A3B14B;
+      background: rgba(163, 177, 75, 0.05);
+    }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -135,7 +162,7 @@
     </div>
   </section>
 
-  <!-- CATEGORIES with proper icons copied from original -->
+  <!-- CATEGORIES -->
   <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
@@ -143,7 +170,7 @@
     </div>
   </section>
 
-  <!-- PRODUCTS with "Prices per unit. Bulk discounts available." text -->
+  <!-- PRODUCTS -->
   <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
@@ -160,7 +187,7 @@
     </div>
   </section>
 
-  <!-- ABOUT with 4 boxes copied from original -->
+  <!-- ABOUT -->
   <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden">
     <div class="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-brand/5 blur-[120px]"></div>
     <div class="max-w-7xl mx-auto px-4 md:px-6 relative">
@@ -181,7 +208,7 @@
     </div>
   </section>
 
-  <!-- CONTACT with email, phone, location copied from original -->
+  <!-- CONTACT -->
   <section id="contact" class="py-16 md:py-24 lg:py-32">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
@@ -204,7 +231,7 @@
     </div>
   </section>
 
-  <!-- FOOTER with all links copied from original -->
+  <!-- FOOTER -->
   <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12">
@@ -231,7 +258,6 @@
           <span id="cartTotal" class="text-xl font-semibold">NPR 0.00</span>
         </div>
         <div id="checkoutSection" class="space-y-3">
-          <!-- Payment Method Tabs -->
           <div class="flex gap-2">
             <button onclick="selectPaymentMethod('esewa')" id="esewaTab" class="pay-tab active flex-1 py-2.5 border-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5" style="border-color:#5EBC5D; color:#5EBC5D; background:rgba(94,188,93,0.05);">
               <span class="text-lg font-bold">e</span>Sewa
@@ -240,7 +266,6 @@
               <span style="font-size:16px;">ख</span> Khalti
             </button>
           </div>
-          <!-- Proceed to Pay Button -->
           <button onclick="proceedToPayment()" class="w-full py-3.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand/20">
             <i data-lucide="lock" class="w-4 h-4"></i> Pay Securely
           </button>
@@ -250,34 +275,114 @@
     </div>
   </div>
 
-  <!-- Payment Modal -->
+  <!-- PAYMENT MODAL -->
   <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-semibold">Complete Payment</h3>
-        <button onclick="closePaymentModal()" class="p-1.5 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl modal-enter">
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white z-10 p-6 border-b border-border-main">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Complete Payment</h3>
+          <button onclick="closePaymentModal()" class="p-1.5 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <p class="text-xs text-txt-third mt-1">Scan QR and upload screenshot.</p>
       </div>
-      <div class="space-y-4">
-        <div class="bg-bg-light rounded-xl p-4">
-          <div class="flex justify-between mb-2"><span class="text-sm text-txt-sub">Total Amount</span><span id="paymentAmount" class="text-lg font-bold">NPR 0.00</span></div>
-          <div class="flex justify-between"><span class="text-sm text-txt-sub">Payment Method</span><span id="paymentMethodDisplay" class="text-sm font-semibold capitalize">eSewa</span></div>
-        </div>
-        <div id="paymentForm">
-          <!-- eSewa Form -->
-          <div id="esewaForm">
-            <label class="block text-xs font-medium text-txt-sub mb-1.5">eSewa ID / Phone Number</label>
-            <input type="text" id="esewaId" placeholder="98XXXXXXXX" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+
+      <div class="p-6 space-y-6">
+        <!-- Client Details -->
+        <div>
+          <h4 class="text-sm font-semibold mb-3">Client Details <span class="text-red-500">(All fields required)</span></h4>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-txt-sub mb-1">Full Name *</label>
+              <input type="text" id="clientName" placeholder="John Doe" required class="w-full px-4 py-2.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-txt-sub mb-1">Phone *</label>
+              <input type="tel" id="clientPhone" placeholder="+977..." required class="w-full px-4 py-2.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-txt-sub mb-1">Email *</label>
+              <input type="email" id="clientEmail" placeholder="example@mail.com" required class="w-full px-4 py-2.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-txt-sub mb-1">Address</label>
+              <input type="text" id="clientAddress" placeholder="Street, City..." class="w-full px-4 py-2.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            </div>
           </div>
-          <!-- Khalti Form -->
-          <div id="khaltiForm" class="hidden">
-            <label class="block text-xs font-medium text-txt-sub mb-1.5">Khalti ID / Phone Number</label>
-            <input type="text" id="khaltiId" placeholder="98XXXXXXXX" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+        </div>
+
+        <!-- Order Summary -->
+        <div class="bg-bg-light rounded-xl p-4 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-txt-sub">Total</span>
+            <div class="text-right">
+              <div id="paymentAmountNPR" class="text-lg font-bold text-txt-main">NPR 0.00</div>
+              <div id="paymentAmountUSD" class="text-xs text-txt-third">$0.00</div>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-txt-sub">Items</span>
+            <span id="paymentItemCount" class="text-sm font-medium">0 items</span>
           </div>
         </div>
+
+        <!-- Currency Toggle -->
+        <div>
+          <label class="block text-xs font-medium text-txt-sub mb-2">Pay Currency</label>
+          <div class="flex gap-2">
+            <button onclick="selectCurrency('NPR')" id="currencyNPR" class="currency-btn active-curr flex-1 py-2.5 border-2 border-border-main rounded-xl text-sm font-semibold transition-all">NPR</button>
+            <button onclick="selectCurrency('USD')" id="currencyUSD" class="currency-btn flex-1 py-2.5 border-2 border-border-main rounded-xl text-sm font-semibold transition-all">USD</button>
+          </div>
+        </div>
+
+        <!-- Payment Method Tabs -->
+        <div>
+          <label class="block text-xs font-medium text-txt-sub mb-2">Payment Method</label>
+          <div class="flex gap-2">
+            <button onclick="selectPaymentModalMethod('esewa')" id="modalEsewaTab" class="pay-tab active flex-1 py-2.5 border-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5" style="border-color:#5EBC5D; color:#5EBC5D; background:rgba(94,188,93,0.05);">
+              <span class="text-lg font-bold">e</span>Sewa
+            </button>
+            <button onclick="selectPaymentModalMethod('khalti')" id="modalKhaltiTab" class="pay-tab flex-1 py-2.5 border-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5" style="border-color:#e7e5e4; color:#57534E;">
+              <span style="font-size:16px;">ख</span> Khalti
+            </button>
+          </div>
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="qr-container">
+          <p id="qrLabel" class="text-sm font-medium text-txt-sub mb-3">Scan using eSewa</p>
+          <div id="qrCodeArea" class="w-48 h-48 mx-auto bg-gray-100 rounded-xl flex items-center justify-center border border-border-main">
+            <div class="text-center">
+              <i data-lucide="qr-code" class="w-16 h-16 text-txt-third mx-auto mb-2"></i>
+              <p class="text-xs text-txt-third">QR Code</p>
+              <p class="text-[10px] text-txt-third" id="qrAmount">NPR 0.00</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload -->
+        <div>
+          <label class="block text-xs font-medium text-txt-sub mb-2">Payment Proof *</label>
+          <div id="fileUploadArea" class="file-upload-area" onclick="document.getElementById('paymentScreenshot').click()">
+            <div id="uploadPlaceholder">
+              <i data-lucide="upload-cloud" class="w-10 h-10 text-txt-third mx-auto mb-2"></i>
+              <p class="text-sm font-medium text-txt-sub">Click to upload</p>
+              <p class="text-xs text-txt-third mt-1">JPG, PNG (Max 5MB)</p>
+            </div>
+            <div id="uploadPreview" class="hidden">
+              <img id="previewImage" src="" alt="Preview" class="max-h-32 mx-auto rounded-lg mb-2">
+              <p id="previewFileName" class="text-xs text-brand font-medium"></p>
+              <button onclick="event.stopPropagation(); clearFileUpload()" class="text-xs text-red-500 mt-1 hover:underline">Remove</button>
+            </div>
+            <input type="file" id="paymentScreenshot" accept="image/jpeg,image/png" class="hidden" onchange="handleFileSelect(event)">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
         <button onclick="processPayment()" class="w-full py-3.5 bg-txt-main text-white text-sm font-semibold rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2">
-          <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Payment
+          <i data-lucide="check-circle" class="w-4 h-4"></i> I have made payment
         </button>
-        <button onclick="closePaymentModal()" class="w-full py-2.5 text-sm text-txt-third hover:text-txt-sub transition-colors">Cancel</button>
+        <p class="text-xs text-txt-third text-center">Your order will be processed after verification.</p>
       </div>
     </div>
   </div>
@@ -294,11 +399,12 @@
     let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
     let currentModalProduct = null; let selectedForm = "Whole Form"; let selectedUnitValue = "1kg";
     let selectedPaymentMethod = 'esewa';
+    let paymentCurrency = 'NPR';
+    let uploadedFile = null;
 	
-	// 👇 ADD THIS FUNCTION HERE
     function getSoapIcon() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3B14B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide"><rect x="4" y="2" width="16" height="10" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="10" y1="9" x2="14" y2="9"/></svg>`;
-}
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3B14B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide"><rect x="4" y="2" width="16" height="10" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="10" y1="9" x2="14" y2="9"/></svg>`;
+    }
 	
     async function loadExchangeRate() { 
       try { 
@@ -316,13 +422,11 @@
         const res = await fetch(`${BACKEND_URL}/products`);
         if(!res.ok) throw new Error();
         let rawProducts = await res.json();
-        // FILTER: Remove both 'powder' AND 'api' categories
         products = rawProducts.filter(p => {
           const cat = p.category ? p.category.toLowerCase() : '';
           return cat !== 'powder' && cat !== 'api';
         });
       } catch(e) {
-        // Fallback data: no API or powder products
         products = [
           { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg" },
           { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root.", moq:"500 gm", lead:"3-5 days", unit:"1 kg" },
@@ -347,14 +451,12 @@
         'namak': 'hexagon'
       };
       
-      // 👇 Change 'soap' to 'herbal soap'
       const cats = ['all', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'herbal soap']; 
       document.getElementById('catButtons').innerHTML = cats.map(c => {
-        const iconHTML = c === 'herbal soap'  // 👈 Change here
+        const iconHTML = c === 'herbal soap'
           ? getSoapIcon() 
           : `<i data-lucide="${catIcons[c] || 'package'}" class="w-4 h-4 md:w-5 md:h-5 text-brand"></i>`;
         
-        // 👇 Update display name
         let displayName = c === 'all' ? 'All' 
           : c === 'namak' ? 'Namak' 
           : c === 'rasa' ? 'Rasa' 
@@ -362,7 +464,7 @@
           : c === 'oils' ? 'Oils' 
           : c === 'mushrooms' ? 'Mushrooms' 
           : c === 'extracts' ? 'Extracts' 
-          : c === 'herbal soap' ? 'Organic Herbal Soap'  // 👈 Change display name
+          : c === 'herbal soap' ? 'Organic Herbal Soap'
           : c.charAt(0).toUpperCase() + c.slice(1);
         
         return `
@@ -448,10 +550,10 @@
     function openCart(){ document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('cartPanel').style.transform='translateX(0)',10); }
     function showToast(msg){ const container=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm'; el.innerHTML=`<i data-lucide="check-circle" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; container.appendChild(el); lucide.createIcons(); setTimeout(()=>el.remove(),2500); }
     function filterCategory(c){ 
-  currentCategory=c; 
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); 
-  renderProducts(getFilteredProducts()); 
-}
+      currentCategory=c; 
+      document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); 
+      renderProducts(getFilteredProducts()); 
+    }
     function sortProducts(){ currentSort=document.getElementById('sortSelect').value; renderProducts(getFilteredProducts()); }
     
     async function submitInquiry(e){ e.preventDefault(); const msgDiv=document.getElementById('formMsg'); 
@@ -540,13 +642,12 @@
     window.addEnhancedToCart = function() { if(!currentModalProduct) return; const qty = parseInt(document.getElementById('modalQty')?.value) || 1; let unitFactor = 1; const u = selectedUnitValue; if(u==='10gm') unitFactor=0.01; else if(u==='125gm') unitFactor=0.125; else if(u==='250gm') unitFactor=0.25; else if(u==='500gm') unitFactor=0.5; else if(u==='1kg') unitFactor=1; else if(u==='15ml') unitFactor=0.015; else if(u==='30ml') unitFactor=0.03; else if(u==='50ml') unitFactor=0.05; else if(u==='100ml') unitFactor=0.1; else if(u==='200ml') unitFactor=0.2; else if(u==='500ml') unitFactor=0.5; else if(u==='1000ml') unitFactor=1; let price = currentModalProduct.price * unitFactor; if(selectedForm === 'Powder Form') price += 50 * unitFactor; price = Math.round(price * 100)/100; const existing = cart.find(i => i.id === currentModalProduct.id && i.name === `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`); if(existing) existing.qty += qty; else cart.push({ id: currentModalProduct.id, name: `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`, price: price, qty: qty, img: currentModalProduct.img }); updateCartUI(); showToast(`Added ${qty} x ${selectedUnitValue}`); closeModal(); };
     function closeModal(){ document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct=null; }
 
-    // Payment Functions
+    // ========== PAYMENT FUNCTIONS ==========
+    
     function selectPaymentMethod(method) {
       selectedPaymentMethod = method;
       const esewaTab = document.getElementById('esewaTab');
       const khaltiTab = document.getElementById('khaltiTab');
-      const esewaForm = document.getElementById('esewaForm');
-      const khaltiForm = document.getElementById('khaltiForm');
       
       if (method === 'esewa') {
         esewaTab.classList.add('active');
@@ -557,8 +658,6 @@
         khaltiTab.style.borderColor = '#e7e5e4';
         khaltiTab.style.color = '#57534E';
         khaltiTab.style.background = 'transparent';
-        esewaForm.classList.remove('hidden');
-        khaltiForm.classList.add('hidden');
       } else {
         khaltiTab.classList.add('active');
         khaltiTab.style.borderColor = '#5C2D91';
@@ -568,9 +667,114 @@
         esewaTab.style.borderColor = '#e7e5e4';
         esewaTab.style.color = '#57534E';
         esewaTab.style.background = 'transparent';
-        khaltiForm.classList.remove('hidden');
-        esewaForm.classList.add('hidden');
       }
+    }
+
+    function selectPaymentModalMethod(method) {
+      selectedPaymentMethod = method;
+      const modalEsewaTab = document.getElementById('modalEsewaTab');
+      const modalKhaltiTab = document.getElementById('modalKhaltiTab');
+      const qrLabel = document.getElementById('qrLabel');
+      
+      if (method === 'esewa') {
+        modalEsewaTab.classList.add('active');
+        modalEsewaTab.style.borderColor = '#5EBC5D';
+        modalEsewaTab.style.color = '#5EBC5D';
+        modalEsewaTab.style.background = 'rgba(94,188,93,0.05)';
+        modalKhaltiTab.classList.remove('active');
+        modalKhaltiTab.style.borderColor = '#e7e5e4';
+        modalKhaltiTab.style.color = '#57534E';
+        modalKhaltiTab.style.background = 'transparent';
+        if (qrLabel) qrLabel.textContent = 'Scan using eSewa';
+      } else {
+        modalKhaltiTab.classList.add('active');
+        modalKhaltiTab.style.borderColor = '#5C2D91';
+        modalKhaltiTab.style.color = '#5C2D91';
+        modalKhaltiTab.style.background = 'rgba(92,45,145,0.05)';
+        modalEsewaTab.classList.remove('active');
+        modalEsewaTab.style.borderColor = '#e7e5e4';
+        modalEsewaTab.style.color = '#57534E';
+        modalEsewaTab.style.background = 'transparent';
+        if (qrLabel) qrLabel.textContent = 'Scan using Khalti';
+      }
+      updateQRDisplay();
+    }
+
+    function selectCurrency(currency) {
+      paymentCurrency = currency;
+      const nprBtn = document.getElementById('currencyNPR');
+      const usdBtn = document.getElementById('currencyUSD');
+      
+      if (currency === 'NPR') {
+        nprBtn.classList.add('active-curr');
+        nprBtn.style.backgroundColor = '#1C1917';
+        nprBtn.style.color = 'white';
+        usdBtn.classList.remove('active-curr');
+        usdBtn.style.backgroundColor = 'transparent';
+        usdBtn.style.color = '';
+      } else {
+        usdBtn.classList.add('active-curr');
+        usdBtn.style.backgroundColor = '#1C1917';
+        usdBtn.style.color = 'white';
+        nprBtn.classList.remove('active-curr');
+        nprBtn.style.backgroundColor = 'transparent';
+        nprBtn.style.color = '';
+      }
+      updateQRDisplay();
+    }
+
+    function updateQRDisplay() {
+      const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const totalUSD = totalNPR / exchangeRate;
+      const qrAmount = document.getElementById('qrAmount');
+      
+      if (paymentCurrency === 'NPR') {
+        if (qrAmount) qrAmount.textContent = `NPR ${totalNPR.toLocaleString()}`;
+      } else {
+        if (qrAmount) qrAmount.textContent = `$${totalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      }
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('File size must be less than 5MB');
+        event.target.value = '';
+        return;
+      }
+      
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        showToast('Only JPG and PNG files are allowed');
+        event.target.value = '';
+        return;
+      }
+      
+      uploadedFile = file;
+      const uploadArea = document.getElementById('fileUploadArea');
+      const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+      const uploadPreview = document.getElementById('uploadPreview');
+      const previewImage = document.getElementById('previewImage');
+      const previewFileName = document.getElementById('previewFileName');
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        uploadPlaceholder.classList.add('hidden');
+        uploadPreview.classList.remove('hidden');
+        uploadArea.classList.add('has-file');
+        previewFileName.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearFileUpload() {
+      uploadedFile = null;
+      document.getElementById('paymentScreenshot').value = '';
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      document.getElementById('uploadPreview').classList.add('hidden');
+      document.getElementById('fileUploadArea').classList.remove('has-file');
     }
 
     function proceedToPayment() {
@@ -578,9 +782,33 @@
         showToast('Your cart is empty');
         return;
       }
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      document.getElementById('paymentAmount').textContent = `NPR ${total.toLocaleString()}`;
-      document.getElementById('paymentMethodDisplay').textContent = selectedPaymentMethod;
+      
+      const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const totalUSD = totalNPR / exchangeRate;
+      const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+      
+      document.getElementById('paymentAmountNPR').textContent = `NPR ${totalNPR.toLocaleString()}`;
+      document.getElementById('paymentAmountUSD').textContent = `$${totalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      document.getElementById('paymentItemCount').textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+      
+      // Reset currency to NPR
+      paymentCurrency = 'NPR';
+      selectCurrency('NPR');
+      
+      // Sync modal payment method with sidebar selection
+      selectPaymentModalMethod(selectedPaymentMethod);
+      
+      // Reset file upload
+      clearFileUpload();
+      
+      // Reset form fields
+      document.getElementById('clientName').value = '';
+      document.getElementById('clientPhone').value = '';
+      document.getElementById('clientEmail').value = '';
+      document.getElementById('clientAddress').value = '';
+      
+      updateQRDisplay();
+      
       document.getElementById('paymentModal').classList.remove('hidden');
       document.getElementById('paymentModal').classList.add('flex');
       lucide.createIcons();
@@ -589,40 +817,64 @@
     function closePaymentModal() {
       document.getElementById('paymentModal').classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('flex');
-      document.getElementById('esewaId').value = '';
-      document.getElementById('khaltiId').value = '';
+      clearFileUpload();
     }
 
     async function processPayment() {
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      let paymentId = '';
+      const clientName = document.getElementById('clientName').value.trim();
+      const clientPhone = document.getElementById('clientPhone').value.trim();
+      const clientEmail = document.getElementById('clientEmail').value.trim();
+      const clientAddress = document.getElementById('clientAddress').value.trim();
+      const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const totalUSD = totalNPR / exchangeRate;
       
-      if (selectedPaymentMethod === 'esewa') {
-        paymentId = document.getElementById('esewaId').value.trim();
-      } else {
-        paymentId = document.getElementById('khaltiId').value.trim();
+      // Validate required fields
+      if (!clientName) {
+        showToast('Please enter your full name');
+        document.getElementById('clientName').classList.add('input-error');
+        return;
       }
+      document.getElementById('clientName').classList.remove('input-error');
       
-      if (!paymentId) {
-        showToast(`Please enter your ${selectedPaymentMethod} ID`);
+      if (!clientPhone) {
+        showToast('Please enter your phone number');
+        document.getElementById('clientPhone').classList.add('input-error');
+        return;
+      }
+      document.getElementById('clientPhone').classList.remove('input-error');
+      
+      if (!clientEmail) {
+        showToast('Please enter your email address');
+        document.getElementById('clientEmail').classList.add('input-error');
+        return;
+      }
+      document.getElementById('clientEmail').classList.remove('input-error');
+      
+      if (!uploadedFile) {
+        showToast('Please upload payment screenshot');
         return;
       }
       
       try {
+        const formData = new FormData();
+        formData.append('clientName', clientName);
+        formData.append('clientPhone', clientPhone);
+        formData.append('clientEmail', clientEmail);
+        formData.append('clientAddress', clientAddress);
+        formData.append('paymentMethod', selectedPaymentMethod);
+        formData.append('currency', paymentCurrency);
+        formData.append('totalNPR', totalNPR);
+        formData.append('totalUSD', totalUSD);
+        formData.append('items', JSON.stringify(cart));
+        formData.append('screenshot', uploadedFile);
+        
         const response = await fetch(`${BACKEND_URL}/orders`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            items: cart,
-            total: total,
-            paymentMethod: selectedPaymentMethod,
-            paymentId: paymentId,
-            currency: 'NPR'
-          })
+          body: formData
         });
         
         if (response.ok) {
-          showToast('✓ Payment confirmed! Order placed successfully.');
+          showToast('✓ Order placed! Your order will be processed after verification.');
           clearCart();
           closePaymentModal();
           closeCart();
