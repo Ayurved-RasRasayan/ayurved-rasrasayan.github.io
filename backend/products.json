@@ -1062,5 +1062,91 @@
     "img": "images/reishi-mushroom.jpg",
     "desc": "Whole dried Rato Chyau (Red Reishi) from Nepal. Hand-harvested from hardwood logs. Rich in beta-glucans, triterpenes, and ganoderic acids.",
     "stock": 100
+  },
+  {
+    "id": 77,
+    "name": "Gomutra Soap",
+    "sci": "Gomutra Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/gomutra-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 78,
+    "name": "Haldi Soap",
+    "sci": "Haldi Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/haldi-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 79,
+    "name": "Mixed Hair Soap",
+    "sci": "Mixed Hair Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/mixed-hair-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 80,
+    "name": "Mixed Skin Soap",
+    "sci": "Mixed Skin Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/mixed-skin-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 81,
+    "name": "Neem Soap",
+    "sci": "Neem Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/neem-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 82,
+    "name": "Tetepati Soap",
+    "sci": "Tetepati Soap",
+    "category": "herbs",
+    "catLabel": "Raw Herbs, Roots & Botanicals",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/tetepati-soap.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
+  
+
