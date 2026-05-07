@@ -192,9 +192,7 @@
 
     // ONLY Aloe Vera Soap - removed #301-306
     const herbalSoapProducts = [
-      { id: 104, name: "🌿 Aloe Vera Soap", sci: "Aloe barbadensis miller", category: "herbal-soap", catLabel: "Natural Herbal Soap", price: 1000, img: "images/aloevera-soap.jpg", desc: "Premium quality aloe vera soap with various health benefits. Soothing, hydrating, and perfect for daily skincare.", moq: "1 bar", lead: "21-30 days", unit: "100g bar", stock: 100 }
-    ];
-
+     
     async function loadExchangeRate() { try { const res = await fetch(`${BACKEND_URL}/public/rate`); if(res.ok){ const data = await res.json(); if(data.rate && data.rate > 0) exchangeRate = data.rate; } } catch(e){} updateRateDisplays(); loadProducts(); }
     function updateRateDisplays(){ const r=exchangeRate.toFixed(2); const label=document.getElementById('rateLabel'); if(label) label.textContent=`$ prices at 1 USD = Rs. ${r}`; const ft=document.getElementById('footerRateText'); if(ft) ft.textContent=`1 USD = Rs. ${r} NPR`; }
     
@@ -209,7 +207,7 @@
           const cat = p.category ? p.category.toLowerCase() : '';
           return cat !== 'powder' && cat !== 'api';
         });
-        products = [...filteredProducts, ...herbalSoapProducts];
+        products = [...filteredProducts];
       } catch(e) {
         products = [
           { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock:50 },
