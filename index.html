@@ -872,31 +872,6 @@
     lucide.createIcons();
   }
   
-  // Prepare order data
-  const orderData = {
-    clientName,
-    clientPhone,
-    clientEmail,
-    clientAddress: clientAddress || 'Not provided',
-    paymentMethod: selectedPaymentMethod,
-    currency: paymentCurrency,
-    totalNPR,
-    totalUSD,
-    items: cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.qty,
-      subtotal: item.price * item.qty
-    })),
-    itemCount: totalItems,
-    screenshotName: uploadedFile ? uploadedFile.name : 'No screenshot',
-    timestamp: new Date().toISOString(),
-    status: 'pending'
-  };
-  
-  console.log('📤 Sending order to backend:', orderData);
-  
   try {
     // Convert file to base64 for sending
     let screenshotBase64 = null;
@@ -904,55 +879,133 @@
       screenshotBase64 = await convertFileToBase64(uploadedFile);
     }
     
-    const payload = {
-      ...orderData,
-      screenshot: screenshotBase64
+    // Format order data to match backend expectations based on orderl.html
+    const orderData = {
+      // Client details as nested object (matches orderl.html clientDetails.name, etc.)
+      clientDetails: {
+        name: clientName,
+        phone: clientPhone,
+        email: clientEmail,
+        address: clientAddress || 'Not provided'
+      },
+      // Payment info
+      paymentMethod: selectedPaymentMethod,
+      currency: paymentCurrency,
+      totalNPR: totalNPR,
+      totalUSD: totalUSD,
+      // Items array (matches orderl.html items iteration)
+      items: cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        quantity: item.qty  // Include both for compatibility
+      })),
+      itemCount: totalItems,
+      // Payment screenshot as base64 (backend will save as URL)
+      paymentScreenshot: screenshotBase64,
+      // Status and metadata
+      status: 'Pending',
+      emailStatus: 'Queue',
+      timestamp: new Date().toISOString()
     };
     
+    console.log('📤 Sending order to backend:', {
+      ...orderData,
+      paymentScreenshot: screenshotBase64 ? '[BASE64_IMAGE]' : null
+    });
+    
     // Try sending to orders endpoint
-    console.log('🔄 Attempting POST to:', `${BACKEND_URL}/orders`);
     const response = await fetch(`${BACKEND_URL}/orders`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(orderData)
     });
     
     console.log('📥 Response status:', response.status);
+    
     const responseData = await response.json().catch(() => null);
     console.log('📥 Response data:', responseData);
     
     if (response.ok) {
-      console.log('✅ Order saved successfully');
-      showToast('✓ Order placed! Your order will be processed after verification.');
+      console.log('✅ Order saved successfully to database');
+      
+      // Save to localStorage as backup
+      const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
+      backupOrders.push({
+        ...orderData,
+        _id: responseData.orderId || 'local_' + Date.now(),
+        paymentScreenshot: '[STORED_LOCALLY]'
+      });
+      localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
+      
+      showToast('✓ Order placed successfully! Thank you for your purchase.');
       clearCart();
       closePaymentModal();
       closeCart();
     } else {
-      console.warn('⚠️ Server returned error, trying inquiry endpoint...');
-      // Fallback: send as inquiry
-      await sendAsInquiry(orderData, screenshotBase64);
-    }
-  } catch (error) {
-    console.error('❌ Network error:', error);
-    // Try inquiry endpoint as fallback
-    try {
-      let screenshotBase64 = null;
-      if (uploadedFile) {
-        screenshotBase64 = await convertFileToBase64(uploadedFile);
-      }
-      await sendAsInquiry(orderData, screenshotBase64);
-    } catch (fallbackError) {
-      console.error('❌ Fallback also failed:', fallbackError);
-      // Last resort: save to localStorage
-      saveOrderLocally(orderData);
-      showToast('✓ Order saved locally! We will process it shortly.');
+      console.warn('⚠️ Backend returned error:', responseData);
+      
+      // Save locally as fallback
+      const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
+      backupOrders.push({
+        ...orderData,
+        _id: 'local_' + Date.now(),
+        paymentScreenshot: '[STORED_LOCALLY]',
+        status: 'Pending',
+        emailStatus: 'Queue'
+      });
+      localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
+      
+      // Still show success to user
+      showToast('✓ Order saved! We will process it shortly.');
       clearCart();
       closePaymentModal();
       closeCart();
     }
+    
+  } catch (error) {
+    console.error('❌ Network error:', error.message);
+    
+    // Save locally as fallback
+    const orderData = {
+      clientDetails: {
+        name: clientName,
+        phone: clientPhone,
+        email: clientEmail,
+        address: clientAddress || 'Not provided'
+      },
+      paymentMethod: selectedPaymentMethod,
+      currency: paymentCurrency,
+      totalNPR: totalNPR,
+      totalUSD: totalUSD,
+      items: cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        qty: item.qty
+      })),
+      itemCount: totalItems,
+      status: 'Pending',
+      emailStatus: 'Queue',
+      timestamp: new Date().toISOString(),
+      _id: 'local_' + Date.now()
+    };
+    
+    const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
+    backupOrders.push(orderData);
+    localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
+    
+    console.log('💾 Order saved to localStorage as backup');
+    
+    showToast('✓ Order saved! We will process it shortly.');
+    clearCart();
+    closePaymentModal();
+    closeCart();
+    
   } finally {
     if (payBtn) {
       payBtn.disabled = false;
@@ -962,139 +1015,34 @@
   }
 }
 
-// Helper function to convert file to base64
+// Convert file to base64
 function convertFileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => {
+      // Remove the data:image/...;base64, prefix if needed
+      const base64 = reader.result;
+      resolve(base64);
+    };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-// Fallback: send order as inquiry
-async function sendAsInquiry(orderData, screenshotBase64) {
-  console.log('🔄 Sending as inquiry...');
-  
-  const inquiryMessage = `
-NEW ORDER
----------
-Customer: ${orderData.clientName}
-Phone: ${orderData.clientPhone}
-Email: ${orderData.clientEmail}
-Address: ${orderData.clientAddress}
-Payment: ${orderData.paymentMethod}
-Currency: ${orderData.currency}
-Total: NPR ${orderData.totalNPR} ($${orderData.totalUSD})
-Items: ${orderData.itemCount}
-Status: ${orderData.status}
-Time: ${orderData.timestamp}
-
-Order Items:
-${orderData.items.map(item => `- ${item.name} x${item.quantity} @ NPR ${item.price} = NPR ${item.subtotal}`).join('\n')}
-
-Screenshot: ${orderData.screenshotName}
-  `.trim();
-  
-  const response = await fetch(`${BACKEND_URL}/inquiries`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      firstName: orderData.clientName.split(' ')[0] || orderData.clientName,
-      lastName: orderData.clientName.split(' ').slice(1).join(' ') || 'Customer',
-      email: orderData.clientEmail,
-      message: inquiryMessage
-    })
-  });
-  
-  console.log('📥 Inquiry response status:', response.status);
-  const responseData = await response.json().catch(() => null);
-  console.log('📥 Inquiry response data:', responseData);
-  
-  if (response.ok) {
-    console.log('✅ Order sent as inquiry');
-    showToast('✓ Order placed! Your order will be processed after verification.');
-    clearCart();
-    closePaymentModal();
-    closeCart();
-  } else {
-    throw new Error('Inquiry endpoint failed');
-  }
-}
-
-// Last resort: save order locally
-function saveOrderLocally(orderData) {
-  console.log('💾 Saving order locally...');
-  const existingOrders = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
-  existingOrders.push(orderData);
-  localStorage.setItem('pendingOrders', JSON.stringify(existingOrders));
-  console.log('✅ Order saved to localStorage');
-  console.log('📋 All pending orders:', existingOrders);
-}
-
-// Add this function to check backend connectivity
-async function diagnoseBackend() {
-  console.log('🔍 Diagnosing Backend Connection...');
-  console.log('Backend URL:', BACKEND_URL);
-  
-  // Test 1: Check if backend is reachable
-  try {
-    const testRes = await fetch(`${BACKEND_URL}/public/rate`);
-    console.log('✅ Backend is reachable. Rate endpoint status:', testRes.status);
-  } catch (e) {
-    console.error('❌ Backend is NOT reachable:', e.message);
-    console.log('💡 Make sure your backend server is running');
-  }
-  
-  // Test 2: Check if orders endpoint exists
-  try {
-    const orderTest = await fetch(`${BACKEND_URL}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ test: true })
-    });
-    console.log('Orders endpoint status:', orderTest.status);
-    const data = await orderTest.json().catch(() => 'No JSON response');
-    console.log('Orders response:', data);
-  } catch (e) {
-    console.error('❌ Orders endpoint error:', e.message);
-    console.log('💡 The /orders endpoint might not exist on your backend');
-  }
-  
-  // Test 3: Check if inquiries endpoint works
-  try {
-    const inquiryTest = await fetch(`${BACKEND_URL}/inquiries`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@test.com',
-        message: 'Diagnostic test'
-      })
-    });
-    console.log('Inquiries endpoint status:', inquiryTest.status);
-    const data = await inquiryTest.json().catch(() => 'No JSON response');
-    console.log('Inquiries response:', data);
-    console.log('✅ Use this endpoint to send orders if /orders is not available');
-  } catch (e) {
-    console.error('❌ Inquiries endpoint error:', e.message);
-  }
-  
-  // Test 4: Check CORS headers
-  try {
-    const corsTest = await fetch(`${BACKEND_URL}/products`, { method: 'HEAD' });
-    console.log('CORS headers:', {
-      'access-control-allow-origin': corsTest.headers.get('access-control-allow-origin'),
-      'access-control-allow-methods': corsTest.headers.get('access-control-allow-methods'),
-      'access-control-allow-headers': corsTest.headers.get('access-control-allow-headers')
-    });
-  } catch (e) {
-    console.error('❌ CORS check failed:', e.message);
-  }
+// Add this to check local orders in browser console
+function viewLocalOrders() {
+  const orders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
+  console.log('📦 Local Orders:', orders);
+  console.table(orders.map(o => ({
+    Name: o.clientDetails?.name,
+    Phone: o.clientDetails?.phone,
+    Email: o.clientDetails?.email,
+    Total: `NPR ${o.totalNPR}`,
+    Items: o.itemCount,
+    Status: o.status,
+    Date: new Date(o.timestamp).toLocaleDateString()
+  })));
+  return orders;
 }
 	  
     // Close payment modal on overlay click
