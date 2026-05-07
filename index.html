@@ -820,229 +820,113 @@
       clearFileUpload();
     }
 
-    async function processPayment() {
-  const clientName = document.getElementById('clientName').value.trim();
-  const clientPhone = document.getElementById('clientPhone').value.trim();
-  const clientEmail = document.getElementById('clientEmail').value.trim();
-  const clientAddress = document.getElementById('clientAddress').value.trim();
-  const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const totalUSD = Math.round((totalNPR / exchangeRate) * 100) / 100;
-  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  async function submitOrderToBackend() { 
+  const name = document.getElementById('clientName').value.trim(); 
+  const phone = document.getElementById('clientPhone').value.trim(); 
+  const email = document.getElementById('clientEmail').value.trim(); 
+  const address = document.getElementById('clientAddress').value.trim(); 
   
-  // Validate required fields
-  let hasError = false;
-  
-  if (!clientName) {
-    showToast('Please enter your full name');
-    document.getElementById('clientName').classList.add('input-error');
-    hasError = true;
-  } else {
-    document.getElementById('clientName').classList.remove('input-error');
+  // COMPULSORY VALIDATION
+  if (!name) { 
+    showToast('Please enter your full name', 'error'); 
+    document.getElementById('clientName').classList.add('input-error'); 
+    return; 
+  }
+  if (!phone) { 
+    showToast('Please enter your phone number', 'error'); 
+    document.getElementById('clientPhone').classList.add('input-error'); 
+    return; 
+  }
+  if (!email) { 
+    showToast('Please enter your email address', 'error'); 
+    document.getElementById('clientEmail').classList.add('input-error'); 
+    return; 
+  }
+  if (!email.includes('@') || !email.includes('.')) { 
+    showToast('Please enter a valid email address', 'error'); 
+    document.getElementById('clientEmail').classList.add('input-error'); 
+    return; 
+  }
+  if (!paymentScreenshotBase64) { 
+    showToast('Please upload a payment screenshot', 'error'); 
+    document.getElementById('dropZone').classList.add('upload-error'); 
+    document.getElementById('uploadError').classList.remove('hidden'); 
+    return; 
+  }
+  if (!cart.length) { 
+    showToast('Cart is empty', 'error'); 
+    return; 
   }
   
-  if (!clientPhone) {
-    showToast('Please enter your phone number');
-    document.getElementById('clientPhone').classList.add('input-error');
-    hasError = true;
-  } else {
-    document.getElementById('clientPhone').classList.remove('input-error');
-  }
+  // Remove error styles
+  document.getElementById('clientName')?.classList.remove('input-error');
+  document.getElementById('clientPhone')?.classList.remove('input-error');
+  document.getElementById('clientEmail')?.classList.remove('input-error');
+  document.getElementById('dropZone')?.classList.remove('upload-error');
+  document.getElementById('uploadError')?.classList.add('hidden');
   
-  if (!clientEmail) {
-    showToast('Please enter your email address');
-    document.getElementById('clientEmail').classList.add('input-error');
-    hasError = true;
-  } else {
-    document.getElementById('clientEmail').classList.remove('input-error');
-  }
+  const btn = document.getElementById('confirmPayBtn'); 
+  const originalHtml = btn.innerHTML; 
+  btn.disabled = true; 
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; 
+  lucide.createIcons(); 
   
-  if (!uploadedFile) {
-    showToast('Please upload payment screenshot');
-    hasError = true;
-  }
-  
-  if (hasError) return;
-  
-  // Show loading state
-  const payBtn = document.querySelector('#paymentModal button:has(i[data-lucide="check-circle"])');
-  const originalBtnText = payBtn ? payBtn.innerHTML : '';
-  if (payBtn) {
-    payBtn.disabled = true;
-    payBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
-    lucide.createIcons();
-  }
-  
-  try {
-    // Convert file to base64 for sending
-    let screenshotBase64 = null;
-    if (uploadedFile) {
-      screenshotBase64 = await convertFileToBase64(uploadedFile);
-    }
+  try { 
+    const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0); 
+    const totalUSD = totalNPR / exchangeRate; 
+    const paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; 
+    const currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD'; 
     
-    // Format order data to match backend expectations based on orderl.html
-    const orderData = {
-      // Client details as nested object (matches orderl.html clientDetails.name, etc.)
-      clientDetails: {
-        name: clientName,
-        phone: clientPhone,
-        email: clientEmail,
-        address: clientAddress || 'Not provided'
-      },
-      // Payment info
-      paymentMethod: selectedPaymentMethod,
-      currency: paymentCurrency,
-      totalNPR: totalNPR,
-      totalUSD: totalUSD,
-      // Items array (matches orderl.html items iteration)
-      items: cart.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        qty: item.qty,
-        quantity: item.qty  // Include both for compatibility
-      })),
-      itemCount: totalItems,
-      // Payment screenshot as base64 (backend will save as URL)
-      paymentScreenshot: screenshotBase64,
-      // Status and metadata
-      status: 'Pending',
-      emailStatus: 'Queue',
-      timestamp: new Date().toISOString()
-    };
+    // This is the exact format the backend expects
+    const orderData = { 
+      items: cart.map(i => ({ 
+        id: i.id, 
+        name: i.name, 
+        price: i.price, 
+        qty: i.qty 
+      })), 
+      totalNPR, 
+      totalUSD, 
+      paidAmount, 
+      currency, 
+      paymentMethod: selectedPaymentMethod, 
+      paymentScreenshot: paymentScreenshotBase64, 
+      clientDetails: { 
+        name, 
+        phone, 
+        email, 
+        address: address || 'N/A' 
+      } 
+    }; 
     
-    console.log('📤 Sending order to backend:', {
-      ...orderData,
-      paymentScreenshot: screenshotBase64 ? '[BASE64_IMAGE]' : null
-    });
+    const res = await fetch(`${BACKEND_URL}/orders`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(orderData) 
+    }); 
     
-    // Try sending to orders endpoint
-    const response = await fetch(`${BACKEND_URL}/orders`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(orderData)
-    });
-    
-    console.log('📥 Response status:', response.status);
-    
-    const responseData = await response.json().catch(() => null);
-    console.log('📥 Response data:', responseData);
-    
-    if (response.ok) {
-      console.log('✅ Order saved successfully to database');
-      
-      // Save to localStorage as backup
-      const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
-      backupOrders.push({
-        ...orderData,
-        _id: responseData.orderId || 'local_' + Date.now(),
-        paymentScreenshot: '[STORED_LOCALLY]'
-      });
-      localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
-      
-      showToast('✓ Order placed successfully! Thank you for your purchase.');
-      clearCart();
-      closePaymentModal();
-      closeCart();
-    } else {
-      console.warn('⚠️ Backend returned error:', responseData);
-      
-      // Save locally as fallback
-      const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
-      backupOrders.push({
-        ...orderData,
-        _id: 'local_' + Date.now(),
-        paymentScreenshot: '[STORED_LOCALLY]',
-        status: 'Pending',
-        emailStatus: 'Queue'
-      });
-      localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
-      
-      // Still show success to user
-      showToast('✓ Order saved! We will process it shortly.');
-      clearCart();
-      closePaymentModal();
-      closeCart();
-    }
-    
-  } catch (error) {
-    console.error('❌ Network error:', error.message);
-    
-    // Save locally as fallback
-    const orderData = {
-      clientDetails: {
-        name: clientName,
-        phone: clientPhone,
-        email: clientEmail,
-        address: clientAddress || 'Not provided'
-      },
-      paymentMethod: selectedPaymentMethod,
-      currency: paymentCurrency,
-      totalNPR: totalNPR,
-      totalUSD: totalUSD,
-      items: cart.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        qty: item.qty
-      })),
-      itemCount: totalItems,
-      status: 'Pending',
-      emailStatus: 'Queue',
-      timestamp: new Date().toISOString(),
-      _id: 'local_' + Date.now()
-    };
-    
-    const backupOrders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
-    backupOrders.push(orderData);
-    localStorage.setItem('naturaOrders', JSON.stringify(backupOrders));
-    
-    console.log('💾 Order saved to localStorage as backup');
-    
-    showToast('✓ Order saved! We will process it shortly.');
-    clearCart();
-    closePaymentModal();
-    closeCart();
-    
-  } finally {
-    if (payBtn) {
-      payBtn.disabled = false;
-      payBtn.innerHTML = originalBtnText || '<i data-lucide="check-circle" class="w-4 h-4"></i> I have made payment';
-      lucide.createIcons();
-    }
-  }
-}
-
-// Convert file to base64
-function convertFileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      // Remove the data:image/...;base64, prefix if needed
-      const base64 = reader.result;
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// Add this to check local orders in browser console
-function viewLocalOrders() {
-  const orders = JSON.parse(localStorage.getItem('naturaOrders') || '[]');
-  console.log('📦 Local Orders:', orders);
-  console.table(orders.map(o => ({
-    Name: o.clientDetails?.name,
-    Phone: o.clientDetails?.phone,
-    Email: o.clientDetails?.email,
-    Total: `NPR ${o.totalNPR}`,
-    Items: o.itemCount,
-    Status: o.status,
-    Date: new Date(o.timestamp).toLocaleDateString()
-  })));
-  return orders;
+    if (res.ok) { 
+      showToast('Order placed! We will verify payment and email you confirmation.'); 
+      cart = []; 
+      updateCartUI(); 
+      paymentScreenshotBase64 = null; 
+      clearScreenshot(); 
+      document.getElementById('clientName').value = ''; 
+      document.getElementById('clientPhone').value = ''; 
+      document.getElementById('clientEmail').value = ''; 
+      document.getElementById('clientAddress').value = ''; 
+      closePaymentModal(); 
+    } else { 
+      const err = await res.json(); 
+      showToast(err.message || 'Order submission failed', 'error'); 
+    } 
+  } catch(err) { 
+    showToast('Network error. Please try again.', 'error'); 
+  } finally { 
+    btn.disabled = false; 
+    btn.innerHTML = originalHtml; 
+    lucide.createIcons(); 
+  } 
 }
 	  
     // Close payment modal on overlay click
