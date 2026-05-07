@@ -190,9 +190,11 @@
     let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
     let paymentScreenshotBase64 = null;
 
-    // ONLY Aloe Vera Soap - removed #301-306
+    // Hardcoded Aloe Vera Soap - RESTORED so Herbal Soap category has products
     const herbalSoapProducts = [
-     
+      { id: 104, name: "🌿 Aloe Vera Soap", sci: "Aloe barbadensis miller", category: "herbal-soap", catLabel: "Natural Herbal Soap", price: 1000, img: "images/aloevera-soap.jpg", desc: "Premium quality aloe vera soap with various health benefits. Soothing, hydrating, and perfect for daily skincare.", moq: "1 bar", lead: "21-30 days", unit: "100g bar", stock: 100 }
+    ];
+
     async function loadExchangeRate() { try { const res = await fetch(`${BACKEND_URL}/public/rate`); if(res.ok){ const data = await res.json(); if(data.rate && data.rate > 0) exchangeRate = data.rate; } } catch(e){} updateRateDisplays(); loadProducts(); }
     function updateRateDisplays(){ const r=exchangeRate.toFixed(2); const label=document.getElementById('rateLabel'); if(label) label.textContent=`$ prices at 1 USD = Rs. ${r}`; const ft=document.getElementById('footerRateText'); if(ft) ft.textContent=`1 USD = Rs. ${r} NPR`; }
     
@@ -207,17 +209,30 @@
           const cat = p.category ? p.category.toLowerCase() : '';
           return cat !== 'powder' && cat !== 'api';
         });
-        products = [...filteredProducts];
+        // Add hardcoded Aloe Vera soap to ensure Herbal Soap category has products
+        products = [...filteredProducts, ...herbalSoapProducts];
       } catch(e) {
-        
+        products = [
+          { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock:50 },
+          { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Root", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root.", moq:"500 gm", lead:"3-5 days", unit:"1 kg", stock:40 },
+          { id:3, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", lead:"7 days", unit:"100 ml", stock:30 },
+          { id:4, name:"Himalayan Pink Salt", sci:"Sodium Chloride", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Pure pink salt crystals.", moq:"1 kg", lead:"4-6 days", unit:"kg", stock:100 },
+          ...herbalSoapProducts
+        ];
       }
       renderCatButtons(); renderProducts(getFilteredProducts());
     }
     
-    // Categories: REMOVED 'api' and 'powder'
+    // Categories: REMOVED 'api' and 'powder' - ADDED 'herbal-soap'
     function renderCatButtons(){ 
-      const cats=['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal-soap']; 
-      document.getElementById('catButtons').innerHTML=cats.map(c=>`<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${c==='herbal-soap'?'soap':(c==='oils'?'droplet':c==='mushrooms'?'fungus':'leaf')}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c==='herbal-soap'?'Herbal Soap':c}</span></button>`).join(''); 
+      const cats = ['all', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'herbal-soap']; 
+      const icons = { all:'grid-3x3', oils:'droplet', extracts:'flask-conical', mushrooms:'fungus', herbs:'leaf', rasa:'gem', namak:'droplet', 'herbal-soap':'soap' };
+      document.getElementById('catButtons').innerHTML = cats.map(c => `
+        <button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}">
+          <div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${icons[c] || 'package'}" class="w-4 h-4 text-brand"></i></div>
+          <span class="text-[10px] font-medium capitalize">${c === 'herbal-soap' ? 'Herbal Soap' : c}</span>
+        </button>
+      `).join(''); 
       lucide.createIcons(); 
     }
     
@@ -288,7 +303,7 @@
     
     async function submitInquiry(e){ e.preventDefault(); const btn=e.target.querySelector('button[type="submit"]'), msgDiv=document.getElementById('formMsg'); btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try{ const res=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany')?.value||'',message:document.getElementById('contactMessage').value})}); if(res.ok){ msgDiv.textContent='✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch(err){ msgDiv.textContent='✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry','error'); } finally{ btn.disabled=false; btn.innerHTML='Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
     
-    // Payment functions (keep all)
+    // Payment functions (all kept)
     function openPaymentModal(method){ selectedPaymentMethod=method; const total=cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('paymentTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('paymentTotalSub').innerHTML=`$${(total/exchangeRate).toFixed(2)}`; document.getElementById('paymentItemsCount').innerHTML=`${cart.reduce((s,i)=>s+i.qty,0)} items`; document.querySelectorAll('.pay-tab').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${method}`).classList.add('active'); document.getElementById('paymentMethodLabel').innerHTML=method==='esewa'?'eSewa':'Khalti'; document.getElementById('qr-esewa').classList.toggle('hidden',method!=='esewa'); document.getElementById('qr-khalti').classList.toggle('hidden',method!=='khalti'); document.getElementById('paymentModal').classList.remove('hidden'); document.getElementById('paymentModal').classList.add('flex'); document.body.classList.add('payment-modal-open'); }
     function closePaymentModal(){ document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('flex'); document.body.classList.remove('payment-modal-open'); }
     function switchPaymentTab(method){ selectedPaymentMethod=method; openPaymentModal(method); }
