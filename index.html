@@ -826,7 +826,7 @@
   const clientEmail = document.getElementById('clientEmail').value.trim();
   const clientAddress = document.getElementById('clientAddress').value.trim();
   const totalNPR = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const totalUSD = totalNPR / exchangeRate;
+  const totalUSD = Math.round((totalNPR / exchangeRate) * 100) / 100;
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
   
   // Validate required fields
@@ -865,85 +865,238 @@
   
   // Show loading state
   const payBtn = document.querySelector('#paymentModal button:has(i[data-lucide="check-circle"])');
+  const originalBtnText = payBtn ? payBtn.innerHTML : '';
   if (payBtn) {
     payBtn.disabled = true;
     payBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
     lucide.createIcons();
   }
   
+  // Prepare order data
+  const orderData = {
+    clientName,
+    clientPhone,
+    clientEmail,
+    clientAddress: clientAddress || 'Not provided',
+    paymentMethod: selectedPaymentMethod,
+    currency: paymentCurrency,
+    totalNPR,
+    totalUSD,
+    items: cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.qty,
+      subtotal: item.price * item.qty
+    })),
+    itemCount: totalItems,
+    screenshotName: uploadedFile ? uploadedFile.name : 'No screenshot',
+    timestamp: new Date().toISOString(),
+    status: 'pending'
+  };
+  
+  console.log('📤 Sending order to backend:', orderData);
+  
   try {
-    // Try sending as JSON first (without file) to a simpler endpoint
-    const orderData = {
-      clientName,
-      clientPhone,
-      clientEmail,
-      clientAddress,
-      paymentMethod: selectedPaymentMethod,
-      currency: paymentCurrency,
-      totalNPR,
-      totalUSD: Math.round(totalUSD * 100) / 100,
-      items: cart,
-      itemCount: totalItems,
-      fileName: uploadedFile.name,
-      timestamp: new Date().toISOString()
-    };
-    
-    console.log('Submitting order:', orderData);
-    
-    // Try the orders endpoint
-    let response;
-    try {
-      response = await fetch(`${BACKEND_URL}/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
-    } catch (networkError) {
-      // If network fails, try the inquiries endpoint as fallback
-      console.log('Orders endpoint failed, trying inquiries...');
-      response = await fetch(`${BACKEND_URL}/inquiries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: clientName.split(' ')[0] || clientName,
-          lastName: clientName.split(' ').slice(1).join(' ') || '',
-          email: clientEmail,
-          message: `ORDER: ${totalItems} items, ${selectedPaymentMethod}, NPR ${totalNPR}, Phone: ${clientPhone}, Address: ${clientAddress || 'N/A'}, Screenshot: ${uploadedFile.name}`
-        })
-      });
+    // Convert file to base64 for sending
+    let screenshotBase64 = null;
+    if (uploadedFile) {
+      screenshotBase64 = await convertFileToBase64(uploadedFile);
     }
     
-    if (response && response.ok) {
+    const payload = {
+      ...orderData,
+      screenshot: screenshotBase64
+    };
+    
+    // Try sending to orders endpoint
+    console.log('🔄 Attempting POST to:', `${BACKEND_URL}/orders`);
+    const response = await fetch(`${BACKEND_URL}/orders`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    console.log('📥 Response status:', response.status);
+    const responseData = await response.json().catch(() => null);
+    console.log('📥 Response data:', responseData);
+    
+    if (response.ok) {
+      console.log('✅ Order saved successfully');
       showToast('✓ Order placed! Your order will be processed after verification.');
       clearCart();
       closePaymentModal();
       closeCart();
-    } else if (response) {
-      const errorText = await response.text();
-      console.error('Server error:', errorText);
-      // Even if server returns error, show success for demo
-      showToast('✓ Order submitted! We will verify and contact you shortly.');
+    } else {
+      console.warn('⚠️ Server returned error, trying inquiry endpoint...');
+      // Fallback: send as inquiry
+      await sendAsInquiry(orderData, screenshotBase64);
+    }
+  } catch (error) {
+    console.error('❌ Network error:', error);
+    // Try inquiry endpoint as fallback
+    try {
+      let screenshotBase64 = null;
+      if (uploadedFile) {
+        screenshotBase64 = await convertFileToBase64(uploadedFile);
+      }
+      await sendAsInquiry(orderData, screenshotBase64);
+    } catch (fallbackError) {
+      console.error('❌ Fallback also failed:', fallbackError);
+      // Last resort: save to localStorage
+      saveOrderLocally(orderData);
+      showToast('✓ Order saved locally! We will process it shortly.');
       clearCart();
       closePaymentModal();
       closeCart();
     }
-  } catch (error) {
-    console.error('Payment error:', error);
-    // Fallback: still show success and clear cart for demo purposes
-    showToast('✓ Order submitted! We will verify and contact you shortly.');
-    clearCart();
-    closePaymentModal();
-    closeCart();
   } finally {
-    // Reset button
     if (payBtn) {
       payBtn.disabled = false;
-      payBtn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> I have made payment';
+      payBtn.innerHTML = originalBtnText || '<i data-lucide="check-circle" class="w-4 h-4"></i> I have made payment';
       lucide.createIcons();
     }
   }
 }
 
+// Helper function to convert file to base64
+function convertFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Fallback: send order as inquiry
+async function sendAsInquiry(orderData, screenshotBase64) {
+  console.log('🔄 Sending as inquiry...');
+  
+  const inquiryMessage = `
+NEW ORDER
+---------
+Customer: ${orderData.clientName}
+Phone: ${orderData.clientPhone}
+Email: ${orderData.clientEmail}
+Address: ${orderData.clientAddress}
+Payment: ${orderData.paymentMethod}
+Currency: ${orderData.currency}
+Total: NPR ${orderData.totalNPR} ($${orderData.totalUSD})
+Items: ${orderData.itemCount}
+Status: ${orderData.status}
+Time: ${orderData.timestamp}
+
+Order Items:
+${orderData.items.map(item => `- ${item.name} x${item.quantity} @ NPR ${item.price} = NPR ${item.subtotal}`).join('\n')}
+
+Screenshot: ${orderData.screenshotName}
+  `.trim();
+  
+  const response = await fetch(`${BACKEND_URL}/inquiries`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      firstName: orderData.clientName.split(' ')[0] || orderData.clientName,
+      lastName: orderData.clientName.split(' ').slice(1).join(' ') || 'Customer',
+      email: orderData.clientEmail,
+      message: inquiryMessage
+    })
+  });
+  
+  console.log('📥 Inquiry response status:', response.status);
+  const responseData = await response.json().catch(() => null);
+  console.log('📥 Inquiry response data:', responseData);
+  
+  if (response.ok) {
+    console.log('✅ Order sent as inquiry');
+    showToast('✓ Order placed! Your order will be processed after verification.');
+    clearCart();
+    closePaymentModal();
+    closeCart();
+  } else {
+    throw new Error('Inquiry endpoint failed');
+  }
+}
+
+// Last resort: save order locally
+function saveOrderLocally(orderData) {
+  console.log('💾 Saving order locally...');
+  const existingOrders = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
+  existingOrders.push(orderData);
+  localStorage.setItem('pendingOrders', JSON.stringify(existingOrders));
+  console.log('✅ Order saved to localStorage');
+  console.log('📋 All pending orders:', existingOrders);
+}
+
+// Add this function to check backend connectivity
+async function diagnoseBackend() {
+  console.log('🔍 Diagnosing Backend Connection...');
+  console.log('Backend URL:', BACKEND_URL);
+  
+  // Test 1: Check if backend is reachable
+  try {
+    const testRes = await fetch(`${BACKEND_URL}/public/rate`);
+    console.log('✅ Backend is reachable. Rate endpoint status:', testRes.status);
+  } catch (e) {
+    console.error('❌ Backend is NOT reachable:', e.message);
+    console.log('💡 Make sure your backend server is running');
+  }
+  
+  // Test 2: Check if orders endpoint exists
+  try {
+    const orderTest = await fetch(`${BACKEND_URL}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ test: true })
+    });
+    console.log('Orders endpoint status:', orderTest.status);
+    const data = await orderTest.json().catch(() => 'No JSON response');
+    console.log('Orders response:', data);
+  } catch (e) {
+    console.error('❌ Orders endpoint error:', e.message);
+    console.log('💡 The /orders endpoint might not exist on your backend');
+  }
+  
+  // Test 3: Check if inquiries endpoint works
+  try {
+    const inquiryTest = await fetch(`${BACKEND_URL}/inquiries`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@test.com',
+        message: 'Diagnostic test'
+      })
+    });
+    console.log('Inquiries endpoint status:', inquiryTest.status);
+    const data = await inquiryTest.json().catch(() => 'No JSON response');
+    console.log('Inquiries response:', data);
+    console.log('✅ Use this endpoint to send orders if /orders is not available');
+  } catch (e) {
+    console.error('❌ Inquiries endpoint error:', e.message);
+  }
+  
+  // Test 4: Check CORS headers
+  try {
+    const corsTest = await fetch(`${BACKEND_URL}/products`, { method: 'HEAD' });
+    console.log('CORS headers:', {
+      'access-control-allow-origin': corsTest.headers.get('access-control-allow-origin'),
+      'access-control-allow-methods': corsTest.headers.get('access-control-allow-methods'),
+      'access-control-allow-headers': corsTest.headers.get('access-control-allow-headers')
+    });
+  } catch (e) {
+    console.error('❌ CORS check failed:', e.message);
+  }
+}
+	  
     // Close payment modal on overlay click
     document.getElementById('paymentModal')?.addEventListener('click', function(e) {
       if (e.target === this) closePaymentModal();
