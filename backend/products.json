@@ -1048,5 +1048,19 @@
     "img": "images/aloevera-soap.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 16,
+    "name": "Reishi Mushroom Extract",
+    "sci": "Ganoderma lucidum",
+    "category": "extracts",
+    "catLabel": "Extracts",
+    "price": 15960,
+    "unit": "1 kg",
+    "moq": "",
+    "lead": "10-14 days",
+    "img": "images/reishi-mushroom-extract.jpg",
+    "desc": "Dual-extracted Reishi mushroom with guaranteed polysaccharide and triterpene content. The 'king of mushrooms' for immune modulation and longevity.",
+    "stock": 100
   }
 ]
