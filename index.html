@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NaturaBotanica — Premium Botanical & Herbal Soap Studio</title>
+  <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,8 +14,9 @@
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
             brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
-            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917',
+            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917', 'card-dark': '#132316',
             'txt-main': '#1C1917', 'txt-sub': '#57534E', 'txt-third': '#78716C', 'border-main': '#E7E5E4',
+            'esewa': '#5EBC5D', 'khalti': '#5C2D91',
           }
         }
       }
@@ -36,7 +37,17 @@
     @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
     @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    .product-card:hover { transform: translateY(-4px); transition: all 0.2s ease; }
     .cat-btn.active { background: #1C1917; color: #FAFAF9; }
+    .payment-modal-open #products { filter: blur(4px); opacity: 0.6; pointer-events: none; }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
+    .currency-btn.active-curr { background-color: #1C1917; color: white; }
+    .hero-bg-fallback { background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%); }
+    .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
+    .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+    
     .fancy-select { position: relative; }
     .fancy-select-dropdown {
       position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border-radius: 12px;
@@ -48,8 +59,7 @@
     .fancy-option { padding: 8px 12px; font-size: 0.75rem; font-weight: 500; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: all 0.15s; }
     .fancy-option:hover { background: #fefce8; color: #A3B14B; padding-left: 16px; }
     .rotate-180 { transform: rotate(180deg); }
-    .soap-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .soap-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1); }
+    .soap-studio-modal { backdrop-filter: blur(8px); }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -64,7 +74,6 @@
       <div class="hidden md:flex items-center gap-6 md:gap-8">
         <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
         <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
-        <a href="#soap-studio" class="text-sm text-brand hover:text-brand-hover transition-colors font-medium">✨ Soap Studio</a>
         <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
         <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
       </div>
@@ -77,235 +86,171 @@
 
   <!-- MOBILE MENU -->
   <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 p-6">
-      <div class="flex justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <div class="flex flex-col gap-4">
-        <a href="#products" onclick="closeMobile()">Products</a>
-        <a href="#categories" onclick="closeMobile()">Categories</a>
-        <a href="#soap-studio" onclick="closeMobile()" class="text-brand font-medium">Soap Studio</a>
-        <a href="#about" onclick="closeMobile()">About</a>
-        <a href="#contact" onclick="closeMobile()">Contact</a>
-      </div>
+    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
+      <div class="p-6"><div class="flex justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="flex flex-col gap-4"><a href="#products" onclick="closeMobile()">Products</a><a href="#categories" onclick="closeMobile()">Categories</a><a href="#about" onclick="closeMobile()">About</a><a href="#contact" onclick="closeMobile()">Contact</a></div></div>
     </div>
   </div>
 
-  <!-- HERO (simplified) -->
-  <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-bg-dark">
-    <div class="absolute inset-0 hero-bg-fallback z-0" style="background: linear-gradient(135deg, #050A06 0%, #132316 100%);"></div>
-    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20">
-      <div class="max-w-2xl"><div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs text-white/70">Botanicals • Oils • Custom Soap Studio</span></div>
-      <h1 class="anim-up anim-d1 text-5xl md:text-7xl font-medium text-white leading-[1.1] tracking-tight mb-6">Design Your <span class="text-brand">Herbal Soap</span></h1>
-      <p class="anim-up anim-d2 text-white/60 text-lg max-w-lg mb-8">Choose oils, herbs, fragrance & additives — get price per 100g instantly. 100% natural, cold-processed.</p>
-      <a href="#soap-studio" class="anim-up anim-d3 inline-flex items-center gap-2 px-8 py-4 bg-brand text-white rounded-full hover:bg-brand-hover transition">Start Creating <i data-lucide="sparkles" class="w-4 h-4"></i></a></div>
+  <!-- HERO -->
+  <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
+    <div class="absolute inset-0 hero-bg-fallback z-0"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 items-center w-full">
+      <div><div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Oils, Rasa, Salts & Herbal Soaps</span></div>
+      <h1 class="anim-up anim-d1 text-4xl md:text-7xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
+      <p class="anim-up anim-d2 text-white/60 text-lg max-w-lg mb-8">APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Handcrafted Herbal Soaps.</p>
+      <div class="anim-up anim-d3 flex gap-4"><a href="#products" class="px-8 py-3 bg-brand text-white rounded-full hover:bg-brand-hover">Shop Now</a><a href="#contact" class="px-8 py-3 border border-white/20 text-white rounded-full">Get Quote</a></div></div>
+      <div class="hidden lg:block"><img src="images/jeM6q.jpg" alt="Chakra" class="max-h-[500px] w-auto" onerror="this.style.display='none'"></div>
     </div>
   </section>
 
-  <!-- CATEGORIES (incl. herbal-soap) -->
+  <!-- CATEGORIES (includes herbal-soap) -->
   <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Collections</p><h2 class="text-2xl md:text-3xl font-medium">Categories</h2></div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3" id="catButtons"></div></div>
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-4xl font-medium tracking-tight">Our Collections</h2></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-3" id="catButtons"></div></div>
   </section>
 
-  <!-- STANDARD PRODUCTS SECTION (herbs, namak, oils, etc - no API/powder) -->
+  <!-- PRODUCTS SECTION (standard + pre-made soaps + studio card) -->
   <section id="products" class="py-16 md:py-24">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="mb-8"><h2 class="text-2xl md:text-4xl font-medium tracking-tight">Pure Ingredients</h2><p class="text-txt-sub mt-2">Premium herbs, salts & essential oils</p></div>
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></div>
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="flex justify-between items-center mb-8"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-2">Our Catalog</p><h2 class="text-2xl md:text-4xl font-medium tracking-tight">Products & Pricing</h2></div><select id="sortSelect" onchange="sortProducts()" class="text-sm border rounded-xl px-4 py-2"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option></select></div>
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 mx-auto mb-4 text-txt-third"></i><p>No products found.</p></div></div>
   </section>
 
-  <!-- ========== NEW HERBAL SOAP STUDIO SECTION ========== -->
-  <section id="soap-studio" class="py-20 bg-gradient-to-br from-brand/5 via-white to-brand/5 border-y border-border-main">
-    <div class="max-w-6xl mx-auto px-4 md:px-6">
-      <div class="text-center mb-10"><span class="text-xs font-bold uppercase tracking-wider text-brand">✨ bespoke creation</span><h2 class="text-3xl md:text-5xl font-medium tracking-tight mt-2">Herbal Soap Studio</h2><p class="text-txt-sub max-w-xl mx-auto mt-3">Craft your signature soap. Pick each ingredient from dropdowns — we calculate cost per 100g bar.</p></div>
-
-      <div class="bg-white rounded-3xl shadow-xl border border-border-main overflow-hidden">
-        <div class="p-6 md:p-8">
-          <div class="grid md:grid-cols-2 gap-8 items-start">
-            <!-- Left: Soap Visual + Summary -->
-            <div class="space-y-5">
-              <div class="bg-brand/5 rounded-2xl p-6 text-center border border-brand/20">
-                <i data-lucide="soap" class="w-16 h-16 text-brand mx-auto mb-3"></i>
-                <h3 class="text-xl font-semibold" id="soapNamePreview">🌿 Herbal Signature Soap</h3>
-                <div class="mt-4 flex justify-center gap-3 flex-wrap">
-                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewOil">Oil: --</span>
-                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewHerb">Herb: --</span>
-                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewFrag">Fragrance: --</span>
-                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewAdd">Additive: --</span>
-                </div>
-                <div class="mt-5 pt-4 border-t border-brand/20"><div class="text-2xl font-bold text-brand" id="soapTotalPrice">NPR 0</div><div class="text-xs text-txt-sub">per 100g bar</div></div>
-              </div>
-              <div class="bg-txt-main text-white p-4 rounded-xl"><div class="flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i><span class="text-xs font-medium">Base formula: Glycerin + Coconut Oil + Distilled Water (included). Your selections add unique benefits & cost.</span></div></div>
-            </div>
-            
-            <!-- Right: Customization Dropdowns -->
-            <div class="space-y-5">
-              <!-- 1. Base Oil Dropdown -->
-              <div><label class="block text-sm font-semibold mb-2">🌿 Choose Base Oil <span class="text-brand">*</span></label>
-                <div class="fancy-select relative" id="oilSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('oil')"><span id="selectedOilLabel" class="text-sm">Olive Oil</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="oilChevron"></i></div><div class="fancy-select-dropdown" id="oilDropdown"></div></div>
-              </div>
-              <!-- 2. Herb/Powder Dropdown -->
-              <div><label class="block text-sm font-semibold mb-2">🌸 Herb / Botanical <span class="text-brand">*</span></label>
-                <div class="fancy-select relative" id="herbSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('herb')"><span id="selectedHerbLabel" class="text-sm">Amla</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="herbChevron"></i></div><div class="fancy-select-dropdown" id="herbDropdown"></div></div>
-              </div>
-              <!-- 3. Fragrance Dropdown -->
-              <div><label class="block text-sm font-semibold mb-2">🍃 Fragrance / Essential Oil</label>
-                <div class="fancy-select relative" id="fragSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('frag')"><span id="selectedFragLabel" class="text-sm">None ( unscented )</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="fragChevron"></i></div><div class="fancy-select-dropdown" id="fragDropdown"></div></div>
-              </div>
-              <!-- 4. Additive Dropdown -->
-              <div><label class="block text-sm font-semibold mb-2">✨ Active Additive (exfoliant / boost)</label>
-                <div class="fancy-select relative" id="additiveSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('additive')"><span id="selectedAdditiveLabel" class="text-sm">None</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="additiveChevron"></i></div><div class="fancy-select-dropdown" id="additiveDropdown"></div></div>
-              </div>
-              
-              <div class="flex gap-3 pt-2"><input type="number" id="soapQuantity" value="1" min="1" class="w-20 p-3 border border-border-main rounded-xl text-center"><button id="addCustomSoapToCart" class="flex-1 py-3 bg-txt-main text-white rounded-xl hover:bg-black flex items-center justify-center gap-2 transition"><i data-lucide="shopping-bag" class="w-4 h-4"></i> Add Custom Soap to Cart</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ABOUT & CONTACT (short) -->
+  <!-- ABOUT & CONTACT -->
   <section id="about" class="py-20 bg-bg-dark text-white"><div class="max-w-7xl mx-auto px-4 md:px-6 text-center"><p class="text-brand text-sm uppercase tracking-widest">Artisanal roots</p><h2 class="text-3xl md:text-4xl font-medium mt-2">Handcrafted with Himalayan botanicals</h2><p class="text-white/50 max-w-2xl mx-auto mt-4">Every soap is made in small batches using cold-process method, preserving the potency of herbs and oils.</p></div></section>
-  <section id="contact" class="py-20"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid md:grid-cols-2 gap-12"><div><h2 class="text-2xl md:text-3xl font-medium">Request a Quote</h2><p class="text-txt-sub mt-2">Bulk herbs, oils, or custom soap formulation inquiries.</p></div><form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-4"><input type="text" placeholder="Name" id="inqName" required class="w-full p-3 border rounded-xl"><input type="email" placeholder="Email" id="inqEmail" required class="w-full p-3 border rounded-xl"><textarea placeholder="Your message" id="inqMsg" rows="3" class="w-full p-3 border rounded-xl"></textarea><button type="submit" class="bg-txt-main text-white px-6 py-3 rounded-xl">Send</button><div id="formMsg"></div></form></div></div></section>
-
+  <section id="contact" class="py-20"><div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-12"><div><h2 class="text-2xl md:text-3xl font-medium">Request a Quote</h2><p class="text-txt-sub mt-2">Bulk herbs, oils, or custom soap formulation inquiries.</p></div><form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-4"><input type="text" id="inqName" placeholder="Full Name" required class="w-full p-3 border rounded-xl"><input type="email" id="inqEmail" placeholder="Email" required class="w-full p-3 border rounded-xl"><textarea id="inqMsg" placeholder="Your message" rows="3" class="w-full p-3 border rounded-xl"></textarea><button type="submit" class="bg-txt-main text-white px-6 py-3 rounded-xl">Send Inquiry</button><div id="formMsg"></div></form></div></section>
   <footer class="bg-bg-dark2 py-8 text-center text-white/30 text-xs"><p>© 2025 NaturaBotanica — Herbal Soap Studio</p></footer>
 
   <!-- CART SIDEBAR -->
-  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-      <div class="p-6 border-b flex justify-between"><h3 class="font-semibold">Your Cart</h3><button onclick="closeCart()"><i data-lucide="x"></i></button></div>
-      <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-      <div id="cartFooter" class="hidden border-t p-6"><div class="flex justify-between mb-4"><span>Total</span><span id="cartTotal" class="font-bold">NPR 0</span></div><button onclick="clearCart()" class="w-full py-3 text-red-500 text-sm">Clear Cart</button></div>
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)"><div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col"><div class="p-6 border-b flex justify-between"><h3 class="font-semibold">Your Cart</h3><button onclick="closeCart()"><i data-lucide="x"></i></button></div><div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4"></div><div id="cartFooter" class="hidden border-t p-6"><div class="flex justify-between mb-4"><span>Total</span><span id="cartTotal" class="font-bold">NPR 0</span></div><button onclick="clearCart()" class="w-full py-3 text-red-500 text-sm">Clear Cart</button></div></div></div>
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-2"></div>
+
+  <!-- SOAP STUDIO MODAL (customization box) -->
+  <div id="soapStudioModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-2xl my-8 shadow-2xl modal-enter">
+      <div class="p-6 border-b flex justify-between items-center"><h3 class="text-xl font-semibold">🧼 Design Your Herbal Soap</h3><button onclick="closeSoapStudio()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="p-6 space-y-5">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div><label class="text-sm font-semibold">🌿 Base Oil</label><div class="fancy-select relative mt-1" id="oilSelectContainer"><div class="flex justify-between p-3 border rounded-xl cursor-pointer" onclick="toggleSoapDropdown('oil')"><span id="selectedOilLabel">Olive Oil</span><i data-lucide="chevron-down" class="w-4 h-4" id="oilChevron"></i></div><div class="fancy-select-dropdown" id="oilDropdown"></div></div></div>
+            <div><label class="text-sm font-semibold">🌸 Herb / Botanical</label><div class="fancy-select relative mt-1" id="herbSelectContainer"><div class="flex justify-between p-3 border rounded-xl cursor-pointer" onclick="toggleSoapDropdown('herb')"><span id="selectedHerbLabel">Amla</span><i data-lucide="chevron-down" class="w-4 h-4" id="herbChevron"></i></div><div class="fancy-select-dropdown" id="herbDropdown"></div></div></div>
+            <div><label class="text-sm font-semibold">🍃 Fragrance</label><div class="fancy-select relative mt-1" id="fragSelectContainer"><div class="flex justify-between p-3 border rounded-xl cursor-pointer" onclick="toggleSoapDropdown('frag')"><span id="selectedFragLabel">None (unscented)</span><i data-lucide="chevron-down" class="w-4 h-4" id="fragChevron"></i></div><div class="fancy-select-dropdown" id="fragDropdown"></div></div></div>
+            <div><label class="text-sm font-semibold">✨ Additive</label><div class="fancy-select relative mt-1" id="additiveSelectContainer"><div class="flex justify-between p-3 border rounded-xl cursor-pointer" onclick="toggleSoapDropdown('additive')"><span id="selectedAdditiveLabel">None</span><i data-lucide="chevron-down" class="w-4 h-4" id="additiveChevron"></i></div><div class="fancy-select-dropdown" id="additiveDropdown"></div></div></div>
+          </div>
+          <div class="bg-brand/5 p-5 rounded-2xl text-center"><i data-lucide="sparkles" class="w-12 h-12 text-brand mx-auto mb-3"></i><div class="text-lg font-bold text-brand" id="soapTotalPrice">NPR 0</div><p class="text-xs text-txt-sub">per 100g bar</p><div class="mt-4 flex flex-wrap gap-2 justify-center"><span class="text-[10px] bg-white px-2 py-1 rounded-full" id="previewOil">Oil: --</span><span class="text-[10px] bg-white px-2 py-1 rounded-full" id="previewHerb">Herb: --</span><span class="text-[10px] bg-white px-2 py-1 rounded-full" id="previewFrag">--</span><span class="text-[10px] bg-white px-2 py-1 rounded-full" id="previewAdd">--</span></div></div>
+        </div>
+        <div class="flex gap-3 pt-2"><input type="number" id="soapQuantity" value="1" min="1" class="w-20 p-3 border rounded-xl text-center"><button id="addCustomSoapBtn" class="flex-1 bg-txt-main text-white py-3 rounded-xl hover:bg-black transition">Add Custom Soap to Cart</button></div>
+      </div>
     </div>
   </div>
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-2"></div>
 
   <script>
     // ---------- DATA ----------
-    let products = []; let cart = [];
-    let currentCategory = 'all';
+    let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
     
-    // Soap customization state
+    // Pre-made Herbal Soaps (appear when category "herbal-soap" is clicked)
+    const premadeSoaps = [
+      { id: 201, name: "🌿 Amla & Coconut Nourishing Soap", category: "herbal-soap", catLabel: "Herbal Soap", price: 390, img: "https://placehold.co/400x300/A3B14B/white?text=Amla+Coconut+Soap", desc: "Vitamin C rich Amla + coconut oil for deep moisture.", unit: "100g bar", stock: 25 },
+      { id: 202, name: "🌸 Turmeric & Honey Glow Soap", category: "herbal-soap", catLabel: "Herbal Soap", price: 420, img: "https://placehold.co/400x300/A3B14B/white?text=Turmeric+Honey+Soap", desc: "Brightening turmeric with raw honey.", unit: "100g bar", stock: 18 },
+      { id: 203, name: "🌹 Rose & Sandalwood Luxe Soap", category: "herbal-soap", catLabel: "Herbal Soap", price: 480, img: "https://placehold.co/400x300/A3B14B/white?text=Rose+Sandalwood", desc: "Calming rose petals with sandalwood aroma.", unit: "100g bar", stock: 12 },
+      { id: 204, name: "🍃 Neem & Tea Tree Clarifying Bar", category: "herbal-soap", catLabel: "Herbal Soap", price: 450, img: "https://placehold.co/400x300/A3B14B/white?text=Neem+Tea+Tree", desc: "Antibacterial neem + tea tree for acne-prone skin.", unit: "100g bar", stock: 20 }
+    ];
+    
+    // Standard products (no API/powder as requested)
+    const standardProducts = [
+      { id: 1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", unit:"kg", stock:50 },
+      { id: 2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root.", moq:"500 gm", unit:"kg", stock:40 },
+      { id: 3, name:"Himalayan Pink Salt", sci:"Sodium Chloride", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Pure pink salt crystals.", moq:"1 kg", unit:"kg", stock:100 },
+      { id: 4, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", unit:"100ml", stock:30 },
+      { id: 5, name:"Reishi Mushroom", sci:"Ganoderma", category:"mushrooms", catLabel:"Mushroom", price:2800, img:"https://placehold.co/400x300/132316/A3B14B?text=Reishi", desc:"Organic Reishi", unit:"kg", stock:15 }
+    ];
+    
+    // Special "Soap Studio" product card (opens customization modal)
+    const studioProduct = {
+      id: 999, name: "🎨 CUSTOMIZE YOUR SOAP — Soap Studio", category: "herbal-soap", catLabel: "✨ Studio", price: 0, img: "https://placehold.co/400x300/A3B14B/white?text=Design+Your+Soap", desc: "Choose oils, herbs, fragrance & additives. Build your own signature bar.", unit: "100g bar", isStudio: true
+    };
+    
+    // SOAP CONFIGURATION
     let soapConfig = {
       oil: { id: 'olive', name: 'Olive Oil', pricePer100g: 180 },
       herb: { id: 'amla', name: 'Amla', pricePer100g: 45 },
-      fragrance: { id: 'none', name: 'None ( unscented )', pricePer100g: 0 },
+      fragrance: { id: 'none', name: 'None (unscented)', pricePer100g: 0 },
       additive: { id: 'none', name: 'None', pricePer100g: 0 }
     };
+    const oilOptions = [{ id:'olive', name:'Olive Oil', pricePer100g:180 },{ id:'coconut', name:'Coconut Oil', pricePer100g:150 },{ id:'almond', name:'Sweet Almond Oil', pricePer100g:220 },{ id:'jojoba', name:'Jojoba Oil', pricePer100g:290 }];
+    const herbOptions = [{ id:'amla', name:'Amla', pricePer100g:45 },{ id:'neem', name:'Neem', pricePer100g:55 },{ id:'turmeric', name:'Turmeric', pricePer100g:40 },{ id:'brahmi', name:'Brahmi', pricePer100g:65 },{ id:'lavender', name:'Lavender Flowers', pricePer100g:70 }];
+    const fragranceOptions = [{ id:'none', name:'None (unscented)', pricePer100g:0 },{ id:'rose', name:'Rose EO', pricePer100g:95 },{ id:'lemongrass', name:'Lemongrass EO', pricePer100g:60 },{ id:'lavender_ess', name:'Lavender EO', pricePer100g:85 }];
+    const additiveOptions = [{ id:'none', name:'None', pricePer100g:0 },{ id:'oatmeal', name:'Oatmeal', pricePer100g:35 },{ id:'poppy', name:'Poppy Seeds', pricePer100g:40 },{ id:'honey', name:'Raw Honey', pricePer100g:50 },{ id:'charcoal', name:'Activated Charcoal', pricePer100g:70 }];
     
-    const oilOptions = [
-      { id: 'olive', name: 'Olive Oil', pricePer100g: 180, desc: 'Gentle, moisturizing' },
-      { id: 'coconut', name: 'Coconut Oil', pricePer100g: 150, desc: 'Rich lather' },
-      { id: 'almond', name: 'Sweet Almond Oil', pricePer100g: 220, desc: 'Vitamins' },
-      { id: 'jojoba', name: 'Jojoba Oil', pricePer100g: 290, desc: 'Balancing' }
-    ];
-    const herbOptions = [
-      { id: 'amla', name: 'Amla', pricePer100g: 45, desc: 'Vitamin C boost' },
-      { id: 'neem', name: 'Neem', pricePer100g: 55, desc: 'Clarifying' },
-      { id: 'turmeric', name: 'Turmeric', pricePer100g: 40, desc: 'Glow' },
-      { id: 'brahmi', name: 'Brahmi', pricePer100g: 65, desc: 'Cooling' },
-      { id: 'lavender', name: 'Lavender Flowers', pricePer100g: 70, desc: 'Calming' }
-    ];
-    const fragranceOptions = [
-      { id: 'none', name: 'None ( unscented )', pricePer100g: 0 },
-      { id: 'rose', name: 'Rose Essential Oil', pricePer100g: 95 },
-      { id: 'lemongrass', name: 'Lemongrass Oil', pricePer100g: 60 },
-      { id: 'lavender_ess', name: 'Lavender EO', pricePer100g: 85 },
-      { id: 'patchouli', name: 'Patchouli', pricePer100g: 110 }
-    ];
-    const additiveOptions = [
-      { id: 'none', name: 'None', pricePer100g: 0 },
-      { id: 'oatmeal', name: 'Oatmeal (exfoliant)', pricePer100g: 35 },
-      { id: 'poppy', name: 'Poppy Seeds', pricePer100g: 40 },
-      { id: 'honey', name: 'Raw Honey', pricePer100g: 50 },
-      { id: 'charcoal', name: 'Activated Charcoal', pricePer100g: 70 }
-    ];
-    
-    // Standard products (no api/powder categories)
-    const fallbackProducts = [
-      { id: 101, name:"Amla (Dried)", category:"herbs", catLabel:"Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Organic amla fruits", unit:"kg" },
-      { id: 102, name:"Ashwagandha Root", category:"herbs", catLabel:"Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Premium root", unit:"kg" },
-      { id: 103, name:"Himalayan Pink Salt", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Fine pink salt", unit:"kg" },
-      { id: 104, name:"Moringa Oil", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed", unit:"100ml" }
-    ];
-    
-    async function loadProducts() { products = fallbackProducts; renderCatButtons(); renderProducts(); }
+    function loadProducts() { products = [...standardProducts, ...premadeSoaps, studioProduct]; renderCatButtons(); renderProducts(); }
     function renderCatButtons() {
       const cats = ['all', 'herbs', 'namak', 'oils', 'extracts', 'mushrooms', 'rasa', 'herbal-soap'];
-      document.getElementById('catButtons').innerHTML = cats.map(c => `<button onclick="filterCategory('${c}')" class="cat-btn p-3 rounded-2xl border text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${c==='herbal-soap'?'soap':'leaf'}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c==='herbal-soap'?'Soap Studio':c}</span></button>`).join('');
+      document.getElementById('catButtons').innerHTML = cats.map(c => `<button onclick="filterCategory('${c}')" class="cat-btn p-3 rounded-2xl border text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${c==='herbal-soap'?'soap':'leaf'}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c==='herbal-soap'?'Herbal Soap':c}</span></button>`).join('');
       lucide.createIcons();
     }
-    function filterCategory(c) { currentCategory = c; if(c==='herbal-soap') { document.getElementById('soap-studio').scrollIntoView({behavior:'smooth'}); return; } renderProducts(); }
-    function renderProducts() { let filtered = currentCategory==='all'? products : products.filter(p=>p.category===currentCategory); const grid=document.getElementById('productGrid'); if(!filtered.length){ grid.innerHTML='<div class="col-span-full text-center py-10 text-txt-sub">No products</div>'; return; } grid.innerHTML=filtered.map(p=>`<div class="bg-white rounded-2xl border overflow-hidden"><img src="${p.img}" class="h-40 w-full object-cover"><div class="p-4"><h3 class="font-semibold">${p.name}</h3><div class="flex justify-between mt-2"><span class="font-bold">NPR ${p.price}</span><button onclick="addToCart(${p.id})" class="text-xs bg-txt-main text-white px-3 py-1 rounded-full">Add</button></div></div></div>`).join(''); lucide.createIcons(); }
-    function addToCart(id, customItem=null) { if(customItem){ cart.push(customItem); updateCartUI(); showToast(`${customItem.name} added`); return; } const p=products.find(x=>x.id===id); if(p){ const existing=cart.find(i=>i.id===id && !i.isCustom); if(existing) existing.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1, img:p.img}); updateCartUI(); showToast(`${p.name} added`); } }
-    function updateCartUI(){ const totalItems=cart.reduce((s,i)=>s+(i.qty||1),0); document.getElementById('cartCount').classList[totalItems>0?'remove':'add']('hidden'); if(totalItems>0){ document.getElementById('cartCount').classList.add('flex'); document.getElementById('cartCount').textContent=totalItems; } const cartDiv=document.getElementById('cartItems'); cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-3 border-b pb-3"><img src="${i.img||'https://placehold.co/60x60/A3B14B/white?text=Soap'}" class="w-12 h-12 rounded object-cover"><div><div class="font-medium">${i.name}</div><div class="text-xs">NPR ${i.price} x ${i.qty||1}</div><button onclick="removeFromCart(${i.id}, '${i.isCustom?i.id+'_custom':''}')" class="text-red-500 text-[10px] mt-1">Remove</button></div></div>`).join(''); const total=cart.reduce((s,i)=>s+(i.price*(i.qty||1)),0); document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('cartFooter').classList[cart.length?'remove':'add']('hidden'); }
-    function removeFromCart(id, flag){ if(flag) cart=cart.filter(i=>!(i.isCustom && i.id===id)); else cart=cart.filter(i=>!(i.id===id && !i.isCustom)); updateCartUI(); showToast('Removed'); }
+    function getFilteredProducts() { let i = currentCategory==='all' ? [...products] : products.filter(p=>p.category===currentCategory); if(currentSort==='price-asc') i.sort((a,b)=>a.price-b.price); else if(currentSort==='price-desc') i.sort((a,b)=>b.price-a.price); else i.sort((a,b)=>a.name.localeCompare(b.name)); return i; }
+    function renderProducts() {
+      const items = getFilteredProducts();
+      const grid = document.getElementById('productGrid'), noR = document.getElementById('noResults');
+      if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); return; }
+      noR.classList.add('hidden');
+      grid.innerHTML = items.map(p => {
+        if(p.isStudio) {
+          return `<div class="product-card bg-white rounded-2xl border overflow-hidden cursor-pointer hover:shadow-xl transition-all" onclick="openSoapStudio()">
+            <div class="relative h-48 overflow-hidden"><img src="${p.img}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/20 flex items-center justify-center"><div class="bg-white/90 backdrop-blur rounded-full px-4 py-2 text-brand font-bold text-sm">✨ Create Your Own</div></div></div>
+            <div class="p-5 text-center"><h3 class="text-lg font-semibold">${p.name}</h3><p class="text-xs text-txt-sub mt-1">${p.desc}</p><button class="mt-3 px-4 py-2 bg-brand text-white text-xs rounded-full">Customize →</button></div>
+          </div>`;
+        }
+        return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-1 transition-all"><div class="h-48 overflow-hidden"><img src="${p.img}" class="w-full h-full object-cover"></div><div class="p-4"><div class="flex justify-between items-start"><h3 class="font-semibold">${p.name}</h3><span class="text-[10px] bg-brand/10 px-2 py-0.5 rounded">${p.catLabel}</span></div><div class="mt-2"><span class="text-xl font-bold">NPR ${p.price}</span><span class="text-xs text-txt-sub"> / ${p.unit||'100g'}</span></div><button onclick="addToCart(${p.id})" class="mt-3 w-full py-2 bg-txt-main text-white text-xs rounded-lg hover:bg-black">Add to Cart</button></div></div>`;
+      }).join('');
+      lucide.createIcons();
+    }
+    function addToCart(id, customItem=null) {
+      if(customItem){ cart.push(customItem); updateCartUI(); showToast(`${customItem.name} added`); return; }
+      const p = [...standardProducts, ...premadeSoaps].find(x=>x.id===id);
+      if(p){ const existing = cart.find(i=>i.id===id && !i.isCustom); if(existing) existing.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1, img:p.img}); updateCartUI(); showToast(`${p.name} added`); }
+    }
+    function updateCartUI(){ const totalItems=cart.reduce((s,i)=>s+(i.qty||1),0); const cnt=document.getElementById('cartCount'); if(totalItems>0){ cnt.classList.remove('hidden'); cnt.classList.add('flex'); cnt.textContent=totalItems; } else cnt.classList.add('hidden'); const cartDiv=document.getElementById('cartItems'); cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-3 border-b pb-3"><img src="${i.img||'https://placehold.co/60x60/A3B14B/white?text=Soap'}" class="w-12 h-12 rounded object-cover"><div><div class="font-medium">${i.name}</div><div class="text-xs">NPR ${i.price} x ${i.qty||1}</div><button onclick="removeFromCart(${i.id}, '${i.isCustom?i.id:''}')" class="text-red-500 text-[10px]">Remove</button></div></div>`).join(''); const total=cart.reduce((s,i)=>s+(i.price*(i.qty||1)),0); document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('cartFooter').classList[cart.length?'remove':'add']('hidden'); }
+    function removeFromCart(id, flag){ if(flag) cart=cart.filter(i=>!(i.isCustom && i.id==id)); else cart=cart.filter(i=>!(i.id===id && !i.isCustom)); updateCartUI(); showToast('Removed'); }
     function clearCart(){ cart=[]; updateCartUI(); showToast('Cart cleared'); }
     function closeCart(){ document.getElementById('cartOverlay').classList.add('hidden'); document.getElementById('cartPanel').style.transform='translateX(100%)'; }
     function openCart(){ document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('cartPanel').style.transform='translateX(0)',10); }
     function showToast(msg){ const t=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast-enter bg-white rounded-xl shadow-lg p-3 text-sm'; el.innerHTML=`<i data-lucide="check-circle" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; t.appendChild(el); lucide.createIcons(); setTimeout(()=>el.remove(),2500); }
+    function filterCategory(c){ currentCategory=c; renderProducts(); document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); if(c==='herbal-soap') document.getElementById('products').scrollIntoView({behavior:'smooth'}); }
+    function sortProducts(){ currentSort=document.getElementById('sortSelect').value; renderProducts(); }
+    async function submitInquiry(e){ e.preventDefault(); showToast('Inquiry sent (demo)'); e.target.reset(); }
     
-    // ----- SOAP CUSTOMIZATION LOGIC -----
+    // SOAP STUDIO MODAL LOGIC
+    function openSoapStudio() { document.getElementById('soapStudioModal').classList.remove('hidden'); document.getElementById('soapStudioModal').classList.add('flex'); updateSoapTotalPrice(); }
+    function closeSoapStudio() { document.getElementById('soapStudioModal').classList.add('hidden'); document.getElementById('soapStudioModal').classList.remove('flex'); }
     function populateSoapDropdowns() {
-      const oilDiv = document.getElementById('oilDropdown'); oilDiv.innerHTML = oilOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('oil', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub block">+NPR ${opt.pricePer100g}/100g</span></div>`).join('');
-      const herbDiv = document.getElementById('herbDropdown'); herbDiv.innerHTML = herbOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('herb', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub">+NPR ${opt.pricePer100g}</span></div>`).join('');
-      const fragDiv = document.getElementById('fragDropdown'); fragDiv.innerHTML = fragranceOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('frag', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
-      const addDiv = document.getElementById('additiveDropdown'); addDiv.innerHTML = additiveOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('additive', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
+      document.getElementById('oilDropdown').innerHTML = oilOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('oil','${opt.id}','${opt.name}',${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub block">+NPR ${opt.pricePer100g}</span></div>`).join('');
+      document.getElementById('herbDropdown').innerHTML = herbOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('herb','${opt.id}','${opt.name}',${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub">+NPR ${opt.pricePer100g}</span></div>`).join('');
+      document.getElementById('fragDropdown').innerHTML = fragranceOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('frag','${opt.id}','${opt.name}',${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
+      document.getElementById('additiveDropdown').innerHTML = additiveOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('additive','${opt.id}','${opt.name}',${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
     }
     window.selectSoapOption = (type, id, name, price) => {
-      if(type === 'oil') { soapConfig.oil = { id, name, pricePer100g: price }; document.getElementById('selectedOilLabel').innerText = name; document.getElementById('previewOil').innerHTML = `Oil: ${name}`; }
-      if(type === 'herb') { soapConfig.herb = { id, name, pricePer100g: price }; document.getElementById('selectedHerbLabel').innerText = name; document.getElementById('previewHerb').innerHTML = `Herb: ${name}`; }
-      if(type === 'frag') { soapConfig.fragrance = { id, name, pricePer100g: price }; document.getElementById('selectedFragLabel').innerText = name; document.getElementById('previewFrag').innerHTML = `Fragrance: ${name}`; }
-      if(type === 'additive') { soapConfig.additive = { id, name, pricePer100g: price }; document.getElementById('selectedAdditiveLabel').innerText = name; document.getElementById('previewAdd').innerHTML = `Additive: ${name}`; }
+      if(type==='oil'){ soapConfig.oil={id,name,pricePer100g:price}; document.getElementById('selectedOilLabel').innerText=name; document.getElementById('previewOil').innerHTML=`Oil: ${name}`; }
+      if(type==='herb'){ soapConfig.herb={id,name,pricePer100g:price}; document.getElementById('selectedHerbLabel').innerText=name; document.getElementById('previewHerb').innerHTML=`Herb: ${name}`; }
+      if(type==='frag'){ soapConfig.fragrance={id,name,pricePer100g:price}; document.getElementById('selectedFragLabel').innerText=name; document.getElementById('previewFrag').innerHTML=name!=='None (unscented)'?`Frag: ${name}`:'Unscented'; }
+      if(type==='additive'){ soapConfig.additive={id,name,pricePer100g:price}; document.getElementById('selectedAdditiveLabel').innerText=name; document.getElementById('previewAdd').innerHTML=name!=='None'?`Add: ${name}`:'--'; }
       updateSoapTotalPrice();
-      document.querySelectorAll('.fancy-select').forEach(el => el.classList.remove('open'));
-      Object.keys({oilChevron:'oil',herbChevron:'herb',fragChevron:'frag',additiveChevron:'additive'}).forEach(chevId => { const el=document.getElementById(chevId); if(el) el.classList.remove('rotate-180'); });
+      document.querySelectorAll('.fancy-select').forEach(el=>el.classList.remove('open'));
+      ['oilChevron','herbChevron','fragChevron','additiveChevron'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('rotate-180'); });
     };
-    function updateSoapTotalPrice() {
-      let total = 120; // base soap base (glycerin + coconut oil base)
-      total += soapConfig.oil.pricePer100g;
-      total += soapConfig.herb.pricePer100g;
-      total += soapConfig.fragrance.pricePer100g;
-      total += soapConfig.additive.pricePer100g;
-      document.getElementById('soapTotalPrice').innerHTML = `NPR ${total.toLocaleString()}`;
-      return total;
-    }
-    window.toggleSoapDropdown = (type) => {
-      const map = { oil:'oilSelectContainer', herb:'herbSelectContainer', frag:'fragSelectContainer', additive:'additiveSelectContainer' };
-      const container = document.getElementById(map[type]); if(!container) return;
-      document.querySelectorAll('.fancy-select').forEach(el => { if(el !== container) el.classList.remove('open'); });
-      container.classList.toggle('open');
-      const chev = document.getElementById(`${type}Chevron`);
-      if(chev) chev.classList.toggle('rotate-180');
-    };
-    window.addCustomSoap = () => {
-      const qty = parseInt(document.getElementById('soapQuantity').value) || 1;
-      const pricePerUnit = updateSoapTotalPrice();
-      const totalPrice = pricePerUnit * qty;
-      const soapName = `${soapConfig.herb.name} + ${soapConfig.oil.name} Soap`;
-      const customItem = {
-        id: Date.now(),
-        name: `🧼 ${soapName} (${soapConfig.fragrance.name !== 'None ( unscented )' ? soapConfig.fragrance.name : 'unscented'}, ${soapConfig.additive.name !== 'None' ? soapConfig.additive.name : ''})`.replace(/,,/g,',').replace(/\(,/,'('),
-        price: pricePerUnit,
-        qty: qty,
-        img: 'https://placehold.co/80x80/A3B14B/white?text=Soap',
-        isCustom: true,
-        config: {...soapConfig}
-      };
-      cart.push(customItem);
-      updateCartUI();
-      showToast(`Custom soap added (${qty} bar) — NPR ${totalPrice}`);
-    };
+    function updateSoapTotalPrice() { let total = 120; total += soapConfig.oil.pricePer100g + soapConfig.herb.pricePer100g + soapConfig.fragrance.pricePer100g + soapConfig.additive.pricePer100g; document.getElementById('soapTotalPrice').innerHTML = `NPR ${total.toLocaleString()}`; return total; }
+    window.toggleSoapDropdown = (type) => { const map={oil:'oilSelectContainer',herb:'herbSelectContainer',frag:'fragSelectContainer',additive:'additiveSelectContainer'}; const container=document.getElementById(map[type]); if(!container) return; document.querySelectorAll('.fancy-select').forEach(el=>{ if(el!==container) el.classList.remove('open'); }); container.classList.toggle('open'); const chev=document.getElementById(`${type}Chevron`); if(chev) chev.classList.toggle('rotate-180'); };
+    window.addCustomSoapToCart = () => { const qty=parseInt(document.getElementById('soapQuantity').value)||1; const pricePerUnit=updateSoapTotalPrice(); const soapName = `${soapConfig.herb.name} + ${soapConfig.oil.name} Soap`; const customItem = { id: Date.now(), name: `🧼 Custom: ${soapName} (${soapConfig.fragrance.name}, ${soapConfig.additive.name})`.replace(/None/g,'').replace(/\(,/,'(').replace(/\s+/g,' ').trim(), price: pricePerUnit, qty: qty, img: 'https://placehold.co/80x80/A3B14B/white?text=Custom+Soap', isCustom: true }; cart.push(customItem); updateCartUI(); showToast(`Custom soap added (${qty} bar) — NPR ${pricePerUnit*qty}`); closeSoapStudio(); };
     
-    async function submitInquiry(e){ e.preventDefault(); showToast('Inquiry sent (demo)'); e.target.reset(); }
+    // Event listeners
     document.getElementById('cartToggle').addEventListener('click', openCart);
     document.getElementById('mobileMenu').addEventListener('click',()=>{ document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('mobilePanel').style.transform='translateX(0)',10); });
     window.closeMobile = () => { document.getElementById('mobilePanel').style.transform='translateX(100%)'; setTimeout(()=>document.getElementById('mobileOverlay').classList.add('hidden'),300); };
     document.getElementById('mobileClose')?.addEventListener('click', closeMobile);
-    document.getElementById('addCustomSoapToCart')?.addEventListener('click', window.addCustomSoap);
+    document.getElementById('addCustomSoapBtn')?.addEventListener('click', addCustomSoapToCart);
     
-    // Initialization
     populateSoapDropdowns();
-    updateSoapTotalPrice();
     loadProducts();
     lucide.createIcons();
   </script>
