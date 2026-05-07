@@ -77,7 +77,6 @@
       background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%);
     }
 
-    /* Soap Studio Styles */
     .soap-studio-card {
       background: linear-gradient(135deg, #FAFAF9 0%, #FFFFFF 100%);
       border: 2px solid #A3B14B;
@@ -99,18 +98,18 @@
     .price-tag {
       background: linear-gradient(135deg, #A3B14B 0%, #8f9c40 100%);
     }
-    @keyframes fadeInUp {
+    @keyframes fadeInUpModal {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .animate-fadeInUp {
-      animation: fadeInUp 0.4s ease-out forwards;
+      animation: fadeInUpModal 0.4s ease-out forwards;
     }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
 
-  <!-- NAVBAR (same as original) -->
+  <!-- NAVBAR -->
   <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background: rgba(250,250,249,0.8); backdrop-filter: blur(12px);">
     <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
@@ -145,7 +144,7 @@
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="relative">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
-        <input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
+        <input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button>
       </div>
       <div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div>
@@ -167,7 +166,7 @@
     </div>
   </div>
 
-  <!-- HERO (simplified from original) -->
+  <!-- HERO -->
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
     <div class="absolute inset-0 hero-bg-fallback"></div>
     <div class="relative max-w-7xl mx-auto px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-16 items-center w-full">
@@ -179,7 +178,7 @@
         <h1 class="anim-up anim-d1 text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand">Natural</span><br>Ingredients</h1>
         <p class="anim-up anim-d2 text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-10">APIs, Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa &amp; Salts — sourced from Himalayas and beyond.</p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4"><a href="#products" class="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a><a href="#contact" class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10">Get Quote</a></div>
-        <div class="anim-up anim-d4 flex items-center gap-8 mt-12 pt-8 border-t border-white/10"><div><div class="text-3xl font-semibold text-white">57</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div><div class="w-px h-10 bg-white/10"></div><div><div class="text-3xl font-semibold text-white">7</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div><div class="w-px h-10 bg-white/10"></div><div><div class="text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div></div>
+        <div class="anim-up anim-d4 flex items-center gap-8 mt-12 pt-8 border-t border-white/10"><div><div class="text-3xl font-semibold text-white" id="heroProductCount">Loading...</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div><div class="w-px h-10 bg-white/10"></div><div><div class="text-3xl font-semibold text-white" id="heroCatCount">Loading...</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div><div class="w-px h-10 bg-white/10"></div><div><div class="text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div></div>
       </div>
       <div class="relative hidden lg:flex items-center justify-center"><img src="images/jeM6q.jpg" alt="Chakra" class="relative z-10 max-h-[600px] w-auto object-contain" onerror="this.style.display='none'"></div>
     </div>
@@ -197,8 +196,8 @@
   <!-- PRODUCTS GRID -->
   <section id="products" class="py-24 md:py-32">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2><p class="text-txt-sub mt-3 text-lg font-light">Prices per kilogram (1 kg). Bulk discounts available.</p></div><div class="flex items-center gap-3 mt-6 md:mt-0"><span class="text-sm text-txt-third" id="productCount">57 products</span><select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div></div>
-      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-3xl md:text-5xl font-medium tracking-tight">Products & Pricing</h2><p class="text-txt-sub mt-3 text-lg font-light">Prices per kilogram (1 kg). Bulk discounts available.</p></div><div class="flex items-center gap-3 mt-6 md:mt-0"><span class="text-sm text-txt-third" id="productCount">Loading...</span><select id="sortSelect" onchange="sortProducts()" class="text-sm border border-border-main rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div></div>
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"><div class="col-span-full flex justify-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin"></i></div></div>
       <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
     </div>
   </section>
@@ -260,71 +259,11 @@
 
 <script>
 // ==================== CONFIGURATION ====================
+const BACKEND_API_URL = 'https://ayurved-rasrasayan-github-io.onrender.com/api';
 const USD_TO_NPR = 133;
 
-// ==================== ALL 57 PRODUCTS + SOAP STUDIO ====================
-const products = [
-  { id: 1, name: "10-DAB-III", sci: "10-Deacetylbaccatin III", category: "api", catLabel: "API", price: 3500, moq: "1 kg", lead: "14-21 days", img: "images/10-dab-iii.jpg", desc: "Key precursor for semi-synthetic production of Paclitaxel and Docetaxel." },
-  { id: 2, name: "Paclitaxel", sci: "Paclitaxel (Taxol)", category: "api", catLabel: "API", price: 12000, moq: "100 g", lead: "21-30 days", img: "images/paclitaxel.jpg", desc: "Premium anti-cancer drug extracted from Taxus species." },
-  { id: 3, name: "Docetaxel", sci: "Docetaxel (Taxotere)", category: "api", catLabel: "API", price: 8500, moq: "100 g", lead: "21-30 days", img: "images/docetaxel.jpg", desc: "Semi-synthetic taxane derivative used as chemotherapy agent." },
-  { id: 4, name: "Agarwood Oil", sci: "Aquilaria malaccensis", category: "oils", catLabel: "Oil", price: 5500, moq: "10 g", lead: "14-21 days", img: "images/agarwood-oil.jpg", desc: "Ultra-premium Oud oil from wild Aquilaria trees." },
-  { id: 5, name: "Cardamom Oil", sci: "Elettaria cardamomum", category: "oils", catLabel: "Oil", price: 65, moq: "1 kg", lead: "7-10 days", img: "images/cardamom-oil.jpg", desc: "True green cardamom essential oil." },
-  { id: 6, name: "Jatamansi Oil", sci: "Nardostachys jatamansi", category: "oils", catLabel: "Oil", price: 280, moq: "1 kg", lead: "10-15 days", img: "images/jatamansi-oil.jpg", desc: "Rare Himalayan spikenard essential oil." },
-  { id: 7, name: "Timur Oil", sci: "Zanthoxylum piperitum", category: "oils", catLabel: "Oil", price: 120, moq: "1 kg", lead: "10-14 days", img: "images/timur-oil.jpg", desc: "Nepali timur essential oil." },
-  { id: 8, name: "True Cinnamon Oil", sci: "Cinnamomum verum", category: "oils", catLabel: "Oil", price: 45, moq: "1 kg", lead: "7-10 days", img: "images/true-cinnamon-oil.jpg", desc: "Ceylon cinnamon bark essential oil." },
-  { id: 9, name: "White Sandalwood Oil", sci: "Santalum album", category: "oils", catLabel: "Oil", price: 3500, moq: "100 g", lead: "14-21 days", img: "images/white-sandalwood-oil.jpg", desc: "Premium East Indian sandalwood essential oil." },
-  { id: 10, name: "Chirita Extract", sci: "Chirita spp.", category: "extracts", catLabel: "Extract", price: 95, moq: "5 kg", lead: "14-21 days", img: "images/chirita-extract.jpg", desc: "Rare Himalayan Chirita plant extract." },
-  { id: 11, name: "Coffee Bean Extract", sci: "Coffea spp.", category: "extracts", catLabel: "Extract", price: 32, moq: "25 kg", lead: "7-10 days", img: "images/coffee-bean-extract.jpg", desc: "Green coffee bean extract standardized to 50% chlorogenic acids." },
-  { id: 12, name: "Coleus Extract", sci: "Coleus forskohlii", category: "extracts", catLabel: "Extract", price: 55, moq: "10 kg", lead: "10-14 days", img: "images/coleus-extract.jpg", desc: "Root extract standardized to forskolin." },
-  { id: 13, name: "Colchicine Extract", sci: "Colchicine", category: "extracts", catLabel: "Extract", price: 1800, moq: "100 g", lead: "14-21 days", img: "images/colchicine.jpg", desc: "Pharmaceutical-grade colchicine extract." },
-  { id: 14, name: "Ginger Extract", sci: "Zingiber officinale", category: "extracts", catLabel: "Extract", price: 22, moq: "25 kg", lead: "7-10 days", img: "images/ginger-extract.jpg", desc: "Standardized ginger extract." },
-  { id: 15, name: "Green Tea Extract", sci: "Camellia sinensis", category: "extracts", catLabel: "Extract", price: 38, moq: "25 kg", lead: "7-10 days", img: "images/green-tea-extract.jpg", desc: "Premium green tea extract standardized to 50% EGCG." },
-  { id: 16, name: "Kutki Root Extract", sci: "Picrorhiza kurroa", category: "extracts", catLabel: "Extract", price: 150, moq: "5 kg", lead: "10-14 days", img: "images/kutki-root-extract.jpg", desc: "Premium Himalayan Kutki extract." },
-  { id: 17, name: "Reishi Mushroom Extract", sci: "Ganoderma lucidum", category: "extracts", catLabel: "Extract", price: 120, moq: "5 kg", lead: "10-14 days", img: "images/reishi-mushroom-extract.jpg", desc: "Dual-extracted Reishi mushroom." },
-  { id: 18, name: "Rhodiola Extract", sci: "Rhodiola rosea", category: "extracts", catLabel: "Extract", price: 85, moq: "5 kg", lead: "10-14 days", img: "images/rhodiola-extract.jpg", desc: "Arctic/Himalayan golden root extract." },
-  { id: 19, name: "Turmeric Extract", sci: "Curcuma longa", category: "extracts", catLabel: "Extract", price: 28, moq: "25 kg", lead: "7-10 days", img: "images/turmeric-extract.jpg", desc: "Standardized turmeric extract with 95% curcuminoids." },
-  { id: 20, name: "Zedoary Root Extract", sci: "Curcuma zedoaria", category: "extracts", catLabel: "Extract", price: 35, moq: "10 kg", lead: "10-14 days", img: "images/zedoary-root-extract.jpg", desc: "Kachur rhizome extract." },
-  { id: 21, name: "Caterpillar Fungus Grade A", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushroom", price: 28000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-a.jpg", desc: "Premium Grade A Yarsagumba." },
-  { id: 22, name: "Caterpillar Fungus Grade B", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushroom", price: 15000, moq: "100 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-b.jpg", desc: "Grade B Yarsagumba." },
-  { id: 23, name: "Caterpillar Fungus Grade C", sci: "Ophiocordyceps sinensis", category: "mushrooms", catLabel: "Mushroom", price: 6000, moq: "250 g", lead: "7-14 days", img: "images/caterpillar-fungus-grade-c.jpg", desc: "Grade C Yarsagumba fragments." },
-  { id: 24, name: "Morel Mushroom", sci: "Morchella esculenta", category: "mushrooms", catLabel: "Mushroom", price: 180, moq: "1 kg", lead: "7-10 days", img: "images/morel-mushroom.jpg", desc: "Wild Himalayan morel mushrooms." },
-  { id: 25, name: "Reishi Mushroom", sci: "Ganoderma lucidum", category: "mushrooms", catLabel: "Mushroom", price: 45, moq: "10 kg", lead: "10-14 days", img: "images/reishi-mushroom.jpg", desc: "Whole dried Red Reishi from Nepal." },
-  { id: 26, name: "Chirata", sci: "Swertia chirayita", category: "herbs", catLabel: "Herb", price: 18, moq: "25 kg", lead: "7-10 days", img: "images/chirata.jpg", desc: "Whole dried Chirita herb." },
-  { id: 27, name: "Himalayan Larkspur", sci: "Delphinium denudatum", category: "herbs", catLabel: "Herb", price: 40, moq: "5 kg", lead: "10-14 days", img: "images/himalayan-larkspur.jpg", desc: "Dried roots of Nirmasi." },
-  { id: 28, name: "Himalayan Paris", sci: "Paris polyphylla", category: "herbs", catLabel: "Herb", price: 85, moq: "5 kg", lead: "14-21 days", img: "images/himalayan-paris.jpg", desc: "Satuwa rhizomes." },
-  { id: 29, name: "Himalayan Wild Garlic", sci: "Allium wallichii", category: "herbs", catLabel: "Herb", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/himalayan-wild-garlic.jpg", desc: "Wild-harvested Himalayan garlic." },
-  { id: 30, name: "Large Cardamom", sci: "Amomum subulatum", category: "herbs", catLabel: "Herb", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/large-cardamom.jpg", desc: "Dried Nepali large cardamom." },
-  { id: 31, name: "Whorled Solomon's Seal", sci: "Polygonatum verticillatum", category: "herbs", catLabel: "Herb", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/solomons-seal.jpg", desc: "Dried rhizomes of Khiraula." },
-  { id: 32, name: "Wild Asparagus", sci: "Asparagus racemosus", category: "herbs", catLabel: "Herb", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/wild-asparagus.jpg", desc: "Wild-harvested Shatavari roots." },
-  { id: 33, name: "Amlasar Gandhak", sci: "Sulphur processed in Amla", category: "rasa", catLabel: "Rasa", price: 60, moq: "5 kg", lead: "10-14 days", img: "images/amlasar-gandhak.jpg", desc: "Sulphur processed in Amla juice." },
-  { id: 34, name: "Danda Gandhak", sci: "Crystalline Sulphur", category: "rasa", catLabel: "Rasa", price: 45, moq: "5 kg", lead: "10-14 days", img: "images/danda-gandhak.jpg", desc: "Crude Sulphur in stick form." },
-  { id: 35, name: "Darchikna", sci: "Arsenic Trisulfide", category: "rasa", catLabel: "Rasa", price: 180, moq: "1 kg", lead: "14-21 days", img: "images/darchikna.jpg", desc: "Yellow Orpiment." },
-  { id: 36, name: "Hartal Hariyawal", sci: "Arsenic Disulfide", category: "rasa", catLabel: "Rasa", price: 160, moq: "1 kg", lead: "14-21 days", img: "images/hartal-hariyawal.jpg", desc: "Green variety of Realgar." },
-  { id: 37, name: "Hartal Patri", sci: "Arsenic Disulfide", category: "rasa", catLabel: "Rasa", price: 170, moq: "1 kg", lead: "14-21 days", img: "images/hartal-patri.jpg", desc: "Leaf-like formation of Hartal." },
-  { id: 38, name: "Mansil", sci: "Cinnabar", category: "rasa", catLabel: "Rasa", price: 120, moq: "1 kg", lead: "14-21 days", img: "images/mansil.jpg", desc: "Mercuric Sulphide ore." },
-  { id: 39, name: "Neela", sci: "Lapis Lazuli", category: "rasa", catLabel: "Rasa", price: 90, moq: "5 kg", lead: "10-14 days", img: "images/neela.jpg", desc: "Blue mineral." },
-  { id: 40, name: "Para", sci: "Mercury", category: "rasa", catLabel: "Rasa", price: 650, moq: "100 g", lead: "21-28 days", img: "images/para.jpg", desc: "Elemental Mercury." },
-  { id: 41, name: "Raskapoor", sci: "Sublimed Sulphur", category: "rasa", catLabel: "Rasa", price: 55, moq: "5 kg", lead: "10-14 days", img: "images/raskapoor.jpg", desc: "Sublimed Sulphur." },
-  { id: 42, name: "Sankhiya", sci: "Tin", category: "rasa", catLabel: "Rasa", price: 75, moq: "5 kg", lead: "14-21 days", img: "images/sankhiya.jpg", desc: "Processed Tin." },
-  { id: 43, name: "Singraf", sci: "Cinnabar", category: "rasa", catLabel: "Rasa", price: 130, moq: "1 kg", lead: "14-21 days", img: "images/singraf.jpg", desc: "Red Sulphide of Mercury." },
-  { id: 44, name: "Camphor", sci: "Cinnamomum camphora", category: "namak", catLabel: "Namak", price: 40, moq: "5 kg", lead: "7-10 days", img: "images/camphor.jpg", desc: "Pure Camphor crystals." },
-  { id: 45, name: "Jawa Khar", sci: "Alum", category: "namak", catLabel: "Namak", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/jawakhar.jpg", desc: "Jawa Khar." },
-  { id: 46, name: "Kala Namak", sci: "Himalayan Black Salt", category: "namak", catLabel: "Namak", price: 5, moq: "25 kg", lead: "7-10 days", img: "images/kala-namak.jpg", desc: "Sulphur-rich Himalayan black salt." },
-  { id: 47, name: "Kala Sajji Khar", sci: "Black Alum", category: "namak", catLabel: "Namak", price: 14, moq: "25 kg", lead: "7-10 days", img: "images/kala-sajji-khar.jpg", desc: "Black Alum." },
-  { id: 48, name: "Kalmi Shora", sci: "Sodium Carbonate", category: "namak", catLabel: "Namak", price: 10, moq: "25 kg", lead: "7-10 days", img: "images/kalmi-shora.jpg", desc: "Sajikshara." },
-  { id: 49, name: "Mithi Soda", sci: "Sodium Bicarbonate", category: "namak", catLabel: "Namak", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/mithi-soda.jpg", desc: "Shudh Sora." },
-  { id: 50, name: "Nausadar Fali", sci: "Ammonium Chloride", category: "namak", catLabel: "Namak", price: 20, moq: "10 kg", lead: "10-14 days", img: "images/nausadar-fali.jpg", desc: "Crystalline Nausadar." },
-  { id: 51, name: "Phatkri", sci: "Potash Alum", category: "namak", catLabel: "Namak", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/phatkri.jpg", desc: "Phitkari." },
-  { id: 52, name: "Red Phatkri", sci: "Red Alum", category: "namak", catLabel: "Namak", price: 15, moq: "25 kg", lead: "7-10 days", img: "images/red-phatkri.jpg", desc: "Red Phitkari." },
-  { id: 53, name: "Safed Sajji Khar", sci: "White Alum", category: "namak", catLabel: "Namak", price: 12, moq: "25 kg", lead: "7-10 days", img: "images/safed-sajji-khar.jpg", desc: "White Alum." },
-  { id: 54, name: "Samudri Namak", sci: "Sea Salt", category: "namak", catLabel: "Namak", price: 2, moq: "50 kg", lead: "5-7 days", img: "images/samudri-namak.jpg", desc: "Natural Sea Salt." },
-  { id: 55, name: "Sedha Namak", sci: "Rock Salt", category: "namak", catLabel: "Namak", price: 3, moq: "50 kg", lead: "7-10 days", img: "images/sedha-namak.jpg", desc: "Sendha Namak." },
-  { id: 56, name: "Surkh Sajjikhar", sci: "Red Alum", category: "namak", catLabel: "Namak", price: 16, moq: "25 kg", lead: "7-10 days", img: "images/surkh-sajjikhar.jpg", desc: "Surkh Sajjikhar." },
-  { id: 57, name: "Thikri Nausadar", sci: "Solid Ammonium Chloride", category: "namak", catLabel: "Namak", price: 25, moq: "10 kg", lead: "10-14 days", img: "images/thikri-nausadar.jpg", desc: "Solid block Nausadar." },
-  // SOAP STUDIO PRODUCT - This triggers the custom soap builder
-  { id: 999, name: "🎨 My Soap Studio - Design Your Own", sci: "Custom Herbal Soap", category: "herbal-soap", catLabel: "Soap Studio", price: 120, moq: "1 bar", lead: "5-7 days", img: "https://placehold.co/400x300/A3B14B/white?text=Design+Your+Soap", desc: "Create your own signature soap! Choose base oil, herbs, fragrance, and additives. 100% natural, cold-processed, handmade.", isStudio: true }
-];
-
+// ==================== GLOBAL VARIABLES ====================
+let products = [];
 let cart = [];
 let currentCategory = 'all';
 let currentSort = 'name';
@@ -333,12 +272,52 @@ let selectedPaymentMethod = 'esewa';
 let selectedPaymentCurrency = 'npr';
 let paymentScreenshotBase64 = null;
 
+// ==================== LOAD PRODUCTS FROM MONGODB ====================
+async function loadProductsFromMongoDB() {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '<div class="col-span-full flex justify-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin"></i><p class="ml-3 text-txt-sub">Loading products from database...</p></div>';
+  
+  try {
+    const response = await fetch(`${BACKEND_API_URL}/products`);
+    if (!response.ok) throw new Error('Failed to fetch products');
+    const data = await response.json();
+    products = data;
+    
+    // Update hero stats
+    const uniqueCategories = [...new Set(products.map(p => p.category))];
+    document.getElementById('heroProductCount').textContent = products.length;
+    document.getElementById('heroCatCount').textContent = uniqueCategories.length;
+    
+    renderCatButtons();
+    renderProducts(getFilteredProducts());
+    setupSearch();
+  } catch (error) {
+    console.error('Error loading from MongoDB:', error);
+    grid.innerHTML = '<div class="col-span-full text-center py-20"><i data-lucide="alert-circle" class="w-16 h-16 text-red-400 mx-auto mb-4"></i><p class="text-txt-sub">Failed to load products from database. Please check your connection.</p><button onclick="location.reload()" class="mt-4 px-4 py-2 bg-brand text-white rounded-lg">Retry</button></div>';
+  }
+}
+
 // ==================== RENDER FUNCTIONS ====================
 function renderCatButtons() {
+  const categoryMap = {};
+  products.forEach(p => {
+    if (!categoryMap[p.category]) categoryMap[p.category] = 0;
+    categoryMap[p.category]++;
+  });
+  
   const cats = ['all', 'api', 'oils', 'extracts', 'mushrooms', 'herbs', 'rasa', 'namak', 'herbal-soap'];
-  const counts = { all: products.length, api: products.filter(p=>p.category==='api').length, oils: products.filter(p=>p.category==='oils').length, extracts: products.filter(p=>p.category==='extracts').length, mushrooms: products.filter(p=>p.category==='mushrooms').length, herbs: products.filter(p=>p.category==='herbs').length, rasa: products.filter(p=>p.category==='rasa').length, namak: products.filter(p=>p.category==='namak').length, 'herbal-soap': products.filter(p=>p.category==='herbal-soap').length };
   const icons = { all:'grid-3x3', api:'flask-conical', oils:'droplets', extracts:'beaker', mushrooms:'cloud-fog', herbs:'sprout', rasa:'gem', namak:'hexagon', 'herbal-soap':'soap' };
-  document.getElementById('catButtons').innerHTML = cats.map(c => `<button onclick="filterCategory('${c}')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"><i data-lucide="${icons[c]}" class="w-5 h-5 text-brand"></i></div><span class="text-xs font-medium capitalize">${c === 'herbal-soap' ? 'Herbal Soap' : c} (${counts[c]})</span></button>`).join('');
+  const displayNames = { all:'All', api:'APIs', oils:'Oils', extracts:'Extracts', mushrooms:'Mushrooms', herbs:'Herbs', rasa:'Rasa', namak:'Namak', 'herbal-soap':'Herbal Soap' };
+  
+  document.getElementById('catButtons').innerHTML = cats.map(c => {
+    const count = c === 'all' ? products.length : (categoryMap[c] || 0);
+    return `<button onclick="filterCategory('${c}')" class="cat-btn group p-5 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}">
+      <div class="w-11 h-11 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+        <i data-lucide="${icons[c]}" class="w-5 h-5 text-brand"></i>
+      </div>
+      <span class="text-xs font-medium capitalize">${displayNames[c]} (${count})</span>
+    </button>`;
+  }).join('');
   lucide.createIcons();
 }
 
@@ -354,16 +333,28 @@ function renderProducts(items) {
   const grid = document.getElementById('productGrid');
   const noResults = document.getElementById('noResults');
   const countEl = document.getElementById('productCount');
+  
   if (items.length === 0) { grid.innerHTML = ''; noResults.classList.remove('hidden'); countEl.textContent = '0 products'; return; }
   noResults.classList.add('hidden');
   countEl.textContent = `${items.length} products`;
+  
   grid.innerHTML = items.map(p => {
     const priceNPR = Math.round(p.price * USD_TO_NPR);
-    const isStudio = p.isStudio;
-    if (isStudio) {
-      return `<div class="product-card group bg-white rounded-2xl border-2 border-brand overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all cursor-pointer" onclick="openSoapStudio()"><div class="relative h-48 overflow-hidden"><img src="${p.img}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-brand/20 flex items-center justify-center"><div class="bg-white/90 backdrop-blur rounded-full px-4 py-2 text-brand font-bold text-sm">✨ Create Your Own</div></div></div><div class="p-5 text-center"><h3 class="text-lg font-semibold">${p.name}</h3><p class="text-xs text-txt-sub mt-1">${p.desc}</p><button class="mt-3 px-4 py-2 bg-brand text-white text-xs rounded-full hover:bg-brand-hover transition-all">Customize →</button></div></div>`;
-    }
-    return `<div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})"><img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.style.display='none'"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div></div><div class="p-5"><h3 class="text-base font-semibold cursor-pointer hover:text-brand mb-1" onclick="openModal(${p.id})">${p.name}</h3><p class="text-[11px] text-txt-third italic mb-3">${p.sci}</p><p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc}</p><div class="flex items-center justify-between"><div><span class="text-xl font-semibold">$${p.price.toLocaleString()}</span><span class="text-xs text-txt-sub block">NPR ${priceNPR.toLocaleString()}/kg</span></div><button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main text-white text-xs rounded-xl hover:bg-black transition-all">Add</button></div></div></div>`;
+    return `<div class="product-card group bg-white rounded-2xl border border-border-main overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all">
+      <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
+        <img src="${p.img || 'https://placehold.co/400x300/A3B14B/white?text=Product'}" class="product-img w-full h-full object-cover transition-transform duration-700" onerror="this.src='https://placehold.co/400x300/A3B14B/white?text=Product'">
+        <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel || p.category}</span></div>
+      </div>
+      <div class="p-5">
+        <h3 class="text-base font-semibold cursor-pointer hover:text-brand mb-1" onclick="openModal(${p.id})">${p.name}</h3>
+        <p class="text-[11px] text-txt-third italic mb-3">${p.sci || ''}</p>
+        <p class="text-xs text-txt-third mb-4 line-clamp-2">${p.desc || ''}</p>
+        <div class="flex items-center justify-between">
+          <div><span class="text-xl font-semibold">$${p.price.toLocaleString()}</span><span class="text-xs text-txt-sub block">NPR ${priceNPR.toLocaleString()}/kg</span></div>
+          <button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main text-white text-xs rounded-xl hover:bg-black transition-all">Add</button>
+        </div>
+      </div>
+    </div>`;
   }).join('');
   lucide.createIcons();
 }
@@ -372,7 +363,7 @@ function filterCategory(cat) { currentCategory = cat; renderProducts(getFiltered
 function sortProducts() { currentSort = document.getElementById('sortSelect').value; renderProducts(getFilteredProducts()); }
 
 // ==================== CART ====================
-function addToCart(id, qty = 1) { const p = products.find(x => x.id === id); if (!p || p.isStudio) return; const existing = cart.find(item => item.id === id); if (existing) existing.qty += qty; else cart.push({ ...p, qty }); updateCartUI(); showToast(`${p.name} added`); }
+function addToCart(id, qty = 1) { const p = products.find(x => x.id == id); if (!p) return; const existing = cart.find(item => item.id === id); if (existing) existing.qty += qty; else cart.push({ ...p, qty }); updateCartUI(); showToast(`${p.name} added`); }
 function removeFromCart(id) { cart = cart.filter(item => item.id !== id); updateCartUI(); }
 function updateQty(id, delta) { const item = cart.find(i => i.id === id); if (item) item.qty = Math.max(1, item.qty + delta); updateCartUI(); }
 function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared'); }
@@ -386,7 +377,7 @@ function updateCartUI() {
   const cartDiv = document.getElementById('cartItems');
   if (cart.length === 0) { cartDiv.innerHTML = '<div class="text-center py-10 text-txt-sub">Your cart is empty</div>'; document.getElementById('cartFooter').classList.add('hidden'); return; }
   document.getElementById('cartFooter').classList.remove('hidden');
-  cartDiv.innerHTML = cart.map(item => `<div class="flex gap-4 py-4 border-b"><img src="${item.img}" class="w-16 h-16 rounded object-cover"><div class="flex-1"><h4 class="font-medium">${item.name}</h4><p>${item.qty} kg x $${item.price} = $${(item.price * item.qty).toLocaleString()}</p><button onclick="removeFromCart(${item.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join('');
+  cartDiv.innerHTML = cart.map(item => `<div class="flex gap-4 py-4 border-b"><img src="${item.img || 'https://placehold.co/80x80/A3B14B/white?text=Product'}" class="w-16 h-16 rounded object-cover"><div class="flex-1"><h4 class="font-medium">${item.name}</h4><p>${item.qty} kg x $${item.price} = $${(item.price * item.qty).toLocaleString()}</p><button onclick="removeFromCart(${item.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join('');
   lucide.createIcons();
 }
 function closeCart() { document.getElementById('cartOverlay').classList.add('hidden'); document.getElementById('cartPanel').style.transform = 'translateX(100%)'; document.body.classList.remove('overlay-open'); }
@@ -402,7 +393,7 @@ function setPaymentCurrency(curr) { selectedPaymentCurrency = curr; const totalU
 async function submitOrderToBackend() { const name = document.getElementById('clientName').value.trim(); const phone = document.getElementById('clientPhone').value.trim(); if (!name || !phone) { showToast('Please fill in Name and Phone'); return; } showToast('Order placed! We will verify payment.'); cart = []; updateCartUI(); closePaymentModal(); }
 
 // ==================== PRODUCT MODAL ====================
-function openModal(id) { const p = products.find(x => x.id === id); if (!p) return; if (p.isStudio) { openSoapStudio(); return; } currentModalProduct = p; const priceNPR = Math.round(p.price * USD_TO_NPR); document.getElementById('modalImg').src = p.img; document.getElementById('modalName').innerHTML = p.name; document.getElementById('modalSci').innerHTML = p.sci; document.getElementById('modalBadge').innerHTML = p.catLabel; document.getElementById('modalPrice').innerHTML = `$${p.price.toLocaleString()}`; document.getElementById('modalDesc').innerHTML = p.desc; document.getElementById('modalMoq').innerHTML = p.moq; document.getElementById('modalLead').innerHTML = p.lead; document.getElementById('modalQty').value = 1; document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); }; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); document.body.classList.add('overlay-open'); lucide.createIcons(); }
+function openModal(id) { const p = products.find(x => x.id == id); if (!p) return; currentModalProduct = p; const priceNPR = Math.round(p.price * USD_TO_NPR); document.getElementById('modalImg').src = p.img || 'https://placehold.co/400x300/A3B14B/white?text=Product'; document.getElementById('modalName').innerHTML = p.name; document.getElementById('modalSci').innerHTML = p.sci || ''; document.getElementById('modalBadge').innerHTML = p.catLabel || p.category; document.getElementById('modalPrice').innerHTML = `$${p.price.toLocaleString()}`; document.getElementById('modalDesc').innerHTML = p.desc || ''; document.getElementById('modalMoq').innerHTML = p.moq || '1 kg'; document.getElementById('modalLead').innerHTML = p.lead || '7-14 days'; document.getElementById('modalQty').value = 1; document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id, parseInt(document.getElementById('modalQty').value) || 1); closeModal(); }; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); document.body.classList.add('overlay-open'); lucide.createIcons(); }
 function closeModal() { document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); document.body.classList.remove('overlay-open'); }
 function modalQtyChange(d) { const inp = document.getElementById('modalQty'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + d); }
 
@@ -421,13 +412,25 @@ function closeSoapStudio() { document.getElementById('soapStudioModal').classLis
 function addCustomSoapToCart() { const basePrice = 120; const totalPerUnit = basePrice + studioConfig.oil.price + studioConfig.herb.price + studioConfig.fragrance.price + studioConfig.additive.price; const qty = parseInt(document.getElementById('studioQty').value) || 1; const soapName = `${studioConfig.herb.name} + ${studioConfig.oil.name} Soap`; const customSoap = { id: Date.now(), name: `🧼 Custom: ${soapName} (${studioConfig.fragrance.name !== 'None (Unscented)' ? studioConfig.fragrance.name : 'Unscented'})`, price: totalPerUnit, qty: qty, img: "https://placehold.co/80x80/A3B14B/white?text=Custom+Soap", isCustom: true }; const existing = cart.find(item => item.name === customSoap.name); if (existing) existing.qty += qty; else cart.push(customSoap); updateCartUI(); showToast(`Custom soap added! ${qty} bar(s) - NPR ${(totalPerUnit * qty).toLocaleString()}`); closeSoapStudio(); }
 
 // ==================== SEARCH ====================
-document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('hidden'));
-document.getElementById('searchClose').addEventListener('click', () => document.getElementById('searchBar').classList.add('hidden'));
-document.getElementById('searchInput').addEventListener('input', function() { const q = this.value.toLowerCase().trim(); const el = document.getElementById('searchResults'); if (q.length < 2) { el.innerHTML = ''; return; } const matches = products.filter(p => p.name.toLowerCase().includes(q) || p.sci.toLowerCase().includes(q)).slice(0, 8); if (!matches.length) { el.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; } el.innerHTML = matches.map(p => `<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl text-left"><img src="${p.img}" class="w-10 h-10 rounded-lg object-cover"><div><p class="text-sm font-medium">${p.name}</p><p class="text-[11px] text-txt-third">${p.sci}</p></div><span class="text-sm font-semibold text-brand ml-auto">$${p.price}</span></button>`).join(''); });
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (q.length < 2) { searchResults.innerHTML = ''; return; }
+    const matches = products.filter(p => p.name.toLowerCase().includes(q) || (p.sci && p.sci.toLowerCase().includes(q))).slice(0, 8);
+    if (!matches.length) { searchResults.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found</p>'; return; }
+    searchResults.innerHTML = matches.map(p => `<button onclick="openModal(${p.id});document.getElementById('searchBar').classList.add('hidden')" class="w-full flex items-center gap-3 p-3 hover:bg-black/5 rounded-xl text-left"><img src="${p.img || 'https://placehold.co/40x40/A3B14B/white?text=Product'}" class="w-10 h-10 rounded-lg object-cover"><div><p class="text-sm font-medium">${p.name}</p><p class="text-[11px] text-txt-third">${p.sci || ''}</p></div><span class="text-sm font-semibold text-brand ml-auto">$${p.price}</span></button>`).join('');
+  });
+}
 
 // ==================== FORM & MOBILE ====================
 function submitForm(e) { e.preventDefault(); const msg = document.getElementById('formMsg'); msg.textContent = '✓ Thank you! Your inquiry has been sent.'; msg.classList.remove('hidden'); e.target.reset(); setTimeout(() => msg.classList.add('hidden'), 5000); }
 function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(() => { document.getElementById('mobileOverlay').classList.add('hidden'); document.body.classList.remove('overlay-open'); }, 300); }
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('hidden'));
+document.getElementById('searchClose').addEventListener('click', () => document.getElementById('searchBar').classList.add('hidden'));
 document.getElementById('mobileMenu').addEventListener('click', () => { document.getElementById('mobileOverlay').classList.remove('hidden'); document.body.classList.add('overlay-open'); setTimeout(() => document.getElementById('mobilePanel').style.transform = 'translateX(0)', 10); });
 document.getElementById('mobileClose').addEventListener('click', closeMobile);
 document.getElementById('cartToggle').addEventListener('click', openCart);
@@ -437,9 +440,8 @@ document.getElementById('paymentModal').addEventListener('click', e => { if (e.t
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeCart(); closeModal(); closeMobile(); closePaymentModal(); closeSoapStudio(); } });
 
 // ==================== INIT ====================
-renderCatButtons();
-renderProducts(products);
 populateStudioDropdowns();
+loadProductsFromMongoDB();
 lucide.createIcons();
 </script>
 </body>
