@@ -209,13 +209,7 @@
         });
         products = [...filteredProducts];
       } catch(e) {
-        products = [
-          { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock:50 },
-          { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Root", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root.", moq:"500 gm", lead:"3-5 days", unit:"1 kg", stock:40 },
-          { id:3, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", lead:"7 days", unit:"100 ml", stock:30 },
-          { id:4, name:"Himalayan Pink Salt", sci:"Sodium Chloride", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Pure pink salt crystals.", moq:"1 kg", lead:"4-6 days", unit:"kg", stock:100 },
-          ...herbalSoapProducts
-        ];
+        
       }
       renderCatButtons(); renderProducts(getFilteredProducts());
     }
