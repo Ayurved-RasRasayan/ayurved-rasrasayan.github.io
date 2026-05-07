@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
+  <title>NaturaBotanica — Premium Botanical & Herbal Soap Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,9 +14,8 @@
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
             brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
-            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917', 'card-dark': '#132316',
+            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917',
             'txt-main': '#1C1917', 'txt-sub': '#57534E', 'txt-third': '#78716C', 'border-main': '#E7E5E4',
-            'esewa': '#5EBC5D', 'khalti': '#5C2D91',
           }
         }
       }
@@ -37,38 +36,20 @@
     @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .toast-enter { animation: slideInRight 0.4s ease-out forwards; }
     @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
-    .product-card:hover .product-img { transform: scale(1.05); }
     .cat-btn.active { background: #1C1917; color: #FAFAF9; }
-    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .pay-tab.active { border-color: #A3B14B; color: #A3B14B; background: rgba(163, 177, 75, 0.05); }
-    .currency-btn.active-curr { background-color: #1C1917; color: white; }
-    .input-error { border-color: #EF4444 !important; background-color: #FEF2F2; }
-    .hero-bg-fallback { background: linear-gradient(135deg, #050A06 0%, #132316 40%, #1C1917 70%, #050A06 100%); }
-    .about-bg-fallback { background: linear-gradient(135deg, #132316 0%, #1C1917 50%, #050A06 100%); }
-    .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
-    
     .fancy-select { position: relative; }
     .fancy-select-dropdown {
       position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border-radius: 12px;
       border: 1px solid #e7e5e4; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 60;
       opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all 0.2s ease; overflow: hidden;
+      max-height: 240px; overflow-y: auto;
     }
     .fancy-select.open .fancy-select-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
-    .fancy-option {
-      padding: 8px 12px; font-size: 0.75rem; font-weight: 500; cursor: pointer; display: flex;
-      align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; transition: all 0.15s;
-    }
+    .fancy-option { padding: 8px 12px; font-size: 0.75rem; font-weight: 500; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: all 0.15s; }
     .fancy-option:hover { background: #fefce8; color: #A3B14B; padding-left: 16px; }
     .rotate-180 { transform: rotate(180deg); }
-    
-    .search-result-item {
-      transition: all 0.2s ease;
-    }
-    .search-result-item:hover {
-      background: #fefce8;
-      padding-left: 1rem;
-    }
+    .soap-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .soap-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -83,314 +64,249 @@
       <div class="hidden md:flex items-center gap-6 md:gap-8">
         <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
         <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
+        <a href="#soap-studio" class="text-sm text-brand hover:text-brand-hover transition-colors font-medium">✨ Soap Studio</a>
         <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
         <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
       </div>
       <div class="flex items-center gap-2 md:gap-4">
-        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
         <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center">0</span></button>
         <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
       </div>
     </div>
   </nav>
 
-  <!-- SEARCH BAR -->
-  <div id="searchBar" class="fixed top-20 left-0 right-0 z-40 bg-white border-b border-border-main shadow-lg hidden">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
-      <div class="relative">
-        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i>
-        <input id="searchInput" type="text" placeholder="Search products by name, category, or scientific name..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
-        <button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button>
+  <!-- MOBILE MENU -->
+  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 p-6">
+      <div class="flex justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="flex flex-col gap-4">
+        <a href="#products" onclick="closeMobile()">Products</a>
+        <a href="#categories" onclick="closeMobile()">Categories</a>
+        <a href="#soap-studio" onclick="closeMobile()" class="text-brand font-medium">Soap Studio</a>
+        <a href="#about" onclick="closeMobile()">About</a>
+        <a href="#contact" onclick="closeMobile()">Contact</a>
       </div>
-      <div id="searchResults" class="mt-3 max-h-80 overflow-y-auto"></div>
-      <div id="searchNoResults" class="hidden text-center py-8 text-txt-sub text-sm">No products found matching your search.</div>
     </div>
   </div>
 
-  <!-- MOBILE MENU -->
-  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-        <div class="flex flex-col gap-4">
-          <a href="#products" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Products</a>
-          <a href="#categories" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Categories</a>
-          <a href="#about" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">About</a>
-          <a href="#contact" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Contact</a>
+  <!-- HERO (simplified) -->
+  <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-bg-dark">
+    <div class="absolute inset-0 hero-bg-fallback z-0" style="background: linear-gradient(135deg, #050A06 0%, #132316 100%);"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20">
+      <div class="max-w-2xl"><div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs text-white/70">Botanicals • Oils • Custom Soap Studio</span></div>
+      <h1 class="anim-up anim-d1 text-5xl md:text-7xl font-medium text-white leading-[1.1] tracking-tight mb-6">Design Your <span class="text-brand">Herbal Soap</span></h1>
+      <p class="anim-up anim-d2 text-white/60 text-lg max-w-lg mb-8">Choose oils, herbs, fragrance & additives — get price per 100g instantly. 100% natural, cold-processed.</p>
+      <a href="#soap-studio" class="anim-up anim-d3 inline-flex items-center gap-2 px-8 py-4 bg-brand text-white rounded-full hover:bg-brand-hover transition">Start Creating <i data-lucide="sparkles" class="w-4 h-4"></i></a></div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES (incl. herbal-soap) -->
+  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Collections</p><h2 class="text-2xl md:text-3xl font-medium">Categories</h2></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3" id="catButtons"></div></div>
+  </section>
+
+  <!-- STANDARD PRODUCTS SECTION (herbs, namak, oils, etc - no API/powder) -->
+  <section id="products" class="py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="mb-8"><h2 class="text-2xl md:text-4xl font-medium tracking-tight">Pure Ingredients</h2><p class="text-txt-sub mt-2">Premium herbs, salts & essential oils</p></div>
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></div>
+  </section>
+
+  <!-- ========== NEW HERBAL SOAP STUDIO SECTION ========== -->
+  <section id="soap-studio" class="py-20 bg-gradient-to-br from-brand/5 via-white to-brand/5 border-y border-border-main">
+    <div class="max-w-6xl mx-auto px-4 md:px-6">
+      <div class="text-center mb-10"><span class="text-xs font-bold uppercase tracking-wider text-brand">✨ bespoke creation</span><h2 class="text-3xl md:text-5xl font-medium tracking-tight mt-2">Herbal Soap Studio</h2><p class="text-txt-sub max-w-xl mx-auto mt-3">Craft your signature soap. Pick each ingredient from dropdowns — we calculate cost per 100g bar.</p></div>
+
+      <div class="bg-white rounded-3xl shadow-xl border border-border-main overflow-hidden">
+        <div class="p-6 md:p-8">
+          <div class="grid md:grid-cols-2 gap-8 items-start">
+            <!-- Left: Soap Visual + Summary -->
+            <div class="space-y-5">
+              <div class="bg-brand/5 rounded-2xl p-6 text-center border border-brand/20">
+                <i data-lucide="soap" class="w-16 h-16 text-brand mx-auto mb-3"></i>
+                <h3 class="text-xl font-semibold" id="soapNamePreview">🌿 Herbal Signature Soap</h3>
+                <div class="mt-4 flex justify-center gap-3 flex-wrap">
+                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewOil">Oil: --</span>
+                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewHerb">Herb: --</span>
+                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewFrag">Fragrance: --</span>
+                  <span class="px-3 py-1 bg-white rounded-full text-xs shadow-sm" id="previewAdd">Additive: --</span>
+                </div>
+                <div class="mt-5 pt-4 border-t border-brand/20"><div class="text-2xl font-bold text-brand" id="soapTotalPrice">NPR 0</div><div class="text-xs text-txt-sub">per 100g bar</div></div>
+              </div>
+              <div class="bg-txt-main text-white p-4 rounded-xl"><div class="flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i><span class="text-xs font-medium">Base formula: Glycerin + Coconut Oil + Distilled Water (included). Your selections add unique benefits & cost.</span></div></div>
+            </div>
+            
+            <!-- Right: Customization Dropdowns -->
+            <div class="space-y-5">
+              <!-- 1. Base Oil Dropdown -->
+              <div><label class="block text-sm font-semibold mb-2">🌿 Choose Base Oil <span class="text-brand">*</span></label>
+                <div class="fancy-select relative" id="oilSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('oil')"><span id="selectedOilLabel" class="text-sm">Olive Oil</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="oilChevron"></i></div><div class="fancy-select-dropdown" id="oilDropdown"></div></div>
+              </div>
+              <!-- 2. Herb/Powder Dropdown -->
+              <div><label class="block text-sm font-semibold mb-2">🌸 Herb / Botanical <span class="text-brand">*</span></label>
+                <div class="fancy-select relative" id="herbSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('herb')"><span id="selectedHerbLabel" class="text-sm">Amla</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="herbChevron"></i></div><div class="fancy-select-dropdown" id="herbDropdown"></div></div>
+              </div>
+              <!-- 3. Fragrance Dropdown -->
+              <div><label class="block text-sm font-semibold mb-2">🍃 Fragrance / Essential Oil</label>
+                <div class="fancy-select relative" id="fragSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('frag')"><span id="selectedFragLabel" class="text-sm">None ( unscented )</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="fragChevron"></i></div><div class="fancy-select-dropdown" id="fragDropdown"></div></div>
+              </div>
+              <!-- 4. Additive Dropdown -->
+              <div><label class="block text-sm font-semibold mb-2">✨ Active Additive (exfoliant / boost)</label>
+                <div class="fancy-select relative" id="additiveSelectContainer"><div class="flex items-center justify-between p-3 rounded-xl border border-border-main bg-white cursor-pointer" onclick="window.toggleSoapDropdown('additive')"><span id="selectedAdditiveLabel" class="text-sm">None</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="additiveChevron"></i></div><div class="fancy-select-dropdown" id="additiveDropdown"></div></div>
+              </div>
+              
+              <div class="flex gap-3 pt-2"><input type="number" id="soapQuantity" value="1" min="1" class="w-20 p-3 border border-border-main rounded-xl text-center"><button id="addCustomSoapToCart" class="flex-1 py-3 bg-txt-main text-white rounded-xl hover:bg-black flex items-center justify-center gap-2 transition"><i data-lucide="shopping-bag" class="w-4 h-4"></i> Add Custom Soap to Cart</button></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- HERO -->
-  <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
-    <div class="absolute inset-0 hero-bg-fallback z-0"></div>
-    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-      <div><div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Extracts, Oils, Rasa Shastra & Salts</span></div>
-      <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
-      <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">Premium Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa & Salts — sourced from Himalayas and beyond.</p>
-      <div class="anim-up anim-d3 flex flex-wrap gap-4"><a href="#products" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a><a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10">Get Quote</a></div>
-      <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10"><div><div class="text-2xl md:text-3xl font-semibold text-white">60+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div><div class="w-px h-8 md:h-10 bg-white/10"></div><div><div class="text-2xl md:text-3xl font-semibold text-white">6</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div><div class="w-px h-8 md:h-10 bg-white/10"></div><div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div></div></div>
-      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0"><img src="images/jeM6q.jpg" alt="Chakra" class="relative z-10 max-h-[500px] w-auto object-contain" onerror="this.style.display='none'"></div>
-    </div>
   </section>
 
-  <!-- CATEGORIES (API removed) -->
-  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4" id="catButtons"></div></div>
-  </section>
+  <!-- ABOUT & CONTACT (short) -->
+  <section id="about" class="py-20 bg-bg-dark text-white"><div class="max-w-7xl mx-auto px-4 md:px-6 text-center"><p class="text-brand text-sm uppercase tracking-widest">Artisanal roots</p><h2 class="text-3xl md:text-4xl font-medium mt-2">Handcrafted with Himalayan botanicals</h2><p class="text-white/50 max-w-2xl mx-auto mt-4">Every soap is made in small batches using cold-process method, preserving the potency of herbs and oils.</p></div></section>
+  <section id="contact" class="py-20"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid md:grid-cols-2 gap-12"><div><h2 class="text-2xl md:text-3xl font-medium">Request a Quote</h2><p class="text-txt-sub mt-2">Bulk herbs, oils, or custom soap formulation inquiries.</p></div><form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-4"><input type="text" placeholder="Name" id="inqName" required class="w-full p-3 border rounded-xl"><input type="email" placeholder="Email" id="inqEmail" required class="w-full p-3 border rounded-xl"><textarea placeholder="Your message" id="inqMsg" rows="3" class="w-full p-3 border rounded-xl"></textarea><button type="submit" class="bg-txt-main text-white px-6 py-3 rounded-xl">Send</button><div id="formMsg"></div></form></div></div></section>
 
-  <!-- PRODUCTS -->
-  <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2><div class="flex items-center gap-2 mt-3"><span class="rate-dot"></span><p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p></div></div><div class="flex items-center gap-3"><span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span><select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div></div>
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
-    <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div></div>
-  </section>
-
-  <!-- ABOUT & CONTACT -->
-  <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 md:px-6 relative"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2><p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, premium essential oils, authentic Rasa Shastra minerals, mushroom extracts, and traditional Salts (Namak).</p></div><div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5"></div></div></div></div></section>
-
-  <section id="contact" class="py-16 md:py-24 lg:py-32"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2><p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p></div>
-    <form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-5"><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-    <input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-    <textarea id="contactMessage" placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea>
-    <button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button>
-    <div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div></form></div></div></section>
-
-  <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p></div></div></footer>
+  <footer class="bg-bg-dark2 py-8 text-center text-white/30 text-xs"><p>© 2025 NaturaBotanica — Herbal Soap Studio</p></footer>
 
   <!-- CART SIDEBAR -->
-  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)"><div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col"><div class="p-6 border-b border-border-main flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="cartItems" class="flex-1 overflow-y-auto p-6"></div><div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4"><div class="flex items-center justify-between"><span class="text-txt-sub">Subtotal</span><span id="cartTotal" class="text-xl font-semibold">NPR 0.00</span></div><button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500">Clear Cart</button></div></div></div>
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
-
-  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+    <div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+      <div class="p-6 border-b flex justify-between"><h3 class="font-semibold">Your Cart</h3><button onclick="closeCart()"><i data-lucide="x"></i></button></div>
+      <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+      <div id="cartFooter" class="hidden border-t p-6"><div class="flex justify-between mb-4"><span>Total</span><span id="cartTotal" class="font-bold">NPR 0</span></div><button onclick="clearCart()" class="w-full py-3 text-red-500 text-sm">Clear Cart</button></div>
+    </div>
   </div>
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-2"></div>
 
   <script>
-    const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
-    let exchangeRate = 133;
-    let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
-    let currentModalProduct = null; let selectedForm = "Whole Form"; let selectedUnitValue = "1kg";
-
-    async function loadExchangeRate() { 
-      try { 
-        const res = await fetch(`${BACKEND_URL}/public/rate`); 
-        if(res.ok){ const data = await res.json(); if(data.rate && data.rate > 0) exchangeRate = data.rate; } 
-      } catch(e){} 
-      document.getElementById('rateLabel') && (document.getElementById('rateLabel').textContent=`1 USD = Rs. ${exchangeRate.toFixed(2)} NPR`);
-      loadProducts(); 
-    }
+    // ---------- DATA ----------
+    let products = []; let cart = [];
+    let currentCategory = 'all';
     
-    async function loadProducts() {
-      const grid = document.getElementById('productGrid'); 
-      grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>';
-      try {
-        const res = await fetch(`${BACKEND_URL}/products`);
-        if(!res.ok) throw new Error();
-        let rawProducts = await res.json();
-        // FILTER: Remove both 'powder' AND 'api' categories
-        products = rawProducts.filter(p => {
-          const cat = p.category ? p.category.toLowerCase() : '';
-          return cat !== 'powder' && cat !== 'api';
-        });
-      } catch(e) {
-        // Fallback data: no API or powder products
-        products = [
-          { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg" },
-          { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root.", moq:"500 gm", lead:"3-5 days", unit:"1 kg" },
-          { id:3, name:"Himalayan Pink Salt", sci:"Sodium Chloride", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Pure pink salt crystals.", moq:"1 kg", lead:"4-6 days", unit:"1 kg" },
-          { id:4, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", lead:"7 days", unit:"100 ml" },
-          { id:5, name:"Reishi Mushroom", sci:"Ganoderma lucidum", category:"mushrooms", catLabel:"Mushroom", price:2800, img:"https://placehold.co/400x300/132316/A3B14B?text=Reishi", desc:"Premium dried Reishi.", moq:"500 gm", lead:"10 days", unit:"1 kg" }
-        ];
-      }
-      renderCatButtons(); 
-      renderProducts(getFilteredProducts());
-      setupSearch();
-    }
+    // Soap customization state
+    let soapConfig = {
+      oil: { id: 'olive', name: 'Olive Oil', pricePer100g: 180 },
+      herb: { id: 'amla', name: 'Amla', pricePer100g: 45 },
+      fragrance: { id: 'none', name: 'None ( unscented )', pricePer100g: 0 },
+      additive: { id: 'none', name: 'None', pricePer100g: 0 }
+    };
     
-    // Categories without 'api' and without 'powder'
-    function renderCatButtons(){ 
-      const cats = ['all', 'herbs', 'namak', 'oils', 'extracts', 'mushrooms', 'rasa']; 
-      document.getElementById('catButtons').innerHTML = cats.map(c => `
-        <button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}">
-          <div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${c==='oils'?'droplet':c==='mushrooms'?'fungus':'package'}" class="w-4 h-4 text-brand"></i></div>
-          <span class="text-[10px] font-medium capitalize">${c==='all'?'All':c}</span>
-        </button>
-      `).join(''); 
-      lucide.createIcons(); 
-    }
+    const oilOptions = [
+      { id: 'olive', name: 'Olive Oil', pricePer100g: 180, desc: 'Gentle, moisturizing' },
+      { id: 'coconut', name: 'Coconut Oil', pricePer100g: 150, desc: 'Rich lather' },
+      { id: 'almond', name: 'Sweet Almond Oil', pricePer100g: 220, desc: 'Vitamins' },
+      { id: 'jojoba', name: 'Jojoba Oil', pricePer100g: 290, desc: 'Balancing' }
+    ];
+    const herbOptions = [
+      { id: 'amla', name: 'Amla', pricePer100g: 45, desc: 'Vitamin C boost' },
+      { id: 'neem', name: 'Neem', pricePer100g: 55, desc: 'Clarifying' },
+      { id: 'turmeric', name: 'Turmeric', pricePer100g: 40, desc: 'Glow' },
+      { id: 'brahmi', name: 'Brahmi', pricePer100g: 65, desc: 'Cooling' },
+      { id: 'lavender', name: 'Lavender Flowers', pricePer100g: 70, desc: 'Calming' }
+    ];
+    const fragranceOptions = [
+      { id: 'none', name: 'None ( unscented )', pricePer100g: 0 },
+      { id: 'rose', name: 'Rose Essential Oil', pricePer100g: 95 },
+      { id: 'lemongrass', name: 'Lemongrass Oil', pricePer100g: 60 },
+      { id: 'lavender_ess', name: 'Lavender EO', pricePer100g: 85 },
+      { id: 'patchouli', name: 'Patchouli', pricePer100g: 110 }
+    ];
+    const additiveOptions = [
+      { id: 'none', name: 'None', pricePer100g: 0 },
+      { id: 'oatmeal', name: 'Oatmeal (exfoliant)', pricePer100g: 35 },
+      { id: 'poppy', name: 'Poppy Seeds', pricePer100g: 40 },
+      { id: 'honey', name: 'Raw Honey', pricePer100g: 50 },
+      { id: 'charcoal', name: 'Activated Charcoal', pricePer100g: 70 }
+    ];
     
-    function getFilteredProducts(){ 
-      let i = currentCategory==='all' ? [...products] : products.filter(p=>p.category===currentCategory); 
-      if(currentSort==='price-asc') i.sort((a,b)=>a.price-b.price); 
-      else if(currentSort==='price-desc') i.sort((a,b)=>b.price-a.price); 
-      else i.sort((a,b)=>a.name.localeCompare(b.name)); 
-      return i; 
-    }
+    // Standard products (no api/powder categories)
+    const fallbackProducts = [
+      { id: 101, name:"Amla (Dried)", category:"herbs", catLabel:"Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Organic amla fruits", unit:"kg" },
+      { id: 102, name:"Ashwagandha Root", category:"herbs", catLabel:"Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Premium root", unit:"kg" },
+      { id: 103, name:"Himalayan Pink Salt", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Fine pink salt", unit:"kg" },
+      { id: 104, name:"Moringa Oil", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed", unit:"100ml" }
+    ];
     
-    function getDisplayPriceInfo(product) {
-      const isLiquid = product.category === 'oils' || (product.unit && product.unit.toLowerCase().includes('ml'));
-      if (isLiquid) {
-        let mlValue = parseFloat(product.unit) || 100;
-        let pricePer1000ml = (product.price / mlValue) * 1000;
-        return { price: Math.round(pricePer1000ml * 100) / 100, unitLabel: "1000ml" };
-      } else {
-        return { price: product.price, unitLabel: "kg" };
-      }
+    async function loadProducts() { products = fallbackProducts; renderCatButtons(); renderProducts(); }
+    function renderCatButtons() {
+      const cats = ['all', 'herbs', 'namak', 'oils', 'extracts', 'mushrooms', 'rasa', 'herbal-soap'];
+      document.getElementById('catButtons').innerHTML = cats.map(c => `<button onclick="filterCategory('${c}')" class="cat-btn p-3 rounded-2xl border text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${c==='herbal-soap'?'soap':'leaf'}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c==='herbal-soap'?'Soap Studio':c}</span></button>`).join('');
+      lucide.createIcons();
     }
-    
-    function renderProducts(items){ 
-      const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); 
-      if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } 
-      noR.classList.add('hidden'); cnt.textContent=`${items.length}`; 
-      grid.innerHTML=items.map(p=>{ const info = getDisplayPriceInfo(p); const priceUSD = info.price / exchangeRate; 
-        return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all">
-          <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-            <img src="${p.img}" class="w-full h-full object-cover">
-            <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div>
-            <div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">#${p.id}</span></div>
-          </div>
-          <div class="p-5">
-            <h3 class="text-base font-semibold cursor-pointer hover:text-brand mb-1" onclick="openModal(${p.id})">${p.name}</h3>
-            <div class="flex items-center justify-between mt-2">
-              <div><span class="text-xl font-semibold">NPR ${info.price.toLocaleString()} / ${info.unitLabel}</span><span class="text-xs text-txt-sub block">$${priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${info.unitLabel}</span></div>
-              <button onclick="addToCart(${p.id})" class="px-4 py-2 bg-txt-main hover:bg-black text-white text-xs rounded-xl transition-all">Add to Cart</button>
-            </div>
-          </div>
-        </div>`; 
-      }).join(''); 
-      lucide.createIcons(); 
-    }
-    
-    function addToCart(id, qty=1){ 
-      const p=products.find(x=>x.id===id); 
-      if(p){ 
-        const existing=cart.find(i=>i.id===id); 
-        if(existing) existing.qty+=qty; 
-        else cart.push({id:p.id, name:p.name, price:p.price, qty, img:p.img}); 
-        updateCartUI(); 
-        showToast(`${p.name} added to cart`); 
-      } 
-    }
-    
-    function updateCartUI(){ 
-      const totalItems=cart.reduce((s,i)=>s+i.qty,0); 
-      const cEl=document.getElementById('cartCount'); 
-      if(totalItems>0){ cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent=totalItems; } 
-      else cEl.classList.add('hidden'); 
-      const cartDiv=document.getElementById('cartItems'); 
-      if(cartDiv) cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-4 py-4 border-b"><img src="${i.img}" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">${i.name}</h4><p>${i.qty} x NPR ${i.price}</p><button onclick="removeFromCart(${i.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join(''); 
-      const total=cart.reduce((s,i)=>s+i.price*i.qty,0); 
-      document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; 
-      const footer=document.getElementById('cartFooter'); 
-      if(cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); 
-    }
-    
-    function removeFromCart(id){ cart=cart.filter(i=>i.id!==id); updateCartUI(); showToast('Removed from cart'); }
+    function filterCategory(c) { currentCategory = c; if(c==='herbal-soap') { document.getElementById('soap-studio').scrollIntoView({behavior:'smooth'}); return; } renderProducts(); }
+    function renderProducts() { let filtered = currentCategory==='all'? products : products.filter(p=>p.category===currentCategory); const grid=document.getElementById('productGrid'); if(!filtered.length){ grid.innerHTML='<div class="col-span-full text-center py-10 text-txt-sub">No products</div>'; return; } grid.innerHTML=filtered.map(p=>`<div class="bg-white rounded-2xl border overflow-hidden"><img src="${p.img}" class="h-40 w-full object-cover"><div class="p-4"><h3 class="font-semibold">${p.name}</h3><div class="flex justify-between mt-2"><span class="font-bold">NPR ${p.price}</span><button onclick="addToCart(${p.id})" class="text-xs bg-txt-main text-white px-3 py-1 rounded-full">Add</button></div></div></div>`).join(''); lucide.createIcons(); }
+    function addToCart(id, customItem=null) { if(customItem){ cart.push(customItem); updateCartUI(); showToast(`${customItem.name} added`); return; } const p=products.find(x=>x.id===id); if(p){ const existing=cart.find(i=>i.id===id && !i.isCustom); if(existing) existing.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1, img:p.img}); updateCartUI(); showToast(`${p.name} added`); } }
+    function updateCartUI(){ const totalItems=cart.reduce((s,i)=>s+(i.qty||1),0); document.getElementById('cartCount').classList[totalItems>0?'remove':'add']('hidden'); if(totalItems>0){ document.getElementById('cartCount').classList.add('flex'); document.getElementById('cartCount').textContent=totalItems; } const cartDiv=document.getElementById('cartItems'); cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-3 border-b pb-3"><img src="${i.img||'https://placehold.co/60x60/A3B14B/white?text=Soap'}" class="w-12 h-12 rounded object-cover"><div><div class="font-medium">${i.name}</div><div class="text-xs">NPR ${i.price} x ${i.qty||1}</div><button onclick="removeFromCart(${i.id}, '${i.isCustom?i.id+'_custom':''}')" class="text-red-500 text-[10px] mt-1">Remove</button></div></div>`).join(''); const total=cart.reduce((s,i)=>s+(i.price*(i.qty||1)),0); document.getElementById('cartTotal').innerHTML=`NPR ${total.toLocaleString()}`; document.getElementById('cartFooter').classList[cart.length?'remove':'add']('hidden'); }
+    function removeFromCart(id, flag){ if(flag) cart=cart.filter(i=>!(i.isCustom && i.id===id)); else cart=cart.filter(i=>!(i.id===id && !i.isCustom)); updateCartUI(); showToast('Removed'); }
     function clearCart(){ cart=[]; updateCartUI(); showToast('Cart cleared'); }
     function closeCart(){ document.getElementById('cartOverlay').classList.add('hidden'); document.getElementById('cartPanel').style.transform='translateX(100%)'; }
     function openCart(){ document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('cartPanel').style.transform='translateX(0)',10); }
-    function showToast(msg){ const container=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm'; el.innerHTML=`<i data-lucide="check-circle" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; container.appendChild(el); lucide.createIcons(); setTimeout(()=>el.remove(),2500); }
-    function filterCategory(c){ currentCategory=c; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); renderProducts(getFilteredProducts()); }
-    function sortProducts(){ currentSort=document.getElementById('sortSelect').value; renderProducts(getFilteredProducts()); }
+    function showToast(msg){ const t=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast-enter bg-white rounded-xl shadow-lg p-3 text-sm'; el.innerHTML=`<i data-lucide="check-circle" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; t.appendChild(el); lucide.createIcons(); setTimeout(()=>el.remove(),2500); }
     
-    async function submitInquiry(e){ e.preventDefault(); const msgDiv=document.getElementById('formMsg'); 
-      try{ 
-        await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,message:document.getElementById('contactMessage').value})});
-        msgDiv.textContent='✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent!'); 
-      } catch(err){ msgDiv.textContent='✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); } 
+    // ----- SOAP CUSTOMIZATION LOGIC -----
+    function populateSoapDropdowns() {
+      const oilDiv = document.getElementById('oilDropdown'); oilDiv.innerHTML = oilOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('oil', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub block">+NPR ${opt.pricePer100g}/100g</span></div>`).join('');
+      const herbDiv = document.getElementById('herbDropdown'); herbDiv.innerHTML = herbOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('herb', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}<span class="text-[10px] text-txt-sub">+NPR ${opt.pricePer100g}</span></div>`).join('');
+      const fragDiv = document.getElementById('fragDropdown'); fragDiv.innerHTML = fragranceOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('frag', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
+      const addDiv = document.getElementById('additiveDropdown'); addDiv.innerHTML = additiveOptions.map(opt => `<div class="fancy-option" onclick="selectSoapOption('additive', '${opt.id}', '${opt.name}', ${opt.pricePer100g})">${opt.name}${opt.pricePer100g>0?` +NPR ${opt.pricePer100g}`:''}</div>`).join('');
     }
-    
-    function setupSearch() {
-      const searchInput = document.getElementById('searchInput');
-      const searchResults = document.getElementById('searchResults');
-      const searchNoResults = document.getElementById('searchNoResults');
-      if (!searchInput) return;
-      const performSearch = () => {
-        const query = searchInput.value.trim().toLowerCase();
-        if (!query) {
-          searchResults.innerHTML = '';
-          searchResults.classList.add('hidden');
-          searchNoResults.classList.add('hidden');
-          return;
-        }
-        const filtered = products.filter(product => {
-          return product.name.toLowerCase().includes(query) ||
-                 (product.sci && product.sci.toLowerCase().includes(query)) ||
-                 (product.catLabel && product.catLabel.toLowerCase().includes(query)) ||
-                 (product.category && product.category.toLowerCase().includes(query)) ||
-                 (product.desc && product.desc.toLowerCase().includes(query));
-        });
-        if (filtered.length === 0) {
-          searchResults.innerHTML = '';
-          searchResults.classList.add('hidden');
-          searchNoResults.classList.remove('hidden');
-          return;
-        }
-        searchNoResults.classList.add('hidden');
-        searchResults.classList.remove('hidden');
-        searchResults.innerHTML = filtered.map(product => {
-          const matchHighlight = product.name.replace(new RegExp(`(${query})`, 'gi'), '<mark class="bg-brand/30 text-txt-main px-0.5 rounded">$1</mark>');
-          return `<div class="search-result-item flex items-center gap-3 p-3 border-b border-border-main cursor-pointer hover:bg-brand/5 transition-all" onclick="selectSearchResult(${product.id})"><img src="${product.img}" class="w-12 h-12 rounded-lg object-cover"><div class="flex-1"><div class="font-medium text-sm">${matchHighlight}</div><div class="text-xs text-txt-sub">${product.catLabel} • NPR ${product.price}</div></div><button onclick="event.stopPropagation(); addToCart(${product.id})" class="px-3 py-1.5 bg-brand text-white text-xs rounded-lg hover:bg-brand-hover">Add</button></div>`;
-        }).join('');
-        lucide.createIcons();
+    window.selectSoapOption = (type, id, name, price) => {
+      if(type === 'oil') { soapConfig.oil = { id, name, pricePer100g: price }; document.getElementById('selectedOilLabel').innerText = name; document.getElementById('previewOil').innerHTML = `Oil: ${name}`; }
+      if(type === 'herb') { soapConfig.herb = { id, name, pricePer100g: price }; document.getElementById('selectedHerbLabel').innerText = name; document.getElementById('previewHerb').innerHTML = `Herb: ${name}`; }
+      if(type === 'frag') { soapConfig.fragrance = { id, name, pricePer100g: price }; document.getElementById('selectedFragLabel').innerText = name; document.getElementById('previewFrag').innerHTML = `Fragrance: ${name}`; }
+      if(type === 'additive') { soapConfig.additive = { id, name, pricePer100g: price }; document.getElementById('selectedAdditiveLabel').innerText = name; document.getElementById('previewAdd').innerHTML = `Additive: ${name}`; }
+      updateSoapTotalPrice();
+      document.querySelectorAll('.fancy-select').forEach(el => el.classList.remove('open'));
+      Object.keys({oilChevron:'oil',herbChevron:'herb',fragChevron:'frag',additiveChevron:'additive'}).forEach(chevId => { const el=document.getElementById(chevId); if(el) el.classList.remove('rotate-180'); });
+    };
+    function updateSoapTotalPrice() {
+      let total = 120; // base soap base (glycerin + coconut oil base)
+      total += soapConfig.oil.pricePer100g;
+      total += soapConfig.herb.pricePer100g;
+      total += soapConfig.fragrance.pricePer100g;
+      total += soapConfig.additive.pricePer100g;
+      document.getElementById('soapTotalPrice').innerHTML = `NPR ${total.toLocaleString()}`;
+      return total;
+    }
+    window.toggleSoapDropdown = (type) => {
+      const map = { oil:'oilSelectContainer', herb:'herbSelectContainer', frag:'fragSelectContainer', additive:'additiveSelectContainer' };
+      const container = document.getElementById(map[type]); if(!container) return;
+      document.querySelectorAll('.fancy-select').forEach(el => { if(el !== container) el.classList.remove('open'); });
+      container.classList.toggle('open');
+      const chev = document.getElementById(`${type}Chevron`);
+      if(chev) chev.classList.toggle('rotate-180');
+    };
+    window.addCustomSoap = () => {
+      const qty = parseInt(document.getElementById('soapQuantity').value) || 1;
+      const pricePerUnit = updateSoapTotalPrice();
+      const totalPrice = pricePerUnit * qty;
+      const soapName = `${soapConfig.herb.name} + ${soapConfig.oil.name} Soap`;
+      const customItem = {
+        id: Date.now(),
+        name: `🧼 ${soapName} (${soapConfig.fragrance.name !== 'None ( unscented )' ? soapConfig.fragrance.name : 'unscented'}, ${soapConfig.additive.name !== 'None' ? soapConfig.additive.name : ''})`.replace(/,,/g,',').replace(/\(,/,'('),
+        price: pricePerUnit,
+        qty: qty,
+        img: 'https://placehold.co/80x80/A3B14B/white?text=Soap',
+        isCustom: true,
+        config: {...soapConfig}
       };
-      let debounceTimer;
-      searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(performSearch, 300); });
-    }
+      cart.push(customItem);
+      updateCartUI();
+      showToast(`Custom soap added (${qty} bar) — NPR ${totalPrice}`);
+    };
     
-    function selectSearchResult(productId) {
-      document.getElementById('searchBar').classList.add('hidden');
-      document.getElementById('searchInput').value = '';
-      document.getElementById('searchResults').innerHTML = '';
-      document.getElementById('searchResults').classList.add('hidden');
-      openModal(productId);
-    }
-    
-    function openModal(id) {
-      const p = products.find(x => x.id === id);
-      if (!p) return;
-      currentModalProduct = p;
-      const isLiquid = p.category === 'oils';
-      const isHerbOrNamak = (p.category === 'herbs' || p.category === 'namak');
-      selectedForm = isLiquid ? 'Liquid Form' : (isHerbOrNamak ? 'Whole Form' : 'Whole Form');
-      selectedUnitValue = isLiquid ? '15ml' : '1kg';
-      const unitOptions = isLiquid ? ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'] : ['10gm', '125gm', '250gm', '500gm', '1kg'];
-      let formOptions = isLiquid ? ['Liquid Form'] : (isHerbOrNamak ? ['Whole Form', 'Powder Form'] : ['Whole Form']);
-      
-      const modalContainer = document.getElementById('productModal');
-      const contentDiv = document.getElementById('modalDynamicContent');
-      contentDiv.innerHTML = `
-        <div class="relative"><img src="${p.img}" class="w-full h-44 object-cover rounded-t-2xl"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium rounded-full">${p.catLabel}</div></div>
-        <div class="p-4"><h3 class="text-lg font-semibold tracking-tight mb-1">${p.name}</h3><p class="text-[10px] text-txt-third italic mb-2">${p.sci || ''}</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3">${p.desc || 'Premium quality ingredient.'}</p>
-        <div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDropdownContainer"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('form')"><span class="text-[11px] font-medium" id="selectedFormLabel">${selectedForm}</span><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChevron"></i></div><div class="fancy-select-dropdown" id="formDropdown">${formOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')">${opt}</div>`).join('')}</div></div>
-        <div class="fancy-select relative" id="unitDropdownContainer"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('unit')"><span class="text-[11px] font-medium" id="selectedUnitLabel">${selectedUnitValue}</span><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChevron"></i></div><div class="fancy-select-dropdown" id="unitDropdown">${unitOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')">${opt}</div>`).join('')}</div></div></div>
-        <div class="bg-brand/5 p-2.5 rounded-xl mb-3"><div class="flex justify-between"><div><span class="text-[9px] uppercase text-txt-sub">Price</span><div class="text-lg font-bold text-brand" id="dynamicModalPrice">NPR ${p.price}</div><div class="text-[9px] text-txt-sub" id="dynamicModalUsd">$${(p.price / exchangeRate).toFixed(2)}</div></div></div></div>
-        <div class="flex gap-2"><div class="flex items-center border border-border-main rounded-lg"><button onclick="window.modalQtyChange(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs border-x border-border-main"><button onclick="window.modalQtyChange(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="window.addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div>
-      `;
-      modalContainer.classList.remove('hidden'); modalContainer.classList.add('flex');
-      setTimeout(() => { lucide.createIcons(); window.updateDynamicPrice(); }, 30);
-    }
-    
-    window.toggleDropdown = function(type) { const c = document.getElementById(`${type}DropdownContainer`); if(!c) return; document.querySelectorAll('.fancy-select').forEach(el=>{if(el!==c) el.classList.remove('open');}); c.classList.toggle('open'); const ch=document.getElementById(`${type}Chevron`); if(ch) ch.classList.toggle('rotate-180'); };
-    window.selectFormOption = function(form) { selectedForm = form; document.getElementById('selectedFormLabel').innerText = form; const c=document.getElementById('formDropdownContainer'); if(c) c.classList.remove('open'); document.getElementById('formChevron')?.classList.remove('rotate-180'); window.updateDynamicPrice(); };
-    window.selectUnitOption = function(unit) { selectedUnitValue = unit; document.getElementById('selectedUnitLabel').innerText = unit; const c=document.getElementById('unitDropdownContainer'); if(c) c.classList.remove('open'); document.getElementById('unitChevron')?.classList.remove('rotate-180'); window.updateDynamicPrice(); };
-    window.updateDynamicPrice = function() { if (!currentModalProduct) return; let unitFactor = 1; const u = selectedUnitValue; if(u==='10gm') unitFactor=0.01; else if(u==='125gm') unitFactor=0.125; else if(u==='250gm') unitFactor=0.25; else if(u==='500gm') unitFactor=0.5; else if(u==='1kg') unitFactor=1; else if(u==='15ml') unitFactor=0.015; else if(u==='30ml') unitFactor=0.03; else if(u==='50ml') unitFactor=0.05; else if(u==='100ml') unitFactor=0.1; else if(u==='200ml') unitFactor=0.2; else if(u==='500ml') unitFactor=0.5; else if(u==='1000ml') unitFactor=1; let price = currentModalProduct.price * unitFactor; if(selectedForm === 'Powder Form') price += 50 * unitFactor; price = Math.round(price * 100)/100; document.getElementById('dynamicModalPrice').innerHTML = `NPR ${price.toLocaleString()}`; document.getElementById('dynamicModalUsd').innerHTML = `$${(price / exchangeRate).toLocaleString('en-US', {minimumFractionDigits:2})}`; };
-    window.modalQtyChange = function(delta) { const inp = document.getElementById('modalQty'); if(inp) inp.value = Math.max(1, (parseInt(inp.value)||1) + delta); };
-    window.addEnhancedToCart = function() { if(!currentModalProduct) return; const qty = parseInt(document.getElementById('modalQty')?.value) || 1; let unitFactor = 1; const u = selectedUnitValue; if(u==='10gm') unitFactor=0.01; else if(u==='125gm') unitFactor=0.125; else if(u==='250gm') unitFactor=0.25; else if(u==='500gm') unitFactor=0.5; else if(u==='1kg') unitFactor=1; else if(u==='15ml') unitFactor=0.015; else if(u==='30ml') unitFactor=0.03; else if(u==='50ml') unitFactor=0.05; else if(u==='100ml') unitFactor=0.1; else if(u==='200ml') unitFactor=0.2; else if(u==='500ml') unitFactor=0.5; else if(u==='1000ml') unitFactor=1; let price = currentModalProduct.price * unitFactor; if(selectedForm === 'Powder Form') price += 50 * unitFactor; price = Math.round(price * 100)/100; const existing = cart.find(i => i.id === currentModalProduct.id && i.name === `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`); if(existing) existing.qty += qty; else cart.push({ id: currentModalProduct.id, name: `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`, price: price, qty: qty, img: currentModalProduct.img }); updateCartUI(); showToast(`Added ${qty} x ${selectedUnitValue}`); closeModal(); };
-    function closeModal(){ document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct=null; }
-    
+    async function submitInquiry(e){ e.preventDefault(); showToast('Inquiry sent (demo)'); e.target.reset(); }
     document.getElementById('cartToggle').addEventListener('click', openCart);
-    document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('hidden'));
-    document.getElementById('searchClose').addEventListener('click', () => { document.getElementById('searchBar').classList.add('hidden'); document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; document.getElementById('searchResults').classList.add('hidden'); document.getElementById('searchNoResults').classList.add('hidden'); });
     document.getElementById('mobileMenu').addEventListener('click',()=>{ document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('mobilePanel').style.transform='translateX(0)',10); });
-    function closeMobile(){ document.getElementById('mobilePanel').style.transform='translateX(100%)'; setTimeout(()=>document.getElementById('mobileOverlay').classList.add('hidden'),300); }
+    window.closeMobile = () => { document.getElementById('mobilePanel').style.transform='translateX(100%)'; setTimeout(()=>document.getElementById('mobileOverlay').classList.add('hidden'),300); };
     document.getElementById('mobileClose')?.addEventListener('click', closeMobile);
-    document.getElementById('productModal')?.addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+    document.getElementById('addCustomSoapToCart')?.addEventListener('click', window.addCustomSoap);
     
-    loadExchangeRate();
+    // Initialization
+    populateSoapDropdowns();
+    updateSoapTotalPrice();
+    loadProducts();
     lucide.createIcons();
   </script>
 </body>
