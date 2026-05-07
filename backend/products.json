@@ -1342,20 +1342,6 @@
     "img": "images/talispatra.jpg",
     "desc": "Premium quality herb with various health benefits.",
     "stock": 100
-  },
-  {
-    "id": 97,
-    "name": "Tulsi",
-    "sci": "Tulsi",
-    "category": "herbs",
-    "catLabel": "Raw Herbs, Roots & Botanicals",
-    "price": 1000,
-    "unit": "Kg",
-    "moq": "",
-    "lead": "21-30 days",
-    "img": "images/tulsi.jpg",
-    "desc": "Premium quality herb with various health benefits.",
-    "stock": 100
   }
 ]
 
