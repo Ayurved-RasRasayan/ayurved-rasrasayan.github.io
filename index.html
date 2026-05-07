@@ -197,10 +197,7 @@
     let paymentScreenshotBase64 = null;
 
     // ONLY Aloe Vera Soap - all other herbal soap products removed
-    const herbalSoapProducts = [
-      { id: 104, name: "🌿 Aloe Vera Soap", sci: "Aloe barbadensis miller", category: "herbal-soap", catLabel: "Natural Herbal Soap", price: 1000, img: "images/aloevera-soap.jpg", desc: "Premium quality aloe vera soap with various health benefits. Soothing, hydrating, and perfect for daily skincare.", moq: "1 bar", lead: "21-30 days", unit: "100g bar", stock: 100 }
-    ];
-
+    
     async function loadExchangeRate() { 
       try { 
         const res = await fetch(`${BACKEND_URL}/public/rate`); 
@@ -225,7 +222,7 @@
           return cat !== 'powder' && cat !== 'api';
         });
         // Add only Aloe Vera soap to herbal soap category
-        products = [...filteredProducts, ...herbalSoapProducts];
+        products = [...filteredProducts];
       } catch(e) {
         products = [
           { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock:50 },
@@ -233,7 +230,7 @@
           { id:3, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", lead:"7 days", unit:"100 ml", stock:30 },
           { id:4, name:"Himalayan Pink Salt", sci:"Sodium Chloride", category:"namak", catLabel:"Namak", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Himalayan+Salt", desc:"Pure pink salt crystals.", moq:"1 kg", lead:"4-6 days", unit:"kg", stock:100 },
           { id:5, name:"Reishi Mushroom", sci:"Ganoderma lucidum", category:"mushrooms", catLabel:"Mushroom", price:2800, img:"https://placehold.co/400x300/132316/A3B14B?text=Reishi", desc:"Premium dried Reishi.", moq:"500 gm", lead:"10 days", unit:"1 kg", stock:15 },
-          ...herbalSoapProducts
+          //...herbalSoapProducts
         ];
       }
       renderCatButtons(); 
