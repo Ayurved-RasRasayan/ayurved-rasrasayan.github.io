@@ -1412,8 +1412,23 @@
     "img": "images/local-honey.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 105,
+    "name": "Unbujh Chuna",
+    "sci": "Unbujh Chuna",
+    "category": "namak",
+    "catLabel": "Namak (Salts)",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/unbujh-chuna.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
+
 
 
 
