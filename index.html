@@ -128,15 +128,58 @@
   <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
     <canvas id="globeCanvas" class="absolute inset-0 z-5 w-full h-full pointer-events-none"></canvas>
     <div class="absolute inset-0 hero-bg-fallback z-0"></div>
-    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-      <div><div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Minerals & Salts</span></div>
-      <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
-      <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Organic Soaps — sourced from Himalayas and beyond.</p>
-      <div class="anim-up anim-d3 flex flex-wrap gap-4"><a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25 relative overflow-hidden">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a><a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 relative overflow-hidden">Get Quote</a></div>
-      <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10"><div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div><div class="w-px h-8 md:h-10 bg-white/10"></div><div><div class="text-2xl md:text-3xl font-semibold text-white">8</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div><div class="w-px h-8 md:h-10 bg-white/10"></div><div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div></div>
-      <div class="relative hidden lg:flex items-center justify-center h-full mt-12 lg:mt-0"><img src="images/jeM6q.jpg" alt="Chakra" class="relative z-10 max-h-[500px] w-auto object-contain" onerror="this.style.display='none'"></div>
+    
+    <!-- GRID: items-stretch makes columns full height -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 w-full items-stretch">
+      
+      <!-- LEFT COLUMN: TEXT (Vertically Centered) -->
+      <div class="flex flex-col justify-center">
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 w-fit">
+          <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
+          <span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Minerals & Salts</span>
+        </div>
+        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">
+          Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients
+        </h1>
+        <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">
+          Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Organic Soaps — sourced from Himalayas and beyond.
+        </p>
+        <div class="anim-up anim-d3 flex flex-wrap gap-4">
+          <a href="#products" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25 relative overflow-hidden">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+          <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 relative overflow-hidden">Get Quote</a>
+        </div>
+        <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
+          <div class="w-px h-8 md:h-10 bg-white/10"></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">8</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
+          <div class="w-px h-8 md:h-10 bg-white/10"></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div>
+        </div>
+      </div> <!-- End Left Column -->
+
+      <!-- RIGHT COLUMN: FULL-BLEED IMAGE/ANIMATION -->
+      <!-- Hidden on mobile, full height on desktop. Overflow hidden crops the image nicely. -->
+      <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 shadow-2xl min-h-[500px]">
+        
+        <!-- Current Image Setup: object-cover fills up/down/left/right completely -->
+        <img src="images/jeM6q.jpg" alt="Chakra" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'">
+        
+        <!-- 
+          ANIMATION SWAP INSTRUCTIONS:
+          If you want to use an MP4/WebM video animation file instead, delete the <img> tag above and replace it with this:
+          <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover">
+            <source src="images/chakra-animation.mp4" type="video/mp4">
+          </video>
+        -->
+
+      </div> <!-- End Right Column -->
+
+    </div> <!-- End Grid -->
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20">
+      <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
+      <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
     </div>
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20"><span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span><i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i></div>
   </section>
 
   <!-- CATEGORIES -->
@@ -237,7 +280,7 @@
         if(!res.ok) throw new Error();
         products = await res.json();
       } catch(e) {
-        // Mock Data if API fails - Matching colors for all products
+        // Mock Data if API fails
         products = [
           { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock: 20 },
           { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Raw Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root powder.", moq:"500 gm", lead:"3-5 days", unit:"1 kg", stock: 15 },
@@ -248,7 +291,7 @@
       renderCatButtons(); renderProducts(getFilteredProducts());
     }
 
-    // 2. Render Category Buttons with INLINE SVGs (Fixed for generation)
+    // 2. Render Category Buttons
     function renderCatButtons(){ 
       const cats=['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap']; 
       document.getElementById('catButtons').innerHTML=cats.map(c=>{
@@ -259,7 +302,7 @@
         else if(c === 'herbs') iconName = 'leaf';
         else if(c === 'rasa') iconName = 'rocking-chair';
         else if(c === 'namak') iconName = 'sparkles';
-        else if(c === 'herbal soap') iconName = 'droplets'; // FIXED: Used 'droplets' instead of missing 'soap'
+        else if(c === 'herbal soap') iconName = 'droplets';
         return `<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${iconName}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c === 'herbal soap' ? 'Herbal Soap' : c}</span></button>`;
       }).join(''); 
       lucide.createIcons(); 
@@ -272,7 +315,7 @@
       grid.innerHTML=items.map((p,i)=>{ 
         const displayInfo = getDisplayPriceInfo(p); 
         const displayPriceNPR = displayInfo.price; 
-        const displayPriceUSD = displayPriceNPR / exchangeRate; // Convert NPR to USD
+        const displayPriceUSD = displayPriceNPR / exchangeRate; 
         
         let stockBadge = '';
         if (p.stock <= 0) {
@@ -312,13 +355,10 @@
           </div>
         </div>`; 
       }).join(''); 
-      // Navbar icons use Lucide, so we re-init them
       lucide.createIcons(); 
     }
     
     function getDisplayPriceInfo(p) {
-      // This function helps derive price/unit info for display if complex, 
-      // but for the grid view, we use the base price.
       return { price: p.price, unitLabel: p.unit };
     }
 
@@ -334,7 +374,7 @@
       
       const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); 
       document.getElementById('cartTotal').innerHTML=`NPR ${totalNPR.toLocaleString()}`;
-      document.getElementById('cartTotalUsd').innerHTML=`$${(totalNPR/exchangeRate).toLocaleString('en-US', {minimumFractionDigits:2})}`; // Show USD equivalent
+      document.getElementById('cartTotalUsd').innerHTML=`$${(totalNPR/exchangeRate).toLocaleString('en-US', {minimumFractionDigits:2})}`;
       
       const footer=document.getElementById('cartFooter'); 
       if(cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); 
@@ -388,7 +428,6 @@
       if (!p) return;
       currentModalProduct = p;
 
-      // --- CATEGORY BASED LOGIC START ---
       let formOptions = [];
       let unitOptions = [];
 
@@ -396,47 +435,27 @@
         case 'oils':
           formOptions = ['Liquid Form'];
           unitOptions = ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'];
-          selectedForm = 'Liquid Form';
-          selectedUnitValue = '15ml';
-          break;
-
-        case 'extracts':
-        case 'mushrooms':
-        case 'rasa':
+          selectedForm = 'Liquid Form'; selectedUnitValue = '15ml'; break;
+        case 'extracts': case 'mushrooms': case 'rasa':
           formOptions = ['Whole Form'];
           unitOptions = ['10gm', '125gm', '250gm', '500gm', '1kg'];
-          selectedForm = 'Whole Form';
-          selectedUnitValue = '1kg';
-          break;
-
-        case 'herbs':
-        case 'namak':
+          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
+        case 'herbs': case 'namak':
           formOptions = ['Whole Form', 'Powder Form'];
           unitOptions = ['10gm', '125gm', '250gm', '500gm', '1kg'];
-          selectedForm = 'Whole Form';
-          selectedUnitValue = '1kg';
-          break;
-
+          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
         case 'herbal soap':
           formOptions = ['Whole Bar'];
           unitOptions = ['100gm'];
-          selectedForm = 'Whole Bar';
-          selectedUnitValue = '100gm';
-          break;
-
+          selectedForm = 'Whole Bar'; selectedUnitValue = '100gm'; break;
         default:
-          formOptions = ['Whole Form'];
-          unitOptions = ['1kg'];
-          selectedForm = 'Whole Form';
-          selectedUnitValue = '1kg';
-          break;
+          formOptions = ['Whole Form']; unitOptions = ['1kg'];
+          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
       }
-      // --- CATEGORY BASED LOGIC END ---
 
       const modalContainer = document.getElementById('productModal');
       const contentDiv = document.getElementById('modalDynamicContent');
       
-      // Safety check: If product not found (e.g. ID 0), don't crash
       if (!currentModalProduct) return;
 
       contentDiv.innerHTML = `
@@ -465,7 +484,7 @@
                     let iconName = 'leaf'; 
                     if (opt === 'Liquid Form') iconName = 'droplet';
                     if (opt === 'Powder Form') iconName = 'cloud';
-                    if (opt === 'Whole Bar') iconName = 'droplets'; // Using droplets for soap as well
+                    if (opt === 'Whole Bar') iconName = 'droplets';
                     return `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')"><i data-lucide="${iconName}" class="w-3 h-3"></i><span>${opt}</span></div>`;
                 }).join('')}
               </div>
@@ -562,12 +581,9 @@
       window.updateDynamicPrice();
     };
     
-    // --- CORE CONVERSION LOGIC: NPR Calculation First, Then USD ---
     window.updateDynamicPrice = function() {
-      // Safety check
       if (!currentModalProduct) return;
 
-      // 1. Calculate Unit Factor based on selection
       let unitFactor = 1;
       const unit = selectedUnitValue;
       if (unit === '10gm') unitFactor = 0.01;
@@ -583,28 +599,21 @@
       else if (unit === '500ml') unitFactor = 0.5;
       else if (unit === '1000ml') unitFactor = 1;
 
-      // Get Quantity
       const qtyInput = document.getElementById('modalQty');
       const qty = qtyInput ? parseInt(qtyInput?.value) || 1 : 1;
       
-      // 2. Calculate Base Price in NPR (Base * Unit * Qty)
       let priceNPR = currentModalProduct.price * unitFactor * qty;
       
-      // 3. Add Powder Fee (Pro-rated based on unit)
       if (selectedForm === 'Powder Form') {
         priceNPR += 50 * unitFactor * qty;
       }
       
       const finalPriceNPR = Math.round(priceNPR * 100) / 100;
-      
-      // 4. Convert Final NPR to USD
       const finalPriceUSD = finalPriceNPR / exchangeRate;
       
-      // Update UI
       const priceEl = document.getElementById('dynamicModalPrice');
       const usdEl = document.getElementById('dynamicModalUsd');
       
-      // If Qty > 1, show Total Price. If Qty == 1, show Unit Price.
       const displayPriceNPR = finalPriceNPR.toLocaleString();
       const displayPriceUSD = finalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 });
       
@@ -615,7 +624,7 @@
     window.modalQtyChange = function(delta) {
       const inp = document.getElementById('modalQty');
       if (inp) inp.value = Math.max(1, (parseInt(inp.value) || 1) + delta);
-      window.updateDynamicPrice(); // Recalculate immediately
+      window.updateDynamicPrice();
     };
     
     window.addEnhancedToCart = function() {
@@ -638,7 +647,7 @@
       
       let unitPriceNPR = currentModalProduct.price * unitFactor;
       if (selectedForm === 'Powder Form') {
-        unitPriceNPR += 50 * unitFactor; // Add fee
+        unitPriceNPR += 50 * unitFactor;
       }
       const finalPriceNPR = Math.round(unitPriceNPR * 100) / 100;
       
@@ -648,7 +657,7 @@
         img: currentModalProduct.img,
         unit: selectedUnitValue,
         form: selectedForm,
-        price: finalPriceNPR, // Store NPR price
+        price: finalPriceNPR,
         qty: qty
       };
       const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.form === selectedForm);
@@ -673,7 +682,7 @@
     document.getElementById('mobileClose')?.addEventListener('click',closeMobile);
     document.getElementById('productModal')?.addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
     document.getElementById('paymentModal')?.addEventListener('click',e=>{ if(e.target===e.currentTarget) closePaymentModal(); });
-    loadExchangeRate(); // Start loading
+    loadExchangeRate();
     lucide.createIcons();
   </script>
 </body>
