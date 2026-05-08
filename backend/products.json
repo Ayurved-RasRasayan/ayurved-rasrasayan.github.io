@@ -517,21 +517,7 @@
     "img": "images/ashwaganda-powder.jpg",
     "desc": "Fine mesh powder of Ashwagandha root."
   },
-  {
-    "id": 38,
-    "name": "Amla Powder",
-    "sci": "Phyllanthus emblica",
-    "category": "powder",
-    "catLabel": "Herb Powder",
-    "price": 500,
-    "unit": "1 kg",
-    "moq": "",
-    "lead": "5-7 days",
-    "stock": 150,
-    "img": "images/dried-amla-powder.jpg",
-    "desc": "Dried Amla fruit powder. Natural Vitamin C supplement."
-  },
-  {
+    {
     "id": 39,
     "name": "Harro Powder",
     "sci": "Terminalia chebula",
@@ -545,20 +531,7 @@
     "img": "images/harro-powder.jpg",
     "desc": "Harad fruit powder. Key ingredient in Ayurvedic digestive formulas."
   },
-  {
-    "id": 40,
-    "name": "Neem Powder",
-    "sci": "Azadirachta indica",
-    "category": "powder",
-    "catLabel": "Herb Powder",
-    "price": 300,
-    "unit": "1 kg",
-    "moq": "",
-    "lead": "5-7 days",
-    "stock": 220,
-    "img": "images/neem-powder.jpg",
-    "desc": "Pure Neem leaf powder. Used in skincare and health supplements."
-  },
+  
   {
     "id": 41,
     "name": "Triphala Powder",
@@ -587,20 +560,7 @@
     "img": "images/shilajit.jpg",
     "desc": "Shilajit is a sticky, tar-like natural substance oozing from Himalayan rocks, formed over centuries by decomposed plant matter. In health, it is valued as a powerful rejuvenator, known to boost energy, enhance cognitive function, and support overall vitality."
   },
-  {
-    "id": 43,
-    "name": "Lothsalla Himalayan Yew",
-    "sci": "Lothsalla Himalayan Yew",
-    "category": "herbs",
-    "catLabel": "Raw Herbs, Roots & Botanicals",
-    "price": 1000,
-    "unit": "Kg",
-    "moq": "",
-    "lead": "21-30 days",
-    "img": "images/Lothsalla-himalayan-yew.jpg",
-    "desc": "Premium quality herb with various health benefits.",
-    "stock": 100
-  },
+  
   {
     "id": 44,
     "name": "Sennaleaves",
