@@ -1398,7 +1398,22 @@
     "img": "images/sugandhawal.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 104,
+    "name": "Local Honey",
+    "sci": "Local Honey",
+    "category": "extracts",
+    "catLabel": "Extracts",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/local-honey.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
+
 
 
