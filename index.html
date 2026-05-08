@@ -129,10 +129,7 @@
     <canvas id="globeCanvas" class="absolute inset-0 z-5 w-full h-full pointer-events-none"></canvas>
     <div class="absolute inset-0 hero-bg-fallback z-0"></div>
     
-    <!-- GRID: items-stretch makes columns full height -->
     <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 w-full items-stretch">
-      
-      <!-- LEFT COLUMN: TEXT (Vertically Centered) -->
       <div class="flex flex-col justify-center">
         <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 w-fit">
           <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
@@ -151,30 +148,15 @@
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
           <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
-          <div><div class="text-2xl md:text-3xl font-semibold text-white">8</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">9</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
           <div><div class="text-2xl md:text-3xl font-semibold text-white">15yr</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Experience</div></div>
         </div>
-      </div> <!-- End Left Column -->
-
-      <!-- RIGHT COLUMN: FULL-BLEED IMAGE/ANIMATION -->
-      <!-- Hidden on mobile, full height on desktop. Overflow hidden crops the image nicely. -->
+      </div>
       <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 shadow-2xl min-h-[500px]">
-        
-        <!-- Current Image Setup: object-cover fills up/down/left/right completely -->
         <img src="images/jeM6q.jpg" alt="Chakra" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'">
-        
-        <!-- 
-          ANIMATION SWAP INSTRUCTIONS:
-          If you want to use an MP4/WebM video animation file instead, delete the <img> tag above and replace it with this:
-          <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover">
-            <source src="images/chakra-animation.mp4" type="video/mp4">
-          </video>
-        -->
-
-      </div> <!-- End Right Column -->
-
-    </div> <!-- End Grid -->
+      </div>
+    </div>
 
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20">
       <span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
@@ -185,7 +167,7 @@
   <!-- CATEGORIES -->
   <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
     <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-3 md:gap-4" id="catButtons"></div></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4" id="catButtons"></div></div>
   </section>
 
   <!-- PRODUCTS -->
@@ -244,14 +226,52 @@
   </div>
 
   <script>
+    // ==========================================
+    // 1. CONFIGURATION & STATE
+    // ==========================================
     const BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
-    let exchangeRate = 133; // Default exchange rate
-    let products = []; let cart = []; let currentCategory = 'all'; let currentSort = 'name';
-    let currentModalProduct = null; let selectedForm = "Whole Form"; let selectedUnitValue = "1kg";
-    let selectedPaymentMethod = 'esewa'; let selectedPaymentCurrency = 'npr';
+    let exchangeRate = 133; 
+    let products = []; 
+    let cart = []; 
+    let currentCategory = 'all'; 
+    let currentSort = 'name';
+    
+    // Modal State
+    let currentModalProduct = null; 
+    let selectedForm = "Whole Form"; 
+    let selectedUnitValue = "1kg";
+    
+    // Payment State
+    let selectedPaymentMethod = 'esewa'; 
+    let selectedPaymentCurrency = 'npr';
     let paymentScreenshotBase64 = null;
 
-    // 1. Load Exchange Rate from Backend
+    // ==========================================
+    // 2. HELPER FUNCTIONS
+    // ==========================================
+    
+    // Converts unit string to a multiplier for pricing
+    function getUnitFactor(unit) {
+      const map = {
+        '10gm': 0.01, '125gm': 0.125, '250gm': 0.25, '500gm': 0.5, '1kg': 1,
+        '15ml': 0.015, '30ml': 0.03, '50ml': 0.05, '100ml': 0.1, 
+        '200ml': 0.2, '500ml': 0.5, '1000ml': 1, '100gm': 1
+      };
+      return map[unit] || 1;
+    }
+
+    // Calculates the final NPR price for a modal item
+    function calculateModalPrice(product, form, unit, qty) {
+      if (!product) return 0;
+      const unitFactor = getUnitFactor(unit);
+      let priceNPR = product.price * unitFactor * qty;
+      if (form === 'Powder Form') priceNPR += 50 * unitFactor * qty;
+      return Math.round(priceNPR * 100) / 100;
+    }
+
+    // ==========================================
+    // 3. INITIALIZATION & EXCHANGE RATE
+    // ==========================================
     async function loadExchangeRate() { 
       try { 
         const res = await fetch(`${BACKEND_URL}/public/rate`); 
@@ -265,22 +285,26 @@
     }
 
     function updateRateDisplays(){ 
-      const r=exchangeRate.toFixed(2); 
-      const label=document.getElementById('rateLabel'); 
-      if(label) label.textContent=`$ prices at 1 USD = Rs. ${r}`; 
-      const ft=document.getElementById('footerRateText'); 
-      if(ft) ft.textContent=`1 USD = Rs. ${r} NPR`; 
+      const r = exchangeRate.toFixed(2); 
+      const label = document.getElementById('rateLabel'); 
+      if(label) label.textContent = `$ prices at 1 USD = Rs. ${r}`; 
+      const ft = document.getElementById('footerRateText'); 
+      if(ft) ft.textContent = `1 USD = Rs. ${r} NPR`; 
     }
-    
+
+    // ==========================================
+    // 4. PRODUCTS & CATEGORIES
+    // ==========================================
     async function loadProducts() {
       const grid = document.getElementById('productGrid'); 
       grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>';
+      
       try {
         const res = await fetch(`${BACKEND_URL}/products`);
         if(!res.ok) throw new Error();
         products = await res.json();
       } catch(e) {
-        // Mock Data if API fails
+        // Fallback Mock Data
         products = [
           { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock: 20 },
           { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Raw Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root powder.", moq:"500 gm", lead:"3-5 days", unit:"1 kg", stock: 15 },
@@ -288,53 +312,69 @@
           { id:4, name:"Neem Soap", sci:"Azadirachta indica", category:"herbal soap", catLabel:"Organic Herbal Soap", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Neem+Soap", desc:"Handmade neem and tulsi soap.", moq:"1 pc", lead:"3 days", unit:"100g", stock: 100 }
         ];
       }
-      renderCatButtons(); renderProducts(getFilteredProducts());
+      renderCatButtons(); 
+      renderProducts(getFilteredProducts());
     }
 
-    // 2. Render Category Buttons
     function renderCatButtons(){ 
-      const cats=['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap']; 
-      document.getElementById('catButtons').innerHTML=cats.map(c=>{
-        let iconName = 'grid-3x3';
-        if(c === 'oils') iconName = 'droplet';
-        else if(c === 'extracts') iconName = 'flask-conical';
-        else if(c === 'mushrooms') iconName = 'nut';
-        else if(c === 'herbs') iconName = 'leaf';
-        else if(c === 'rasa') iconName = 'rocking-chair';
-        else if(c === 'namak') iconName = 'sparkles';
-        else if(c === 'herbal soap') iconName = 'droplets';
-        return `<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${iconName}" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium capitalize">${c === 'herbal soap' ? 'Herbal Soap' : c}</span></button>`;
+      const cats = ['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap','seeds / masala']; 
+      const icons = {
+        'all': 'grid-3x3', 'oils': 'droplet', 'extracts': 'flask-conical', 
+        'mushrooms': 'nut', 'herbs': 'leaf', 'rasa': 'rocking-chair', 
+        'namak': 'sparkles', 'herbal soap': 'droplets', 'seeds / masala': 'wheat' // <--- FIXED!
+      };
+      
+      document.getElementById('catButtons').innerHTML = cats.map(c => {
+        let displayCatName = c;
+        if (c === 'herbal soap') displayCatName = 'Herbal Soap';
+        else if (c === 'seeds / masala') displayCatName = 'Seeds / Masala';
+        else displayCatName = c.charAt(0).toUpperCase() + c.slice(1);
+
+        return `<button onclick="filterCategory('${c}')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="${c}">
+          <div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="${icons[c]}" class="w-4 h-4 text-brand"></i></div>
+          <span class="text-[10px] font-medium">${displayCatName}</span>
+        </button>`;
       }).join(''); 
       lucide.createIcons(); 
     }
     
+    function getFilteredProducts(){ 
+      let f = products; 
+      if(currentCategory !== 'all') f = f.filter(p => p.category === currentCategory); 
+      if(currentSort === 'name') f.sort((a,b) => a.name.localeCompare(b.name)); 
+      if(currentSort === 'price-asc') f.sort((a,b) => a.price - b.price); 
+      if(currentSort === 'price-desc') f.sort((a,b) => b.price - a.price); 
+      return f; 
+    }
+
+    function filterCategory(c){ 
+      currentCategory = c; 
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === c)); 
+      renderProducts(getFilteredProducts()); 
+    }
+
+    function sortProducts(){ 
+      currentSort = document.getElementById('sortSelect').value; 
+      renderProducts(getFilteredProducts()); 
+    }
+
     function renderProducts(items){ 
-      const grid=document.getElementById('productGrid'), noR=document.getElementById('noResults'), cnt=document.getElementById('productCount'); 
+      const grid = document.getElementById('productGrid'), noR = document.getElementById('noResults'), cnt = document.getElementById('productCount'); 
       if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } 
-      noR.classList.add('hidden'); cnt.textContent=`${items.length}`; 
-      grid.innerHTML=items.map((p,i)=>{ 
-        const displayInfo = getDisplayPriceInfo(p); 
-        const displayPriceNPR = displayInfo.price; 
-        const displayPriceUSD = displayPriceNPR / exchangeRate; 
-        
+      noR.classList.add('hidden'); cnt.textContent = `${items.length}`; 
+      
+      grid.innerHTML = items.map(p => { 
+        const priceUSD = (p.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
         let stockBadge = '';
-        if (p.stock <= 0) {
-          stockBadge = '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>';
-        } else if (p.stock < 10) {
-          stockBadge = `<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium rounded-full">Low Stock (${p.stock})</span>`;
-        } else {
-          stockBadge = '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium rounded-full">In Stock</span>';
-        }
+        if (p.stock <= 0) stockBadge = '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>';
+        else if (p.stock < 10) stockBadge = `<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium rounded-full">Low Stock (${p.stock})</span>`;
+        else stockBadge = '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium rounded-full">In Stock</span>';
         
         return `<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all">
           <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-            <img src="${p.img}" class="w-full h-full object-cover">
-            <div class="absolute top-3 left-3">
-              <span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span>
-            </div>
-            <div class="absolute top-3 right-3">
-              <span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span>
-            </div>
+            <img src="${p.img}" class="product-img w-full h-full object-cover transition-transform duration-500">
+            <div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">${p.catLabel}</span></div>
+            <div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ${p.id}</span></div>
           </div>
           <div class="p-5">
             <div class="flex items-center justify-between mb-1">
@@ -343,12 +383,10 @@
             </div>
             <div class="flex items-center justify-between mt-2">
               <div>
-                <span class="text-xl font-semibold">NPR ${displayPriceNPR.toLocaleString()} / ${displayInfo.unitLabel}</span>
-                <span class="text-xs text-txt-sub block">$${displayPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${displayInfo.unitLabel}</span>
+                <span class="text-xl font-semibold">NPR ${p.price.toLocaleString()} / ${p.unit}</span>
+                <span class="text-xs text-txt-sub block">$${priceUSD} / ${p.unit}</span>
               </div>
-              <button onclick="addToCart(${p.id})" 
-                ${p.stock <= 0 ? 'disabled' : ''}
-                class="px-4 py-2 ${p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'} text-white text-xs rounded-xl transition-all">
+              <button onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''} class="px-4 py-2 ${p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'} text-white text-xs rounded-xl transition-all">
                 ${p.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
             </div>
@@ -357,108 +395,140 @@
       }).join(''); 
       lucide.createIcons(); 
     }
-    
-    function getDisplayPriceInfo(p) {
-      return { price: p.price, unitLabel: p.unit };
+
+    // ==========================================
+    // 5. SEARCH FUNCTIONALITY
+    // ==========================================
+    function initSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const searchClose = document.getElementById('searchClose');
+      const resultsDiv = document.getElementById('searchResults');
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) { resultsDiv.innerHTML = ''; return; }
+
+        const matches = products.filter(p =>
+          p.name.toLowerCase().includes(query) ||
+          (p.sci && p.sci.toLowerCase().includes(query)) ||
+          p.category.toLowerCase().includes(query) ||
+          (p.catLabel && p.catLabel.toLowerCase().includes(query)) ||
+          (p.desc && p.desc.toLowerCase().includes(query))
+        );
+
+        if (!matches.length) {
+          resultsDiv.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found.</p>';
+          return;
+        }
+
+        resultsDiv.innerHTML = matches.map(p => `
+          <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-bg-light cursor-pointer transition-colors"
+               onclick="closeSearch(); openModal(${p.id});">
+            <img src="${p.img}" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display='none'">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">${p.name}</p>
+              <p class="text-[10px] text-txt-third">${p.catLabel} · NPR ${p.price.toLocaleString()}</p>
+            </div>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-txt-third flex-shrink-0"></i>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      });
+
+      searchClose.addEventListener('click', closeSearch);
     }
 
-    function addToCart(id, qty=1){ const p=products.find(x=>x.id===id); if(p){ const existing=cart.find(i=>i.id===id); if(existing) existing.qty+=qty; else cart.push({id:p.id, name:p.name, price:p.price, qty, img:p.img, unit:p.unit}); updateCartUI(); showToast(`${p.name} added`); } }
+    function closeSearch() {
+      document.getElementById('searchBar').classList.add('hidden');
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchResults').innerHTML = '';
+    }
+
+    // ==========================================
+    // 6. CART LOGIC
+    // ==========================================
+    function addToCart(id, qty=1){ 
+      const p = products.find(x => x.id === id); 
+      if(p){ 
+        const existing = cart.find(i => i.id === id && i.unit === p.unit && i.form === 'Whole Form'); 
+        if(existing) existing.qty += qty; 
+        else cart.push({id: p.id, name: p.name, price: p.price, qty, img: p.img, unit: p.unit, form: 'Whole Form'}); 
+        updateCartUI(); 
+        showToast(`${p.name} added`); 
+      } 
+    }
     
     function updateCartUI(){ 
-      const totalItems=cart.reduce((s,i)=>s+i.qty,0); 
-      const cEl=document.getElementById('cartCount'); 
-      if(totalItems>0){ cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent=totalItems; } else cEl.classList.add('hidden'); 
+      const totalItems = cart.reduce((s,i) => s+i.qty, 0); 
+      const cEl = document.getElementById('cartCount'); 
+      if(totalItems > 0){ cEl.classList.remove('hidden'); cEl.classList.add('flex'); cEl.textContent = totalItems; } 
+      else cEl.classList.add('hidden'); 
       
-      const cartDiv=document.getElementById('cartItems'); 
-      if(cartDiv) cartDiv.innerHTML=cart.map(i=>`<div class="flex gap-4 py-4 border-b"><img src="${i.img}" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">${i.name} <span class="text-[10px] font-mono">#${i.id}</span></h4><p>${i.qty} x NPR ${i.price}</p><button onclick="removeFromCart(${i.id})" class="text-red-500 text-xs">Remove</button></div></div>`).join(''); 
+      const cartDiv = document.getElementById('cartItems'); 
+      if(cartDiv) cartDiv.innerHTML = cart.map(i => `
+        <div class="flex gap-4 py-4 border-b">
+          <img src="${i.img}" class="w-16 h-16 rounded object-cover">
+          <div>
+            <h4 class="font-medium">${i.name} <span class="text-[10px] font-mono">#${i.id}</span></h4>
+            <p class="text-xs text-txt-sub">${i.form} · ${i.unit}</p>
+            <p class="text-sm">${i.qty} x NPR ${i.price.toLocaleString()}</p>
+            <button onclick="removeFromCart(${i.id}, '${i.unit}', '${i.form}')" class="text-red-500 text-xs mt-1">Remove</button>
+          </div>
+        </div>
+      `).join(''); 
       
-      const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); 
-      document.getElementById('cartTotal').innerHTML=`NPR ${totalNPR.toLocaleString()}`;
-      document.getElementById('cartTotalUsd').innerHTML=`$${(totalNPR/exchangeRate).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+      const totalNPR = cart.reduce((s,i) => s + i.price * i.qty, 0); 
+      document.getElementById('cartTotal').innerHTML = `NPR ${totalNPR.toLocaleString()}`;
+      document.getElementById('cartTotalUsd').innerHTML = `$${(totalNPR/exchangeRate).toLocaleString('en-US', {minimumFractionDigits:2})}`;
       
-      const footer=document.getElementById('cartFooter'); 
+      const footer = document.getElementById('cartFooter'); 
       if(cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); 
     }
     
-    function removeFromCart(id){ cart=cart.filter(i=>i.id!==id); updateCartUI(); showToast('Removed'); }
+    function removeFromCart(id, unit, form){ 
+      cart = cart.filter(i => !(i.id === id && i.unit === unit && i.form === form)); 
+      updateCartUI(); 
+      showToast('Removed'); 
+    }
+    
     function clearCart(){ cart=[]; updateCartUI(); showToast('Cart cleared'); }
-    function closeCart(){ document.getElementById('cartOverlay').classList.add('hidden'); document.getElementById('cartPanel').style.transform='translateX(100%)'; }
+    
     function openCart(){ document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('cartPanel').style.transform='translateX(0)',10); }
-    function proceedToInquiry(){ if(!cart.length) return; closeCart(); const msg=document.getElementById('contactMessage'); let total=cart.reduce((s,i)=>s+i.price*i.qty,0); msg.value+=`\n\n--- Cart Total: NPR ${total.toLocaleString()} ---\n`; cart.forEach(i=>{ msg.value+=`- ${i.name} (#${i.id}): ${i.qty} x NPR ${i.price}\n`; }); document.getElementById('contact').scrollIntoView({behavior:'smooth'}); showToast('Cart added to inquiry'); }
-    function showToast(msg, type='success'){ const container=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm'; el.innerHTML=`<i data-lucide="${type==='success'?'check-circle':'alert-circle'}" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; container.appendChild(el); lucide.createIcons(); setTimeout(()=>el.remove(),2500); }
-    function filterCategory(c){ currentCategory=c; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===c)); renderProducts(getFilteredProducts()); }
-    function sortProducts(){ currentSort=document.getElementById('sortSelect').value; renderProducts(getFilteredProducts()); }
-    function getFilteredProducts(){ let f=products; if(currentCategory!=='all') f=f.filter(p=>p.category===currentCategory); if(currentSort==='name') f.sort((a,b)=>a.name.localeCompare(b.name)); if(currentSort==='price-asc') f.sort((a,b)=>a.price-b.price); if(currentSort==='price-desc') f.sort((a,b)=>b.price-a.price); return f; }
+    function closeCart(){ document.getElementById('cartOverlay').classList.add('hidden'); document.getElementById('cartPanel').style.transform='translateX(100%)'; }
     
-    async function submitInquiry(e){ e.preventDefault(); const btn=e.target.querySelector('button[type="submit"]'), msgDiv=document.getElementById('formMsg'); btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try{ const res=await fetch(`${BACKEND_URL}/inquiries`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('inquiryFirstName').value,lastName:document.getElementById('inquiryLastName').value,email:document.getElementById('inquiryEmail').value,company:document.getElementById('inquiryCompany')?.value||'',message:document.getElementById('contactMessage').value})}); if(res.ok){ msgDiv.textContent='✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch(err){ msgDiv.textContent='✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry','error'); } finally{ btn.disabled=false; btn.innerHTML='Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
-    
-    // --- PAYMENT MODAL LOGIC ---
-    function openPaymentModal(method){ selectedPaymentMethod=method; const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUSD=totalNPR/exchangeRate; document.getElementById('paymentTotal').innerHTML=`NPR ${totalNPR.toLocaleString()}`; document.getElementById('paymentTotalSub').innerHTML=`$${totalUSD.toFixed(2)}`; document.getElementById('paymentItemsCount').innerHTML=`${cart.reduce((s,i)=>s+i.qty,0)} items`; document.querySelectorAll('.pay-tab').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${method}`).classList.add('active'); document.getElementById('paymentMethodLabel').innerHTML=method==='esewa'?'eSewa':'Khalti'; document.getElementById('qr-esewa').classList.toggle('hidden',method!=='esewa'); document.getElementById('qr-khalti').classList.toggle('hidden',method!=='khalti'); document.getElementById('paymentModal').classList.remove('hidden'); document.getElementById('paymentModal').classList.add('flex'); document.body.classList.add('payment-modal-open'); }
-    function closePaymentModal(){ document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('flex'); document.body.classList.remove('payment-modal-open'); }
-    function switchPaymentTab(method){ selectedPaymentMethod=method; openPaymentModal(method); }
-    function setPaymentCurrency(curr){ selectedPaymentCurrency=curr; const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUsd=totalNPR/exchangeRate; if(curr==='npr'){ document.getElementById('paymentTotal').innerHTML=`NPR ${totalNPR.toLocaleString()}`; document.getElementById('paymentTotalSub').innerHTML=`$${totalUsd.toFixed(2)}`; } else { document.getElementById('paymentTotal').innerHTML=`$${totalUsd.toFixed(2)}`; document.getElementById('paymentTotalSub').innerHTML=`NPR ${totalNPR.toLocaleString()}`; } document.querySelectorAll('.currency-btn').forEach(b=>b.classList.remove('active-curr')); document.getElementById(curr==='npr'?'btnNPR':'btnUSD').classList.add('active-curr'); }
-    function handleFileUpload(e){ const f=e.target.files[0]; if(!f) return; if(f.size>5*1024*1024){ showToast('Max 5MB','error'); return; } document.getElementById('uploadPlaceholder').classList.add('hidden'); document.getElementById('uploadProgressContainer').classList.remove('hidden'); const reader=new FileReader(); reader.onload=function(ev){ paymentScreenshotBase64=ev.target.result; document.getElementById('progressBar').style.width='100%'; setTimeout(()=>{ document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); document.getElementById('imagePreview').src=paymentScreenshotBase64; lucide.createIcons(); },300); }; reader.readAsDataURL(f); }
-    function clearScreenshot(e){ if(e) e.stopPropagation(); paymentScreenshotBase64=null; document.getElementById('paymentScreenshot').value=""; document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); document.getElementById('progressBar').style.width='0%'; }
-    
-    async function submitOrderToBackend(){ 
-      const name=document.getElementById('clientName').value.trim(); 
-      const phone=document.getElementById('clientPhone').value.trim(); 
-      const email=document.getElementById('clientEmail').value.trim(); 
-      const address=document.getElementById('clientAddress').value.trim(); 
-      
-      if(!name){ showToast('Please enter your full name','error'); document.getElementById('clientName').classList.add('input-error'); return; }
-      if(!phone){ showToast('Please enter your phone number','error'); document.getElementById('clientPhone').classList.add('input-error'); return; }
-      if(!email){ showToast('Please enter your email address','error'); document.getElementById('clientEmail').classList.add('input-error'); return; }
-      if(!email.includes('@') || !email.includes('.')){ showToast('Please enter a valid email address','error'); document.getElementById('clientEmail').classList.add('input-error'); return; }
-      if(!paymentScreenshotBase64){ showToast('Please upload a payment screenshot','error'); document.getElementById('dropZone').classList.add('upload-error'); document.getElementById('uploadError').classList.remove('hidden'); return; }
-      if(!cart.length){ showToast('Cart is empty','error'); return; }
-      
-      document.getElementById('clientName')?.classList.remove('input-error');
-      document.getElementById('clientPhone')?.classList.remove('input-error');
-      document.getElementById('clientEmail')?.classList.remove('input-error');
-      document.getElementById('dropZone')?.classList.remove('upload-error');
-      document.getElementById('uploadError')?.classList.add('hidden');
-      
-      const btn=document.getElementById('confirmPayBtn'); const originalHtml=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; lucide.createIcons(); 
-      try{ const totalNPR=cart.reduce((s,i)=>s+i.price*i.qty,0); const totalUSD=totalNPR/exchangeRate; const paidAmount=selectedPaymentCurrency==='npr'?totalNPR:totalUSD; const currency=selectedPaymentCurrency==='npr'?'NPR':'USD'; const orderData={ items:cart.map(i=>({id:i.id, name:i.name, price:i.price, qty:i.qty})), totalNPR, totalUSD, paidAmount, currency, paymentMethod:selectedPaymentMethod, paymentScreenshot:paymentScreenshotBase64, clientDetails:{name, phone, email, address:address||'N/A'} }; const res=await fetch(`${BACKEND_URL}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(orderData)}); if(res.ok){ showToast('Order placed! We will verify payment and email you confirmation.'); cart=[]; updateCartUI(); paymentScreenshotBase64=null; clearScreenshot(); document.getElementById('clientName').value=''; document.getElementById('clientPhone').value=''; document.getElementById('clientEmail').value=''; document.getElementById('clientAddress').value=''; closePaymentModal(); } else { const err=await res.json(); showToast(err.message||'Order submission failed','error'); } } catch(err){ showToast('Network error. Please try again.','error'); } finally{ btn.disabled=false; btn.innerHTML=originalHtml; lucide.createIcons(); } }
-    
-    // --- ADVANCED PRODUCT MODAL LOGIC WITH CATEGORY RULES & NPR->USD CONVERSION ---
+    function proceedToInquiry(){ 
+      if(!cart.length) return; 
+      closeCart(); 
+      const msg = document.getElementById('contactMessage'); 
+      let total = cart.reduce((s,i) => s + i.price * i.qty, 0); 
+      msg.value += `\n\n--- Cart Total: NPR ${total.toLocaleString()} ---\n`; 
+      cart.forEach(i => { msg.value += `- ${i.name} (${i.form}, ${i.unit}): ${i.qty} x NPR ${i.price}\n`; }); 
+      document.getElementById('contact').scrollIntoView({behavior:'smooth'}); 
+      showToast('Cart added to inquiry'); 
+    }
+
+    // ==========================================
+    // 7. PRODUCT MODAL LOGIC
+    // ==========================================
     function openModal(id) {
       const p = products.find(x => x.id === id);
       if (!p) return;
       currentModalProduct = p;
 
-      let formOptions = [];
-      let unitOptions = [];
-
+      let formOptions = [], unitOptions = [];
       switch (p.category) {
-        case 'oils':
-          formOptions = ['Liquid Form'];
-          unitOptions = ['15ml', '30ml', '50ml', '100ml', '200ml', '500ml', '1000ml'];
-          selectedForm = 'Liquid Form'; selectedUnitValue = '15ml'; break;
-        case 'extracts': case 'mushrooms': case 'rasa':
-          formOptions = ['Whole Form'];
-          unitOptions = ['10gm', '125gm', '250gm', '500gm', '1kg'];
-          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
-        case 'herbs': case 'namak':
-          formOptions = ['Whole Form', 'Powder Form'];
-          unitOptions = ['10gm', '125gm', '250gm', '500gm', '1kg'];
-          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
-        case 'herbal soap':
-          formOptions = ['Whole Bar'];
-          unitOptions = ['100gm'];
-          selectedForm = 'Whole Bar'; selectedUnitValue = '100gm'; break;
-        default:
-          formOptions = ['Whole Form']; unitOptions = ['1kg'];
-          selectedForm = 'Whole Form'; selectedUnitValue = '1kg'; break;
+        case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break;
+        case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break;
+        case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break;
+        case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break;
+        default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break;
       }
+      selectedForm = formOptions[0]; 
+      selectedUnitValue = unitOptions[unitOptions.length - 1]; // Default to largest size
 
-      const modalContainer = document.getElementById('productModal');
-      const contentDiv = document.getElementById('modalDynamicContent');
-      
-      if (!currentModalProduct) return;
+      const iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' };
 
-      contentDiv.innerHTML = `
+      document.getElementById('modalDynamicContent').innerHTML = `
         <div class="relative">
           <img src="${p.img}" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display='none'">
           <button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
@@ -471,35 +541,27 @@
             <span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#${p.id}</span>
           </div>
           <p class="text-[10px] text-txt-third italic mb-2">${p.sci || ''}</p>
-          <p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">${p.desc || 'Premium quality botanical ingredient.'}</p>
+          <p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">${p.desc || ''}</p>
           
           <div class="grid grid-cols-2 gap-2 mb-3">
-            <div class="fancy-select relative" id="formDropdownContainer">
-              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('form')">
-                <div class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selectedFormLabel">${selectedForm}</span></div>
-                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChevron"></i>
+            <!-- Form Dropdown -->
+            <div class="fancy-select relative" id="formDDCont">
+              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown('form')">
+                <div class="flex items-center gap-1.5"><i data-lucide="${iconMap[selectedForm] || 'layers'}" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selFormLabel">${selectedForm}</span></div>
+                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i>
               </div>
-              <div class="fancy-select-dropdown" id="formDropdown">
-                ${formOptions.map(opt => {
-                    let iconName = 'leaf'; 
-                    if (opt === 'Liquid Form') iconName = 'droplet';
-                    if (opt === 'Powder Form') iconName = 'cloud';
-                    if (opt === 'Whole Bar') iconName = 'droplets';
-                    return `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectFormOption('${opt}')"><i data-lucide="${iconName}" class="w-3 h-3"></i><span>${opt}</span></div>`;
-                }).join('')}
+              <div class="fancy-select-dropdown" id="formDD">
+                ${formOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm('${opt}')"><i data-lucide="${iconMap[opt] || 'layers'}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
               </div>
             </div>
-            <div class="fancy-select relative" id="unitDropdownContainer">
-              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="window.toggleDropdown('unit')">
-                <div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selectedUnitLabel">${selectedUnitValue}</span></div>
-                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChevron"></i>
+            <!-- Unit Dropdown -->
+            <div class="fancy-select relative" id="unitDDCont">
+              <div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown('unit')">
+                <div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selUnitLabel">${selectedUnitValue}</span></div>
+                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i>
               </div>
-              <div class="fancy-select-dropdown" id="unitDropdown">
-                ${unitOptions.map(opt => {
-                    let iconName = 'cube'; 
-                    if (opt.includes('ml')) iconName = 'droplet';
-                    return `<div class="fancy-option text-xs py-1.5 px-3" onclick="window.selectUnitOption('${opt}')"><i data-lucide="${iconName}" class="w-3 h-3"></i><span>${opt}</span></div>`;
-                }).join('')}
+              <div class="fancy-select-dropdown" id="unitDD">
+                ${unitOptions.map(opt => `<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit('${opt}')"><i data-lucide="${opt.includes('ml') ? 'droplet' : 'cube'}" class="w-3 h-3"></i><span>${opt}</span></div>`).join('')}
               </div>
             </div>
           </div>
@@ -507,181 +569,321 @@
           <div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3">
             <div class="flex justify-between items-center">
               <div>
-                <span class="text-[9px] uppercase text-txt-sub">Price per unit</span>
-                <div class="text-lg font-bold text-brand" id="dynamicModalPrice">NPR ${p.price}</div>
-                <div class="text-[9px] text-txt-sub" id="dynamicModalUsd">$${(p.price / exchangeRate).toFixed(2)}</div>
-                <div id="powderFeeIndicator" class="text-[8px] text-orange-500 mt-1 ${selectedForm === 'Powder Form' ? '' : 'hidden'}">+NPR 50/kg powder fee (added in NPR)</div>
+                <span class="text-[9px] uppercase text-txt-sub">Total Price</span>
+                <div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div>
+                <div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div>
+                <div id="powderNote" class="text-[8px] text-orange-500 mt-1 ${selectedForm === 'Powder Form' ? '' : 'hidden'}">+NPR 50/kg powder fee included</div>
               </div>
               <div class="text-right">
-                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="formBadge">${selectedForm}</span>
-                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="unitBadge">${selectedUnitValue}</span>
+                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="mFormBadge">${selectedForm}</span>
+                <span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="mUnitBadge">${selectedUnitValue}</span>
               </div>
             </div>
           </div>
           
           <div class="grid grid-cols-3 gap-1.5 mb-3">
-            <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Unit</p><p class="text-[10px] text-white font-medium">${p.unit || '1 kg'}</p></div>
+            <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Base Unit</p><p class="text-[10px] text-white font-medium">${p.unit || '1 kg'}</p></div>
             <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">${p.moq || '1 kg'}</p></div>
             <div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">${p.lead || '7d'}</p></div>
           </div>
           
           <div class="flex gap-2">
             <div class="flex items-center border border-border-main rounded-lg overflow-hidden">
-              <button onclick="window.modalQtyChange(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
+              <button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button>
               <input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none">
-              <button onclick="window.modalQtyChange(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
+              <button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button>
             </div>
-            <button onclick="window.addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all">
+            <button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all">
               <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart
             </button>
           </div>
         </div>
       `;
       
-      modalContainer.classList.remove('hidden');
-      modalContainer.classList.add('flex');
-      setTimeout(() => { lucide.createIcons(); window.updateDynamicPrice(); }, 30);
+      document.getElementById('productModal').classList.remove('hidden');
+      document.getElementById('productModal').classList.add('flex');
+      setTimeout(() => { lucide.createIcons(); updateModalPrice(); }, 30);
     }
-    
-    window.toggleDropdown = function(type) {
-      const container = document.getElementById(`${type}DropdownContainer`);
+
+    function closeModal() {
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('flex');
+      currentModalProduct = null;
+    }
+
+    function toggleDropdown(type) {
+      const container = document.getElementById(`${type}DDCont`);
+      const chev = document.getElementById(`${type}Chev`);
       if (!container) return;
-      const all = document.querySelectorAll('.fancy-select');
-      all.forEach(c => { if (c !== container) c.classList.remove('open'); });
+      
+      // Close other dropdown
+      const otherType = type === 'form' ? 'unit' : 'form';
+      document.getElementById(`${otherType}DDCont`)?.classList.remove('open');
+      document.getElementById(`${otherType}Chev`)?.classList.remove('rotate-180');
+
       container.classList.toggle('open');
-      const chev = document.getElementById(`${type}Chevron`);
-      if (chev) chev.classList.toggle('rotate-180');
-    };
-    
-    window.selectFormOption = function(form) {
+      chev.classList.toggle('rotate-180');
+    }
+
+    function selectForm(form) {
       selectedForm = form;
-      document.getElementById('selectedFormLabel').innerText = form;
-      const formBadge = document.getElementById('formBadge');
-      if (formBadge) formBadge.innerText = form;
-      
-      const feeIndicator = document.getElementById('powderFeeIndicator');
-      if (feeIndicator) feeIndicator.classList.toggle('hidden', form !== 'Powder Form');
-      
-      const container = document.getElementById('formDropdownContainer');
-      if (container) container.classList.remove('open');
-      const chev = document.getElementById('formChevron');
-      if (chev) chev.classList.remove('rotate-180');
-      window.updateDynamicPrice();
-    };
-    
-    window.selectUnitOption = function(unit) {
+      document.getElementById('selFormLabel').innerText = form;
+      document.getElementById('mFormBadge').innerText = form;
+      document.getElementById('powderNote')?.classList.toggle('hidden', form !== 'Powder Form');
+      document.getElementById('formDDCont')?.classList.remove('open');
+      document.getElementById('formChev')?.classList.remove('rotate-180');
+      updateModalPrice();
+    }
+
+    function selectUnit(unit) {
       selectedUnitValue = unit;
-      document.getElementById('selectedUnitLabel').innerText = unit;
-      const unitBadge = document.getElementById('unitBadge');
-      if (unitBadge) unitBadge.innerText = unit;
-      const container = document.getElementById('unitDropdownContainer');
-      if (container) container.classList.remove('open');
-      const chev = document.getElementById('unitChevron');
-      if (chev) chev.classList.remove('rotate-180');
-      window.updateDynamicPrice();
-    };
-    
-    window.updateDynamicPrice = function() {
-      if (!currentModalProduct) return;
+      document.getElementById('selUnitLabel').innerText = unit;
+      document.getElementById('mUnitBadge').innerText = unit;
+      document.getElementById('unitDDCont')?.classList.remove('open');
+      document.getElementById('unitChev')?.classList.remove('rotate-180');
+      updateModalPrice();
+    }
 
-      let unitFactor = 1;
-      const unit = selectedUnitValue;
-      if (unit === '10gm') unitFactor = 0.01;
-      else if (unit === '125gm') unitFactor = 0.125;
-      else if (unit === '250gm') unitFactor = 0.25;
-      else if (unit === '500gm') unitFactor = 0.5;
-      else if (unit === '1kg') unitFactor = 1;
-      else if (unit === '15ml') unitFactor = 0.015;
-      else if (unit === '30ml') unitFactor = 0.03;
-      else if (unit === '50ml') unitFactor = 0.05;
-      else if (unit === '100ml') unitFactor = 0.1;
-      else if (unit === '200ml') unitFactor = 0.2;
-      else if (unit === '500ml') unitFactor = 0.5;
-      else if (unit === '1000ml') unitFactor = 1;
-
-      const qtyInput = document.getElementById('modalQty');
-      const qty = qtyInput ? parseInt(qtyInput?.value) || 1 : 1;
-      
-      let priceNPR = currentModalProduct.price * unitFactor * qty;
-      
-      if (selectedForm === 'Powder Form') {
-        priceNPR += 50 * unitFactor * qty;
-      }
-      
-      const finalPriceNPR = Math.round(priceNPR * 100) / 100;
-      const finalPriceUSD = finalPriceNPR / exchangeRate;
-      
-      const priceEl = document.getElementById('dynamicModalPrice');
-      const usdEl = document.getElementById('dynamicModalUsd');
-      
-      const displayPriceNPR = finalPriceNPR.toLocaleString();
-      const displayPriceUSD = finalPriceUSD.toLocaleString('en-US', { minimumFractionDigits: 2 });
-      
-      if (priceEl) priceEl.innerHTML = `NPR ${displayPriceNPR}`;
-      if (usdEl) usdEl.innerHTML = `$${displayPriceUSD}`;
-    };
-    
-    window.modalQtyChange = function(delta) {
-      const inp = document.getElementById('modalQty');
-      if (inp) inp.value = Math.max(1, (parseInt(inp.value) || 1) + delta);
-      window.updateDynamicPrice();
-    };
-    
-    window.addEnhancedToCart = function() {
+    function updateModalPrice() {
       if (!currentModalProduct) return;
       const qty = parseInt(document.getElementById('modalQty')?.value) || 1;
-      let unitFactor = 1;
-      const unit = selectedUnitValue;
-      if (unit === '10gm') unitFactor = 0.01;
-      else if (unit === '125gm') unitFactor = 0.125;
-      else if (unit === '250gm') unitFactor = 0.25;
-      else if (unit === '500gm') unitFactor = 0.5;
-      else if (unit === '1kg') unitFactor = 1;
-      else if (unit === '15ml') unitFactor = 0.015;
-      else if (unit === '30ml') unitFactor = 0.03;
-      else if (unit === '50ml') unitFactor = 0.05;
-      else if (unit === '100ml') unitFactor = 0.1;
-      else if (unit === '200ml') unitFactor = 0.2;
-      else if (unit === '500ml') unitFactor = 0.5;
-      else if (unit === '1000ml') unitFactor = 1;
+      const finalPriceNPR = calculateModalPrice(currentModalProduct, selectedForm, selectedUnitValue, qty);
       
-      let unitPriceNPR = currentModalProduct.price * unitFactor;
-      if (selectedForm === 'Powder Form') {
-        unitPriceNPR += 50 * unitFactor;
-      }
-      const finalPriceNPR = Math.round(unitPriceNPR * 100) / 100;
+      document.getElementById('dynPrice').innerHTML = `NPR ${finalPriceNPR.toLocaleString()}`;
+      document.getElementById('dynUsd').innerHTML = `$${(finalPriceNPR / exchangeRate).toFixed(2)}`;
+    }
+
+    function changeQty(delta) {
+      const inp = document.getElementById('modalQty');
+      if (inp) inp.value = Math.max(1, (parseInt(inp.value) || 1) + delta);
+      updateModalPrice();
+    }
+
+    function addEnhancedToCart() {
+      if (!currentModalProduct) return;
+      const qty = parseInt(document.getElementById('modalQty')?.value) || 1;
+      const unitPriceNPR = calculateModalPrice(currentModalProduct, selectedForm, selectedUnitValue, 1);
       
       const cartItem = {
         id: currentModalProduct.id,
-        name: `${currentModalProduct.name} (${selectedForm}, ${selectedUnitValue})`,
+        name: currentModalProduct.name,
         img: currentModalProduct.img,
         unit: selectedUnitValue,
         form: selectedForm,
-        price: finalPriceNPR,
+        price: unitPriceNPR,
         qty: qty
       };
-      const existing = cart.find(i => i.id === cartItem.id && i.unit === selectedUnitValue && i.form === selectedForm);
+
+      const existing = cart.find(i => i.id === cartItem.id && i.unit === cartItem.unit && i.form === cartItem.form);
       if (existing) existing.qty += qty;
       else cart.push(cartItem);
+      
       updateCartUI();
-      if (selectedForm === 'Powder Form') {
-        const extraFeeNPR = (50 * unitFactor * qty).toFixed(2);
-        showToast(`Added ${qty} x ${selectedUnitValue} (+NPR ${extraFeeNPR} powder fee)`);
-      } else {
-        showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
-      }
+      showToast(`Added ${qty} x ${selectedUnitValue} ${selectedForm}`);
       closeModal();
-    };
+    }
+
+    // ==========================================
+    // 8. PAYMENT MODAL LOGIC
+    // ==========================================
+    function openPaymentModal(method){ 
+      selectedPaymentMethod = method; 
+      const totalNPR = cart.reduce((s,i) => s + i.price * i.qty, 0); 
+      const totalUSD = totalNPR / exchangeRate; 
+      
+      document.getElementById('paymentTotal').innerHTML = `NPR ${totalNPR.toLocaleString()}`; 
+      document.getElementById('paymentTotalSub').innerHTML = `$${totalUSD.toFixed(2)}`; 
+      document.getElementById('paymentItemsCount').innerHTML = `${cart.reduce((s,i) => s + i.qty, 0)} items`; 
+      document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active')); 
+      document.getElementById(`tab-${method}`).classList.add('active'); 
+      document.getElementById('paymentMethodLabel').innerHTML = method === 'esewa' ? 'eSewa' : 'Khalti'; 
+      document.getElementById('qr-esewa').classList.toggle('hidden', method !== 'esewa'); 
+      document.getElementById('qr-khalti').classList.toggle('hidden', method !== 'khalti'); 
+      document.getElementById('paymentModal').classList.remove('hidden'); 
+      document.getElementById('paymentModal').classList.add('flex'); 
+      document.body.classList.add('payment-modal-open'); 
+    }
+
+    function closePaymentModal(){ 
+      document.getElementById('paymentModal').classList.add('hidden'); 
+      document.getElementById('paymentModal').classList.remove('flex'); 
+      document.body.classList.remove('payment-modal-open'); 
+    }
+
+    function switchPaymentTab(method){ openPaymentModal(method); }
+
+    function setPaymentCurrency(curr){ 
+      selectedPaymentCurrency = curr; 
+      const totalNPR = cart.reduce((s,i) => s + i.price * i.qty, 0); 
+      const totalUsd = totalNPR / exchangeRate; 
+      if(curr === 'npr'){ 
+        document.getElementById('paymentTotal').innerHTML = `NPR ${totalNPR.toLocaleString()}`; 
+        document.getElementById('paymentTotalSub').innerHTML = `$${totalUsd.toFixed(2)}`; 
+      } else { 
+        document.getElementById('paymentTotal').innerHTML = `$${totalUsd.toFixed(2)}`; 
+        document.getElementById('paymentTotalSub').innerHTML = `NPR ${totalNPR.toLocaleString()}`; 
+      } 
+      document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active-curr')); 
+      document.getElementById(curr === 'npr' ? 'btnNPR' : 'btnUSD').classList.add('active-curr'); 
+    }
+
+    function handleFileUpload(e){ 
+      const f = e.target.files[0]; 
+      if(!f) return; 
+      if(f.size > 5*1024*1024){ showToast('Max 5MB','error'); return; } 
+      document.getElementById('uploadPlaceholder').classList.add('hidden'); 
+      document.getElementById('uploadProgressContainer').classList.remove('hidden'); 
+      const reader = new FileReader(); 
+      reader.onload = function(ev){ 
+        paymentScreenshotBase64 = ev.target.result; 
+        document.getElementById('progressBar').style.width = '100%'; 
+        setTimeout(() => { 
+          document.getElementById('uploadProgressContainer').classList.add('hidden'); 
+          document.getElementById('imagePreviewContainer').classList.remove('hidden'); 
+          document.getElementById('imagePreview').src = paymentScreenshotBase64; 
+          lucide.createIcons(); 
+        }, 300); 
+      }; 
+      reader.readAsDataURL(f); 
+    }
+
+    function clearScreenshot(e){ 
+      if(e) e.stopPropagation(); 
+      paymentScreenshotBase64 = null; 
+      document.getElementById('paymentScreenshot').value = ""; 
+      document.getElementById('uploadPlaceholder').classList.remove('hidden'); 
+      document.getElementById('uploadProgressContainer').classList.add('hidden'); 
+      document.getElementById('imagePreviewContainer').classList.add('hidden'); 
+      document.getElementById('progressBar').style.width = '0%'; 
+    }
     
-    function closeModal(){ document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct=null; }
-    
-    document.getElementById('cartToggle').addEventListener('click',openCart);
-    document.getElementById('searchToggle').addEventListener('click',()=>document.getElementById('searchBar').classList.toggle('hidden'));
-    document.getElementById('mobileMenu').addEventListener('click',()=>{ document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('mobilePanel').style.transform='translateX(0)',10); });
-    function closeMobile(){ document.getElementById('mobilePanel').style.transform='translateX(100%)'; setTimeout(()=>document.getElementById('mobileOverlay').classList.add('hidden'),300); }
-    document.getElementById('mobileClose')?.addEventListener('click',closeMobile);
-    document.getElementById('productModal')?.addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
-    document.getElementById('paymentModal')?.addEventListener('click',e=>{ if(e.target===e.currentTarget) closePaymentModal(); });
+    async function submitOrderToBackend(){ 
+      const name = document.getElementById('clientName').value.trim(); 
+      const phone = document.getElementById('clientPhone').value.trim(); 
+      const email = document.getElementById('clientEmail').value.trim(); 
+      const address = document.getElementById('clientAddress').value.trim(); 
+      
+      if(!name){ showToast('Please enter your full name','error'); document.getElementById('clientName').classList.add('input-error'); return; }
+      if(!phone){ showToast('Please enter your phone number','error'); document.getElementById('clientPhone').classList.add('input-error'); return; }
+      if(!email || !email.includes('@') || !email.includes('.')){ showToast('Please enter a valid email address','error'); document.getElementById('clientEmail').classList.add('input-error'); return; }
+      if(!paymentScreenshotBase64){ showToast('Please upload a payment screenshot','error'); document.getElementById('dropZone').classList.add('upload-error'); document.getElementById('uploadError').classList.remove('hidden'); return; }
+      if(!cart.length){ showToast('Cart is empty','error'); return; }
+      
+      // Clear old errors
+      ['clientName','clientPhone','clientEmail'].forEach(id => document.getElementById(id)?.classList.remove('input-error'));
+      document.getElementById('dropZone')?.classList.remove('upload-error');
+      document.getElementById('uploadError')?.classList.add('hidden');
+      
+      const btn = document.getElementById('confirmPayBtn'); 
+      const originalHtml = btn.innerHTML; 
+      btn.disabled = true; 
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...'; 
+      lucide.createIcons(); 
+
+      try { 
+        const totalNPR = cart.reduce((s,i) => s + i.price * i.qty, 0); 
+        const totalUSD = totalNPR / exchangeRate; 
+        const paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; 
+        const currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD'; 
+        
+        const orderData = { 
+          items: cart.map(i => ({id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit, form: i.form})), 
+          totalNPR, totalUSD, paidAmount, currency, paymentMethod: selectedPaymentMethod, 
+          paymentScreenshot: paymentScreenshotBase64, 
+          clientDetails: {name, phone, email, address: address || 'N/A'} 
+        }; 
+
+        const res = await fetch(`${BACKEND_URL}/orders`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(orderData)}); 
+        if(res.ok){ 
+          showToast('Order placed! We will verify payment and email you confirmation.'); 
+          cart = []; updateCartUI(); paymentScreenshotBase64 = null; clearScreenshot(); 
+          ['clientName','clientPhone','clientEmail','clientAddress'].forEach(id => document.getElementById(id).value = '');
+          closePaymentModal(); 
+        } else { 
+          const err = await res.json(); 
+          showToast(err.message || 'Order submission failed', 'error'); 
+        } 
+      } catch(err) { 
+        showToast('Network error. Please try again.', 'error'); 
+      } finally { 
+        btn.disabled = false; btn.innerHTML = originalHtml; lucide.createIcons(); 
+      } 
+    }
+
+    // ==========================================
+    // 9. INQUIRY FORM
+    // ==========================================
+    async function submitInquiry(e){ 
+      e.preventDefault(); 
+      const btn = e.target.querySelector('button[type="submit"]'), msgDiv = document.getElementById('formMsg'); 
+      btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); 
+      try { 
+        const res = await fetch(`${BACKEND_URL}/inquiries`, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+            firstName: document.getElementById('inquiryFirstName').value,
+            lastName: document.getElementById('inquiryLastName').value,
+            email: document.getElementById('inquiryEmail').value,
+            company: document.getElementById('inquiryCompany')?.value || '',
+            message: document.getElementById('contactMessage').value
+          })
+        }); 
+        if(res.ok){ 
+          msgDiv.textContent = '✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden','text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); 
+        } else throw new Error(); 
+      } catch(err) { 
+        msgDiv.textContent = '✕ Error sending inquiry.'; msgDiv.classList.remove('hidden','text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry','error'); 
+      } finally { 
+        btn.disabled = false; btn.innerHTML = 'Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); 
+      } 
+    }
+
+    // ==========================================
+    // 10. UI HELPERS (Toasts, Mobile Menu)
+    // ==========================================
+    function showToast(msg, type='success'){ 
+      const container = document.getElementById('toastContainer'); 
+      const el = document.createElement('div'); 
+      el.className = 'toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm pointer-events-auto'; 
+      el.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}" class="w-4 h-4 inline mr-2 text-brand"></i>${msg}`; 
+      container.appendChild(el); lucide.createIcons(); 
+      setTimeout(() => { el.classList.add('toast-exit'); setTimeout(() => el.remove(), 300); }, 2500); 
+    } 
+
+    function closeMobile(){ 
+      document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; 
+      setTimeout(() => document.getElementById('mobileOverlay').classList.add('hidden'), 300); 
+    }
+
+    // ==========================================
+    // 11. EVENT LISTENERS & INITIALIZATION
+    // ==========================================
+    function initEventListeners() {
+      // Navbar
+      document.getElementById('cartToggle').addEventListener('click', openCart);
+      document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('hidden'));
+      document.getElementById('mobileMenu').addEventListener('click', () => { document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(() => document.getElementById('mobilePanel').style.transform = 'translateX(0)', 10); });
+      document.getElementById('mobileClose')?.addEventListener('click', closeMobile);
+      document.getElementById('cartOverlay').addEventListener('click', e => { if(e.target === e.currentTarget) closeCart(); });
+
+      // Modals outside click
+      document.getElementById('productModal')?.addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+      document.getElementById('paymentModal')?.addEventListener('click', e => { if(e.target === e.currentTarget) closePaymentModal(); });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+          closePaymentModal();
+          closeSearch();
+        }
+      });
+
+      // Search
+      initSearch();
+    }
+
+    // Boot up
+    initEventListeners();
     loadExchangeRate();
     lucide.createIcons();
   </script>
