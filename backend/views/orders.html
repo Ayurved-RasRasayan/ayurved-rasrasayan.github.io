@@ -71,6 +71,13 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .btn {
             padding: 8px 16px;
             border-radius: 6px;
@@ -113,6 +120,21 @@
 
         .btn-secondary:hover {
             background: #e5e7eb;
+        }
+
+        .btn-print {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+
+        .btn-print:hover:not(:disabled) {
+            background: #c7d2fe;
+        }
+
+        .btn-print:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .selected-count {
@@ -185,7 +207,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 1100px;
             background: white;
         }
 
@@ -216,22 +238,18 @@
         }
 
         /* ============ HORIZONTAL RED LINE DIVIDER ============ */
-        /* Red line between each row */
         tr {
             border-bottom: 2px solid #dc2626;
         }
 
-        /* Remove border from last row */
         tr:last-child {
             border-bottom: none;
         }
 
-        /* For table cells - remove default borders */
         td {
             border-bottom: none;
         }
 
-        /* Hover effect */
         tr:hover {
             background: #fafafa;
         }
@@ -239,25 +257,22 @@
         /* ============ COLUMN WIDTHS ============ */
         .col-checkbox { width: 3%; }
         .col-date { width: 8%; }
-        .col-items { width: 45%; }
+        .col-items { width: 40%; }
         .col-status { width: 12%; }
-        .col-client { width: 27%; }
-        .col-action { width: 5%; }
+        .col-client { width: 25%; }
+        .col-action { width: 12%; }
 
         /* ============ COLUMN ALIGNMENT ============ */
-        /* Checkbox Column - Center */
         .col-checkbox,
         td:nth-child(1) {
             text-align: center;
         }
 
-        /* Date Column - Center */
         .col-date,
         td:nth-child(2) {
             text-align: center;
         }
 
-        /* Items Column - HEADER Center, DATA Left */
         .col-items {
             text-align: center;
         }
@@ -265,13 +280,11 @@
             text-align: left;
         }
 
-        /* Status Column - Center */
         .col-status,
         td:nth-child(4) {
             text-align: center;
         }
 
-        /* Client Column - HEADER Center, DATA Left */
         .col-client {
             text-align: center;
         }
@@ -279,7 +292,6 @@
             text-align: left;
         }
 
-        /* Action Column - Center */
         .col-action,
         td:nth-child(6) {
             text-align: center;
@@ -469,6 +481,12 @@
         }
 
         /* Action Cell */
+        .action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         .delete-btn {
             background: #dc2626;
             color: white;
@@ -477,11 +495,28 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 12px;
             width: 100%;
         }
 
         .delete-btn:hover {
             background: #b91c1c;
+        }
+
+        .print-btn-row {
+            background: #4338ca;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .print-btn-row:hover {
+            background: #3730a3;
         }
 
         /* Total Bar */
@@ -563,39 +598,125 @@
             cursor: pointer;
         }
 
+        /* Print Dialog Overlay */
+        .print-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-dialog-overlay.show {
+            display: flex;
+        }
+
+        .print-dialog {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: dialogIn 0.2s ease-out;
+        }
+
+        @keyframes dialogIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .print-dialog h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2d4a22;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .print-dialog-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .print-dialog-row {
+            margin-bottom: 16px;
+        }
+
+        .print-dialog select,
+        .print-dialog input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .print-dialog select:focus,
+        .print-dialog input[type="text"]:focus {
+            outline: none;
+            border-color: #2d4a22;
+            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
+        }
+
+        .print-dialog-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .print-dialog-actions .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
             }
-            
+
             .toolbar {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
+            .toolbar-left {
+                justify-content: center;
+            }
+
             .currency-toggle {
                 justify-content: center;
             }
-            
+
             .table-wrapper {
                 overflow-x: scroll;
             }
-            
+
             .item-row {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .item-total {
                 text-align: left;
             }
-            
+
             .client-line {
                 text-align: left;
             }
-            
-            /* Adjust red line for mobile */
+
             tr {
                 border-bottom: 2px solid #dc2626;
             }
@@ -612,9 +733,10 @@
 
     <!-- Toolbar -->
     <div class="toolbar">
-        <div>
+        <div class="toolbar-left">
             <button class="btn btn-secondary" onclick="selectAll()">☑️ Select All</button>
             <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
+            <button class="btn btn-print" id="printSelectedBtn" disabled onclick="openPrintDialog('selected')">🖨️ Print Selected</button>
             <span id="selectedCount" class="selected-count"></span>
         </div>
         <div class="currency-toggle">
@@ -644,7 +766,7 @@
                     <th class="col-items">🛍️ Items (ID | Name | Qty | Price)</th>
                     <th class="col-status">⚙️ Status</th>
                     <th class="col-client">👤 Client Details</th>
-                    <th class="col-action">🗑️ Action</th>
+                    <th class="col-action">⚙️ Actions</th>
                 </tr>
             </thead>
             <tbody id="ordersTableBody">
@@ -657,6 +779,52 @@
     <div class="total-bar">
         <span class="total-bar-label">💰 Grand Total</span>
         <span id="grandTotal" class="total-bar-value">NPR 0</span>
+    </div>
+</div>
+
+<!-- Print Dialog Modal -->
+<div id="printDialogOverlay" class="print-dialog-overlay">
+    <div class="print-dialog">
+        <h3>🖨️ Print Invoice</h3>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Currency</label>
+            <select id="printCurrency">
+                <option value="NPR">🇳🇵 NPR (Nepali Rupees)</option>
+                <option value="USD">🇺🇸 USD (US Dollars)</option>
+                <option value="BOTH">Both NPR & USD</option>
+            </select>
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Business Name</label>
+            <input type="text" id="printBusinessName" value="NaturaBotanica" placeholder="Your business name">
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Business Address / Contact</label>
+            <input type="text" id="printBusinessInfo" value="" placeholder="Address, phone, email...">
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Include</label>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludeLogo" checked> Logo & branding
+                </label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludePayment" checked> Payment method
+                </label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludeFooter" checked> Thank you footer
+                </label>
+            </div>
+        </div>
+
+        <div class="print-dialog-actions">
+            <button class="btn btn-secondary" onclick="closePrintDialog()">Cancel</button>
+            <button class="btn btn-primary" onclick="executePrint()">🖨️ Print Now</button>
+        </div>
     </div>
 </div>
 
@@ -673,11 +841,15 @@
     let currentCurrency = 'NPR';
     let allOrders = [];
 
+    // Print state
+    let printMode = null;       // 'single' or 'selected'
+    let printTargetIds = [];    // order IDs to print
+
     // ============ AUTHENTICATION ============
     function getAuth() {
         let username = localStorage.getItem('admin_username');
         let password = localStorage.getItem('admin_password');
-        
+
         if (!username || !password) {
             username = prompt('Enter admin username:');
             password = prompt('Enter admin password:');
@@ -696,23 +868,23 @@
         try {
             const auth = getAuth();
             if (!auth) throw new Error('Authentication required');
-            
+
             showToast('Loading orders...');
-            
+
             const response = await fetch(API_BASE + '/api/view-orders-data', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
-            
+
             if (response.status === 401) {
                 localStorage.removeItem('admin_username');
                 localStorage.removeItem('admin_password');
                 throw new Error('Login failed. Please try again.');
             }
-            
+
             if (!response.ok) throw new Error('Failed to fetch orders');
-            
+
             const data = await response.json();
-            
+
             if (data.success && data.orders) {
                 allOrders = data.orders;
                 renderTable();
@@ -734,15 +906,15 @@
     // ============ RENDER TABLE ============
     function renderTable() {
         const tbody = document.getElementById('ordersTableBody');
-        
+
         if (!allOrders || allOrders.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
             updateGrandTotal();
             return;
         }
-        
+
         let html = '';
-        
+
         for (const order of allOrders) {
             const orderId = order._id;
             const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB');
@@ -751,7 +923,7 @@
             const emailStatus = order.emailStatus || 'Queue';
             const totalNPR = Math.round(order.totalNPR || 0);
             const client = order.clientDetails || {};
-            
+
             // Email badge class
             let emailBadgeClass = 'badge-queue';
             let emailBadgeText = '⏳ Queue';
@@ -762,7 +934,7 @@
                 emailBadgeClass = 'badge-failed';
                 emailBadgeText = '❌ Failed';
             }
-            
+
             // Items HTML with Product ID displayed
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
@@ -771,7 +943,7 @@
                     const price = item.price || 0;
                     const lineTotal = qty * price;
                     const productId = item.id || item.productId || 'N/A';
-                    
+
                     return `
                         <div class="item-row">
                             <div class="item-info">
@@ -786,12 +958,12 @@
             } else {
                 itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
-            
+
             // Display total based on currency
-            let displayTotal = currentCurrency === 'USD' 
+            let displayTotal = currentCurrency === 'USD'
                 ? `$${(totalNPR / exchangeRate).toFixed(2)}`
                 : `NPR ${totalNPR.toLocaleString()}`;
-            
+
             html += `
                 <tr id="row-${orderId}">
                     <td>
@@ -829,12 +1001,15 @@
                         <div class="client-line"><span class="client-label">💳 Payment:</span> ${order.paymentMethod || 'N/A'}</div>
                     </td>
                     <td>
-                        <button class="delete-btn" onclick="deleteOrder('${orderId}', this)">🗑️ Delete</button>
+                        <div class="action-btns">
+                            <button class="print-btn-row" onclick="openPrintDialog('single','${orderId}')">🖨️ Print</button>
+                            <button class="delete-btn" onclick="deleteOrder('${orderId}', this)">🗑️ Delete</button>
+                        </div>
                     </td>
                 </tr>
             `;
         }
-        
+
         tbody.innerHTML = html;
         updateGrandTotal();
     }
@@ -848,7 +1023,7 @@
             selectEl.disabled = false;
             return;
         }
-        
+
         try {
             const response = await fetch(API_BASE + '/api/update-status', {
                 method: 'PUT',
@@ -858,13 +1033,13 @@
                 },
                 body: JSON.stringify({ id: orderId, status: newStatus })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 selectEl.className = `status-select s-${newStatus}`;
                 showToast(`✅ Status updated to ${newStatus}`);
-                
+
                 const badgeDiv = selectEl.parentElement.querySelector('.badge');
                 if (badgeDiv) {
                     if (data.emailStatus === 'Sent') {
@@ -888,19 +1063,19 @@
     // ============ DELETE ORDER ============
     async function deleteOrder(orderId, btn) {
         if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
-        
+
         btn.disabled = true;
         btn.textContent = '...';
         const auth = getAuth();
-        
+
         try {
             const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 const row = document.getElementById(`row-${orderId}`);
                 row.style.opacity = '0';
@@ -924,33 +1099,35 @@
     function getSelectedOrders() {
         return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
     }
-    
+
     function updateSelectedCount() {
         const selected = getSelectedOrders();
         const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const printBtn = document.getElementById('printSelectedBtn');
         const countSpan = document.getElementById('selectedCount');
-        
+
         deleteBtn.disabled = selected.length === 0;
+        printBtn.disabled = selected.length === 0;
         countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
     }
-    
+
     function selectAll() {
         const checkboxes = document.querySelectorAll('.order-checkbox');
         const allChecked = [...checkboxes].every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
         updateSelectedCount();
     }
-    
+
     async function deleteSelected() {
         const selected = getSelectedOrders();
         if (selected.length === 0) return;
         if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
-        
+
         const auth = getAuth();
         const deleteBtn = document.getElementById('deleteSelectedBtn');
         deleteBtn.disabled = true;
         deleteBtn.textContent = '⏳...';
-        
+
         try {
             const response = await fetch(API_BASE + '/api/delete-orders', {
                 method: 'DELETE',
@@ -960,9 +1137,9 @@
                 },
                 body: JSON.stringify({ ids: selected })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 showToast(`✅ Deleted ${selected.length} order(s)`);
                 fetchOrders();
@@ -983,7 +1160,7 @@
         currentCurrency = currency;
         document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
         document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
-        
+
         document.querySelectorAll('[data-npr]').forEach(el => {
             const npr = parseFloat(el.dataset.npr);
             if (currency === 'USD') {
@@ -992,16 +1169,16 @@
                 el.textContent = `NPR ${npr.toLocaleString()}`;
             }
         });
-        
+
         updateGrandTotal();
     }
-    
+
     function updateGrandTotal() {
         let total = 0;
         document.querySelectorAll('[data-npr]').forEach(el => {
             total += parseFloat(el.dataset.npr) || 0;
         });
-        
+
         const grandTotalEl = document.getElementById('grandTotal');
         if (currentCurrency === 'USD') {
             grandTotalEl.textContent = `$${(total / exchangeRate).toFixed(2)}`;
@@ -1024,18 +1201,18 @@
             document.getElementById('rateDot').className = 'rate-dot error';
         }
     }
-    
+
     async function refreshRate() {
         const auth = getAuth();
         if (!auth) {
             showToast('Authentication required');
             return;
         }
-        
+
         const btn = event.target;
         btn.disabled = true;
         btn.textContent = '⏳...';
-        
+
         try {
             const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
@@ -1053,6 +1230,306 @@
         }
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // ============ PRINT INVOICE SYSTEM ============
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function openPrintDialog(mode, orderId) {
+        printMode = mode;
+
+        if (mode === 'single') {
+            printTargetIds = [orderId];
+        } else {
+            printTargetIds = getSelectedOrders();
+            if (printTargetIds.length === 0) {
+                showToast('⚠️ Select orders first');
+                return;
+            }
+        }
+
+        // Set the currency dropdown to match current view
+        document.getElementById('printCurrency').value = currentCurrency;
+
+        document.getElementById('printDialogOverlay').classList.add('show');
+    }
+
+    function closePrintDialog() {
+        document.getElementById('printDialogOverlay').classList.remove('show');
+        printMode = null;
+        printTargetIds = [];
+    }
+
+    function executePrint() {
+        const currency = document.getElementById('printCurrency').value;
+        const businessName = document.getElementById('printBusinessName').value.trim() || 'NaturaBotanica';
+        const businessInfo = document.getElementById('printBusinessInfo').value.trim();
+        const includeLogo = document.getElementById('printIncludeLogo').checked;
+        const includePayment = document.getElementById('printIncludePayment').checked;
+        const includeFooter = document.getElementById('printIncludeFooter').checked;
+
+        // Find the orders
+        const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
+
+        if (ordersToPrint.length === 0) {
+            showToast('❌ No orders found to print');
+            closePrintDialog();
+            return;
+        }
+
+        // Generate invoice HTML
+        const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
+            currency,
+            businessName,
+            businessInfo,
+            includeLogo,
+            includePayment,
+            includeFooter,
+            rate: exchangeRate
+        });
+
+        // Open print window
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        printWindow.document.write(invoiceHtml);
+        printWindow.document.close();
+
+        // Wait for content to load then print
+        printWindow.onload = function() {
+            setTimeout(() => {
+                printWindow.print();
+            }, 400);
+        };
+
+        closePrintDialog();
+        showToast(`🖨️ Printing ${ordersToPrint.length} invoice(s)...`);
+    }
+
+    function generateInvoiceHtml(orders, opts) {
+        const now = new Date();
+        const printDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+        const printTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+        function fmtCurrency(nprAmount) {
+            const npr = Math.round(nprAmount);
+            const usd = (nprAmount / opts.rate).toFixed(2);
+            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
+            if (opts.currency === 'USD') return `$${usd}`;
+            return `NPR ${npr.toLocaleString()} / $${usd}`;
+        }
+
+        function fmtPrice(price) {
+            const npr = Math.round(price);
+            const usd = (price / opts.rate).toFixed(2);
+            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
+            if (opts.currency === 'USD') return `$${usd}`;
+            return `NPR ${npr.toLocaleString()} / $${usd}`;
+        }
+
+        let invoicesHtml = '';
+
+        for (let i = 0; i < orders.length; i++) {
+            const order = orders[i];
+            const orderId = order._id.toString().substring(0, 8).toUpperCase();
+            const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+            const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const totalNPR = Math.round(order.totalNPR || 0);
+            const client = order.clientDetails || {};
+            const status = order.status || 'Pending';
+
+            let statusColor = '#92400e';
+            let statusBg = '#fffbeb';
+            if (status === 'Completed' || status === 'Success') { statusColor = '#15803d'; statusBg = '#dcfce7'; }
+            else if (status === 'Shipping') { statusColor = '#1d4ed8'; statusBg = '#eff6ff'; }
+            else if (status === 'Rejected') { statusColor = '#b91c1b'; statusBg = '#fef2f2'; }
+
+            let itemsRows = '';
+            let itemCount = 0;
+            if (order.items && order.items.length > 0) {
+                order.items.forEach((item, idx) => {
+                    const qty = item.qty || 1;
+                    const price = item.price || 0;
+                    const lineTotal = qty * price;
+                    itemCount += qty;
+                    itemsRows += `
+                        <tr>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;">
+                                <div style="font-weight:600;font-size:14px;">${escapeHtml(item.name)}</div>
+                                <div style="font-size:11px;color:#9ca3af;font-family:monospace;">ID: ${escapeHtml((item.id || item.productId || 'N/A').toString())}</div>
+                            </td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${qty}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmtPrice(price)}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#1a5c1c;">${fmtPrice(lineTotal)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                itemsRows = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#9ca3af;">No items</td></tr>';
+            }
+
+            const pageBreak = i < orders.length - 1 ? 'page-break-after: always;' : '';
+
+            invoicesHtml += `
+                <div class="invoice-page" style="${pageBreak}">
+                    <!-- Header -->
+                    ${opts.includeLogo ? `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
+                        <div>
+                            <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${escapeHtml(opts.businessName)}</div>
+                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${escapeHtml(opts.businessInfo)}</div>` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
+                            <div style="font-size:12px;color:#6b7280;margin-top:4px;">Printed: ${printDate} at ${printTime}</div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
+                        <div>
+                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div>
+                        </div>
+                    </div>
+                    `}
+
+                    <!-- Order & Client Info -->
+                    <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
+                        <div style="flex:1;">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
+                            <div style="font-size:16px;font-weight:700;color:#1f2937;">${escapeHtml(client.name || 'Guest')}</div>
+                            ${client.phone ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ${escapeHtml(client.phone)}</div>` : ''}
+                            ${client.email ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ${escapeHtml(client.email)}</div>` : ''}
+                            ${client.address ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ${escapeHtml(client.address)}</div>` : ''}
+                        </div>
+                        <div style="flex:1;text-align:right;">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Order Details</div>
+                            <div style="font-size:14px;color:#1f2937;"><strong>Order #${orderId}</strong></div>
+                            <div style="font-size:13px;color:#4b5563;margin-top:3px;">📅 ${orderDate} at ${orderTime}</div>
+                            <div style="margin-top:6px;display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;background:${statusBg};color:${statusColor};">${status}</div>
+                            ${opts.includePayment && order.paymentMethod ? `<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ${escapeHtml(order.paymentMethod)}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
+                        <thead>
+                            <tr style="background:#2d4a22;">
+                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:40px;">#</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Item</th>
+                                <th style="padding:10px 14px;text-align:center;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:60px;">Qty</th>
+                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:120px;">Price</th>
+                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:140px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsRows}
+                        </tbody>
+                    </table>
+
+                    <!-- Totals -->
+                    <div style="display:flex;justify-content:flex-end;margin-top:0;">
+                        <div style="width:300px;">
+                            <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
+                                <span>Items</span>
+                                <span>${itemCount}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;">
+                                <span>TOTAL</span>
+                                <span>${fmtCurrency(totalNPR)}</span>
+                            </div>
+                            ${opts.currency === 'BOTH' ? `
+                            <div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">
+                                Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    ${opts.includeFooter ? `
+                    <!-- Footer -->
+                    <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
+                        <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
+                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - ${escapeHtml(opts.businessName)}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1f2937;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .invoice-page {
+                page-break-after: always;
+            }
+            .invoice-page:last-child {
+                page-break-after: avoid;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .no-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .no-print button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-print-action {
+            background: #2d4a22;
+            color: white;
+        }
+        .btn-print-action:hover { background: #1f3618; }
+
+        .btn-close-action {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .btn-close-action:hover { background: #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print-action" onclick="window.print()">🖨️ Print</button>
+        <button class="btn-close-action" onclick="window.close()">✕ Close</button>
+    </div>
+    ${invoicesHtml}
+</body>
+</html>`;
+    }
+
     // ============ HELPER FUNCTIONS ============
     function escapeHtml(text) {
         if (!text) return '';
@@ -1060,19 +1537,19 @@
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
-    
+
     function openImage(src) {
         document.getElementById('modalImage').src = src;
         document.getElementById('imageModal').classList.add('show');
     }
-    
+
     function closeModal() {
         document.getElementById('imageModal').classList.remove('show');
     }
@@ -1082,7 +1559,7 @@
         await loadExchangeRate();
         await fetchOrders();
     }
-    
+
     // Make functions global
     window.selectAll = selectAll;
     window.deleteSelected = deleteSelected;
@@ -1093,7 +1570,23 @@
     window.deleteOrder = deleteOrder;
     window.openImage = openImage;
     window.closeModal = closeModal;
-    
+    window.openPrintDialog = openPrintDialog;
+    window.closePrintDialog = closePrintDialog;
+    window.executePrint = executePrint;
+
+    // Close print dialog on overlay click
+    document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closePrintDialog();
+    });
+
+    // Close print dialog on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePrintDialog();
+            closeModal();
+        }
+    });
+
     init();
 </script>
 </body>
