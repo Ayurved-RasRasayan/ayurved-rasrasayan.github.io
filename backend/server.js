@@ -186,7 +186,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const { name, username, email, password } = req.body;
     if (!name || !username || !email || !password) return res.status(400).json({ error: 'All fields are required' });
     if (password.length < 8 || password.length > 30) return res.status(400).json({ error: 'Password must be 8-30 characters' });
-    if (await User.findOne({ $or: [{ email }, { username }] })) return res.status(400).json({ error: 'Email or Username already exists' });
+    if (await User.findOne({ $or: [{ email }, { username }] })) return res.status(400).json({ error: 'Email or Username already exists. Please sign in.' });
     const salt = await bcrypt.genSalt(10); const hashedPassword = await bcrypt.hash(password, salt);
     const otp = generateOTP(); const verificationExpires = new Date(Date.now() + 10 * 60 * 1000);
     const user = new User({ name, username, email, password: hashedPassword, verificationCode: otp, verificationExpires });
@@ -243,6 +243,19 @@ app.get('/api/auth/my-orders', userAuth, async (req, res) => {
   try { const orders = await Order.find({ 'clientDetails.email': req.user.email }).sort({ timestamp: -1 }); res.json(orders); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ─── ADMIN USER MANAGEMENT ROUTES ──────────────────────────────────────
+app.get('/api/users-data', checkAuth, async (req, res) => {
+  try { const users = await User.find().sort({ _id: -1 }).select('-password -verificationCode -verificationExpires'); res.json({ success: true, users }); } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+app.delete('/api/delete-user/:id', checkAuth, async (req, res) => {
+  try { await User.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/manage-users', checkAuth, (req, res) => {
+  try { let html = fs.readFileSync(path.join(__dirname, 'views/user-management.html'), 'utf8'); res.send(html); } catch (e) { res.status(500).send('Error loading user management page'); }
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // ─── ROUTES ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
@@ -277,7 +290,6 @@ app.put('/api/update-stock', checkAuth, async (req, res) => { try { await Produc
 app.get('/api/manage-stock', checkAuth, async (req, res) => { try { const products = await Product.find().sort({ id: 1 }); let rows = products.map(p => { const s = p.stock || 0; let badge = s === 0 ? '<span style="color:#b91c1c">Out</span>' : s <= 10 ? '<span style="color:#c2410c">Low</span>' : '<span style="color:#15803d">In Stock</span>'; return `<tr><td><strong>${p.name}</strong></td><td>${p.catLabel}</td><td>${badge} (${s})</td><td><input type="number" id="s-${p.id}" value="${s}" min="0"></td><td><button onclick="save(${p.id})">Save</button></td></tr>`; }).join(''); res.send(`<html><body><table border="1">${rows}</table><script>async function save(id){const v=document.getElementById('s-'+id).value; await fetch('/api/update-stock',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'${req.headers['authorization']}'}},body:JSON.stringify({id,stock:v})}); location.reload();}</script></body></html>`); } catch (e) { res.status(500).send('Error'); } });
 app.get('/api/view-orders', checkAuth, async (req, res) => { try { let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8'); res.send(html); } catch (e) { res.status(500).send('Error'); } });
 
-// User Profile Route
 app.get('/profile', (req, res) => { try { let html = fs.readFileSync(path.join(__dirname, 'views/user.html'), 'utf8'); res.send(html); } catch (e) { res.status(500).send('Error loading profile page'); } });
 
 async function startup() { console.log('[STARTUP] 🔄 Syncing products...'); await syncFileToDB({ removeOrphans: true }); startFileWatcher(); }
