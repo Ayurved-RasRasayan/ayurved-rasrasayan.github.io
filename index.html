@@ -192,7 +192,12 @@
         <input type="text" id="signupName" placeholder="Full Name" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="text" id="signupUsername" placeholder="Username" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="email" id="signupEmail" placeholder="Email Address" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <input type="password" id="signupPassword" placeholder="Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+        <div class="relative">
+          <input type="password" id="signupPassword" placeholder="Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+          <button type="button" onclick="togglePasswordVisibility('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
         <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Sign Up</button>
       </form>
       <p class="text-center text-sm text-txt-sub mt-4">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-medium">Sign In</button></p>
@@ -266,6 +271,19 @@
       let priceNPR = product.price * unitFactor * qty;
       if (form === 'Powder Form') priceNPR += 50 * unitFactor * qty;
       return Math.round(priceNPR * 100) / 100;
+    }
+    
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
     }
 
     // ==========================================
@@ -743,7 +761,7 @@
         });
         const data = await res.json();
         if (res.ok) { showToast('Account created! Check email for OTP.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); }
-        else { showToast(data.error || 'Signup failed', 'error'); }
+        else { showToast(data.error || 'Signup failed', 'error'); } // Specifically pops up "Email or Username already exists"
       } catch (e) { showToast('Network error', 'error'); }
       btn.disabled = false; btn.innerText = 'Sign Up';
     }
