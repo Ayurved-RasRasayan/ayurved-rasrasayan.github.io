@@ -53,6 +53,16 @@ function validateOrder(data) {
   return errors;
 }
 
+// Helper to get real IP from proxies (Render, Heroku, Nginx, etc.)
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    const ips = forwarded.split(',');
+    return ips[0].trim();
+  }
+  return req.socket.remoteAddress;
+}
+
 // ─── EMAIL FUNCTIONS ─────────────────────────────────────────────────────────
 async function sendClientEmail(toEmail, toName, orderId, status) {
   try {
@@ -157,10 +167,16 @@ const settingSchema = new mongoose.Schema({
   value: mongoose.Schema.Types.Mixed
 });
 
+const visitorSchema = new mongoose.Schema({
+  ip: { type: String, unique: true, index: true },
+  lastVisited: { type: Date, default: Date.now }
+});
+
 const Product = mongoose.model('Product', productSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 const Setting = mongoose.model('Setting', settingSchema);
+const Visitor = mongoose.model('Visitor', visitorSchema);
 
 // ─── HELPER: Get/Set DB Setting ─────────────────────────────────────────────
 async function getSetting(key, defaultVal) {
@@ -332,6 +348,31 @@ app.get('/api/exchange-rate/fetch', checkAuth, async (req, res) => {
   }
 });
 
+// ─── ROUTE: VISITOR COUNT ────────────────────────────────────────────────
+app.get('/api/public/visits', async (req, res) => {
+  try {
+    const ip = getClientIp(req);
+    
+    // Upsert the IP: update lastVisited if exists, insert if new
+    await Visitor.updateOne(
+      { ip },
+      { $set: { lastVisited: new Date() } },
+      { upsert: true }
+    );
+
+    // Get the base offset (default 5000) and actual unique IPs
+    const baseCount = await getSetting('base_visitor_count', 5000);
+    const uniqueCount = await Visitor.countDocuments({});
+    
+    const totalVisitors = baseCount + uniqueCount;
+
+    res.json({ count: totalVisitors });
+  } catch (e) {
+    console.error('[VISITS] ❌ Error tracking visit:', e.message);
+    res.json({ count: 5000 }); // Fallback to base
+  }
+});
+
 // ─── ROUTE: BASE & HEALTH ────────────────────────────────────────────────
 app.get('/', (req, res) => res.send('🌿 NaturaBotanica API Active'));
 app.get('/api/health', async (req, res) => {
@@ -345,7 +386,6 @@ app.get('/api/health', async (req, res) => {
 // ─── ROUTE: ORDERS DATA API (JSON) ──────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
 
-// JSON API for orders data (used by orders.html)
 app.get('/api/view-orders-data', checkAuth, async (req, res) => {
     try {
         const orders = await Order.find().sort({ timestamp: -1 }).limit(100);
@@ -387,9 +427,7 @@ app.get('/api/view-orders-data', checkAuth, async (req, res) => {
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ id: 1 }).lean();
-    // Include stock field - remove only _id and __v
     const clean = products.map(({ _id, __v, ...rest }) => rest);
-    // 'rest' now includes stock field automatically
     res.json(clean);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -573,7 +611,6 @@ app.put('/api/update-status', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, emailStatus: 'Failed' }); }
 });
 
-// ─── ROUTE: UPDATE ORDER STATE ─────────────────────────────────────────
 app.put('/api/update-order-state', checkAuth, async (req, res) => {
   try {
     const { id, state } = req.body;
@@ -603,7 +640,6 @@ app.put('/api/update-order-state', checkAuth, async (req, res) => {
   }
 });
 
-// ─── ROUTE: INQUIRIES ───────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
     if (!req.body.email || !req.body.message || req.body.email.trim() === '' || req.body.message.trim() === '') {
@@ -618,7 +654,6 @@ app.post('/api/inquiries', async (req, res) => {
   }
 });
 
-// ─── ROUTE: DELETE / MANAGE ─────────────────────────────────────────────
 app.delete('/api/delete-order/:id', checkAuth, async (req, res) => {
   try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -650,7 +685,6 @@ app.get('/api/manage-stock', checkAuth, async (req, res) => {
   } catch (e) { res.status(500).send('Error loading stock'); }
 });
 
-// ⭐ MAIN ORDERS VIEW ROUTE - HTML PAGE ⭐
 app.get('/api/view-orders', checkAuth, async (req, res) => {
   try {
     let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
