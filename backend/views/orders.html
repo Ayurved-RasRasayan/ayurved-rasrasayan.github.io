@@ -203,6 +203,140 @@
             font-size: 15px;
         }
 
+        /* Debug Panel */
+        .debug-panel {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-panel.visible {
+            display: block;
+        }
+
+        .debug-panel .debug-line {
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+
+        .debug-panel .debug-error {
+            color: #ff5555;
+        }
+
+        .debug-panel .debug-success {
+            color: #50fa7b;
+        }
+
+        .debug-panel .debug-info {
+            color: #8be9fd;
+        }
+
+        /* Login Modal */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.show {
+            display: flex;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 36px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: dialogIn 0.2s ease-out;
+        }
+
+        @keyframes dialogIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .login-box h3 {
+            font-size: 20px;
+            margin-bottom: 6px;
+            color: #2d4a22;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-box .login-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .login-box label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .login-box input[type="text"],
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 14px;
+            font-family: inherit;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #2d4a22;
+            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
+        }
+
+        .login-box .login-error {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .login-box .login-error.show {
+            display: block;
+        }
+
+        .login-box .login-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .login-box .login-actions .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+        }
+
         /* Table Wrapper */
         .table-wrapper {
             background: white;
@@ -219,14 +353,9 @@
             background: white;
         }
 
-        /* Dark, thick vertical borders for all cells */
         td, th {
             border-left: 2px solid #2d3748;
             border-right: 2px solid #2d3748;
-        }
-
-        table {
-            border-collapse: collapse;
         }
 
         th {
@@ -245,7 +374,6 @@
             vertical-align: top;
         }
 
-        /* ============ HORIZONTAL RED LINE DIVIDER ============ */
         tr {
             border-bottom: 2px solid #dc2626;
         }
@@ -270,7 +398,6 @@
         .col-client { width: 25%; }
         .col-action { width: 12%; }
 
-        /* ============ COLUMN ALIGNMENT ============ */
         .col-checkbox,
         td:nth-child(1) {
             text-align: center;
@@ -305,12 +432,10 @@
             text-align: center;
         }
 
-        /* Client inner lines - Left aligned */
         .client-line {
             text-align: left;
         }
 
-        /* Checkbox */
         .checkbox {
             width: 18px;
             height: 18px;
@@ -318,7 +443,6 @@
             accent-color: #2d4a22;
         }
 
-        /* Date Cell */
         .date-cell {
             display: flex;
             flex-direction: column;
@@ -345,7 +469,6 @@
             transform: scale(1.05);
         }
 
-        /* Items Cell - Left Aligned */
         .order-id {
             background: #e0e7ff;
             color: #3730a3;
@@ -427,7 +550,6 @@
             font-size: 18px;
         }
 
-        /* Status Cell - Center Aligned */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -475,7 +597,6 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
-        /* Client Cell - Left Aligned */
         .client-line {
             font-size: 13px;
             margin-bottom: 6px;
@@ -488,7 +609,6 @@
             display: inline-block;
         }
 
-        /* Action Cell */
         .action-btns {
             display: flex;
             flex-direction: column;
@@ -527,7 +647,6 @@
             background: #3730a3;
         }
 
-        /* Total Bar */
         .total-bar {
             background: white;
             border: 1px solid #d1d5db;
@@ -554,7 +673,6 @@
             color: #1a5c1c;
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -567,13 +685,14 @@
             transition: 0.3s;
             z-index: 1000;
             font-size: 14px;
+            max-width: 90vw;
+            text-align: center;
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -606,7 +725,6 @@
             cursor: pointer;
         }
 
-        /* Print Dialog Overlay */
         .print-dialog-overlay {
             display: none;
             position: fixed;
@@ -632,11 +750,6 @@
             max-width: 420px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
             animation: dialogIn 0.2s ease-out;
-        }
-
-        @keyframes dialogIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .print-dialog h3 {
@@ -689,7 +802,6 @@
             font-size: 15px;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -737,10 +849,14 @@
     <div class="header">
         <h1>🌿 NaturaBotanica <span style="font-size:0.6em;opacity:0.6;">Admin Orders</span></h1>
         <div class="header-actions">
+            <button class="btn-stock" onclick="toggleDebug()" style="cursor:pointer;border:none;">🔧 Debug</button>
             <a href="/api/manage-users" class="btn-stock">👥 Manage Users</a>
             <a href="/api/manage-stock" class="btn-stock">📦 Manage Stock</a>
         </div>
     </div>
+
+    <!-- Debug Panel (hidden by default) -->
+    <div id="debugPanel" class="debug-panel"></div>
 
     <!-- Toolbar -->
     <div class="toolbar">
@@ -763,7 +879,7 @@
         <span>1 USD =</span>
         <span id="rateValue" class="rate-value">...</span>
         <span>NPR</span>
-        <button class="btn btn-secondary" onclick="refreshRate()" style="padding:4px 12px;">🔄 Refresh</button>
+        <button class="btn btn-secondary" onclick="refreshRate(this)" style="padding:4px 12px;">🔄 Refresh</button>
         <span id="rateError" style="color:#dc2626;font-size:12px;"></span>
     </div>
 
@@ -781,7 +897,7 @@
                 </tr>
             </thead>
             <tbody id="ordersTableBody">
-                <tr><td colspan="6" style="text-align:center;padding:40px;">Loading orders...</td></tr>
+                <tr><td colspan="6" style="text-align:center;padding:40px;">Waiting for login...</td></tr>
             </tbody>
         </table>
     </div>
@@ -790,6 +906,22 @@
     <div class="total-bar">
         <span class="total-bar-label">💰 Grand Total</span>
         <span id="grandTotal" class="total-bar-value">NPR 0</span>
+    </div>
+</div>
+
+<!-- Login Modal (replaces prompt()) -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <h3>🔐 Admin Login</h3>
+        <div class="login-subtitle">Enter your admin credentials to view orders</div>
+        <div id="loginError" class="login-error">Invalid credentials. Please try again.</div>
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" placeholder="password" autocomplete="current-password">
+        <div class="login-actions">
+            <button class="btn btn-primary" onclick="submitLogin()">🔑 Login</button>
+        </div>
     </div>
 </div>
 
@@ -851,64 +983,210 @@
     let exchangeRate = 133;
     let currentCurrency = 'NPR';
     let allOrders = [];
+    let authCredentials = null; // Store credentials in memory
 
     // Print state
-    let printMode = null;       // 'single' or 'selected'
-    let printTargetIds = [];    // order IDs to print
+    let printMode = null;
+    let printTargetIds = [];
 
-    // ============ AUTHENTICATION ============
-    function getAuth() {
-        let username = localStorage.getItem('admin_username');
-        let password = localStorage.getItem('admin_password');
+    // ============ DEBUG LOGGING ============
+    function debugLog(message, type) {
+        type = type || 'info';
+        console.log('[NaturaBotanica]', message);
+        const panel = document.getElementById('debugPanel');
+        if (panel) {
+            const line = document.createElement('div');
+            line.className = 'debug-line debug-' + type;
+            const time = new Date().toLocaleTimeString();
+            line.textContent = '[' + time + '] ' + message;
+            panel.appendChild(line);
+            panel.scrollTop = panel.scrollHeight;
+        }
+    }
+
+    function toggleDebug() {
+        const panel = document.getElementById('debugPanel');
+        panel.classList.toggle('visible');
+    }
+
+    // ============ FETCH WITH TIMEOUT ============
+    // Prevents infinite hanging if the server never responds
+    function fetchWithTimeout(url, options, timeoutMs) {
+        timeoutMs = timeoutMs || 15000;
+
+        return Promise.race([
+            fetch(url, options),
+            new Promise(function(_, reject) {
+                setTimeout(function() {
+                    reject(new Error('Request timed out after ' + (timeoutMs / 1000) + 's — is the server running at ' + API_BASE + '?'));
+                }, timeoutMs);
+            })
+        ]);
+    }
+
+    // ============ AUTHENTICATION (Modal instead of prompt) ============
+    function showLoginModal(errorMsg) {
+        const overlay = document.getElementById('loginOverlay');
+        const errorEl = document.getElementById('loginError');
+
+        if (errorMsg) {
+            errorEl.textContent = errorMsg;
+            errorEl.classList.add('show');
+        } else {
+            errorEl.classList.remove('show');
+        }
+
+        // Pre-fill from localStorage if available
+        const savedUser = localStorage.getItem('admin_username') || '';
+        document.getElementById('loginUser').value = savedUser;
+        document.getElementById('loginPass').value = '';
+
+        overlay.classList.add('show');
+
+        // Focus the username field
+        setTimeout(function() {
+            document.getElementById('loginUser').focus();
+        }, 100);
+    }
+
+    function hideLoginModal() {
+        document.getElementById('loginOverlay').classList.remove('show');
+    }
+
+    function submitLogin() {
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
 
         if (!username || !password) {
-            username = prompt('Enter admin username:');
-            password = prompt('Enter admin password:');
-            if (username && password) {
-                localStorage.setItem('admin_username', username);
-                localStorage.setItem('admin_password', password);
-            } else {
-                return null;
-            }
+            const errorEl = document.getElementById('loginError');
+            errorEl.textContent = 'Please enter both username and password.';
+            errorEl.classList.add('show');
+            return;
         }
-        return { credentials: btoa(username + ':' + password) };
+
+        // Save to localStorage for persistence
+        localStorage.setItem('admin_username', username);
+        localStorage.setItem('admin_password', password);
+
+        // Set credentials in memory
+        authCredentials = btoa(username + ':' + password);
+
+        debugLog('Login submitted for user: ' + username, 'info');
+        hideLoginModal();
+
+        // Now try to fetch orders
+        fetchOrders();
+    }
+
+    // Allow Enter key to submit login
+    document.getElementById('loginPass').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitLogin();
+    });
+    document.getElementById('loginUser').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('loginPass').focus();
+    });
+
+    function getAuth() {
+        // Use in-memory credentials first
+        if (authCredentials) {
+            return { credentials: authCredentials };
+        }
+
+        // Try to restore from localStorage
+        const username = localStorage.getItem('admin_username');
+        const password = localStorage.getItem('admin_password');
+
+        if (username && password) {
+            authCredentials = btoa(username + ':' + password);
+            return { credentials: authCredentials };
+        }
+
+        // No credentials available — need to show login modal
+        return null;
+    }
+
+    function clearAuth() {
+        authCredentials = null;
+        localStorage.removeItem('admin_username');
+        localStorage.removeItem('admin_password');
     }
 
     // ============ FETCH ORDERS ============
     async function fetchOrders() {
+        const tbody = document.getElementById('ordersTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;"><span style="font-size:24px;">⏳</span><br>Loading orders...</td></tr>';
+
         try {
             const auth = getAuth();
-            if (!auth) throw new Error('Authentication required');
+            if (!auth) {
+                debugLog('No credentials found, showing login modal', 'info');
+                showLoginModal();
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">Please log in to view orders</td></tr>';
+                return;
+            }
 
+            debugLog('Fetching orders from: ' + API_BASE + '/view-orders-data', 'info');
             showToast('Loading orders...');
 
-            const response = await fetch(API_BASE + '/view-orders-data', {
+            const response = await fetchWithTimeout(API_BASE + '/view-orders-data', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
-            });
+            }, 15000);
+
+            debugLog('Response status: ' + response.status + ' ' + response.statusText, response.ok ? 'success' : 'error');
 
             if (response.status === 401) {
-                localStorage.removeItem('admin_username');
-                localStorage.removeItem('admin_password');
-                throw new Error('Login failed. Please try again.');
+                clearAuth();
+                debugLog('401 Unauthorized — credentials invalid', 'error');
+                showLoginModal('Invalid username or password. Please try again.');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">Authentication failed. Please log in again.</td></tr>';
+                return;
             }
 
-            if (!response.ok) throw new Error('Failed to fetch orders');
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status + ' ' + response.statusText);
+            }
 
             const data = await response.json();
+            debugLog('Response data keys: ' + Object.keys(data).join(', '), 'info');
+
+            // Handle multiple possible response formats
+            let orders = null;
 
             if (data.success && data.orders) {
-                allOrders = data.orders;
+                orders = data.orders;
+            } else if (data.orders) {
+                orders = data.orders;
+            } else if (Array.isArray(data)) {
+                orders = data;
+            } else if (data.data && Array.isArray(data.data)) {
+                orders = data.data;
+            } else if (data.success && data.data) {
+                orders = Array.isArray(data.data) ? data.data : null;
+            }
+
+            if (orders && Array.isArray(orders)) {
+                allOrders = orders;
+                debugLog('Loaded ' + allOrders.length + ' orders', 'success');
                 renderTable();
-                showToast(`✅ Loaded ${allOrders.length} orders`);
+                showToast('✅ Loaded ' + allOrders.length + ' orders');
             } else {
-                throw new Error(data.error || 'No orders found');
+                debugLog('Unexpected response format: ' + JSON.stringify(data).substring(0, 300), 'error');
+                throw new Error('Unexpected response format from server. Check debug panel for details.');
             }
         } catch (error) {
+            debugLog('fetchOrders ERROR: ' + error.message, 'error');
             showToast('❌ ' + error.message);
-            document.getElementById('ordersTableBody').innerHTML = `
+
+            let retryBtn = '<button onclick="fetchOrders()" style="margin-top:12px;padding:10px 20px;background:#2d4a22;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔄 Retry</button>';
+            let loginBtn = '<button onclick="clearAuth();showLoginModal();" style="margin-top:8px;padding:10px 20px;background:#374151;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔐 Re-login</button>';
+
+            tbody.innerHTML = `
                 <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
-                    ❌ ${error.message}<br>
-                    <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry</button>
+                    <div style="font-size:32px;margin-bottom:10px;">❌</div>
+                    <div style="font-weight:700;margin-bottom:6px;">Failed to load orders</div>
+                    <div style="font-size:13px;color:#6b7280;margin-bottom:4px;">${escapeHtml(error.message)}</div>
+                    <div style="font-size:12px;color:#9ca3af;margin-bottom:12px;">API: ${escapeHtml(API_BASE + '/view-orders-data')}</div>
+                    <div>${retryBtn} ${loginBtn}</div>
                 </td></tr>
             `;
         }
@@ -919,7 +1197,7 @@
         const tbody = document.getElementById('ordersTableBody');
 
         if (!allOrders || allOrders.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;"><div style="font-size:32px;margin-bottom:10px;">📭</div>No orders found</td></tr>';
             updateGrandTotal();
             return;
         }
@@ -935,7 +1213,6 @@
             const totalNPR = Math.round(order.totalNPR || 0);
             const client = order.clientDetails || {};
 
-            // Email badge class
             let emailBadgeClass = 'badge-queue';
             let emailBadgeText = '⏳ Queue';
             if (emailStatus === 'Sent') {
@@ -946,10 +1223,9 @@
                 emailBadgeText = '❌ Failed';
             }
 
-            // Items HTML with Product ID, Form, and Unit displayed
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
-                itemsHtml = order.items.map(item => {
+                itemsHtml = order.items.map(function(item) {
                     const qty = item.qty || 1;
                     const price = item.price || 0;
                     const lineTotal = qty * price;
@@ -962,10 +1238,10 @@
                             <div class="item-info">
                                 <span class="item-name">${escapeHtml(item.name)}</span>
                                 <div class="item-product-id">
-                                    🆔 ID: ${escapeHtml(productId.toString())} 
-                                    <span style="margin: 0 4px; color: #d1d5db;">|</span> 
-                                    🧪 ${escapeHtml(form)} 
-                                    <span style="margin: 0 4px; color: #d1d5db;">|</span> 
+                                    🆔 ID: ${escapeHtml(productId.toString())}
+                                    <span style="margin: 0 4px; color: #d1d5db;">|</span>
+                                    🧪 ${escapeHtml(form)}
+                                    <span style="margin: 0 4px; color: #d1d5db;">|</span>
                                     ⚖️ ${escapeHtml(unit)}
                                 </div>
                             </div>
@@ -978,10 +1254,9 @@
                 itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
 
-            // Display total based on currency
             let displayTotal = currentCurrency === 'USD'
-                ? `$${(totalNPR / exchangeRate).toFixed(2)}`
-                : `NPR ${totalNPR.toLocaleString()}`;
+                ? '$' + (totalNPR / exchangeRate).toFixed(2)
+                : 'NPR ' + totalNPR.toLocaleString();
 
             html += `
                 <tr id="row-${orderId}">
@@ -991,7 +1266,7 @@
                     <td>
                         <div class="date-cell">
                             <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
-                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
+                            ${order.paymentScreenshot ? '<img src="' + order.paymentScreenshot + '" class="proof-img" onclick="openImage(\'' + order.paymentScreenshot + '\')">' : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
                         </div>
                     </td>
                     <td>
@@ -1044,20 +1319,20 @@
         }
 
         try {
-            const response = await fetch(API_BASE + '/update-status', {
+            const response = await fetchWithTimeout(API_BASE + '/update-status', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Basic ' + auth.credentials
                 },
                 body: JSON.stringify({ id: orderId, status: newStatus })
-            });
+            }, 10000);
 
             const data = await response.json();
 
             if (data.success) {
-                selectEl.className = `status-select s-${newStatus}`;
-                showToast(`✅ Status updated to ${newStatus}`);
+                selectEl.className = 'status-select s-' + newStatus;
+                showToast('✅ Status updated to ' + newStatus);
 
                 const badgeDiv = selectEl.parentElement.querySelector('.badge');
                 if (badgeDiv) {
@@ -1074,6 +1349,7 @@
             }
         } catch (error) {
             showToast('❌ ' + error.message);
+            debugLog('updateStatus error: ' + error.message, 'error');
         } finally {
             selectEl.disabled = false;
         }
@@ -1088,17 +1364,17 @@
         const auth = getAuth();
 
         try {
-            const response = await fetch(API_BASE + '/delete-order/' + orderId, {
+            const response = await fetchWithTimeout(API_BASE + '/delete-order/' + orderId, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
-            });
+            }, 10000);
 
             const data = await response.json();
 
             if (data.success) {
-                const row = document.getElementById(`row-${orderId}`);
+                const row = document.getElementById('row-' + orderId);
                 row.style.opacity = '0';
-                setTimeout(() => {
+                setTimeout(function() {
                     row.remove();
                     updateSelectedCount();
                     fetchOrders();
@@ -1108,7 +1384,7 @@
                 throw new Error('Delete failed');
             }
         } catch (error) {
-            showToast('❌ Delete failed');
+            showToast('❌ Delete failed: ' + error.message);
             btn.disabled = false;
             btn.textContent = '🗑️ Delete';
         }
@@ -1116,7 +1392,7 @@
 
     // ============ BULK DELETE ============
     function getSelectedOrders() {
-        return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
+        return [...document.querySelectorAll('.order-checkbox:checked')].map(function(cb) { return cb.value; });
     }
 
     function updateSelectedCount() {
@@ -1127,20 +1403,20 @@
 
         deleteBtn.disabled = selected.length === 0;
         printBtn.disabled = selected.length === 0;
-        countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
+        countSpan.textContent = selected.length > 0 ? selected.length + ' selected' : '';
     }
 
     function selectAll() {
         const checkboxes = document.querySelectorAll('.order-checkbox');
-        const allChecked = [...checkboxes].every(cb => cb.checked);
-        checkboxes.forEach(cb => cb.checked = !allChecked);
+        const allChecked = [...checkboxes].every(function(cb) { return cb.checked; });
+        checkboxes.forEach(function(cb) { cb.checked = !allChecked; });
         updateSelectedCount();
     }
 
     async function deleteSelected() {
         const selected = getSelectedOrders();
         if (selected.length === 0) return;
-        if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
+        if (!confirm('⚠️ Delete ' + selected.length + ' order(s)? This cannot be undone!')) return;
 
         const auth = getAuth();
         const deleteBtn = document.getElementById('deleteSelectedBtn');
@@ -1148,25 +1424,25 @@
         deleteBtn.textContent = '⏳...';
 
         try {
-            const response = await fetch(API_BASE + '/delete-orders', {
+            const response = await fetchWithTimeout(API_BASE + '/delete-orders', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Basic ' + auth.credentials
                 },
                 body: JSON.stringify({ ids: selected })
-            });
+            }, 15000);
 
             const data = await response.json();
 
             if (data.success) {
-                showToast(`✅ Deleted ${selected.length} order(s)`);
+                showToast('✅ Deleted ' + selected.length + ' order(s)');
                 fetchOrders();
             } else {
                 throw new Error('Bulk delete failed');
             }
         } catch (error) {
-            showToast('❌ Bulk delete failed');
+            showToast('❌ Bulk delete failed: ' + error.message);
         } finally {
             deleteBtn.disabled = false;
             deleteBtn.textContent = '🗑️ Delete Selected';
@@ -1180,12 +1456,12 @@
         document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
         document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
 
-        document.querySelectorAll('[data-npr]').forEach(el => {
+        document.querySelectorAll('[data-npr]').forEach(function(el) {
             const npr = parseFloat(el.dataset.npr);
             if (currency === 'USD') {
-                el.textContent = `$${(npr / exchangeRate).toFixed(2)}`;
+                el.textContent = '$' + (npr / exchangeRate).toFixed(2);
             } else {
-                el.textContent = `NPR ${npr.toLocaleString()}`;
+                el.textContent = 'NPR ' + npr.toLocaleString();
             }
         });
 
@@ -1194,55 +1470,65 @@
 
     function updateGrandTotal() {
         let total = 0;
-        document.querySelectorAll('[data-npr]').forEach(el => {
+        document.querySelectorAll('[data-npr]').forEach(function(el) {
             total += parseFloat(el.dataset.npr) || 0;
         });
 
         const grandTotalEl = document.getElementById('grandTotal');
         if (currentCurrency === 'USD') {
-            grandTotalEl.textContent = `$${(total / exchangeRate).toFixed(2)}`;
+            grandTotalEl.textContent = '$' + (total / exchangeRate).toFixed(2);
         } else {
-            grandTotalEl.textContent = `NPR ${total.toLocaleString()}`;
+            grandTotalEl.textContent = 'NPR ' + total.toLocaleString();
         }
     }
 
     // ============ EXCHANGE RATE ============
     async function loadExchangeRate() {
         try {
-            const response = await fetch(API_BASE + '/public/rate');
+            debugLog('Fetching exchange rate from: ' + API_BASE + '/public/rate', 'info');
+            const response = await fetchWithTimeout(API_BASE + '/public/rate', {}, 10000);
+
             if (response.ok) {
                 const data = await response.json();
                 exchangeRate = data.rate || 133;
                 document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
                 document.getElementById('rateDot').className = 'rate-dot';
+                debugLog('Exchange rate loaded: 1 USD = ' + exchangeRate + ' NPR', 'success');
+            } else {
+                debugLog('Exchange rate API returned status ' + response.status, 'error');
+                document.getElementById('rateDot').className = 'rate-dot error';
+                document.getElementById('rateValue').textContent = '133.00 (fallback)';
             }
         } catch (error) {
+            debugLog('Exchange rate fetch failed: ' + error.message, 'error');
             document.getElementById('rateDot').className = 'rate-dot error';
+            document.getElementById('rateValue').textContent = '133.00 (fallback)';
         }
     }
 
-    async function refreshRate() {
+    async function refreshRate(btn) {
         const auth = getAuth();
         if (!auth) {
             showToast('Authentication required');
             return;
         }
 
-        const btn = event.target;
         btn.disabled = true;
         btn.textContent = '⏳...';
 
         try {
-            const response = await fetch(API_BASE + '/exchange-rate/fetch', {
+            const response = await fetchWithTimeout(API_BASE + '/exchange-rate/fetch', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
-            });
+            }, 10000);
             const data = await response.json();
             exchangeRate = data.rate || 133;
             document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+            document.getElementById('rateDot').className = 'rate-dot';
             showToast('✅ Rate updated');
             setCurrency(currentCurrency);
         } catch (error) {
             showToast('❌ Failed to sync rate');
+            debugLog('refreshRate error: ' + error.message, 'error');
         } finally {
             btn.disabled = false;
             btn.textContent = '🔄 Refresh';
@@ -1266,9 +1552,7 @@
             }
         }
 
-        // Set the currency dropdown to match current view
         document.getElementById('printCurrency').value = currentCurrency;
-
         document.getElementById('printDialogOverlay').classList.add('show');
     }
 
@@ -1286,8 +1570,7 @@
         const includePayment = document.getElementById('printIncludePayment').checked;
         const includeFooter = document.getElementById('printIncludeFooter').checked;
 
-        // Find the orders
-        const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
+        const ordersToPrint = allOrders.filter(function(o) { return printTargetIds.includes(o._id); });
 
         if (ordersToPrint.length === 0) {
             showToast('❌ No orders found to print');
@@ -1295,31 +1578,33 @@
             return;
         }
 
-        // Generate invoice HTML
         const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
-            currency,
-            businessName,
-            businessInfo,
-            includeLogo,
-            includePayment,
-            includeFooter,
+            currency: currency,
+            businessName: businessName,
+            businessInfo: businessInfo,
+            includeLogo: includeLogo,
+            includePayment: includePayment,
+            includeFooter: includeFooter,
             rate: exchangeRate
         });
 
-        // Open print window
         const printWindow = window.open('', '_blank', 'width=900,height=700');
+        if (!printWindow) {
+            showToast('❌ Pop-up blocked! Please allow pop-ups for this site.');
+            closePrintDialog();
+            return;
+        }
         printWindow.document.write(invoiceHtml);
         printWindow.document.close();
 
-        // Wait for content to load then print
         printWindow.onload = function() {
-            setTimeout(() => {
+            setTimeout(function() {
                 printWindow.print();
             }, 400);
         };
 
         closePrintDialog();
-        showToast(`🖨️ Printing ${ordersToPrint.length} invoice(s)...`);
+        showToast('🖨️ Printing ' + ordersToPrint.length + ' invoice(s)...');
     }
 
     function generateInvoiceHtml(orders, opts) {
@@ -1330,17 +1615,17 @@
         function fmtCurrency(nprAmount) {
             const npr = Math.round(nprAmount);
             const usd = (nprAmount / opts.rate).toFixed(2);
-            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
-            if (opts.currency === 'USD') return `$${usd}`;
-            return `NPR ${npr.toLocaleString()} / $${usd}`;
+            if (opts.currency === 'NPR') return 'NPR ' + npr.toLocaleString();
+            if (opts.currency === 'USD') return '$' + usd;
+            return 'NPR ' + npr.toLocaleString() + ' / $' + usd;
         }
 
         function fmtPrice(price) {
             const npr = Math.round(price);
             const usd = (price / opts.rate).toFixed(2);
-            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
-            if (opts.currency === 'USD') return `$${usd}`;
-            return `NPR ${npr.toLocaleString()} / $${usd}`;
+            if (opts.currency === 'NPR') return 'NPR ' + npr.toLocaleString();
+            if (opts.currency === 'USD') return '$' + usd;
+            return 'NPR ' + npr.toLocaleString() + ' / $' + usd;
         }
 
         let invoicesHtml = '';
@@ -1363,14 +1648,14 @@
             let itemsRows = '';
             let itemCount = 0;
             if (order.items && order.items.length > 0) {
-                order.items.forEach((item, idx) => {
+                order.items.forEach(function(item, idx) {
                     const qty = item.qty || 1;
                     const price = item.price || 0;
                     const lineTotal = qty * price;
                     itemCount += qty;
                     const form = item.form || 'Whole Form';
                     const unit = item.unit || '1kg';
-                    
+
                     itemsRows += `
                         <tr>
                             <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
@@ -1394,12 +1679,11 @@
 
             invoicesHtml += `
                 <div class="invoice-page" style="${pageBreak}">
-                    <!-- Header -->
                     ${opts.includeLogo ? `
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
                         <div>
                             <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${escapeHtml(opts.businessName)}</div>
-                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${escapeHtml(opts.businessInfo)}</div>` : ''}
+                            ${opts.businessInfo ? '<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">' + escapeHtml(opts.businessInfo) + '</div>' : ''}
                         </div>
                         <div style="text-align:right;">
                             <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
@@ -1417,25 +1701,23 @@
                     </div>
                     `}
 
-                    <!-- Order & Client Info -->
                     <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
                         <div style="flex:1;">
                             <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
                             <div style="font-size:16px;font-weight:700;color:#1f2937;">${escapeHtml(client.name || 'Guest')}</div>
-                            ${client.phone ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ${escapeHtml(client.phone)}</div>` : ''}
-                            ${client.email ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ${escapeHtml(client.email)}</div>` : ''}
-                            ${client.address ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ${escapeHtml(client.address)}</div>` : ''}
+                            ${client.phone ? '<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ' + escapeHtml(client.phone) + '</div>' : ''}
+                            ${client.email ? '<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ' + escapeHtml(client.email) + '</div>' : ''}
+                            ${client.address ? '<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ' + escapeHtml(client.address) + '</div>' : ''}
                         </div>
                         <div style="flex:1;text-align:right;">
                             <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Order Details</div>
                             <div style="font-size:14px;color:#1f2937;"><strong>Order #${orderId}</strong></div>
                             <div style="font-size:13px;color:#4b5563;margin-top:3px;">📅 ${orderDate} at ${orderTime}</div>
                             <div style="margin-top:6px;display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;background:${statusBg};color:${statusColor};">${status}</div>
-                            ${opts.includePayment && order.paymentMethod ? `<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ${escapeHtml(order.paymentMethod)}</div>` : ''}
+                            ${opts.includePayment && order.paymentMethod ? '<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ' + escapeHtml(order.paymentMethod) + '</div>' : ''}
                         </div>
                     </div>
 
-                    <!-- Items Table -->
                     <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
                         <thead>
                             <tr style="background:#2d4a22;">
@@ -1453,7 +1735,6 @@
                         </tbody>
                     </table>
 
-                    <!-- Totals -->
                     <div style="display:flex;justify-content:flex-end;margin-top:0;">
                         <div style="width:350px;">
                             <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
@@ -1464,96 +1745,25 @@
                                 <span>TOTAL</span>
                                 <span>${fmtCurrency(totalNPR)}</span>
                             </div>
-                            ${opts.currency === 'BOTH' ? `
+                            ${opts.currency === 'BOTH' ? '
                             <div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">
-                                Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR
+                                Exchange Rate: 1 USD = ' + opts.rate.toFixed(2) + ' NPR
                             </div>
-                            ` : ''}
+                            ' : ''}
                         </div>
                     </div>
 
-                    ${opts.includeFooter ? `
-                    <!-- Footer -->
+                    ${opts.includeFooter ? '
                     <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
                         <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
-                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
+                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">' + escapeHtml(opts.businessName) + ' — We appreciate your business.</div>
                     </div>
-                    ` : ''}
+                    ' : ''}
                 </div>
             `;
         }
 
-        return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Invoice - ${escapeHtml(opts.businessName)}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #1f2937;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        @media print {
-            body {
-                padding: 20px;
-            }
-            .invoice-page {
-                page-break-after: always;
-            }
-            .invoice-page:last-child {
-                page-break-after: avoid;
-            }
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        .no-print {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .no-print button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn-print-action {
-            background: #2d4a22;
-            color: white;
-        }
-        .btn-print-action:hover { background: #1f3618; }
-
-        .btn-close-action {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-        .btn-close-action:hover { background: #e5e7eb; }
-    </style>
-</head>
-<body>
-    <div class="no-print">
-        <button class="btn-print-action" onclick="window.print()">🖨️ Print</button>
-        <button class="btn-close-action" onclick="window.close()">✕ Close</button>
-    </div>
-    ${invoicesHtml}
-</body>
-</html>`;
+        return '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <title>Invoice - ' + escapeHtml(opts.businessName) + '</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif;\n            color: #1f2937;\n            padding: 40px;\n            max-width: 800px;\n            margin: 0 auto;\n        }\n\n        @media print {\n            body {\n                padding: 20px;\n            }\n            .invoice-page {\n                page-break-after: always;\n            }\n            .invoice-page:last-child {\n                page-break-after: avoid;\n            }\n            .no-print {\n                display: none !important;\n            }\n        }\n\n        .no-print {\n            position: fixed;\n            top: 20px;\n            right: 20px;\n            display: flex;\n            gap: 8px;\n            z-index: 10;\n        }\n\n        .no-print button {\n            padding: 10px 20px;\n            border: none;\n            border-radius: 8px;\n            font-weight: 600;\n            cursor: pointer;\n            font-size: 14px;\n            transition: all 0.2s;\n        }\n\n        .btn-print-action {\n            background: #2d4a22;\n            color: white;\n        }\n        .btn-print-action:hover { background: #1f3618; }\n\n        .btn-close-action {\n            background: #f3f4f6;\n            color: #374151;\n            border: 1px solid #d1d5db;\n        }\n        .btn-close-action:hover { background: #e5e7eb; }\n    </style>\n</head>\n<body>\n    <div class="no-print">\n        <button class="btn-print-action" onclick="window.print()">🖨️ Print</button>\n        <button class="btn-close-action" onclick="window.close()">✕ Close</button>\n    </div>\n    ' + invoicesHtml + '\n</body>\n</html>';
     }
 
     // ============ HELPER FUNCTIONS ============
@@ -1568,7 +1778,8 @@
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
     }
 
     function openImage(src) {
@@ -1582,8 +1793,39 @@
 
     // ============ INITIALIZATION ============
     async function init() {
-        await loadExchangeRate();
-        await fetchOrders();
+        debugLog('Initializing NaturaBotanica Admin...', 'info');
+        debugLog('API Base: ' + API_BASE, 'info');
+        debugLog('Current URL: ' + window.location.href, 'info');
+        debugLog('Protocol: ' + window.location.protocol, 'info');
+
+        // Check if running from file:// protocol
+        if (window.location.protocol === 'file:') {
+            debugLog('WARNING: Running from file:// protocol — API calls will likely fail!', 'error');
+            debugLog('You must serve this via a web server (e.g., your Node.js backend)', 'error');
+            document.getElementById('ordersTableBody').innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
+                    <div style="font-size:32px;margin-bottom:10px;">⚠️</div>
+                    <div style="font-weight:700;margin-bottom:6px;">Cannot load from file:// protocol</div>
+                    <div style="font-size:13px;color:#6b7280;margin-bottom:4px;">This page must be served by your backend server.</div>
+                    <div style="font-size:12px;color:#9ca3af;">Open it via http://localhost:PORT instead of double-clicking the file.</div>
+                </td></tr>
+            `;
+            return;
+        }
+
+        // Load exchange rate (non-blocking — don't wait for it)
+        loadExchangeRate();
+
+        // Check if we have saved credentials
+        const auth = getAuth();
+        if (auth) {
+            debugLog('Found saved credentials, attempting to fetch orders...', 'info');
+            await fetchOrders();
+        } else {
+            debugLog('No saved credentials, showing login modal...', 'info');
+            showLoginModal();
+            document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">Please log in to view orders</td></tr>';
+        }
     }
 
     // Make functions global
@@ -1599,13 +1841,18 @@
     window.openPrintDialog = openPrintDialog;
     window.closePrintDialog = closePrintDialog;
     window.executePrint = executePrint;
+    window.submitLogin = submitLogin;
+    window.clearAuth = clearAuth;
+    window.showLoginModal = showLoginModal;
+    window.toggleDebug = toggleDebug;
+    window.fetchOrders = fetchOrders;
 
-    // Close print dialog on overlay click
+    // Close modals on overlay click
     document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
         if (e.target === this) closePrintDialog();
     });
 
-    // Close print dialog on Escape key
+    // Close modals on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePrintDialog();
