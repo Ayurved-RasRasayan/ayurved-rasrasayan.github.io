@@ -25,12 +25,13 @@ if (missing.length > 0) {
 // Dynamic CORS to allow credentials from frontend
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (curl, server-to-server) 
+    // AND allow "null" origin (opening index.html directly from your computer)
+    if (!origin || origin === 'null') return callback(null, true);
     
     // Check if the incoming origin contains your GitHub Pages domain or localhost
     const allowedDomains = [
-      'ayurved-rasrasayan.github.io', // Matches any path/subdomain on your GitHub Pages
+      'ayurved-rasrasayan.github.io', 
       'localhost',
       '127.0.0.1'
     ];
