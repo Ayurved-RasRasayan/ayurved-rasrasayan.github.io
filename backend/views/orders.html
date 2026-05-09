@@ -173,6 +173,44 @@
             color: white;
         }
 
+        /* Search & Filter Bar */
+        .search-bar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border: 1px solid #e5e7eb;
+        }
+
+        .search-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .search-bar input[type="text"]:focus {
+            outline: none;
+            border-color: #2d4a22;
+            box-shadow: 0 0 0 3px rgba(45,74,34,0.1);
+        }
+
+        .search-bar select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
         /* Exchange Rate Bar */
         .rate-bar {
             background: white;
@@ -219,14 +257,9 @@
             background: white;
         }
 
-        /* Dark, thick vertical borders for all cells */
         td, th {
             border-left: 2px solid #2d3748;
             border-right: 2px solid #2d3748;
-        }
-
-        table {
-            border-collapse: collapse;
         }
 
         th {
@@ -245,7 +278,6 @@
             vertical-align: top;
         }
 
-        /* ============ HORIZONTAL RED LINE DIVIDER ============ */
         tr {
             border-bottom: 2px solid #dc2626;
         }
@@ -270,42 +302,15 @@
         .col-client { width: 25%; }
         .col-action { width: 12%; }
 
-        /* ============ COLUMN ALIGNMENT ============ */
-        .col-checkbox,
-        td:nth-child(1) {
-            text-align: center;
-        }
+        .col-checkbox, td:nth-child(1) { text-align: center; }
+        .col-date, td:nth-child(2) { text-align: center; }
+        .col-items { text-align: center; }
+        td:nth-child(3) { text-align: left; }
+        .col-status, td:nth-child(4) { text-align: center; }
+        .col-client { text-align: center; }
+        td:nth-child(5) { text-align: left; }
+        .col-action, td:nth-child(6) { text-align: center; }
 
-        .col-date,
-        td:nth-child(2) {
-            text-align: center;
-        }
-
-        .col-items {
-            text-align: center;
-        }
-        td:nth-child(3) {
-            text-align: left;
-        }
-
-        .col-status,
-        td:nth-child(4) {
-            text-align: center;
-        }
-
-        .col-client {
-            text-align: center;
-        }
-        td:nth-child(5) {
-            text-align: left;
-        }
-
-        .col-action,
-        td:nth-child(6) {
-            text-align: center;
-        }
-
-        /* Client inner lines - Left aligned */
         .client-line {
             text-align: left;
         }
@@ -345,7 +350,7 @@
             transform: scale(1.05);
         }
 
-        /* Items Cell - Left Aligned */
+        /* Items Cell */
         .order-id {
             background: #e0e7ff;
             color: #3730a3;
@@ -427,7 +432,7 @@
             font-size: 18px;
         }
 
-        /* Status Cell - Center Aligned */
+        /* Status Cell */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -440,23 +445,9 @@
             margin-bottom: 8px;
         }
 
-        .badge-queue {
-            background: #fffbeb;
-            color: #92400e;
-            border: 1px solid #fcd34d;
-        }
-
-        .badge-sent {
-            background: #dcfce7;
-            color: #15803d;
-            border: 1px solid #86efac;
-        }
-
-        .badge-failed {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
+        .badge-queue { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+        .badge-sent { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .badge-failed { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
         .status-select {
             width: 100%;
@@ -475,163 +466,74 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
-        /* Client Cell - Left Aligned */
-        .client-line {
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .client-label {
-            font-weight: 600;
-            color: #4b5563;
-            min-width: 60px;
-            display: inline-block;
-        }
+        /* Client Cell */
+        .client-line { font-size: 13px; margin-bottom: 6px; }
+        .client-label { font-weight: 600; color: #4b5563; min-width: 60px; display: inline-block; }
 
         /* Action Cell */
-        .action-btns {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .action-btns { display: flex; flex-direction: column; gap: 6px; }
 
         .delete-btn {
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            width: 100%;
+            background: #dc2626; color: white; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; width: 100%;
         }
-
-        .delete-btn:hover {
-            background: #b91c1c;
-        }
+        .delete-btn:hover { background: #b91c1c; }
 
         .print-btn-row {
-            background: #4338ca;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            width: 100%;
+            background: #4338ca; color: white; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; width: 100%;
         }
-
-        .print-btn-row:hover {
-            background: #3730a3;
-        }
+        .print-btn-row:hover { background: #3730a3; }
 
         /* Total Bar */
         .total-bar {
-            background: white;
-            border: 1px solid #d1d5db;
-            border-left: 4px solid #2d4a22;
-            border-radius: 6px;
-            padding: 12px 24px;
-            margin-top: 20px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 15px;
+            background: white; border: 1px solid #d1d5db; border-left: 4px solid #2d4a22;
+            border-radius: 6px; padding: 12px 24px; margin-top: 20px;
+            display: flex; justify-content: flex-end; align-items: center; gap: 15px;
         }
 
-        .total-bar-label {
-            font-weight: 900;
-            font-size: 13px;
-            text-transform: uppercase;
-            color: #6b7280;
-        }
+        .total-bar-label { font-weight: 900; font-size: 13px; text-transform: uppercase; color: #6b7280; }
+        .total-bar-value { font-weight: 900; font-size: 20px; color: #1a5c1c; }
 
-        .total-bar-value {
-            font-weight: 900;
-            font-size: 20px;
-            color: #1a5c1c;
+        /* Pagination */
+        .pagination {
+            display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 20px; flex-wrap: wrap;
         }
+        .page-btn {
+            padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; background: white;
+            font-weight: 600; font-size: 13px; transition: 0.2s;
+        }
+        .page-btn:hover { background: #f3f4f6; }
+        .page-btn.active { background: #2d4a22; color: white; border-color: #2d4a22; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Toast */
         .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #1f2937;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            transition: 0.3s;
-            z-index: 1000;
-            font-size: 14px;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px;
+            transition: 0.3s; z-index: 5000; font-size: 14px;
         }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* Modal */
+        /* Modal (Image Viewer) */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 4000; align-items: center; justify-content: center;
         }
+        .modal.show { display: flex; }
+        .modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
 
-        .modal.show {
-            display: flex;
+        /* Generic Dialog Overlay (Print & Login) */
+        .dialog-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;
         }
+        .dialog-overlay.show { display: flex; }
 
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 8px;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-        }
-
-        /* Print Dialog Overlay */
-        .print-dialog-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .print-dialog-overlay.show {
-            display: flex;
-        }
-
-        .print-dialog {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            animation: dialogIn 0.2s ease-out;
+        .dialog-box {
+            background: white; border-radius: 16px; padding: 32px; width: 90%; max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3); animation: dialogIn 0.2s ease-out;
         }
 
         @keyframes dialogIn {
@@ -639,113 +541,78 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        .print-dialog h3 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #2d4a22;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .dialog-box h3 {
+            font-size: 20px; margin-bottom: 20px; color: #2d4a22;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .print-dialog-label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-            color: #374151;
-            font-size: 14px;
+        .dialog-label { font-weight: 600; margin-bottom: 8px; display: block; color: #374151; font-size: 14px; }
+        .dialog-row { margin-bottom: 16px; }
+
+        .dialog-box select,
+        .dialog-box input[type="text"],
+        .dialog-box input[type="password"] {
+            width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; font-family: inherit;
         }
 
-        .print-dialog-row {
-            margin-bottom: 16px;
+        .dialog-box select:focus,
+        .dialog-box input[type="text"]:focus,
+        .dialog-box input[type="password"]:focus {
+            outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
         }
 
-        .print-dialog select,
-        .print-dialog input[type="text"] {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .print-dialog select:focus,
-        .print-dialog input[type="text"]:focus {
-            outline: none;
-            border-color: #2d4a22;
-            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
-        }
-
-        .print-dialog-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .print-dialog-actions .btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 15px;
-        }
+        .dialog-actions { display: flex; gap: 10px; margin-top: 24px; }
+        .dialog-actions .btn { flex: 1; padding: 12px; font-size: 15px; }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .toolbar-left {
-                justify-content: center;
-            }
-
-            .currency-toggle {
-                justify-content: center;
-            }
-
-            .table-wrapper {
-                overflow-x: scroll;
-            }
-
-            .item-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .item-total {
-                text-align: left;
-            }
-
-            .client-line {
-                text-align: left;
-            }
-
-            tr {
-                border-bottom: 2px solid #dc2626;
-            }
+            body { padding: 10px; }
+            .toolbar, .search-bar { flex-direction: column; align-items: stretch; }
+            .toolbar-left { justify-content: center; }
+            .currency-toggle { justify-content: center; }
+            .table-wrapper { overflow-x: scroll; }
+            .item-row { flex-direction: column; align-items: flex-start; }
+            .item-total { text-align: left; }
         }
     </style>
 </head>
 <body>
-<div class="container">
+
+<!-- Login Modal -->
+<div id="loginModal" class="dialog-overlay show">
+    <div class="dialog-box">
+        <h3>🔒 Admin Login</h3>
+        <div class="dialog-row">
+            <label class="dialog-label">Username</label>
+            <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="dialog-row">
+            <label class="dialog-label">Password</label>
+            <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <div id="loginError" style="color:#dc2626;font-size:13px;margin-bottom:15px;text-align:center;display:none;"></div>
+        <div class="dialog-actions">
+            <button class="btn btn-primary" onclick="doLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="appContainer" style="display:none;">
     <!-- Header -->
     <div class="header">
         <h1>🌿 NaturaBotanica <span style="font-size:0.6em;opacity:0.6;">Admin Orders</span></h1>
         <div class="header-actions">
             <a href="/api/manage-users" class="btn-stock">👥 Manage Users</a>
             <a href="/api/manage-stock" class="btn-stock">📦 Manage Stock</a>
+            <button class="btn-stock" onclick="logout()">🔒 Logout</button>
         </div>
     </div>
 
     <!-- Toolbar -->
     <div class="toolbar">
         <div class="toolbar-left">
-            <button class="btn btn-secondary" onclick="selectAll()">☑️ Select All</button>
+            <button class="btn btn-secondary" id="selectAllBtn" onclick="selectAll()">☑️ Select All</button>
             <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
             <button class="btn btn-print" id="printSelectedBtn" disabled onclick="openPrintDialog('selected')">🖨️ Print Selected</button>
             <span id="selectedCount" class="selected-count"></span>
@@ -756,6 +623,20 @@
         </div>
     </div>
 
+    <!-- Search & Filter Bar -->
+    <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by name, email, phone, or order ID..." oninput="applyFilters()">
+        <select id="statusFilter" onchange="applyFilters()">
+            <option value="">All Statuses</option>
+            <option value="Pending">⏳ Pending</option>
+            <option value="Shipping">🚚 Shipping</option>
+            <option value="Completed">✅ Completed</option>
+            <option value="Success">💰 Payment Successful</option>
+            <option value="Rejected">❌ Rejected</option>
+        </select>
+    </div>
+
     <!-- Exchange Rate Bar -->
     <div class="rate-bar">
         <span id="rateDot" class="rate-dot"></span>
@@ -763,7 +644,7 @@
         <span>1 USD =</span>
         <span id="rateValue" class="rate-value">...</span>
         <span>NPR</span>
-        <button class="btn btn-secondary" onclick="refreshRate()" style="padding:4px 12px;">🔄 Refresh</button>
+        <button class="btn btn-secondary" onclick="refreshRate(this)" style="padding:4px 12px;">🔄 Refresh</button>
         <span id="rateError" style="color:#dc2626;font-size:12px;"></span>
     </div>
 
@@ -786,39 +667,38 @@
         </table>
     </div>
 
+    <!-- Pagination -->
+    <div id="pagination" class="pagination"></div>
+
     <!-- Total Bar -->
     <div class="total-bar">
-        <span class="total-bar-label">💰 Grand Total</span>
+        <span class="total-bar-label">💰 Grand Total (Filtered)</span>
         <span id="grandTotal" class="total-bar-value">NPR 0</span>
     </div>
 </div>
 
 <!-- Print Dialog Modal -->
-<div id="printDialogOverlay" class="print-dialog-overlay">
-    <div class="print-dialog">
+<div id="printDialogOverlay" class="dialog-overlay">
+    <div class="dialog-box">
         <h3>🖨️ Print Invoice</h3>
-
-        <div class="print-dialog-row">
-            <label class="print-dialog-label">Currency</label>
+        <div class="dialog-row">
+            <label class="dialog-label">Currency</label>
             <select id="printCurrency">
                 <option value="NPR">🇳🇵 NPR (Nepali Rupees)</option>
                 <option value="USD">🇺🇸 USD (US Dollars)</option>
                 <option value="BOTH">Both NPR & USD</option>
             </select>
         </div>
-
-        <div class="print-dialog-row">
-            <label class="print-dialog-label">Business Name</label>
+        <div class="dialog-row">
+            <label class="dialog-label">Business Name</label>
             <input type="text" id="printBusinessName" value="NaturaBotanica" placeholder="Your business name">
         </div>
-
-        <div class="print-dialog-row">
-            <label class="print-dialog-label">Business Address / Contact</label>
+        <div class="dialog-row">
+            <label class="dialog-label">Business Address / Contact</label>
             <input type="text" id="printBusinessInfo" value="" placeholder="Address, phone, email...">
         </div>
-
-        <div class="print-dialog-row">
-            <label class="print-dialog-label">Include</label>
+        <div class="dialog-row">
+            <label class="dialog-label">Include</label>
             <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
                 <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
                     <input type="checkbox" id="printIncludeLogo" checked> Logo & branding
@@ -831,8 +711,7 @@
                 </label>
             </div>
         </div>
-
-        <div class="print-dialog-actions">
+        <div class="dialog-actions">
             <button class="btn btn-secondary" onclick="closePrintDialog()">Cancel</button>
             <button class="btn btn-primary" onclick="executePrint()">🖨️ Print Now</button>
         </div>
@@ -851,28 +730,85 @@
     let exchangeRate = 133;
     let currentCurrency = 'NPR';
     let allOrders = [];
+    let filteredOrders = [];
+
+    // Pagination
+    const PAGE_SIZE = 15;
+    let currentPage = 1;
 
     // Print state
-    let printMode = null;       // 'single' or 'selected'
-    let printTargetIds = [];    // order IDs to print
+    let printMode = null;
+    let printTargetIds = [];
 
     // ============ AUTHENTICATION ============
     function getAuth() {
-        let username = localStorage.getItem('admin_username');
-        let password = localStorage.getItem('admin_password');
-
-        if (!username || !password) {
-            username = prompt('Enter admin username:');
-            password = prompt('Enter admin password:');
-            if (username && password) {
-                localStorage.setItem('admin_username', username);
-                localStorage.setItem('admin_password', password);
-            } else {
-                return null;
-            }
-        }
-        return { credentials: btoa(username + ':' + password) };
+        const credentials = sessionStorage.getItem('admin_credentials');
+        if (!credentials) return null;
+        return { credentials };
     }
+
+    function doLogin() {
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
+        const errorEl = document.getElementById('loginError');
+        
+        if (!username || !password) {
+            errorEl.textContent = 'Please enter both username and password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Store temporarily to attempt fetch
+        sessionStorage.setItem('admin_credentials', btoa(username + ':' + password));
+        attemptInit();
+    }
+
+    async function attemptInit() {
+        const auth = getAuth();
+        if (!auth) return;
+
+        try {
+            const response = await fetch(API_BASE + '/view-orders-data', {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
+
+            if (response.status === 401) {
+                sessionStorage.removeItem('admin_credentials');
+                document.getElementById('loginError').textContent = 'Invalid credentials. Please try again.';
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+
+            if (!response.ok) throw new Error('Server error');
+
+            // Success
+            document.getElementById('loginModal').classList.remove('show');
+            document.getElementById('appContainer').style.display = 'block';
+            await init();
+        } catch (error) {
+            sessionStorage.removeItem('admin_credentials');
+            document.getElementById('loginError').textContent = 'Connection error: ' + error.message;
+            document.getElementById('loginError').style.display = 'block';
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem('admin_credentials');
+        location.reload();
+    }
+
+    // ============ INITIALIZATION ============
+    async function init() {
+        await loadExchangeRate();
+        await fetchOrders();
+    }
+
+    // Check auth on load
+    window.onload = function() {
+        if (getAuth()) {
+            attemptInit();
+        }
+    };
 
     // ============ FETCH ORDERS ============
     async function fetchOrders() {
@@ -887,9 +823,8 @@
             });
 
             if (response.status === 401) {
-                localStorage.removeItem('admin_username');
-                localStorage.removeItem('admin_password');
-                throw new Error('Login failed. Please try again.');
+                logout();
+                throw new Error('Session expired. Please log in again.');
             }
 
             if (!response.ok) throw new Error('Failed to fetch orders');
@@ -898,7 +833,7 @@
 
             if (data.success && data.orders) {
                 allOrders = data.orders;
-                renderTable();
+                applyFilters(); // Applies search, filter, renders table and pagination
                 showToast(`✅ Loaded ${allOrders.length} orders`);
             } else {
                 throw new Error(data.error || 'No orders found');
@@ -914,19 +849,80 @@
         }
     }
 
+    // ============ FILTERING & PAGINATION ============
+    function applyFilters() {
+        const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+        const statusFilter = document.getElementById('statusFilter')?.value || '';
+
+        filteredOrders = allOrders.filter(order => {
+            const client = order.clientDetails || {};
+            const matchesSearch = !query ||
+                (client.name || '').toLowerCase().includes(query) ||
+                (client.email || '').toLowerCase().includes(query) ||
+                (client.phone || '').includes(query) ||
+                order._id.toLowerCase().includes(query);
+
+            const matchesStatus = !statusFilter || order.status === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        currentPage = 1;
+        renderTable();
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const container = document.getElementById('pagination');
+        const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Prev</button>`;
+
+        // Simple page numbers (could be enhanced with ellipsis for 100+ pages)
+        for (let i = 1; i <= totalPages; i++) {
+            if (totalPages > 10 && Math.abs(i - currentPage) > 2 && i !== 1 && i !== totalPages) {
+                if (i === 2 || i === totalPages - 1) html += `<span style="padding:6px;">...</span>`;
+                continue;
+            }
+            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+
+        html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>`;
+        container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+        const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderTable();
+        renderPagination();
+        document.querySelector('.table-wrapper').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     // ============ RENDER TABLE ============
     function renderTable() {
         const tbody = document.getElementById('ordersTableBody');
-
-        if (!allOrders || allOrders.length === 0) {
+        
+        if (filteredOrders.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
             updateGrandTotal();
             return;
         }
 
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+        const pageOrders = filteredOrders.slice(start, end);
+
         let html = '';
 
-        for (const order of allOrders) {
+        for (const order of pageOrders) {
             const orderId = order._id;
             const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB');
             const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -935,18 +931,11 @@
             const totalNPR = Math.round(order.totalNPR || 0);
             const client = order.clientDetails || {};
 
-            // Email badge class
             let emailBadgeClass = 'badge-queue';
             let emailBadgeText = '⏳ Queue';
-            if (emailStatus === 'Sent') {
-                emailBadgeClass = 'badge-sent';
-                emailBadgeText = '✅ Sent';
-            } else if (emailStatus === 'Failed') {
-                emailBadgeClass = 'badge-failed';
-                emailBadgeText = '❌ Failed';
-            }
+            if (emailStatus === 'Sent') { emailBadgeClass = 'badge-sent'; emailBadgeText = '✅ Sent'; }
+            else if (emailStatus === 'Failed') { emailBadgeClass = 'badge-failed'; emailBadgeText = '❌ Failed'; }
 
-            // Items HTML with Product ID, Form, and Unit displayed
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
                 itemsHtml = order.items.map(item => {
@@ -956,6 +945,11 @@
                     const productId = item.id || item.productId || 'N/A';
                     const form = item.form || 'Whole Form';
                     const unit = item.unit || '1kg';
+
+                    // FIX: Currency toggle for items
+                    let displayLineTotal = currentCurrency === 'USD'
+                        ? `$${(lineTotal / exchangeRate).toFixed(2)}`
+                        : `NPR ${lineTotal.toLocaleString()}`;
 
                     return `
                         <div class="item-row">
@@ -970,7 +964,7 @@
                                 </div>
                             </div>
                             <span class="item-detail">x${qty} @ NPR ${price.toLocaleString()}</span>
-                            <span class="item-total">= NPR ${lineTotal.toLocaleString()}</span>
+                            <span class="item-total" data-npr="${lineTotal}">= ${displayLineTotal}</span>
                         </div>
                     `;
                 }).join('');
@@ -978,10 +972,12 @@
                 itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
 
-            // Display total based on currency
             let displayTotal = currentCurrency === 'USD'
                 ? `$${(totalNPR / exchangeRate).toFixed(2)}`
                 : `NPR ${totalNPR.toLocaleString()}`;
+
+            // FIX: XSS via paymentScreenshot validation
+            const proofUrl = safeUrl(order.paymentScreenshot);
 
             html += `
                 <tr id="row-${orderId}">
@@ -991,7 +987,9 @@
                     <td>
                         <div class="date-cell">
                             <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
-                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
+                            ${proofUrl 
+                                ? `<img src="${proofUrl}" class="proof-img" onclick="openImage('${proofUrl}')">` 
+                                : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
                         </div>
                     </td>
                     <td>
@@ -1037,11 +1035,7 @@
     async function updateStatus(orderId, newStatus, selectEl) {
         selectEl.disabled = true;
         const auth = getAuth();
-        if (!auth) {
-            showToast('Authentication required');
-            selectEl.disabled = false;
-            return;
-        }
+        if (!auth) { logout(); return; }
 
         try {
             const response = await fetch(API_BASE + '/update-status', {
@@ -1053,21 +1047,22 @@
                 body: JSON.stringify({ id: orderId, status: newStatus })
             });
 
+            if (response.status === 401) { logout(); return; }
+
             const data = await response.json();
 
             if (data.success) {
                 selectEl.className = `status-select s-${newStatus}`;
                 showToast(`✅ Status updated to ${newStatus}`);
 
+                // Update local array
+                const orderIdx = allOrders.findIndex(o => o._id === orderId);
+                if (orderIdx !== -1) allOrders[orderIdx].status = newStatus;
+
                 const badgeDiv = selectEl.parentElement.querySelector('.badge');
-                if (badgeDiv) {
-                    if (data.emailStatus === 'Sent') {
-                        badgeDiv.className = 'badge badge-sent';
-                        badgeDiv.innerHTML = '✅ Sent';
-                    } else if (data.emailStatus === 'Failed') {
-                        badgeDiv.className = 'badge badge-failed';
-                        badgeDiv.innerHTML = '❌ Failed';
-                    }
+                if (badgeDiv && data.emailStatus) {
+                    if (data.emailStatus === 'Sent') { badgeDiv.className = 'badge badge-sent'; badgeDiv.innerHTML = '✅ Sent'; }
+                    else if (data.emailStatus === 'Failed') { badgeDiv.className = 'badge badge-failed'; badgeDiv.innerHTML = '❌ Failed'; }
                 }
             } else {
                 throw new Error(data.error || 'Update failed');
@@ -1084,7 +1079,7 @@
         if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
 
         btn.disabled = true;
-        btn.textContent = '...';
+        btn.textContent = '⏳...';
         const auth = getAuth();
 
         try {
@@ -1093,16 +1088,15 @@
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
 
+            if (response.status === 401) { logout(); return; }
+
             const data = await response.json();
 
             if (data.success) {
-                const row = document.getElementById(`row-${orderId}`);
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    updateSelectedCount();
-                    fetchOrders();
-                }, 200);
+                // FIX: Remove from array and re-render instead of fetching again
+                allOrders = allOrders.filter(o => o._id !== orderId);
+                applyFilters();
+                updateSelectedCount();
                 showToast('✅ Order deleted');
             } else {
                 throw new Error('Delete failed');
@@ -1121,13 +1115,9 @@
 
     function updateSelectedCount() {
         const selected = getSelectedOrders();
-        const deleteBtn = document.getElementById('deleteSelectedBtn');
-        const printBtn = document.getElementById('printSelectedBtn');
-        const countSpan = document.getElementById('selectedCount');
-
-        deleteBtn.disabled = selected.length === 0;
-        printBtn.disabled = selected.length === 0;
-        countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
+        document.getElementById('deleteSelectedBtn').disabled = selected.length === 0;
+        document.getElementById('printSelectedBtn').disabled = selected.length === 0;
+        document.getElementById('selectedCount').textContent = selected.length > 0 ? `${selected.length} selected` : '';
     }
 
     function selectAll() {
@@ -1135,6 +1125,10 @@
         const allChecked = [...checkboxes].every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
         updateSelectedCount();
+
+        // FIX: Update button text based on state
+        const btn = document.getElementById('selectAllBtn');
+        btn.textContent = allChecked ? '☑️ Select All' : '☐ Deselect All';
     }
 
     async function deleteSelected() {
@@ -1157,11 +1151,15 @@
                 body: JSON.stringify({ ids: selected })
             });
 
+            if (response.status === 401) { logout(); return; }
+
             const data = await response.json();
 
             if (data.success) {
+                allOrders = allOrders.filter(o => !selected.includes(o._id));
+                applyFilters();
+                updateSelectedCount();
                 showToast(`✅ Deleted ${selected.length} order(s)`);
-                fetchOrders();
             } else {
                 throw new Error('Bulk delete failed');
             }
@@ -1180,22 +1178,16 @@
         document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
         document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
 
-        document.querySelectorAll('[data-npr]').forEach(el => {
-            const npr = parseFloat(el.dataset.npr);
-            if (currency === 'USD') {
-                el.textContent = `$${(npr / exchangeRate).toFixed(2)}`;
-            } else {
-                el.textContent = `NPR ${npr.toLocaleString()}`;
-            }
-        });
-
+        // Re-render table to fix item-level currency formatting issue
+        renderTable();
         updateGrandTotal();
     }
 
     function updateGrandTotal() {
         let total = 0;
-        document.querySelectorAll('[data-npr]').forEach(el => {
-            total += parseFloat(el.dataset.npr) || 0;
+        // Calculate total based on currently filtered orders, not just visible rows
+        filteredOrders.forEach(order => {
+            total += Math.round(order.totalNPR || 0);
         });
 
         const grandTotalEl = document.getElementById('grandTotal');
@@ -1221,14 +1213,11 @@
         }
     }
 
-    async function refreshRate() {
+    // FIX: Implicit event bug resolved by passing button element
+    async function refreshRate(btn) {
         const auth = getAuth();
-        if (!auth) {
-            showToast('Authentication required');
-            return;
-        }
+        if (!auth) { logout(); return; }
 
-        const btn = event.target;
         btn.disabled = true;
         btn.textContent = '⏳...';
 
@@ -1236,11 +1225,13 @@
             const response = await fetch(API_BASE + '/exchange-rate/fetch', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
+            if (response.status === 401) { logout(); return; }
+            
             const data = await response.json();
             exchangeRate = data.rate || 133;
             document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
             showToast('✅ Rate updated');
-            setCurrency(currentCurrency);
+            setCurrency(currentCurrency); // Refresh displayed numbers
         } catch (error) {
             showToast('❌ Failed to sync rate');
         } finally {
@@ -1266,9 +1257,7 @@
             }
         }
 
-        // Set the currency dropdown to match current view
         document.getElementById('printCurrency').value = currentCurrency;
-
         document.getElementById('printDialogOverlay').classList.add('show');
     }
 
@@ -1286,7 +1275,6 @@
         const includePayment = document.getElementById('printIncludePayment').checked;
         const includeFooter = document.getElementById('printIncludeFooter').checked;
 
-        // Find the orders
         const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
 
         if (ordersToPrint.length === 0) {
@@ -1295,7 +1283,6 @@
             return;
         }
 
-        // Generate invoice HTML
         const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
             currency,
             businessName,
@@ -1306,16 +1293,12 @@
             rate: exchangeRate
         });
 
-        // Open print window
         const printWindow = window.open('', '_blank', 'width=900,height=700');
         printWindow.document.write(invoiceHtml);
         printWindow.document.close();
 
-        // Wait for content to load then print
         printWindow.onload = function() {
-            setTimeout(() => {
-                printWindow.print();
-            }, 400);
+            setTimeout(() => { printWindow.print(); }, 400);
         };
 
         closePrintDialog();
@@ -1326,6 +1309,10 @@
         const now = new Date();
         const printDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
         const printTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+        // OPTIMIZE: Escape once, use multiple times
+        const safeName = escapeHtml(opts.businessName);
+        const safeInfo = escapeHtml(opts.businessInfo);
 
         function fmtCurrency(nprAmount) {
             const npr = Math.round(nprAmount);
@@ -1354,14 +1341,14 @@
             const client = order.clientDetails || {};
             const status = order.status || 'Pending';
 
-            let statusColor = '#92400e';
-            let statusBg = '#fffbeb';
+            let statusColor = '#92400e', statusBg = '#fffbeb';
             if (status === 'Completed' || status === 'Success') { statusColor = '#15803d'; statusBg = '#dcfce7'; }
             else if (status === 'Shipping') { statusColor = '#1d4ed8'; statusBg = '#eff6ff'; }
             else if (status === 'Rejected') { statusColor = '#b91c1b'; statusBg = '#fef2f2'; }
 
             let itemsRows = '';
             let itemCount = 0;
+            
             if (order.items && order.items.length > 0) {
                 order.items.forEach((item, idx) => {
                     const qty = item.qty || 1;
@@ -1394,12 +1381,11 @@
 
             invoicesHtml += `
                 <div class="invoice-page" style="${pageBreak}">
-                    <!-- Header -->
                     ${opts.includeLogo ? `
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
                         <div>
-                            <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${escapeHtml(opts.businessName)}</div>
-                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${escapeHtml(opts.businessInfo)}</div>` : ''}
+                            <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${safeName}</div>
+                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${safeInfo}</div>` : ''}
                         </div>
                         <div style="text-align:right;">
                             <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
@@ -1408,16 +1394,11 @@
                     </div>
                     ` : `
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
-                        <div>
-                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div>
-                        </div>
+                        <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
+                        <div style="text-align:right;font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div>
                     </div>
                     `}
 
-                    <!-- Order & Client Info -->
                     <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
                         <div style="flex:1;">
                             <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
@@ -1435,7 +1416,6 @@
                         </div>
                     </div>
 
-                    <!-- Items Table -->
                     <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
                         <thead>
                             <tr style="background:#2d4a22;">
@@ -1448,37 +1428,29 @@
                                 <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:110px;">Total</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${itemsRows}
-                        </tbody>
+                        <tbody>${itemsRows}</tbody>
                     </table>
 
-                    <!-- Totals -->
                     <div style="display:flex;justify-content:flex-end;margin-top:0;">
                         <div style="width:350px;">
                             <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
-                                <span>Items</span>
-                                <span>${itemCount}</span>
+                                <span>Items</span><span>${itemCount}</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;">
-                                <span>TOTAL</span>
-                                <span>${fmtCurrency(totalNPR)}</span>
+                                <span>TOTAL</span><span>${fmtCurrency(totalNPR)}</span>
                             </div>
                             ${opts.currency === 'BOTH' ? `
                             <div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">
                                 Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR
-                            </div>
-                            ` : ''}
+                            </div>` : ''}
                         </div>
                     </div>
 
                     ${opts.includeFooter ? `
-                    <!-- Footer -->
                     <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
                         <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
-                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
-                    </div>
-                    ` : ''}
+                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${safeName} — We appreciate your business.</div>
+                    </div>` : ''}
                 </div>
             `;
         }
@@ -1487,63 +1459,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice - ${escapeHtml(opts.businessName)}</title>
+    <title>Invoice - ${safeName}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #1f2937;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        @media print {
-            body {
-                padding: 20px;
-            }
-            .invoice-page {
-                page-break-after: always;
-            }
-            .invoice-page:last-child {
-                page-break-after: avoid;
-            }
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        .no-print {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .no-print button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn-print-action {
-            background: #2d4a22;
-            color: white;
-        }
-        .btn-print-action:hover { background: #1f3618; }
-
-        .btn-close-action {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-        .btn-close-action:hover { background: #e5e7eb; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 40px; max-width: 800px; margin: 0 auto; }
+        @media print { body { padding: 20px; } .invoice-page { page-break-after: always; } .invoice-page:last-child { page-break-after: avoid; } .no-print { display: none !important; } }
+        .no-print { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 10; }
+        .no-print button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .btn-print-action { background: #2d4a22; color: white; } .btn-print-action:hover { background: #1f3618; }
+        .btn-close-action { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; } .btn-close-action:hover { background: #e5e7eb; }
     </style>
 </head>
 <body>
@@ -1564,6 +1488,17 @@
         return div.innerHTML;
     }
 
+    // FIX: Security utility to validate URLs
+    function safeUrl(str) {
+        if (!str) return '';
+        try {
+            const u = new URL(str);
+            return ['http:', 'https:'].includes(u.protocol) ? str : '';
+        } catch {
+            return '';
+        }
+    }
+
     function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.textContent = msg;
@@ -1580,40 +1515,17 @@
         document.getElementById('imageModal').classList.remove('show');
     }
 
-    // ============ INITIALIZATION ============
-    async function init() {
-        await loadExchangeRate();
-        await fetchOrders();
-    }
-
-    // Make functions global
-    window.selectAll = selectAll;
-    window.deleteSelected = deleteSelected;
-    window.updateSelectedCount = updateSelectedCount;
-    window.setCurrency = setCurrency;
-    window.refreshRate = refreshRate;
-    window.updateStatus = updateStatus;
-    window.deleteOrder = deleteOrder;
-    window.openImage = openImage;
-    window.closeModal = closeModal;
-    window.openPrintDialog = openPrintDialog;
-    window.closePrintDialog = closePrintDialog;
-    window.executePrint = executePrint;
-
-    // Close print dialog on overlay click
+    // Event Listeners
     document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
         if (e.target === this) closePrintDialog();
     });
 
-    // Close print dialog on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePrintDialog();
             closeModal();
         }
     });
-
-    init();
 </script>
 </body>
 </html>
