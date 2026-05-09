@@ -146,6 +146,11 @@
           <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10 relative overflow-hidden">Get Quote</a>
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
+          <div>
+            <div class="text-2xl md:text-3xl font-semibold text-white" id="visitorCount">5,000+</div>
+            <div class="text-xs text-white/50 uppercase tracking-widest mt-1">Visitors</div>
+          </div>
+          <div class="w-px h-8 md:h-10 bg-white/10"></div>
           <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
           <div class="w-px h-8 md:h-10 bg-white/10"></div>
           <div><div class="text-2xl md:text-3xl font-semibold text-white">9</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
@@ -293,7 +298,44 @@
     }
 
     // ==========================================
-    // 4. PRODUCTS & CATEGORIES
+    // 4. VISITOR COUNTER LOGIC
+    // ==========================================
+    async function loadVisitorCount() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/public/visits`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.count) {
+            const el = document.getElementById('visitorCount');
+            if (el) animateCounter(el, data.count);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load visitor count:', e);
+        // Silently fail, keeps the default 5,000+ text
+      }
+    }
+
+    function animateCounter(el, target) {
+      let current = 0;
+      const minStep = 20; // fastest interval in ms
+      
+      const interval = setInterval(() => {
+        // Calculate a dynamic step to make the animation look smooth
+        const increment = Math.ceil(target / 60); 
+        current += increment;
+        
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        
+        el.textContent = current.toLocaleString() + '+';
+      }, minStep);
+    }
+
+    // ==========================================
+    // 5. PRODUCTS & CATEGORIES
     // ==========================================
     async function loadProducts() {
       const grid = document.getElementById('productGrid'); 
@@ -321,7 +363,7 @@
       const icons = {
         'all': 'grid-3x3', 'oils': 'droplet', 'extracts': 'flask-conical', 
         'mushrooms': 'nut', 'herbs': 'leaf', 'rasa': 'rocking-chair', 
-        'namak': 'sparkles', 'herbal soap': 'droplets', 'seeds / masala': 'wheat' // <--- FIXED!
+        'namak': 'sparkles', 'herbal soap': 'droplets', 'seeds / masala': 'wheat'
       };
       
       document.getElementById('catButtons').innerHTML = cats.map(c => {
@@ -397,7 +439,7 @@
     }
 
     // ==========================================
-    // 5. SEARCH FUNCTIONALITY
+    // 6. SEARCH FUNCTIONALITY
     // ==========================================
     function initSearch() {
       const searchInput = document.getElementById('searchInput');
@@ -445,7 +487,7 @@
     }
 
     // ==========================================
-    // 6. CART LOGIC
+    // 7. CART LOGIC
     // ==========================================
     function addToCart(id, qty=1){ 
       const p = products.find(x => x.id === id); 
@@ -508,7 +550,7 @@
     }
 
     // ==========================================
-    // 7. PRODUCT MODAL LOGIC
+    // 8. PRODUCT MODAL LOGIC
     // ==========================================
     function openModal(id) {
       const p = products.find(x => x.id === id);
@@ -684,7 +726,7 @@
     }
 
     // ==========================================
-    // 8. PAYMENT MODAL LOGIC
+    // 9. PAYMENT MODAL LOGIC
     // ==========================================
     function openPaymentModal(method){ 
       selectedPaymentMethod = method; 
@@ -811,7 +853,7 @@
     }
 
     // ==========================================
-    // 9. INQUIRY FORM
+    // 10. INQUIRY FORM
     // ==========================================
     async function submitInquiry(e){ 
       e.preventDefault(); 
@@ -838,7 +880,7 @@
     }
 
     // ==========================================
-    // 10. UI HELPERS (Toasts, Mobile Menu)
+    // 11. UI HELPERS (Toasts, Mobile Menu)
     // ==========================================
     function showToast(msg, type='success'){ 
       const container = document.getElementById('toastContainer'); 
@@ -855,7 +897,7 @@
     }
 
     // ==========================================
-    // 11. EVENT LISTENERS & INITIALIZATION
+    // 12. EVENT LISTENERS & INITIALIZATION
     // ==========================================
     function initEventListeners() {
       // Navbar
@@ -885,6 +927,7 @@
     // Boot up
     initEventListeners();
     loadExchangeRate();
+    loadVisitorCount();
     lucide.createIcons();
   </script>
 </body>
