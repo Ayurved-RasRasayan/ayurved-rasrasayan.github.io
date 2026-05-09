@@ -92,9 +92,9 @@
         <div><label class="block text-xs font-medium mb-1">Full Name</label><input type="text" id="signupName" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
         <div><label class="block text-xs font-medium mb-1">Email</label><input type="email" id="signupEmail" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
         <div>
-          <label class="block text-xs font-medium mb-1">Password</label><input type="password" id="signupPassword" oninput="checkPasswordStrength()" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+          <label class="block text-xs font-medium mb-1">Password</label><input type="password" id="signupPassword" maxlength="20" oninput="checkPasswordStrength()" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
           <div class="mt-2 text-[10px] space-y-1">
-            <p id="pwLen" class="text-txt-third flex items-center gap-1"><span>○</span> 8+ characters</p>
+            <p id="pwLen" class="text-txt-third flex items-center gap-1"><span>○</span> 8+20 characters</p>
             <p id="pwUp" class="text-txt-third flex items-center gap-1"><span>○</span> Uppercase letter</p>
             <p id="pwLow" class="text-txt-third flex items-center gap-1"><span>○</span> Lowercase letter</p>
             <p id="pwNum" class="text-txt-third flex items-center gap-1"><span>○</span> Number</p>
@@ -217,7 +217,7 @@
 
     async function handleForgot() { const email = document.getElementById('forgotEmail').value; const btn = document.getElementById('forgotBtn'); btn.disabled = true; btn.innerHTML = 'Sending...'; try { await apiFetch('/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }); showToast('Reset link sent!'); closeAuthModal(); } catch(e) {} finally { btn.disabled = false; btn.innerHTML = 'Send Reset Link'; } }
     async function handleLogout() { try { await apiFetch('/auth/logout', { method: 'POST' }); } catch (e) {} currentUser = null; cart = []; updateCartUI(); updateAuthUI(); document.getElementById('userDropdown').classList.add('hidden'); showToast('Logged out'); }
-    function checkPasswordStrength() { const pw = document.getElementById('signupPassword').value; const toggle = (id, valid) => { const el = document.getElementById(id); el.innerHTML = `<span>${valid ? '✓' : '○'}</span> ${el.innerText.slice(2)}`; el.className = valid ? 'text-green-600 flex items-center gap-1' : 'text-txt-third flex items-center gap-1'; }; toggle('pwLen', pw.length >= 8); toggle('pwUp', /[A-Z]/.test(pw)); toggle('pwLow', /[a-z]/.test(pw)); toggle('pwNum', /\d/.test(pw)); toggle('pwSpec', /[!@#$%^&*]/.test(pw)); }
+    function checkPasswordStrength() { const pw = document.getElementById('signupPassword').value; const toggle = (id, valid) => { const el = document.getElementById(id); el.innerHTML = `<span>${valid ? '✓' : '○'}</span> ${el.innerText.slice(2)}`; el.className = valid ? 'text-green-600 flex items-center gap-1' : 'text-txt-third flex items-center gap-1'; }; toggle('pwLen', pw.length >= 8 && pw.length <= 20); toggle('pwUp', /[A-Z]/.test(pw)); toggle('pwLow', /[a-z]/.test(pw)); toggle('pwNum', /\d/.test(pw)); toggle('pwSpec', /[!@#$%^&*]/.test(pw)); }
     async function syncUserCart() { if (!currentUser) return; try { await apiFetch('/auth/sync-cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cart }) }); } catch (e) {} }
 
     // ─── HELPER & INIT ──────────────────────────────────────────
