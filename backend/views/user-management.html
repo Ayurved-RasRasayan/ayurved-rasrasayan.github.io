@@ -120,6 +120,17 @@
 <script>
     const API_BASE = window.location.origin + '/api';
 
+    // Extracts creation date from MongoDB _id string
+    function getDateFromObjectId(oid) {
+        try {
+            // The first 8 characters of an ObjectId represent seconds since Unix epoch
+            const timestamp = parseInt(oid.substring(0, 8), 16) * 1000;
+            return new Date(timestamp);
+        } catch (e) {
+            return new Date(); // Fallback
+        }
+    }
+
     function getAuth() {
         let username = localStorage.getItem('admin_username');
         let password = localStorage.getItem('admin_password');
@@ -166,7 +177,8 @@
             return;
         }
         tbody.innerHTML = users.map(user => {
-            const joinDate = new Date(user._id?.getTimestamp() || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            // Use our safe extraction function instead of .getTimestamp()
+            const joinDate = getDateFromObjectId(user._id).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             const cartCount = user.cart ? user.cart.length : 0;
             let statusBadge = user.isVerified ? '<span class="badge badge-verified">✅ Verified</span>' : '<span class="badge badge-unverified">⏳ Unverified</span>';
             return '<tr id="row-' + user._id + '"><td><div class="user-info"><span class="user-name">' + escapeHtml(user.name || 'No Name') + '</span><span class="user-email">' + escapeHtml(user.email || '-') + '</span></div></td><td><span class="user-username">@' + escapeHtml(user.username || '-') + '</span></td><td>' + statusBadge + '</td><td>' + cartCount + ' items</td><td>' + joinDate + '</td><td><button class="btn btn-danger" onclick="deleteUser(\'' + user._id + '\', this)">🗑️ Delete</button></td></tr>';
