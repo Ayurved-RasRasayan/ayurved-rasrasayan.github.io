@@ -1790,9 +1790,21 @@
     "img": "images/cheer-pine-behroza.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 132,
+    "name": "Titepati Oil Artemisia",
+    "sci": "Titepati Oil Artemisia",
+    "category": "oils",
+    "catLabel": "Oils",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/titepati-oil-Artemisia.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
-
-
 
 
