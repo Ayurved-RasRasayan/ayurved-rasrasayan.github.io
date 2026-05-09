@@ -221,7 +221,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* ============ TABLE STYLES ============ */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -229,14 +228,9 @@
             background: white;
         }
 
-        /* Dark, thick vertical borders for all cells */
         td, th {
             border-left: 2px solid #2d3748;
             border-right: 2px solid #2d3748;
-        }
-
-        table {
-            border-collapse: collapse;
         }
 
         th {
@@ -255,7 +249,6 @@
             vertical-align: top;
         }
 
-        /* ============ HORIZONTAL RED LINE DIVIDER ============ */
         tr {
             border-bottom: 2px solid #dc2626;
         }
@@ -272,7 +265,6 @@
             background: #fafafa;
         }
 
-        /* ============ COLUMN WIDTHS ============ */
         .col-checkbox { width: 3%; }
         .col-date { width: 8%; }
         .col-items { width: 40%; }
@@ -280,7 +272,6 @@
         .col-client { width: 25%; }
         .col-action { width: 12%; }
 
-        /* ============ COLUMN ALIGNMENT ============ */
         .col-checkbox,
         td:nth-child(1) {
             text-align: center;
@@ -315,12 +306,10 @@
             text-align: center;
         }
 
-        /* Client inner lines - Left aligned */
         .client-line {
             text-align: left;
         }
 
-        /* Checkbox */
         .checkbox {
             width: 18px;
             height: 18px;
@@ -328,7 +317,6 @@
             accent-color: #2d4a22;
         }
 
-        /* Date Cell */
         .date-cell {
             display: flex;
             flex-direction: column;
@@ -355,7 +343,6 @@
             transform: scale(1.05);
         }
 
-        /* Items Cell - Left Aligned */
         .order-id {
             background: #e0e7ff;
             color: #3730a3;
@@ -437,7 +424,6 @@
             font-size: 18px;
         }
 
-        /* Status Cell - Center Aligned */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -485,7 +471,6 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
-        /* Client Cell - Left Aligned */
         .client-line {
             font-size: 13px;
             margin-bottom: 6px;
@@ -498,7 +483,6 @@
             display: inline-block;
         }
 
-        /* Action Cell */
         .action-btns {
             display: flex;
             flex-direction: column;
@@ -537,7 +521,6 @@
             background: #3730a3;
         }
 
-        /* Total Bar */
         .total-bar {
             background: white;
             border: 1px solid #d1d5db;
@@ -564,7 +547,6 @@
             color: #1a5c1c;
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -577,13 +559,14 @@
             transition: 0.3s;
             z-index: 1000;
             font-size: 14px;
+            max-width: 90vw;
+            text-align: center;
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -616,7 +599,6 @@
             cursor: pointer;
         }
 
-        /* Print Dialog Overlay */
         .print-dialog-overlay {
             display: none;
             position: fixed;
@@ -699,7 +681,6 @@
             font-size: 15px;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -763,7 +744,7 @@
     <div class="header">
         <h1>🌿 NaturaBotanica <span style="font-size:0.6em;opacity:0.6;">Admin Orders</span></h1>
         <div class="header-nav">
-            <a href="/api/view-users" class="btn-stock active">👥 Users</a>
+            <a href="/api/view-users" class="btn-stock">👥 Users</a>
             <a href="/api/manage-stock" class="btn-stock">📦 Manage Stock</a>
         </div>
     </div>
@@ -879,8 +860,8 @@
     let allOrders = [];
 
     // Print state
-    let printMode = null;       // 'single' or 'selected'
-    let printTargetIds = [];    // order IDs to print
+    let printMode = null;
+    let printTargetIds = [];
 
     // ============ AUTHENTICATION ============
     function getAuth() {
@@ -900,6 +881,21 @@
         return { credentials: btoa(username + ':' + password) };
     }
 
+    function clearAuth() {
+        localStorage.removeItem('admin_username');
+        localStorage.removeItem('admin_password');
+    }
+
+    // Helper: safely parse response (handles both JSON and plain text)
+    async function safeParse(response) {
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return { success: false, error: text || `HTTP ${response.status}` };
+        }
+    }
+
     // ============ FETCH ORDERS ============
     async function fetchOrders() {
         try {
@@ -913,8 +909,7 @@
             });
 
             if (response.status === 401) {
-                localStorage.removeItem('admin_username');
-                localStorage.removeItem('admin_password');
+                clearAuth();
                 throw new Error('Login failed. Please try again.');
             }
 
@@ -961,7 +956,6 @@
             const totalNPR = Math.round(order.totalNPR || 0);
             const client = order.clientDetails || {};
 
-            // Email badge class
             let emailBadgeClass = 'badge-queue';
             let emailBadgeText = '⏳ Queue';
             if (emailStatus === 'Sent') {
@@ -972,7 +966,6 @@
                 emailBadgeText = '❌ Failed';
             }
 
-            // Items HTML with Product ID displayed
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
                 itemsHtml = order.items.map(item => {
@@ -996,7 +989,6 @@
                 itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
 
-            // Display total based on currency
             let displayTotal = currentCurrency === 'USD'
                 ? `$${(totalNPR / exchangeRate).toFixed(2)}`
                 : `NPR ${totalNPR.toLocaleString()}`;
@@ -1056,7 +1048,7 @@
         selectEl.disabled = true;
         const auth = getAuth();
         if (!auth) {
-            showToast('Authentication required');
+            showToast('❌ Authentication required');
             selectEl.disabled = false;
             return;
         }
@@ -1071,7 +1063,14 @@
                 body: JSON.stringify({ id: orderId, status: newStatus })
             });
 
-            const data = await response.json();
+            if (response.status === 401) {
+                clearAuth();
+                showToast('❌ Session expired. Reloading...');
+                setTimeout(() => location.reload(), 1000);
+                return;
+            }
+
+            const data = await safeParse(response);
 
             if (data.success) {
                 selectEl.className = `status-select s-${newStatus}`;
@@ -1102,8 +1101,15 @@
         if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
 
         btn.disabled = true;
-        btn.textContent = '...';
+        btn.textContent = '⏳...';
+
         const auth = getAuth();
+        if (!auth) {
+            showToast('❌ Authentication required');
+            btn.disabled = false;
+            btn.textContent = '🗑️ Delete';
+            return;
+        }
 
         try {
             const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
@@ -1111,22 +1117,35 @@
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
 
-            const data = await response.json();
+            if (response.status === 401) {
+                clearAuth();
+                showToast('❌ Session expired. Please re-login.');
+                btn.disabled = false;
+                btn.textContent = '🗑️ Delete';
+                return;
+            }
+
+            const data = await safeParse(response);
 
             if (data.success) {
                 const row = document.getElementById(`row-${orderId}`);
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    updateSelectedCount();
-                    fetchOrders();
-                }, 200);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s';
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        updateSelectedCount();
+                        updateGrandTotal();
+                    }, 300);
+                }
+                // Remove from local array
+                allOrders = allOrders.filter(o => o._id !== orderId);
                 showToast('✅ Order deleted');
             } else {
-                throw new Error('Delete failed');
+                throw new Error(data.error || 'Delete failed');
             }
         } catch (error) {
-            showToast('❌ Delete failed');
+            showToast('❌ ' + error.message);
             btn.disabled = false;
             btn.textContent = '🗑️ Delete';
         }
@@ -1161,6 +1180,11 @@
         if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
 
         const auth = getAuth();
+        if (!auth) {
+            showToast('❌ Authentication required');
+            return;
+        }
+
         const deleteBtn = document.getElementById('deleteSelectedBtn');
         deleteBtn.disabled = true;
         deleteBtn.textContent = '⏳...';
@@ -1175,16 +1199,24 @@
                 body: JSON.stringify({ ids: selected })
             });
 
-            const data = await response.json();
+            if (response.status === 401) {
+                clearAuth();
+                showToast('❌ Session expired. Please re-login.');
+                return;
+            }
+
+            const data = await safeParse(response);
 
             if (data.success) {
                 showToast(`✅ Deleted ${selected.length} order(s)`);
-                fetchOrders();
+                allOrders = allOrders.filter(o => !selected.includes(o._id));
+                renderTable();
+                updateSelectedCount();
             } else {
-                throw new Error('Bulk delete failed');
+                throw new Error(data.error || 'Bulk delete failed');
             }
         } catch (error) {
-            showToast('❌ Bulk delete failed');
+            showToast('❌ ' + error.message);
         } finally {
             deleteBtn.disabled = false;
             deleteBtn.textContent = '🗑️ Delete Selected';
@@ -1242,7 +1274,7 @@
     async function refreshRate() {
         const auth = getAuth();
         if (!auth) {
-            showToast('Authentication required');
+            showToast('❌ Authentication required');
             return;
         }
 
@@ -1284,9 +1316,7 @@
             }
         }
 
-        // Set the currency dropdown to match current view
         document.getElementById('printCurrency').value = currentCurrency;
-
         document.getElementById('printDialogOverlay').classList.add('show');
     }
 
@@ -1304,7 +1334,6 @@
         const includePayment = document.getElementById('printIncludePayment').checked;
         const includeFooter = document.getElementById('printIncludeFooter').checked;
 
-        // Find the orders
         const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
 
         if (ordersToPrint.length === 0) {
@@ -1313,7 +1342,6 @@
             return;
         }
 
-        // Generate invoice HTML
         const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
             currency,
             businessName,
@@ -1324,12 +1352,10 @@
             rate: exchangeRate
         });
 
-        // Open print window
         const printWindow = window.open('', '_blank', 'width=900,height=700');
         printWindow.document.write(invoiceHtml);
         printWindow.document.close();
 
-        // Wait for content to load then print
         printWindow.onload = function() {
             setTimeout(() => {
                 printWindow.print();
@@ -1407,7 +1433,6 @@
 
             invoicesHtml += `
                 <div class="invoice-page" style="${pageBreak}">
-                    <!-- Header -->
                     ${opts.includeLogo ? `
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
                         <div>
@@ -1421,16 +1446,11 @@
                     </div>
                     ` : `
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
-                        <div>
-                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div>
-                        </div>
+                        <div><div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div></div>
+                        <div style="text-align:right;"><div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div></div>
                     </div>
                     `}
 
-                    <!-- Order & Client Info -->
                     <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
                         <div style="flex:1;">
                             <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
@@ -1448,7 +1468,6 @@
                         </div>
                     </div>
 
-                    <!-- Items Table -->
                     <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
                         <thead>
                             <tr style="background:#2d4a22;">
@@ -1459,32 +1478,22 @@
                                 <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:140px;">Total</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${itemsRows}
-                        </tbody>
+                        <tbody>${itemsRows}</tbody>
                     </table>
 
-                    <!-- Totals -->
                     <div style="display:flex;justify-content:flex-end;margin-top:0;">
                         <div style="width:300px;">
                             <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
-                                <span>Items</span>
-                                <span>${itemCount}</span>
+                                <span>Items</span><span>${itemCount}</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;">
-                                <span>TOTAL</span>
-                                <span>${fmtCurrency(totalNPR)}</span>
+                                <span>TOTAL</span><span>${fmtCurrency(totalNPR)}</span>
                             </div>
-                            ${opts.currency === 'BOTH' ? `
-                            <div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">
-                                Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR
-                            </div>
-                            ` : ''}
+                            ${opts.currency === 'BOTH' ? `<div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR</div>` : ''}
                         </div>
                     </div>
 
                     ${opts.includeFooter ? `
-                    <!-- Footer -->
                     <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
                         <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
                         <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
@@ -1501,60 +1510,12 @@
     <title>Invoice - ${escapeHtml(opts.businessName)}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #1f2937;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        @media print {
-            body {
-                padding: 20px;
-            }
-            .invoice-page {
-                page-break-after: always;
-            }
-            .invoice-page:last-child {
-                page-break-after: avoid;
-            }
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        .no-print {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .no-print button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn-print-action {
-            background: #2d4a22;
-            color: white;
-        }
-        .btn-print-action:hover { background: #1f3618; }
-
-        .btn-close-action {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-        .btn-close-action:hover { background: #e5e7eb; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 40px; max-width: 800px; margin: 0 auto; }
+        @media print { body { padding: 20px; } .invoice-page { page-break-after: always; } .invoice-page:last-child { page-break-after: avoid; } .no-print { display: none !important; } }
+        .no-print { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 10; }
+        .no-print button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .btn-print-action { background: #2d4a22; color: white; } .btn-print-action:hover { background: #1f3618; }
+        .btn-close-action { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; } .btn-close-action:hover { background: #e5e7eb; }
     </style>
 </head>
 <body>
@@ -1597,7 +1558,6 @@
         await fetchOrders();
     }
 
-    // Make functions global
     window.selectAll = selectAll;
     window.deleteSelected = deleteSelected;
     window.updateSelectedCount = updateSelectedCount;
@@ -1611,12 +1571,10 @@
     window.closePrintDialog = closePrintDialog;
     window.executePrint = executePrint;
 
-    // Close print dialog on overlay click
     document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
         if (e.target === this) closePrintDialog();
     });
 
-    // Close print dialog on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePrintDialog();
