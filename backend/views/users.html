@@ -75,8 +75,8 @@
 
   </div>
 
-  <!-- Toast notification -->
-  <div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1f2937;color:white;padding:12px 24px;border-radius:50px;transition:0.3s;z-index:1000;font-size:14px;max-width:90vw;text-align:center;font-family:Inter,sans-serif;"></div>
+  <!-- Toast -->
+  <div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1f2937;color:white;padding:12px 24px;border-radius:50px;transition:0.3s;z-index:1000;font-size:14px;font-family:Inter,sans-serif;white-space:nowrap;"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -85,13 +85,11 @@
       const searchInput = document.getElementById('searchInput');
       let allUsers = [];
 
-      // ═══════════════════════════════════════════════════════════
-      // ============ AUTHENTICATION (FIXED) ======================
-      // ═══════════════════════════════════════════════════════════
+      // ============ AUTHENTICATION (same pattern as order.html) ============
       function getAuth() {
         let username = localStorage.getItem('admin_username');
         let password = localStorage.getItem('admin_password');
-
+        
         if (!username || !password) {
           username = prompt('Enter admin username:');
           password = prompt('Enter admin password:');
@@ -105,21 +103,6 @@
         return { credentials: btoa(username + ':' + password) };
       }
 
-      function clearAuth() {
-        localStorage.removeItem('admin_username');
-        localStorage.removeItem('admin_password');
-      }
-
-      // Helper: safely parse response (handles both JSON and plain text)
-      async function safeParse(response) {
-        const text = await response.text();
-        try {
-          return JSON.parse(text);
-        } catch {
-          return { success: false, error: text || `HTTP ${response.status}` };
-        }
-      }
-
       function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.textContent = msg;
@@ -127,9 +110,7 @@
         setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
       }
 
-      // ═══════════════════════════════════════════════════════════
-      // ============ FETCH USERS (WITH AUTH) =====================
-      // ═══════════════════════════════════════════════════════════
+      // ============ FETCH USERS (with auth) ============
       async function fetchUsers() {
         try {
           const auth = getAuth();
@@ -138,9 +119,10 @@
           const res = await fetch('/api/view-users-data', {
             headers: { 'Authorization': 'Basic ' + auth.credentials }
           });
-
+          
           if (res.status === 401) {
-            clearAuth();
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
             throw new Error('Login failed. Please reload and try again.');
           }
 
@@ -177,6 +159,7 @@
             : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>Unverified</span>`;
             
           const cartCount = user.cart ? user.cart.length : 0;
+          const safeName = (user.name || 'this user').replace(/'/g, "\\'");
 
           return `
             <tr class="hover:bg-gray-50 transition-colors" id="row-${user._id}">
@@ -196,7 +179,7 @@
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">${formatDate(user.timestamp)}</td>
               <td class="px-6 py-4 text-center">
-                <button onclick="deleteUser('${user._id}', '${(user.name || 'this user').replace(/'/g, "\\'")}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 text-xs font-medium rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors">
+                <button onclick="deleteUser('${user._id}', '${safeName}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 text-xs font-medium rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   Delete
                 </button>
@@ -206,9 +189,7 @@
         }).join('');
       }
 
-      // ═══════════════════════════════════════════════════════════
-      // ============ DELETE USER (FIXED - WITH AUTH) =============
-      // ═══════════════════════════════════════════════════════════
+      // ============ DELETE USER (with auth - THIS WAS THE FIX) ============
       window.deleteUser = async (userId, userName) => {
         if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) return;
 
@@ -223,14 +204,15 @@
             method: 'DELETE',
             headers: { 'Authorization': 'Basic ' + auth.credentials }
           });
-
+          
           if (res.status === 401) {
-            clearAuth();
-            showToast('❌ Session expired. Please reload the page.');
+            localStorage.removeItem('admin_username');
+            localStorage.removeItem('admin_password');
+            showToast('❌ Login failed. Please reload the page.');
             return;
           }
 
-          const data = await safeParse(res);
+          const data = await res.json();
 
           if (data.success) {
             const row = document.getElementById(`row-${userId}`);
@@ -245,7 +227,7 @@
             countLabel.textContent = `${allUsers.length} total users`;
             showToast('✅ User deleted');
           } else {
-            showToast('❌ Failed to delete: ' + (data.error || 'Unknown error'));
+            showToast('❌ Failed to delete user');
           }
         } catch (err) {
           console.error(err);
@@ -253,7 +235,7 @@
         }
       }
 
-      // Search functionality
+      // Search
       searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
         const filtered = allUsers.filter(user => 
