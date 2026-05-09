@@ -1776,6 +1776,20 @@
     "img": "images/stinging-nettle-sisno.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 131,
+    "name": "Cheer Pine Behroza",
+    "sci": "Cheer Pine Behroza",
+    "category": "extracts",
+    "catLabel": "Extracts",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/cheer-pine-behroza.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
 
