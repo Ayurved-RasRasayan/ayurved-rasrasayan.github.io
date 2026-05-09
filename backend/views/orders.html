@@ -1,279 +1,1630 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NaturaBotanica - Orders</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { brand: '#A3B14B' } } }
-    }
-  </script>
-  <style>
-    body { font-family: 'Inter', sans-serif; background: #FAFAF9; }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #f1f1f1; } ::-webkit-scrollbar-thumb { background: #a3b14b; border-radius: 3px; }
-    .fade-in { animation: fadeIn 0.5s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .toast { animation: slideIn 0.4s ease-out; } @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .toast-exit { animation: slideOut 0.3s ease-in forwards; } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-  </style>
-</head>
-<body class="text-gray-800 min-h-screen">
-
-  <!-- Navbar -->
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
-          <span class="font-semibold text-lg tracking-tight">NaturaBotanica</span>
-          <span class="text-xs bg-brand/10 text-brand px-2 py-0.5 rounded-full font-medium">Admin</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="/api/view-orders" class="text-sm text-brand font-semibold border-b-2 border-brand">Orders</a>
-          <a href="/api/view-users" class="text-sm text-gray-500 hover:text-gray-800 transition-colors">Users</a>
-          <a href="/api/manage-stock" class="text-sm text-gray-500 hover:text-gray-800 transition-colors">Stock</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Header with Buttons -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
-      <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Orders Management</h1>
-        <p class="text-sm text-gray-500 mt-1" id="orderCountLabel">Loading orders...</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="/api/manage-stock" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition-colors shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          Manage Stock
-        </a>
-        <a href="/api/view-users" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-800 text-white text-sm font-medium rounded-xl hover:bg-black transition-colors shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          Manage Users
-        </a>
-      </div>
-    </div>
-
-    <!-- Bulk Actions Bar (Hidden by default) -->
-    <div id="bulkActions" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6 flex items-center justify-between fade-in">
-      <span class="text-sm font-medium text-gray-700"><span id="selectedCount">0</span> orders selected</span>
-      <button onclick="deleteSelected()" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-        Delete Selected
-      </button>
-    </div>
-
-    <!-- Table Container -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-in" style="animation-delay: 0.1s">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200">
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-10">
-                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand">
-              </th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Payment</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">State</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="orderTableBody" class="divide-y divide-gray-100">
-            <tr><td colspan="8" class="px-6 py-20 text-center text-gray-400"><svg class="w-8 h-8 mx-auto mb-3 animate-spin text-brand" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Loading orders...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Toast Container -->
-  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
-
-  <script>
-    let allOrders = [];
-    let selectedIds = new Set();
-
-    document.addEventListener('DOMContentLoaded', fetchOrders);
-
-    async function fetchOrders() {
-      try {
-        const res = await fetch('/api/view-orders-data');
-        const data = await res.json();
-        if (data.success && data.orders) {
-          allOrders = data.orders;
-          document.getElementById('orderCountLabel').textContent = `${allOrders.length} total orders`;
-          renderOrders(allOrders);
-        } else {
-          throw new Error('Failed to parse');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders - NaturaBotanica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      } catch (err) {
-        document.getElementById('orderTableBody').innerHTML = `<tr><td colspan="8" class="px-6 py-20 text-center text-red-500 font-medium">Error loading orders.</td></tr>`;
-      }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: #2d4a22;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-stock {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-stock:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-stock.active {
+            background: rgba(255,255,255,0.35);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2d4a22;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f3618;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #fecaca;
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-print {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+
+        .btn-print:hover:not(:disabled) {
+            background: #c7d2fe;
+        }
+
+        .btn-print:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .selected-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Currency Toggle */
+        .currency-toggle {
+            display: flex;
+            background: #e5e7eb;
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .currency-btn {
+            padding: 6px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .currency-btn.active {
+            background: #2d6a2e;
+            color: white;
+        }
+
+        /* Exchange Rate Bar */
+        .rate-bar {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border: 1px solid #e5e7eb;
+        }
+
+        .rate-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .rate-dot.error {
+            background: #ef4444;
+        }
+
+        .rate-value {
+            font-weight: 800;
+            color: #2d4a22;
+            font-size: 15px;
+        }
+
+        /* Table Wrapper */
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* ============ TABLE STYLES ============ */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+            background: white;
+        }
+
+        /* Dark, thick vertical borders for all cells */
+        td, th {
+            border-left: 2px solid #2d3748;
+            border-right: 2px solid #2d3748;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1a2e1a;
+            color: white;
+            padding: 14px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-top: 2px solid #0d1f0d;
+            border-bottom: 2px solid #0d1f0d;
+        }
+
+        td {
+            padding: 16px 12px;
+            vertical-align: top;
+        }
+
+        /* ============ HORIZONTAL RED LINE DIVIDER ============ */
+        tr {
+            border-bottom: 2px solid #dc2626;
+        }
+
+        tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        /* ============ COLUMN WIDTHS ============ */
+        .col-checkbox { width: 3%; }
+        .col-date { width: 8%; }
+        .col-items { width: 40%; }
+        .col-status { width: 12%; }
+        .col-client { width: 25%; }
+        .col-action { width: 12%; }
+
+        /* ============ COLUMN ALIGNMENT ============ */
+        .col-checkbox,
+        td:nth-child(1) {
+            text-align: center;
+        }
+
+        .col-date,
+        td:nth-child(2) {
+            text-align: center;
+        }
+
+        .col-items {
+            text-align: center;
+        }
+        td:nth-child(3) {
+            text-align: left;
+        }
+
+        .col-status,
+        td:nth-child(4) {
+            text-align: center;
+        }
+
+        .col-client {
+            text-align: center;
+        }
+        td:nth-child(5) {
+            text-align: left;
+        }
+
+        .col-action,
+        td:nth-child(6) {
+            text-align: center;
+        }
+
+        /* Client inner lines - Left aligned */
+        .client-line {
+            text-align: left;
+        }
+
+        /* Checkbox */
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2d4a22;
+        }
+
+        /* Date Cell */
+        .date-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-text {
+            font-weight: 700;
+            color: #2d4a22;
+            text-align: center;
+        }
+
+        .proof-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+        }
+
+        .proof-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Items Cell - Left Aligned */
+        .order-id {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .items-list {
+            margin-top: 10px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e5e7eb;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 2;
+            min-width: 150px;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 13px;
+            display: block;
+        }
+
+        .item-product-id {
+            font-size: 10px;
+            color: #6b7280;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+
+        .item-detail {
+            font-size: 12px;
+            color: #6b7280;
+            min-width: 80px;
+        }
+
+        .item-total {
+            font-weight: 700;
+            color: #1a5c1c;
+            font-size: 13px;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid #2d4a22;
+        }
+
+        .total-label {
+            font-weight: 900;
+            color: #2d4a22;
+            font-size: 14px;
+        }
+
+        .total-value {
+            font-weight: 900;
+            color: #1a5c1c;
+            font-size: 18px;
+        }
+
+        /* Status Cell - Center Aligned */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .badge-queue {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .badge-sent {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .badge-failed {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .status-select.s-Pending { background: #fff7ed; color: #c2410c; }
+        .status-select.s-Shipping { background: #eff6ff; color: #1d4ed8; }
+        .status-select.s-Completed { background: #f0fdf4; color: #15803d; }
+        .status-select.s-Success { background: #dcfce7; color: #15803d; }
+        .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
+
+        /* Client Cell - Left Aligned */
+        .client-line {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .client-label {
+            font-weight: 600;
+            color: #4b5563;
+            min-width: 60px;
+            display: inline-block;
+        }
+
+        /* Action Cell */
+        .action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        .print-btn-row {
+            background: #4338ca;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .print-btn-row:hover {
+            background: #3730a3;
+        }
+
+        /* Total Bar */
+        .total-bar {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-left: 4px solid #2d4a22;
+            border-radius: 6px;
+            padding: 12px 24px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .total-bar-label {
+            font-weight: 900;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .total-bar-value {
+            font-weight: 900;
+            font-size: 20px;
+            color: #1a5c1c;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            transition: 0.3s;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        /* Print Dialog Overlay */
+        .print-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-dialog-overlay.show {
+            display: flex;
+        }
+
+        .print-dialog {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: dialogIn 0.2s ease-out;
+        }
+
+        @keyframes dialogIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .print-dialog h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2d4a22;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .print-dialog-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .print-dialog-row {
+            margin-bottom: 16px;
+        }
+
+        .print-dialog select,
+        .print-dialog input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .print-dialog select:focus,
+        .print-dialog input[type="text"]:focus {
+            outline: none;
+            border-color: #2d4a22;
+            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
+        }
+
+        .print-dialog-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .print-dialog-actions .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-nav {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .btn-stock {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left {
+                justify-content: center;
+            }
+
+            .currency-toggle {
+                justify-content: center;
+            }
+
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-total {
+                text-align: left;
+            }
+
+            .client-line {
+                text-align: left;
+            }
+
+            tr {
+                border-bottom: 2px solid #dc2626;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>🌿 NaturaBotanica <span style="font-size:0.6em;opacity:0.6;">Admin Orders</span></h1>
+        <div class="header-nav">
+            <a href="/api/view-users" class="btn-stock active">👥 Users</a>
+            <a href="/api/manage-stock" class="btn-stock">📦 Manage Stock</a>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button class="btn btn-secondary" onclick="selectAll()">☑️ Select All</button>
+            <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
+            <button class="btn btn-print" id="printSelectedBtn" disabled onclick="openPrintDialog('selected')">🖨️ Print Selected</button>
+            <span id="selectedCount" class="selected-count"></span>
+        </div>
+        <div class="currency-toggle">
+            <button class="currency-btn active" id="btnNPR" onclick="setCurrency('NPR')">🇳🇵 NPR</button>
+            <button class="currency-btn" id="btnUSD" onclick="setCurrency('USD')">🇺🇸 USD</button>
+        </div>
+    </div>
+
+    <!-- Exchange Rate Bar -->
+    <div class="rate-bar">
+        <span id="rateDot" class="rate-dot"></span>
+        <span>💱 Exchange Rate</span>
+        <span>1 USD =</span>
+        <span id="rateValue" class="rate-value">...</span>
+        <span>NPR</span>
+        <button class="btn btn-secondary" onclick="refreshRate()" style="padding:4px 12px;">🔄 Refresh</button>
+        <span id="rateError" style="color:#dc2626;font-size:12px;"></span>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-wrapper">
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th class="col-checkbox">☑</th>
+                    <th class="col-date">📅 Date / Proof</th>
+                    <th class="col-items">🛍️ Items (ID | Name | Qty | Price)</th>
+                    <th class="col-status">⚙️ Status</th>
+                    <th class="col-client">👤 Client Details</th>
+                    <th class="col-action">⚙️ Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr><td colspan="6" style="text-align:center;padding:40px;">Loading orders...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Total Bar -->
+    <div class="total-bar">
+        <span class="total-bar-label">💰 Grand Total</span>
+        <span id="grandTotal" class="total-bar-value">NPR 0</span>
+    </div>
+</div>
+
+<!-- Print Dialog Modal -->
+<div id="printDialogOverlay" class="print-dialog-overlay">
+    <div class="print-dialog">
+        <h3>🖨️ Print Invoice</h3>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Currency</label>
+            <select id="printCurrency">
+                <option value="NPR">🇳🇵 NPR (Nepali Rupees)</option>
+                <option value="USD">🇺🇸 USD (US Dollars)</option>
+                <option value="BOTH">Both NPR & USD</option>
+            </select>
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Business Name</label>
+            <input type="text" id="printBusinessName" value="NaturaBotanica" placeholder="Your business name">
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Business Address / Contact</label>
+            <input type="text" id="printBusinessInfo" value="" placeholder="Address, phone, email...">
+        </div>
+
+        <div class="print-dialog-row">
+            <label class="print-dialog-label">Include</label>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludeLogo" checked> Logo & branding
+                </label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludePayment" checked> Payment method
+                </label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <input type="checkbox" id="printIncludeFooter" checked> Thank you footer
+                </label>
+            </div>
+        </div>
+
+        <div class="print-dialog-actions">
+            <button class="btn btn-secondary" onclick="closePrintDialog()">Cancel</button>
+            <button class="btn btn-primary" onclick="executePrint()">🖨️ Print Now</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">Notification</div>
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img id="modalImage" src="" onclick="event.stopPropagation()">
+</div>
+
+<script>
+    // ============ CONFIGURATION ============
+    const API_BASE = window.location.origin;
+    let exchangeRate = 133;
+    let currentCurrency = 'NPR';
+    let allOrders = [];
+
+    // Print state
+    let printMode = null;       // 'single' or 'selected'
+    let printTargetIds = [];    // order IDs to print
+
+    // ============ AUTHENTICATION ============
+    function getAuth() {
+        let username = localStorage.getItem('admin_username');
+        let password = localStorage.getItem('admin_password');
+
+        if (!username || !password) {
+            username = prompt('Enter admin username:');
+            password = prompt('Enter admin password:');
+            if (username && password) {
+                localStorage.setItem('admin_username', username);
+                localStorage.setItem('admin_password', password);
+            } else {
+                return null;
+            }
+        }
+        return { credentials: btoa(username + ':' + password) };
     }
 
-    function formatDate(dateString) {
-      if (!dateString) return 'N/A';
-      return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    // ============ FETCH ORDERS ============
+    async function fetchOrders() {
+        try {
+            const auth = getAuth();
+            if (!auth) throw new Error('Authentication required');
+
+            showToast('Loading orders...');
+
+            const response = await fetch(API_BASE + '/api/view-orders-data', {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('admin_username');
+                localStorage.removeItem('admin_password');
+                throw new Error('Login failed. Please try again.');
+            }
+
+            if (!response.ok) throw new Error('Failed to fetch orders');
+
+            const data = await response.json();
+
+            if (data.success && data.orders) {
+                allOrders = data.orders;
+                renderTable();
+                showToast(`✅ Loaded ${allOrders.length} orders`);
+            } else {
+                throw new Error(data.error || 'No orders found');
+            }
+        } catch (error) {
+            showToast('❌ ' + error.message);
+            document.getElementById('ordersTableBody').innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
+                    ❌ ${error.message}<br>
+                    <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry</button>
+                </td></tr>
+            `;
+        }
     }
 
-    function renderOrders(orders) {
-      const tbody = document.getElementById('orderTableBody');
-      if (!orders.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-20 text-center text-gray-400">No orders found.</td></tr>`;
-        return;
-      }
+    // ============ RENDER TABLE ============
+    function renderTable() {
+        const tbody = document.getElementById('ordersTableBody');
 
-      tbody.innerHTML = orders.map(order => {
-        const shortId = order._id.toString().slice(-8).toUpperCase();
-        const isSelected = selectedIds.has(order._id.toString());
-        
-        const statusColors = { 'Pending': 'bg-yellow-50 text-yellow-700 border-yellow-200', 'Success': 'bg-green-50 text-green-700 border-green-200', 'Completed': 'bg-blue-50 text-blue-700 border-blue-200', 'Failed': 'bg-red-50 text-red-700 border-red-200' };
-        const statusClass = statusColors[order.status] || 'bg-gray-50 text-gray-700 border-gray-200';
-        
-        const stateColors = { 'Pending': 'bg-yellow-50 text-yellow-700', 'Processing': 'bg-indigo-50 text-indigo-700', 'Shipped': 'bg-purple-50 text-purple-700', 'Delivered': 'bg-green-50 text-green-700', 'Cancelled': 'bg-red-50 text-red-700' };
-        const stateClass = stateColors[order.order_state] || 'bg-gray-50 text-gray-700';
+        if (!allOrders || allOrders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
+            updateGrandTotal();
+            return;
+        }
 
-        const itemNames = (order.items || []).map(i => i.name).join(', ') || 'N/A';
-        
-        return `
-          <tr class="hover:bg-gray-50 transition-colors" id="row-${order._id}">
-            <td class="px-6 py-4">
-              <input type="checkbox" class="order-checkbox w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" 
-                     value="${order._id}" ${isSelected ? 'checked' : ''} onchange="toggleSelect('${order._id}')">
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-mono text-sm font-semibold text-brand">#${shortId}</div>
-              <div class="text-[10px] text-gray-400">${formatDate(order.timestamp)}</div>
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-medium text-sm">${order.clientDetails?.name || 'Unknown'}</div>
-              <div class="text-xs text-gray-500">${order.clientDetails?.email || ''}</div>
-              <div class="text-xs text-gray-400">${order.clientDetails?.phone || ''}</div>
-            </td>
-            <td class="px-6 py-4 hidden md:table-cell">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded font-medium">${order.paymentMethod || 'N/A'}</span>
-              ${order.paymentScreenshot ? `<a href="${order.paymentScreenshot}" target="_blank" class="block text-[10px] text-brand mt-1 hover:underline">View Screenshot</a>` : ''}
-            </td>
-            <td class="px-6 py-4">
-              <select onchange="updateStatus('${order._id}', this.value)" class="text-xs font-medium px-2 py-1.5 rounded-lg border ${statusClass} focus:outline-none focus:ring-1 focus:ring-brand">
-                ${['Pending', 'Processing', 'Success', 'Completed', 'Failed'].map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-            </td>
-            <td class="px-6 py-4 hidden lg:table-cell">
-              <select onchange="updateOrderState('${order._id}', this.value)" class="text-xs font-medium px-2 py-1.5 rounded-lg border border-gray-200 ${stateClass} focus:outline-none focus:ring-1 focus:ring-brand">
-                ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => `<option value="${s}" ${order.order_state === s ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-            </td>
-            <td class="px-6 py-4 font-semibold text-sm">NPR ${(order.totalNPR || 0).toLocaleString()}</td>
-            <td class="px-6 py-4 text-center">
-              <button onclick="deleteSingleOrder('${order._id}')" class="text-gray-400 hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-red-50">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-      updateBulkUI();
+        let html = '';
+
+        for (const order of allOrders) {
+            const orderId = order._id;
+            const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB');
+            const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const status = order.status || 'Pending';
+            const emailStatus = order.emailStatus || 'Queue';
+            const totalNPR = Math.round(order.totalNPR || 0);
+            const client = order.clientDetails || {};
+
+            // Email badge class
+            let emailBadgeClass = 'badge-queue';
+            let emailBadgeText = '⏳ Queue';
+            if (emailStatus === 'Sent') {
+                emailBadgeClass = 'badge-sent';
+                emailBadgeText = '✅ Sent';
+            } else if (emailStatus === 'Failed') {
+                emailBadgeClass = 'badge-failed';
+                emailBadgeText = '❌ Failed';
+            }
+
+            // Items HTML with Product ID displayed
+            let itemsHtml = '';
+            if (order.items && order.items.length > 0) {
+                itemsHtml = order.items.map(item => {
+                    const qty = item.qty || 1;
+                    const price = item.price || 0;
+                    const lineTotal = qty * price;
+                    const productId = item.id || item.productId || 'N/A';
+
+                    return `
+                        <div class="item-row">
+                            <div class="item-info">
+                                <span class="item-name">${escapeHtml(item.name)}</span>
+                                <div class="item-product-id">🆔 Product ID: ${escapeHtml(productId.toString())}</div>
+                            </div>
+                            <span class="item-detail">x${qty} @ NPR ${price.toLocaleString()}</span>
+                            <span class="item-total">= NPR ${lineTotal.toLocaleString()}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
+            }
+
+            // Display total based on currency
+            let displayTotal = currentCurrency === 'USD'
+                ? `$${(totalNPR / exchangeRate).toFixed(2)}`
+                : `NPR ${totalNPR.toLocaleString()}`;
+
+            html += `
+                <tr id="row-${orderId}">
+                    <td>
+                        <input type="checkbox" class="checkbox order-checkbox" value="${orderId}" onchange="updateSelectedCount()">
+                    </td>
+                    <td>
+                        <div class="date-cell">
+                            <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
+                            ${order.paymentScreenshot ? `<img src="${order.paymentScreenshot}" class="proof-img" onclick="openImage('${order.paymentScreenshot}')">` : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="order-id">Order #${orderId.toString().substring(0, 8)}</span>
+                        <div class="items-list">${itemsHtml}</div>
+                        <div class="total-row">
+                            <span class="total-label">📦 TOTAL</span>
+                            <span class="total-value" data-npr="${totalNPR}">${displayTotal}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="badge ${emailBadgeClass}">${emailBadgeText}</div>
+                        <select class="status-select s-${status}" onchange="updateStatus('${orderId}', this.value, this)">
+                            <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="Shipping" ${status === 'Shipping' ? 'selected' : ''}>🚚 Shipping</option>
+                            <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                            <option value="Success" ${status === 'Success' ? 'selected' : ''}>💰 Payment Successful</option>
+                            <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="client-line"><span class="client-label">👤 Name:</span> ${escapeHtml(client.name || 'Guest')}</div>
+                        <div class="client-line"><span class="client-label">📞 Phone:</span> ${escapeHtml(client.phone || '-')}</div>
+                        <div class="client-line"><span class="client-label">✉️ Email:</span> ${escapeHtml(client.email || '-')}</div>
+                        <div class="client-line"><span class="client-label">📍 Address:</span> ${escapeHtml(client.address || '-')}</div>
+                        <div class="client-line"><span class="client-label">💳 Payment:</span> ${order.paymentMethod || 'N/A'}</div>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="print-btn-row" onclick="openPrintDialog('single','${orderId}')">🖨️ Print</button>
+                            <button class="delete-btn" onclick="deleteOrder('${orderId}', this)">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        tbody.innerHTML = html;
+        updateGrandTotal();
     }
 
-    // ─── SELECTION LOGIC ──────────────────────────────────────────
-    function toggleSelect(id) {
-      if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
-      updateBulkUI();
+    // ============ UPDATE STATUS ============
+    async function updateStatus(orderId, newStatus, selectEl) {
+        selectEl.disabled = true;
+        const auth = getAuth();
+        if (!auth) {
+            showToast('Authentication required');
+            selectEl.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(API_BASE + '/api/update-status', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + auth.credentials
+                },
+                body: JSON.stringify({ id: orderId, status: newStatus })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                selectEl.className = `status-select s-${newStatus}`;
+                showToast(`✅ Status updated to ${newStatus}`);
+
+                const badgeDiv = selectEl.parentElement.querySelector('.badge');
+                if (badgeDiv) {
+                    if (data.emailStatus === 'Sent') {
+                        badgeDiv.className = 'badge badge-sent';
+                        badgeDiv.innerHTML = '✅ Sent';
+                    } else if (data.emailStatus === 'Failed') {
+                        badgeDiv.className = 'badge badge-failed';
+                        badgeDiv.innerHTML = '❌ Failed';
+                    }
+                }
+            } else {
+                throw new Error(data.error || 'Update failed');
+            }
+        } catch (error) {
+            showToast('❌ ' + error.message);
+        } finally {
+            selectEl.disabled = false;
+        }
     }
 
-    function toggleSelectAll() {
-      const checkboxes = document.querySelectorAll('.order-checkbox');
-      const selectAllChecked = document.getElementById('selectAll').checked;
-      selectedIds.clear();
-      if (selectAllChecked) checkboxes.forEach(cb => selectedIds.add(cb.value));
-      renderOrders(allOrders); // Re-render to update checkbox states visually
+    // ============ DELETE ORDER ============
+    async function deleteOrder(orderId, btn) {
+        if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
+
+        btn.disabled = true;
+        btn.textContent = '...';
+        const auth = getAuth();
+
+        try {
+            const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const row = document.getElementById(`row-${orderId}`);
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    updateSelectedCount();
+                    fetchOrders();
+                }, 200);
+                showToast('✅ Order deleted');
+            } else {
+                throw new Error('Delete failed');
+            }
+        } catch (error) {
+            showToast('❌ Delete failed');
+            btn.disabled = false;
+            btn.textContent = '🗑️ Delete';
+        }
     }
 
-    function updateBulkUI() {
-      const bulkBar = document.getElementById('bulkActions');
-      if (selectedIds.size > 0) {
-        bulkBar.classList.remove('hidden');
-        document.getElementById('selectedCount').textContent = selectedIds.size;
-      } else {
-        bulkBar.classList.add('hidden');
-      }
+    // ============ BULK DELETE ============
+    function getSelectedOrders() {
+        return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
     }
 
-    // ─── STATUS & STATE UPDATES ──────────────────────────────────
-    async function updateStatus(id, status) {
-      try {
-        const res = await fetch('/api/update-status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
-        const data = await res.json();
-        if (data.success) showToast(`Status updated to ${status}`);
-        else throw new Error(data.error);
-      } catch (e) { showToast('Failed to update status', 'error'); fetchOrders(); }
+    function updateSelectedCount() {
+        const selected = getSelectedOrders();
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const printBtn = document.getElementById('printSelectedBtn');
+        const countSpan = document.getElementById('selectedCount');
+
+        deleteBtn.disabled = selected.length === 0;
+        printBtn.disabled = selected.length === 0;
+        countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
     }
 
-    async function updateOrderState(id, state) {
-      try {
-        const res = await fetch('/api/update-order-state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, state }) });
-        const data = await res.json();
-        if (data.success) showToast(`State updated to ${state}`);
-        else throw new Error(data.error);
-      } catch (e) { showToast('Failed to update state', 'error'); fetchOrders(); }
-    }
-
-    // ─── DELETE LOGIC ──────────────────────────────────────────
-    async function deleteSingleOrder(id) {
-      if (!confirm('Are you sure you want to delete this order?')) return;
-      try {
-        const res = await fetch(`/api/delete-order/${id}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.success) {
-          removeRow(id);
-          allOrders = allOrders.filter(o => o._id !== id);
-          document.getElementById('orderCountLabel').textContent = `${allOrders.length} total orders`;
-          showToast('Order deleted');
-        } else throw new Error();
-      } catch (e) { showToast('Failed to delete order', 'error'); }
+    function selectAll() {
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const allChecked = [...checkboxes].every(cb => cb.checked);
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+        updateSelectedCount();
     }
 
     async function deleteSelected() {
-      if (!confirm(`Delete ${selectedIds.size} selected orders?`)) return;
-      try {
-        const res = await fetch('/api/delete-orders', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: Array.from(selectedIds) }) });
-        const data = await res.json();
-        if (data.success) {
-          Array.from(selectedIds).forEach(id => { removeRow(id); allOrders = allOrders.filter(o => o._id !== id); });
-          selectedIds.clear();
-          document.getElementById('selectAll').checked = false;
-          document.getElementById('orderCountLabel').textContent = `${allOrders.length} total orders`;
-          updateBulkUI();
-          showToast('Orders deleted');
-        } else throw new Error();
-      } catch (e) { showToast('Failed to delete orders', 'error'); }
+        const selected = getSelectedOrders();
+        if (selected.length === 0) return;
+        if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
+
+        const auth = getAuth();
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = '⏳...';
+
+        try {
+            const response = await fetch(API_BASE + '/api/delete-orders', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + auth.credentials
+                },
+                body: JSON.stringify({ ids: selected })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast(`✅ Deleted ${selected.length} order(s)`);
+                fetchOrders();
+            } else {
+                throw new Error('Bulk delete failed');
+            }
+        } catch (error) {
+            showToast('❌ Bulk delete failed');
+        } finally {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = '🗑️ Delete Selected';
+            updateSelectedCount();
+        }
     }
 
-    function removeRow(id) {
-      const row = document.getElementById(`row-${id}`);
-      if (row) { row.style.transition = 'all 0.3s ease'; row.style.opacity = '0'; row.style.transform = 'translateX(20px)'; setTimeout(() => row.remove(), 300); }
+    // ============ CURRENCY ============
+    function setCurrency(currency) {
+        currentCurrency = currency;
+        document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
+        document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
+
+        document.querySelectorAll('[data-npr]').forEach(el => {
+            const npr = parseFloat(el.dataset.npr);
+            if (currency === 'USD') {
+                el.textContent = `$${(npr / exchangeRate).toFixed(2)}`;
+            } else {
+                el.textContent = `NPR ${npr.toLocaleString()}`;
+            }
+        });
+
+        updateGrandTotal();
     }
 
-    // ─── TOAST NOTIFICATIONS ──────────────────────────────────────────
-    function showToast(msg, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const el = document.createElement('div');
-      el.className = 'toast bg-white rounded-xl shadow-lg p-4 mb-2 text-sm pointer-events-auto border-l-4 ' + (type === 'success' ? 'border-green-500' : 'border-red-500');
-      el.innerHTML = msg;
-      container.appendChild(el);
-      setTimeout(() => { el.classList.add('toast-exit'); setTimeout(() => el.remove(), 300); }, 2500);
+    function updateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll('[data-npr]').forEach(el => {
+            total += parseFloat(el.dataset.npr) || 0;
+        });
+
+        const grandTotalEl = document.getElementById('grandTotal');
+        if (currentCurrency === 'USD') {
+            grandTotalEl.textContent = `$${(total / exchangeRate).toFixed(2)}`;
+        } else {
+            grandTotalEl.textContent = `NPR ${total.toLocaleString()}`;
+        }
     }
-  </script>
+
+    // ============ EXCHANGE RATE ============
+    async function loadExchangeRate() {
+        try {
+            const response = await fetch(API_BASE + '/api/public/rate');
+            if (response.ok) {
+                const data = await response.json();
+                exchangeRate = data.rate || 133;
+                document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+                document.getElementById('rateDot').className = 'rate-dot';
+            }
+        } catch (error) {
+            document.getElementById('rateDot').className = 'rate-dot error';
+        }
+    }
+
+    async function refreshRate() {
+        const auth = getAuth();
+        if (!auth) {
+            showToast('Authentication required');
+            return;
+        }
+
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳...';
+
+        try {
+            const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            });
+            const data = await response.json();
+            exchangeRate = data.rate || 133;
+            document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+            showToast('✅ Rate updated');
+            setCurrency(currentCurrency);
+        } catch (error) {
+            showToast('❌ Failed to sync rate');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🔄 Refresh';
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ============ PRINT INVOICE SYSTEM ============
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function openPrintDialog(mode, orderId) {
+        printMode = mode;
+
+        if (mode === 'single') {
+            printTargetIds = [orderId];
+        } else {
+            printTargetIds = getSelectedOrders();
+            if (printTargetIds.length === 0) {
+                showToast('⚠️ Select orders first');
+                return;
+            }
+        }
+
+        // Set the currency dropdown to match current view
+        document.getElementById('printCurrency').value = currentCurrency;
+
+        document.getElementById('printDialogOverlay').classList.add('show');
+    }
+
+    function closePrintDialog() {
+        document.getElementById('printDialogOverlay').classList.remove('show');
+        printMode = null;
+        printTargetIds = [];
+    }
+
+    function executePrint() {
+        const currency = document.getElementById('printCurrency').value;
+        const businessName = document.getElementById('printBusinessName').value.trim() || 'NaturaBotanica';
+        const businessInfo = document.getElementById('printBusinessInfo').value.trim();
+        const includeLogo = document.getElementById('printIncludeLogo').checked;
+        const includePayment = document.getElementById('printIncludePayment').checked;
+        const includeFooter = document.getElementById('printIncludeFooter').checked;
+
+        // Find the orders
+        const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
+
+        if (ordersToPrint.length === 0) {
+            showToast('❌ No orders found to print');
+            closePrintDialog();
+            return;
+        }
+
+        // Generate invoice HTML
+        const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
+            currency,
+            businessName,
+            businessInfo,
+            includeLogo,
+            includePayment,
+            includeFooter,
+            rate: exchangeRate
+        });
+
+        // Open print window
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        printWindow.document.write(invoiceHtml);
+        printWindow.document.close();
+
+        // Wait for content to load then print
+        printWindow.onload = function() {
+            setTimeout(() => {
+                printWindow.print();
+            }, 400);
+        };
+
+        closePrintDialog();
+        showToast(`🖨️ Printing ${ordersToPrint.length} invoice(s)...`);
+    }
+
+    function generateInvoiceHtml(orders, opts) {
+        const now = new Date();
+        const printDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+        const printTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+        function fmtCurrency(nprAmount) {
+            const npr = Math.round(nprAmount);
+            const usd = (nprAmount / opts.rate).toFixed(2);
+            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
+            if (opts.currency === 'USD') return `$${usd}`;
+            return `NPR ${npr.toLocaleString()} / $${usd}`;
+        }
+
+        function fmtPrice(price) {
+            const npr = Math.round(price);
+            const usd = (price / opts.rate).toFixed(2);
+            if (opts.currency === 'NPR') return `NPR ${npr.toLocaleString()}`;
+            if (opts.currency === 'USD') return `$${usd}`;
+            return `NPR ${npr.toLocaleString()} / $${usd}`;
+        }
+
+        let invoicesHtml = '';
+
+        for (let i = 0; i < orders.length; i++) {
+            const order = orders[i];
+            const orderId = order._id.toString().substring(0, 8).toUpperCase();
+            const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+            const orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const totalNPR = Math.round(order.totalNPR || 0);
+            const client = order.clientDetails || {};
+            const status = order.status || 'Pending';
+
+            let statusColor = '#92400e';
+            let statusBg = '#fffbeb';
+            if (status === 'Completed' || status === 'Success') { statusColor = '#15803d'; statusBg = '#dcfce7'; }
+            else if (status === 'Shipping') { statusColor = '#1d4ed8'; statusBg = '#eff6ff'; }
+            else if (status === 'Rejected') { statusColor = '#b91c1b'; statusBg = '#fef2f2'; }
+
+            let itemsRows = '';
+            let itemCount = 0;
+            if (order.items && order.items.length > 0) {
+                order.items.forEach((item, idx) => {
+                    const qty = item.qty || 1;
+                    const price = item.price || 0;
+                    const lineTotal = qty * price;
+                    itemCount += qty;
+                    itemsRows += `
+                        <tr>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;">
+                                <div style="font-weight:600;font-size:14px;">${escapeHtml(item.name)}</div>
+                                <div style="font-size:11px;color:#9ca3af;font-family:monospace;">ID: ${escapeHtml((item.id || item.productId || 'N/A').toString())}</div>
+                            </td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${qty}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmtPrice(price)}</td>
+                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#1a5c1c;">${fmtPrice(lineTotal)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                itemsRows = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#9ca3af;">No items</td></tr>';
+            }
+
+            const pageBreak = i < orders.length - 1 ? 'page-break-after: always;' : '';
+
+            invoicesHtml += `
+                <div class="invoice-page" style="${pageBreak}">
+                    <!-- Header -->
+                    ${opts.includeLogo ? `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
+                        <div>
+                            <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${escapeHtml(opts.businessName)}</div>
+                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${escapeHtml(opts.businessInfo)}</div>` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
+                            <div style="font-size:12px;color:#6b7280;margin-top:4px;">Printed: ${printDate} at ${printTime}</div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
+                        <div>
+                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div>
+                        </div>
+                    </div>
+                    `}
+
+                    <!-- Order & Client Info -->
+                    <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
+                        <div style="flex:1;">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
+                            <div style="font-size:16px;font-weight:700;color:#1f2937;">${escapeHtml(client.name || 'Guest')}</div>
+                            ${client.phone ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ${escapeHtml(client.phone)}</div>` : ''}
+                            ${client.email ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ${escapeHtml(client.email)}</div>` : ''}
+                            ${client.address ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ${escapeHtml(client.address)}</div>` : ''}
+                        </div>
+                        <div style="flex:1;text-align:right;">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Order Details</div>
+                            <div style="font-size:14px;color:#1f2937;"><strong>Order #${orderId}</strong></div>
+                            <div style="font-size:13px;color:#4b5563;margin-top:3px;">📅 ${orderDate} at ${orderTime}</div>
+                            <div style="margin-top:6px;display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;background:${statusBg};color:${statusColor};">${status}</div>
+                            ${opts.includePayment && order.paymentMethod ? `<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ${escapeHtml(order.paymentMethod)}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
+                        <thead>
+                            <tr style="background:#2d4a22;">
+                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:40px;">#</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Item</th>
+                                <th style="padding:10px 14px;text-align:center;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:60px;">Qty</th>
+                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:120px;">Price</th>
+                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:140px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsRows}
+                        </tbody>
+                    </table>
+
+                    <!-- Totals -->
+                    <div style="display:flex;justify-content:flex-end;margin-top:0;">
+                        <div style="width:300px;">
+                            <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
+                                <span>Items</span>
+                                <span>${itemCount}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;">
+                                <span>TOTAL</span>
+                                <span>${fmtCurrency(totalNPR)}</span>
+                            </div>
+                            ${opts.currency === 'BOTH' ? `
+                            <div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">
+                                Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    ${opts.includeFooter ? `
+                    <!-- Footer -->
+                    <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
+                        <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
+                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - ${escapeHtml(opts.businessName)}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1f2937;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .invoice-page {
+                page-break-after: always;
+            }
+            .invoice-page:last-child {
+                page-break-after: avoid;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .no-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .no-print button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-print-action {
+            background: #2d4a22;
+            color: white;
+        }
+        .btn-print-action:hover { background: #1f3618; }
+
+        .btn-close-action {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .btn-close-action:hover { background: #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print-action" onclick="window.print()">🖨️ Print</button>
+        <button class="btn-close-action" onclick="window.close()">✕ Close</button>
+    </div>
+    ${invoicesHtml}
+</body>
+</html>`;
+    }
+
+    // ============ HELPER FUNCTIONS ============
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function openImage(src) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('imageModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').classList.remove('show');
+    }
+
+    // ============ INITIALIZATION ============
+    async function init() {
+        await loadExchangeRate();
+        await fetchOrders();
+    }
+
+    // Make functions global
+    window.selectAll = selectAll;
+    window.deleteSelected = deleteSelected;
+    window.updateSelectedCount = updateSelectedCount;
+    window.setCurrency = setCurrency;
+    window.refreshRate = refreshRate;
+    window.updateStatus = updateStatus;
+    window.deleteOrder = deleteOrder;
+    window.openImage = openImage;
+    window.closeModal = closeModal;
+    window.openPrintDialog = openPrintDialog;
+    window.closePrintDialog = closePrintDialog;
+    window.executePrint = executePrint;
+
+    // Close print dialog on overlay click
+    document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closePrintDialog();
+    });
+
+    // Close print dialog on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePrintDialog();
+            closeModal();
+        }
+    });
+
+    init();
+</script>
 </body>
 </html>
