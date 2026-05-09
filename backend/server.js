@@ -268,6 +268,33 @@ app.get('/api/view-orders-data', checkAdminAuth, async (req, res) => { try { con
 app.put('/api/update-status', checkAdminAuth, async (req, res) => { try { await Order.updateOne({ _id: req.body.id }, { status: req.body.status, emailStatus: 'Queue' }); res.json({ success: true }); } catch (e) { res.status(500).json({ error: e.message }); } });
 app.post('/api/inquiries', async (req, res) => { try { await new Inquiry(req.body).save(); await sendInquiryAlert(req.body); res.json({ success: true }); } catch (e) { res.status(500).json({ error: e.message }); } });
 
+// ─── ROUTE: VIEW USERS HTML PAGE ────────────────────────────────
+app.get('/api/view-users', checkAdminAuth, async (req, res) => {
+  try {
+    let html = fs.readFileSync(path.join(__dirname, 'views/users.html'), 'utf8');
+    res.send(html);
+  } catch (e) { 
+    console.error('View users error:', e);
+    res.status(500).send('Error loading users page'); 
+  }
+});
+
+// ─── ROUTE: VIEW USERS DATA API (JSON) ─────────────────────────
+app.get('/api/view-users-data', checkAdminAuth, async (req, res) => {
+  try {
+    // Fetch users, EXCLUDING passwords and sensitive tokens for security
+    const users = await User.find()
+      .select('-password -verificationOTP -verificationOTPExpire -resetPasswordToken -resetPasswordExpire -__v')
+      .sort({ timestamp: -1 })
+      .lean();
+    
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 async function startup() { await syncFileToDB({ removeOrphans: true }); startFileWatcher(); }
 startup();
 
