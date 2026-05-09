@@ -3,192 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - NaturaBotanica</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: '#A3B14B', 'brand-hover': '#8f9c40', 'bg-light': '#FAFAF9',
-                        'txt-main': '#1C1917', 'txt-sub': '#57534E', 'border-main': '#E7E5E4'
-                    }
-                }
-            }
-        }
-    </script>
+    <title>User Management - NaturaBotanica Admin</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #FAFAF9; }
-        .loader { border-top-color: #A3B14B; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body class="text-txt-main">
-
-    <nav class="bg-white border-b border-border-main sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-2 text-xl font-semibold text-txt-main">
-                <div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-white"></i></div>
-                NaturaBotanica
-            </a>
-            <div class="flex items-center gap-4">
-                <span id="navUserName" class="text-sm font-medium text-txt-sub hidden">User</span>
-                <button onclick="handleLogout()" class="px-4 py-2 text-sm font-medium bg-txt-main text-white rounded-xl hover:bg-black">Sign Out</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
-        <!-- Profile Section -->
-        <div class="bg-white rounded-2xl border border-border-main p-6 md:p-8 mb-8 shadow-sm">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">My Account</h1>
-                    <p class="text-txt-sub mt-1">Manage your profile and view orders</p>
-                </div>
-                <div id="verifyBadge" class="hidden px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2"></div>
-            </div>
-            <div id="profileDetails" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="flex justify-center items-center py-12 col-span-3">
-                    <div class="w-12 h-12 border-4 border-brand border-t-transparent rounded-full loader"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Orders Section -->
-        <h2 class="text-xl md:text-2xl font-semibold tracking-tight mb-4">My Orders</h2>
-        <div id="ordersContainer" class="space-y-4">
-            <div class="flex justify-center items-center py-12">
-                <div class="w-12 h-12 border-4 border-brand border-t-transparent rounded-full loader"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const API_BASE = window.location.origin + '/api';
-        let authToken = localStorage.getItem('natura_token');
-
-        async function fetchProfile() {
-            if (!authToken) {
-                window.location.href = '/'; return;
-            }
-            try {
-                const res = await fetch(API_BASE + '/auth/me', { headers: { 'Authorization': `Bearer ${authToken}` }});
-                if (!res.ok) throw new Error('Not authenticated');
-                
-                const user = await res.json();
-                
-                // Update Navbar
-                document.getElementById('navUserName').classList.remove('hidden');
-                document.getElementById('navUserName').innerText = user.name || user.username;
-
-                // Update Verification Badge
-                const badge = document.getElementById('verifyBadge');
-                if (user.isVerified) {
-                    badge.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Verified Account';
-                    badge.classList.add('bg-green-100', 'text-green-700');
-                } else {
-                    badge.innerHTML = '<i data-lucide="alert-circle" class="w-4 h-4"></i> Unverified Account';
-                    badge.classList.add('bg-orange-100', 'text-orange-700');
-                }
-                badge.classList.remove('hidden');
-
-                // Update Profile Details
-                document.getElementById('profileDetails').innerHTML = `
-                    <div class="p-4 bg-bg-light rounded-xl border border-border-main">
-                        <p class="text-xs text-txt-sub uppercase tracking-widest mb-1">Full Name</p>
-                        <p class="font-medium">${user.name}</p>
-                    </div>
-                    <div class="p-4 bg-bg-light rounded-xl border border-border-main">
-                        <p class="text-xs text-txt-sub uppercase tracking-widest mb-1">Username</p>
-                        <p class="font-medium">@${user.username}</p>
-                    </div>
-                    <div class="p-4 bg-bg-light rounded-xl border border-border-main">
-                        <p class="text-xs text-txt-sub uppercase tracking-widest mb-1">Email Address</p>
-                        <p class="font-medium">${user.email}</p>
-                    </div>
-                `;
-
-                lucide.createIcons();
-                fetchOrders();
-
-            } catch (e) {
-                localStorage.removeItem('natura_token');
-                window.location.href = '/';
-            }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; color: #1f2937; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* Header */
+        .header {
+            background: #2d4a22; color: white; padding: 20px; border-radius: 12px;
+            margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
         }
-
-        async function fetchOrders() {
-            try {
-                const res = await fetch(API_BASE + '/auth/my-orders', { headers: { 'Authorization': `Bearer ${authToken}` }});
-                const orders = await res.json();
-                
-                const container = document.getElementById('ordersContainer');
-                
-                if (!orders.length) {
-                    container.innerHTML = `
-                        <div class="bg-white rounded-2xl border border-border-main p-8 text-center">
-                            <i data-lucide="package-x" class="w-12 h-12 text-txt-sub mx-auto mb-3"></i>
-                            <p class="text-txt-sub font-medium">You haven't placed any orders yet.</p>
-                            <a href="/" class="mt-4 inline-block px-6 py-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-hover">Start Shopping</a>
-                        </div>`;
-                } else {
-                    container.innerHTML = orders.map(order => {
-                        const date = new Date(order.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                        const totalNPR = Math.round(order.totalNPR || 0);
-                        
-                        let statusColor = 'bg-orange-100 text-orange-700';
-                        if (order.status === 'Completed' || order.status === 'Success') statusColor = 'bg-green-100 text-green-700';
-                        else if (order.status === 'Shipping') statusColor = 'bg-blue-100 text-blue-700';
-                        else if (order.status === 'Rejected') statusColor = 'bg-red-100 text-red-700';
-
-                        return `
-                            <div class="bg-white rounded-2xl border border-border-main p-6 shadow-sm hover:shadow-md transition-shadow">
-                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-4 border-b border-border-main">
-                                    <div>
-                                        <p class="text-xs text-txt-sub">Order Date</p>
-                                        <p class="font-semibold">${date}</p>
-                                    </div>
-                                    <div class="text-left md:text-right">
-                                        <p class="text-xs text-txt-sub">Total Amount</p>
-                                        <p class="text-lg font-bold text-brand">NPR ${totalNPR.toLocaleString()}</p>
-                                    </div>
-                                    <div class="px-3 py-1 rounded-full text-xs font-bold uppercase ${statusColor}">
-                                        ${order.status}
-                                    </div>
-                                </div>
-                                <div class="space-y-2">
-                                    ${order.items.map(item => `
-                                        <div class="flex items-center gap-3">
-                                            <img src="${item.img || 'https://placehold.co/40x40'}" class="w-10 h-10 rounded-md object-cover">
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium">${item.name} <span class="text-txt-sub text-xs">(${item.form || 'N/A'}, ${item.unit || 'N/A'})</span></p>
-                                            </div>
-                                            <p class="text-sm text-txt-sub">x${item.qty}</p>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-                lucide.createIcons();
-            } catch (e) {
-                console.error('Failed to fetch orders', e);
-            }
+        .header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .btn-back {
+            background: rgba(255,255,255,0.2); color: white; text-decoration: none;
+            padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-size: 14px; font-weight: 500;
         }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
 
-        function handleLogout() {
-            localStorage.removeItem('natura_token');
-            window.location.href = '/';
+        /* Stats Bar */
+        .stats-bar {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-bottom: 24px;
         }
+        .stat-card {
+            background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+        .stat-value { font-size: 28px; font-weight: 800; color: #2d4a22; margin-top: 4px; }
 
-        // Initialize
-        fetchProfile();
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+        /* Table Wrapper */
+        .table-wrapper {
+            background: white; border-radius: 12px; overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th {
+            background: #1a2e1a; color: white; padding: 14px 16px; font-size: 12px;
+            font-weight: 600; text-transform: uppercase; text-align: left; letter-spacing: 0.05em;
+        }
+        td { padding: 14px 16px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+        tr:hover { background: #f9fafb; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;
+        }
+        .badge-verified { background: #dcfce7; color: #15803d; }
+        .badge-unverified { background: #fef3c7; color: #92400e; }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600;
+            cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px;
+            transition: 0.3s; z-index: 1000; font-size: 14px;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* User Info Layout */
+        .user-info { display: flex; flex-direction: column; gap: 2px; }
+        .user-name
