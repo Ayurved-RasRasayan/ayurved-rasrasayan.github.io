@@ -48,7 +48,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
         .btn-stock {
@@ -60,19 +59,15 @@
             transition: all 0.3s;
             font-weight: 600;
             font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .btn-stock:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
         }
 
         .btn-stock.active {
             background: rgba(255,255,255,0.35);
-            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
         }
 
         /* Toolbar */
@@ -87,13 +82,6 @@
             flex-wrap: wrap;
             gap: 15px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .toolbar-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
         }
 
         .btn {
@@ -221,6 +209,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
+        /* ============ TABLE STYLES ============ */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -265,6 +254,7 @@
             background: #fafafa;
         }
 
+        /* ============ COLUMN WIDTHS ============ */
         .col-checkbox { width: 3%; }
         .col-date { width: 8%; }
         .col-items { width: 40%; }
@@ -272,6 +262,7 @@
         .col-client { width: 25%; }
         .col-action { width: 12%; }
 
+        /* ============ COLUMN ALIGNMENT ============ */
         .col-checkbox,
         td:nth-child(1) {
             text-align: center;
@@ -310,6 +301,7 @@
             text-align: left;
         }
 
+        /* Checkbox */
         .checkbox {
             width: 18px;
             height: 18px;
@@ -317,6 +309,7 @@
             accent-color: #2d4a22;
         }
 
+        /* Date Cell */
         .date-cell {
             display: flex;
             flex-direction: column;
@@ -343,6 +336,7 @@
             transform: scale(1.05);
         }
 
+        /* Items Cell */
         .order-id {
             background: #e0e7ff;
             color: #3730a3;
@@ -424,6 +418,7 @@
             font-size: 18px;
         }
 
+        /* Status Cell */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -471,6 +466,7 @@
         .status-select.s-Success { background: #dcfce7; color: #15803d; }
         .status-select.s-Rejected { background: #fef2f2; color: #b91c1b; }
 
+        /* Client Cell */
         .client-line {
             font-size: 13px;
             margin-bottom: 6px;
@@ -483,6 +479,7 @@
             display: inline-block;
         }
 
+        /* Action Cell */
         .action-btns {
             display: flex;
             flex-direction: column;
@@ -497,7 +494,6 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
             width: 100%;
         }
 
@@ -521,6 +517,7 @@
             background: #3730a3;
         }
 
+        /* Total Bar */
         .total-bar {
             background: white;
             border: 1px solid #d1d5db;
@@ -547,6 +544,7 @@
             color: #1a5c1c;
         }
 
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -559,14 +557,13 @@
             transition: 0.3s;
             z-index: 1000;
             font-size: 14px;
-            max-width: 90vw;
-            text-align: center;
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -599,6 +596,7 @@
             cursor: pointer;
         }
 
+        /* Print Dialog */
         .print-dialog-overlay {
             display: none;
             position: fixed;
@@ -623,21 +621,12 @@
             width: 90%;
             max-width: 420px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            animation: dialogIn 0.2s ease-out;
-        }
-
-        @keyframes dialogIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .print-dialog h3 {
             font-size: 20px;
             margin-bottom: 20px;
             color: #2d4a22;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .print-dialog-label {
@@ -659,14 +648,12 @@
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
-            font-family: inherit;
         }
 
         .print-dialog select:focus,
         .print-dialog input[type="text"]:focus {
             outline: none;
             border-color: #2d4a22;
-            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
         }
 
         .print-dialog-actions {
@@ -681,60 +668,19 @@
             font-size: 15px;
         }
 
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .header-nav {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .btn-stock {
-                flex: 1;
-                text-align: center;
-                justify-content: center;
-            }
-
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .toolbar-left {
-                justify-content: center;
-            }
-
-            .currency-toggle {
-                justify-content: center;
-            }
-
-            .table-wrapper {
-                overflow-x: scroll;
-            }
-
-            .item-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .item-total {
-                text-align: left;
-            }
-
-            .client-line {
-                text-align: left;
-            }
-
-            tr {
-                border-bottom: 2px solid #dc2626;
-            }
+            body { padding: 10px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-nav { width: 100%; }
+            .btn-stock { flex: 1; text-align: center; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .currency-toggle { justify-content: center; }
+            .table-wrapper { overflow-x: scroll; }
+            .item-row { flex-direction: column; align-items: flex-start; }
+            .item-total { text-align: left; }
+            .client-line { text-align: left; }
+            tr { border-bottom: 2px solid #dc2626; }
         }
     </style>
 </head>
@@ -751,7 +697,7 @@
 
     <!-- Toolbar -->
     <div class="toolbar">
-        <div class="toolbar-left">
+        <div>
             <button class="btn btn-secondary" onclick="selectAll()">☑️ Select All</button>
             <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelected()">🗑️ Delete Selected</button>
             <button class="btn btn-print" id="printSelectedBtn" disabled onclick="openPrintDialog('selected')">🖨️ Print Selected</button>
@@ -800,45 +746,34 @@
     </div>
 </div>
 
-<!-- Print Dialog Modal -->
-<div id="printDialogOverlay" class="print-dialog-overlay">
+<!-- Print Dialog -->
+<div id="printDialogOverlay" class="print-dialog-overlay" onclick="if(event.target===this)closePrintDialog()">
     <div class="print-dialog">
         <h3>🖨️ Print Invoice</h3>
-
         <div class="print-dialog-row">
             <label class="print-dialog-label">Currency</label>
             <select id="printCurrency">
-                <option value="NPR">🇳🇵 NPR (Nepali Rupees)</option>
-                <option value="USD">🇺🇸 USD (US Dollars)</option>
+                <option value="NPR">🇳🇵 NPR</option>
+                <option value="USD">🇺🇸 USD</option>
                 <option value="BOTH">Both NPR & USD</option>
             </select>
         </div>
-
         <div class="print-dialog-row">
             <label class="print-dialog-label">Business Name</label>
-            <input type="text" id="printBusinessName" value="NaturaBotanica" placeholder="Your business name">
+            <input type="text" id="printBusinessName" value="NaturaBotanica">
         </div>
-
         <div class="print-dialog-row">
             <label class="print-dialog-label">Business Address / Contact</label>
-            <input type="text" id="printBusinessInfo" value="" placeholder="Address, phone, email...">
+            <input type="text" id="printBusinessInfo" value="">
         </div>
-
         <div class="print-dialog-row">
             <label class="print-dialog-label">Include</label>
             <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
-                    <input type="checkbox" id="printIncludeLogo" checked> Logo & branding
-                </label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
-                    <input type="checkbox" id="printIncludePayment" checked> Payment method
-                </label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;">
-                    <input type="checkbox" id="printIncludeFooter" checked> Thank you footer
-                </label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="printIncludeLogo" checked> Logo & branding</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="printIncludePayment" checked> Payment method</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="printIncludeFooter" checked> Thank you footer</label>
             </div>
         </div>
-
         <div class="print-dialog-actions">
             <button class="btn btn-secondary" onclick="closePrintDialog()">Cancel</button>
             <button class="btn btn-primary" onclick="executePrint()">🖨️ Print Now</button>
@@ -858,8 +793,6 @@
     let exchangeRate = 133;
     let currentCurrency = 'NPR';
     let allOrders = [];
-
-    // Print state
     let printMode = null;
     let printTargetIds = [];
 
@@ -867,7 +800,7 @@
     function getAuth() {
         let username = localStorage.getItem('admin_username');
         let password = localStorage.getItem('admin_password');
-
+        
         if (!username || !password) {
             username = prompt('Enter admin username:');
             password = prompt('Enter admin password:');
@@ -881,42 +814,28 @@
         return { credentials: btoa(username + ':' + password) };
     }
 
-    function clearAuth() {
-        localStorage.removeItem('admin_username');
-        localStorage.removeItem('admin_password');
-    }
-
-    // Helper: safely parse response (handles both JSON and plain text)
-    async function safeParse(response) {
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch {
-            return { success: false, error: text || `HTTP ${response.status}` };
-        }
-    }
-
     // ============ FETCH ORDERS ============
     async function fetchOrders() {
         try {
             const auth = getAuth();
             if (!auth) throw new Error('Authentication required');
-
+            
             showToast('Loading orders...');
-
+            
             const response = await fetch(API_BASE + '/api/view-orders-data', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
-
+            
             if (response.status === 401) {
-                clearAuth();
+                localStorage.removeItem('admin_username');
+                localStorage.removeItem('admin_password');
                 throw new Error('Login failed. Please try again.');
             }
-
+            
             if (!response.ok) throw new Error('Failed to fetch orders');
-
+            
             const data = await response.json();
-
+            
             if (data.success && data.orders) {
                 allOrders = data.orders;
                 renderTable();
@@ -938,15 +857,15 @@
     // ============ RENDER TABLE ============
     function renderTable() {
         const tbody = document.getElementById('ordersTableBody');
-
+        
         if (!allOrders || allOrders.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
             updateGrandTotal();
             return;
         }
-
+        
         let html = '';
-
+        
         for (const order of allOrders) {
             const orderId = order._id;
             const orderDate = new Date(order.timestamp).toLocaleDateString('en-GB');
@@ -955,7 +874,7 @@
             const emailStatus = order.emailStatus || 'Queue';
             const totalNPR = Math.round(order.totalNPR || 0);
             const client = order.clientDetails || {};
-
+            
             let emailBadgeClass = 'badge-queue';
             let emailBadgeText = '⏳ Queue';
             if (emailStatus === 'Sent') {
@@ -965,7 +884,7 @@
                 emailBadgeClass = 'badge-failed';
                 emailBadgeText = '❌ Failed';
             }
-
+            
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
                 itemsHtml = order.items.map(item => {
@@ -973,7 +892,7 @@
                     const price = item.price || 0;
                     const lineTotal = qty * price;
                     const productId = item.id || item.productId || 'N/A';
-
+                    
                     return `
                         <div class="item-row">
                             <div class="item-info">
@@ -988,11 +907,11 @@
             } else {
                 itemsHtml = '<div style="color:#999; text-align:center; padding:10px;">No items in this order</div>';
             }
-
-            let displayTotal = currentCurrency === 'USD'
+            
+            let displayTotal = currentCurrency === 'USD' 
                 ? `$${(totalNPR / exchangeRate).toFixed(2)}`
                 : `NPR ${totalNPR.toLocaleString()}`;
-
+            
             html += `
                 <tr id="row-${orderId}">
                     <td>
@@ -1038,7 +957,7 @@
                 </tr>
             `;
         }
-
+        
         tbody.innerHTML = html;
         updateGrandTotal();
     }
@@ -1048,11 +967,11 @@
         selectEl.disabled = true;
         const auth = getAuth();
         if (!auth) {
-            showToast('❌ Authentication required');
+            showToast('Authentication required');
             selectEl.disabled = false;
             return;
         }
-
+        
         try {
             const response = await fetch(API_BASE + '/api/update-status', {
                 method: 'PUT',
@@ -1062,20 +981,13 @@
                 },
                 body: JSON.stringify({ id: orderId, status: newStatus })
             });
-
-            if (response.status === 401) {
-                clearAuth();
-                showToast('❌ Session expired. Reloading...');
-                setTimeout(() => location.reload(), 1000);
-                return;
-            }
-
-            const data = await safeParse(response);
-
+            
+            const data = await response.json();
+            
             if (data.success) {
                 selectEl.className = `status-select s-${newStatus}`;
                 showToast(`✅ Status updated to ${newStatus}`);
-
+                
                 const badgeDiv = selectEl.parentElement.querySelector('.badge');
                 if (badgeDiv) {
                     if (data.emailStatus === 'Sent') {
@@ -1099,53 +1011,33 @@
     // ============ DELETE ORDER ============
     async function deleteOrder(orderId, btn) {
         if (!confirm('⚠️ Delete this order? This cannot be undone!')) return;
-
+        
         btn.disabled = true;
-        btn.textContent = '⏳...';
-
+        btn.textContent = '...';
         const auth = getAuth();
-        if (!auth) {
-            showToast('❌ Authentication required');
-            btn.disabled = false;
-            btn.textContent = '🗑️ Delete';
-            return;
-        }
-
+        
         try {
             const response = await fetch(API_BASE + '/api/delete-order/' + orderId, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
-
-            if (response.status === 401) {
-                clearAuth();
-                showToast('❌ Session expired. Please re-login.');
-                btn.disabled = false;
-                btn.textContent = '🗑️ Delete';
-                return;
-            }
-
-            const data = await safeParse(response);
-
+            
+            const data = await response.json();
+            
             if (data.success) {
                 const row = document.getElementById(`row-${orderId}`);
-                if (row) {
-                    row.style.transition = 'opacity 0.3s';
-                    row.style.opacity = '0';
-                    setTimeout(() => {
-                        row.remove();
-                        updateSelectedCount();
-                        updateGrandTotal();
-                    }, 300);
-                }
-                // Remove from local array
-                allOrders = allOrders.filter(o => o._id !== orderId);
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    updateSelectedCount();
+                    fetchOrders();
+                }, 200);
                 showToast('✅ Order deleted');
             } else {
-                throw new Error(data.error || 'Delete failed');
+                throw new Error('Delete failed');
             }
         } catch (error) {
-            showToast('❌ ' + error.message);
+            showToast('❌ Delete failed');
             btn.disabled = false;
             btn.textContent = '🗑️ Delete';
         }
@@ -1155,40 +1047,35 @@
     function getSelectedOrders() {
         return [...document.querySelectorAll('.order-checkbox:checked')].map(cb => cb.value);
     }
-
+    
     function updateSelectedCount() {
         const selected = getSelectedOrders();
         const deleteBtn = document.getElementById('deleteSelectedBtn');
         const printBtn = document.getElementById('printSelectedBtn');
         const countSpan = document.getElementById('selectedCount');
-
+        
         deleteBtn.disabled = selected.length === 0;
         printBtn.disabled = selected.length === 0;
         countSpan.textContent = selected.length > 0 ? `${selected.length} selected` : '';
     }
-
+    
     function selectAll() {
         const checkboxes = document.querySelectorAll('.order-checkbox');
         const allChecked = [...checkboxes].every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
         updateSelectedCount();
     }
-
+    
     async function deleteSelected() {
         const selected = getSelectedOrders();
         if (selected.length === 0) return;
         if (!confirm(`⚠️ Delete ${selected.length} order(s)? This cannot be undone!`)) return;
-
+        
         const auth = getAuth();
-        if (!auth) {
-            showToast('❌ Authentication required');
-            return;
-        }
-
         const deleteBtn = document.getElementById('deleteSelectedBtn');
         deleteBtn.disabled = true;
         deleteBtn.textContent = '⏳...';
-
+        
         try {
             const response = await fetch(API_BASE + '/api/delete-orders', {
                 method: 'DELETE',
@@ -1198,25 +1085,17 @@
                 },
                 body: JSON.stringify({ ids: selected })
             });
-
-            if (response.status === 401) {
-                clearAuth();
-                showToast('❌ Session expired. Please re-login.');
-                return;
-            }
-
-            const data = await safeParse(response);
-
+            
+            const data = await response.json();
+            
             if (data.success) {
                 showToast(`✅ Deleted ${selected.length} order(s)`);
-                allOrders = allOrders.filter(o => !selected.includes(o._id));
-                renderTable();
-                updateSelectedCount();
+                fetchOrders();
             } else {
-                throw new Error(data.error || 'Bulk delete failed');
+                throw new Error('Bulk delete failed');
             }
         } catch (error) {
-            showToast('❌ ' + error.message);
+            showToast('❌ Bulk delete failed');
         } finally {
             deleteBtn.disabled = false;
             deleteBtn.textContent = '🗑️ Delete Selected';
@@ -1229,7 +1108,7 @@
         currentCurrency = currency;
         document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
         document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
-
+        
         document.querySelectorAll('[data-npr]').forEach(el => {
             const npr = parseFloat(el.dataset.npr);
             if (currency === 'USD') {
@@ -1238,16 +1117,16 @@
                 el.textContent = `NPR ${npr.toLocaleString()}`;
             }
         });
-
+        
         updateGrandTotal();
     }
-
+    
     function updateGrandTotal() {
         let total = 0;
         document.querySelectorAll('[data-npr]').forEach(el => {
             total += parseFloat(el.dataset.npr) || 0;
         });
-
+        
         const grandTotalEl = document.getElementById('grandTotal');
         if (currentCurrency === 'USD') {
             grandTotalEl.textContent = `$${(total / exchangeRate).toFixed(2)}`;
@@ -1270,18 +1149,18 @@
             document.getElementById('rateDot').className = 'rate-dot error';
         }
     }
-
+    
     async function refreshRate() {
         const auth = getAuth();
         if (!auth) {
-            showToast('❌ Authentication required');
+            showToast('Authentication required');
             return;
         }
-
+        
         const btn = event.target;
         btn.disabled = true;
         btn.textContent = '⏳...';
-
+        
         try {
             const response = await fetch(API_BASE + '/api/exchange-rate/fetch', {
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
@@ -1299,13 +1178,9 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // ============ PRINT INVOICE SYSTEM ============
-    // ═══════════════════════════════════════════════════════════════════════
-
+    // ============ PRINT INVOICE ============
     function openPrintDialog(mode, orderId) {
         printMode = mode;
-
         if (mode === 'single') {
             printTargetIds = [orderId];
         } else {
@@ -1315,7 +1190,6 @@
                 return;
             }
         }
-
         document.getElementById('printCurrency').value = currentCurrency;
         document.getElementById('printDialogOverlay').classList.add('show');
     }
@@ -1335,7 +1209,6 @@
         const includeFooter = document.getElementById('printIncludeFooter').checked;
 
         const ordersToPrint = allOrders.filter(o => printTargetIds.includes(o._id));
-
         if (ordersToPrint.length === 0) {
             showToast('❌ No orders found to print');
             closePrintDialog();
@@ -1343,23 +1216,16 @@
         }
 
         const invoiceHtml = generateInvoiceHtml(ordersToPrint, {
-            currency,
-            businessName,
-            businessInfo,
-            includeLogo,
-            includePayment,
-            includeFooter,
+            currency, businessName, businessInfo,
+            includeLogo, includePayment, includeFooter,
             rate: exchangeRate
         });
 
         const printWindow = window.open('', '_blank', 'width=900,height=700');
         printWindow.document.write(invoiceHtml);
         printWindow.document.close();
-
         printWindow.onload = function() {
-            setTimeout(() => {
-                printWindow.print();
-            }, 400);
+            setTimeout(() => { printWindow.print(); }, 400);
         };
 
         closePrintDialog();
@@ -1398,32 +1264,25 @@
             const client = order.clientDetails || {};
             const status = order.status || 'Pending';
 
-            let statusColor = '#92400e';
-            let statusBg = '#fffbeb';
+            let statusColor = '#92400e', statusBg = '#fffbeb';
             if (status === 'Completed' || status === 'Success') { statusColor = '#15803d'; statusBg = '#dcfce7'; }
             else if (status === 'Shipping') { statusColor = '#1d4ed8'; statusBg = '#eff6ff'; }
             else if (status === 'Rejected') { statusColor = '#b91c1b'; statusBg = '#fef2f2'; }
 
-            let itemsRows = '';
-            let itemCount = 0;
+            let itemsRows = '', itemCount = 0;
             if (order.items && order.items.length > 0) {
                 order.items.forEach((item, idx) => {
                     const qty = item.qty || 1;
                     const price = item.price || 0;
                     const lineTotal = qty * price;
                     itemCount += qty;
-                    itemsRows += `
-                        <tr>
-                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
-                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;">
-                                <div style="font-weight:600;font-size:14px;">${escapeHtml(item.name)}</div>
-                                <div style="font-size:11px;color:#9ca3af;font-family:monospace;">ID: ${escapeHtml((item.id || item.productId || 'N/A').toString())}</div>
-                            </td>
-                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${qty}</td>
-                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmtPrice(price)}</td>
-                            <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#1a5c1c;">${fmtPrice(lineTotal)}</td>
-                        </tr>
-                    `;
+                    itemsRows += `<tr>
+                        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
+                        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;"><div style="font-weight:600;font-size:14px;">${escapeHtml(item.name)}</div><div style="font-size:11px;color:#9ca3af;font-family:monospace;">ID: ${escapeHtml((item.id||item.productId||'N/A').toString())}</div></td>
+                        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${qty}</td>
+                        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmtPrice(price)}</td>
+                        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#1a5c1c;">${fmtPrice(lineTotal)}</td>
+                    </tr>`;
                 });
             } else {
                 itemsRows = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#9ca3af;">No items</td></tr>';
@@ -1431,101 +1290,16 @@
 
             const pageBreak = i < orders.length - 1 ? 'page-break-after: always;' : '';
 
-            invoicesHtml += `
-                <div class="invoice-page" style="${pageBreak}">
-                    ${opts.includeLogo ? `
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
-                        <div>
-                            <div style="font-size:28px;font-weight:900;color:#2d4a22;letter-spacing:-0.5px;">🌿 ${escapeHtml(opts.businessName)}</div>
-                            ${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">${escapeHtml(opts.businessInfo)}</div>` : ''}
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div>
-                            <div style="font-size:12px;color:#6b7280;margin-top:4px;">Printed: ${printDate} at ${printTime}</div>
-                        </div>
-                    </div>
-                    ` : `
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">
-                        <div><div style="font-size:22px;font-weight:800;color:#374151;letter-spacing:1px;">INVOICE</div></div>
-                        <div style="text-align:right;"><div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div></div>
-                    </div>
-                    `}
-
-                    <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">
-                        <div style="flex:1;">
-                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>
-                            <div style="font-size:16px;font-weight:700;color:#1f2937;">${escapeHtml(client.name || 'Guest')}</div>
-                            ${client.phone ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ${escapeHtml(client.phone)}</div>` : ''}
-                            ${client.email ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ${escapeHtml(client.email)}</div>` : ''}
-                            ${client.address ? `<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ${escapeHtml(client.address)}</div>` : ''}
-                        </div>
-                        <div style="flex:1;text-align:right;">
-                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Order Details</div>
-                            <div style="font-size:14px;color:#1f2937;"><strong>Order #${orderId}</strong></div>
-                            <div style="font-size:13px;color:#4b5563;margin-top:3px;">📅 ${orderDate} at ${orderTime}</div>
-                            <div style="margin-top:6px;display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;background:${statusBg};color:${statusColor};">${status}</div>
-                            ${opts.includePayment && order.paymentMethod ? `<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ${escapeHtml(order.paymentMethod)}</div>` : ''}
-                        </div>
-                    </div>
-
-                    <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
-                        <thead>
-                            <tr style="background:#2d4a22;">
-                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:40px;">#</th>
-                                <th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Item</th>
-                                <th style="padding:10px 14px;text-align:center;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:60px;">Qty</th>
-                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:120px;">Price</th>
-                                <th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:140px;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>${itemsRows}</tbody>
-                    </table>
-
-                    <div style="display:flex;justify-content:flex-end;margin-top:0;">
-                        <div style="width:300px;">
-                            <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;">
-                                <span>Items</span><span>${itemCount}</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;">
-                                <span>TOTAL</span><span>${fmtCurrency(totalNPR)}</span>
-                            </div>
-                            ${opts.currency === 'BOTH' ? `<div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR</div>` : ''}
-                        </div>
-                    </div>
-
-                    ${opts.includeFooter ? `
-                    <div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">
-                        <div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>
-                        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
+            invoicesHtml += `<div class="invoice-page" style="${pageBreak}">
+                ${opts.includeLogo ? `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;"><div><div style="font-size:28px;font-weight:900;color:#2d4a22;">🌿 ${escapeHtml(opts.businessName)}</div>${opts.businessInfo ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;">${escapeHtml(opts.businessInfo)}</div>` : ''}</div><div style="text-align:right;"><div style="font-size:22px;font-weight:800;color:#374151;">INVOICE</div><div style="font-size:12px;color:#6b7280;margin-top:4px;">Printed: ${printDate} at ${printTime}</div></div></div>` : `<div style="display:flex;justify-content:space-between;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;"><div style="font-size:22px;font-weight:800;color:#374151;">INVOICE</div><div style="font-size:12px;color:#6b7280;">Printed: ${printDate} at ${printTime}</div></div>`}
+                <div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;"><div style="flex:1;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:8px;">Bill To</div><div style="font-size:16px;font-weight:700;color:#1f2937;">${escapeHtml(client.name||'Guest')}</div>${client.phone?`<div style="font-size:13px;color:#4b5563;margin-top:3px;">📞 ${escapeHtml(client.phone)}</div>`:''} ${client.email?`<div style="font-size:13px;color:#4b5563;margin-top:3px;">✉️ ${escapeHtml(client.email)}</div>`:''} ${client.address?`<div style="font-size:13px;color:#4b5563;margin-top:3px;">📍 ${escapeHtml(client.address)}</div>`:''}</div><div style="flex:1;text-align:right;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:8px;">Order Details</div><div style="font-size:14px;color:#1f2937;"><strong>Order #${orderId}</strong></div><div style="font-size:13px;color:#4b5563;margin-top:3px;">📅 ${orderDate} at ${orderTime}</div><div style="margin-top:6px;display:inline-block;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;background:${statusBg};color:${statusColor};">${status}</div>${opts.includePayment&&order.paymentMethod?`<div style="font-size:13px;color:#4b5563;margin-top:6px;">💳 ${escapeHtml(order.paymentMethod)}</div>`:''}</div></div>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:0;"><thead><tr style="background:#2d4a22;"><th style="padding:10px 14px;text-align:left;font-size:11px;color:white;width:40px;">#</th><th style="padding:10px 14px;text-align:left;font-size:11px;color:white;">Item</th><th style="padding:10px 14px;text-align:center;font-size:11px;color:white;width:60px;">Qty</th><th style="padding:10px 14px;text-align:right;font-size:11px;color:white;width:120px;">Price</th><th style="padding:10px 14px;text-align:right;font-size:11px;color:white;width:140px;">Total</th></tr></thead><tbody>${itemsRows}</tbody></table>
+                <div style="display:flex;justify-content:flex-end;margin-top:0;"><div style="width:300px;"><div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;"><span>Items</span><span>${itemCount}</span></div><div style="display:flex;justify-content:space-between;padding:12px 14px;background:#2d4a22;color:white;font-size:16px;font-weight:800;border-radius:6px;margin-top:6px;"><span>TOTAL</span><span>${fmtCurrency(totalNPR)}</span></div>${opts.currency==='BOTH'?`<div style="text-align:right;font-size:12px;color:#9ca3af;margin-top:4px;padding-right:14px;">Exchange Rate: 1 USD = ${opts.rate.toFixed(2)} NPR</div>`:''}</div></div>
+                ${opts.includeFooter?`<div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;"><div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div><div style="font-size:12px;color:#9ca3af;margin-top:4px;">${escapeHtml(opts.businessName)} — We appreciate your business.</div></div>`:''}
+            </div>`;
         }
 
-        return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Invoice - ${escapeHtml(opts.businessName)}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 40px; max-width: 800px; margin: 0 auto; }
-        @media print { body { padding: 20px; } .invoice-page { page-break-after: always; } .invoice-page:last-child { page-break-after: avoid; } .no-print { display: none !important; } }
-        .no-print { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 10; }
-        .no-print button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-        .btn-print-action { background: #2d4a22; color: white; } .btn-print-action:hover { background: #1f3618; }
-        .btn-close-action { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; } .btn-close-action:hover { background: #e5e7eb; }
-    </style>
-</head>
-<body>
-    <div class="no-print">
-        <button class="btn-print-action" onclick="window.print()">🖨️ Print</button>
-        <button class="btn-close-action" onclick="window.close()">✕ Close</button>
-    </div>
-    ${invoicesHtml}
-</body>
-</html>`;
+        return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Invoice - ${escapeHtml(opts.businessName)}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1f2937;padding:40px;max-width:800px;margin:0 auto;}@media print{body{padding:20px;}.invoice-page{page-break-after:always;}.invoice-page:last-child{page-break-after:avoid;}.no-print{display:none!important;}}.no-print{position:fixed;top:20px;right:20px;display:flex;gap:8px;z-index:10;}.no-print button{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}.btn-print-action{background:#2d4a22;color:white;}.btn-close-action{background:#f3f4f6;color:#374151;border:1px solid #d1d5db;}</style></head><body><div class="no-print"><button class="btn-print-action" onclick="window.print()">🖨️ Print</button><button class="btn-close-action" onclick="window.close()">✕ Close</button></div>${invoicesHtml}</body></html>`;
     }
 
     // ============ HELPER FUNCTIONS ============
@@ -1535,19 +1309,19 @@
         div.textContent = text;
         return div.innerHTML;
     }
-
+    
     function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
-
+    
     function openImage(src) {
         document.getElementById('modalImage').src = src;
         document.getElementById('imageModal').classList.add('show');
     }
-
+    
     function closeModal() {
         document.getElementById('imageModal').classList.remove('show');
     }
@@ -1557,7 +1331,7 @@
         await loadExchangeRate();
         await fetchOrders();
     }
-
+    
     window.selectAll = selectAll;
     window.deleteSelected = deleteSelected;
     window.updateSelectedCount = updateSelectedCount;
@@ -1570,10 +1344,6 @@
     window.openPrintDialog = openPrintDialog;
     window.closePrintDialog = closePrintDialog;
     window.executePrint = executePrint;
-
-    document.getElementById('printDialogOverlay').addEventListener('click', function(e) {
-        if (e.target === this) closePrintDialog();
-    });
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
