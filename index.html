@@ -86,10 +86,10 @@
         
         <!-- User Profile (Logged In) -->
         <div id="authButtonsLoggedIn" class="hidden items-center gap-3">
-          <div class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 rounded-full">
+          <a href="/profile" class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 rounded-full hover:bg-brand/20 transition-colors">
             <i data-lucide="user-check" class="w-4 h-4 text-brand"></i>
             <span id="userNameDisplay" class="text-sm font-medium text-brand">User</span>
-          </div>
+          </a>
           <button onclick="handleLogout()" class="p-2 rounded-full hover:bg-black/5 transition-colors" title="Sign Out"><i data-lucide="log-out" class="w-5 h-5 text-txt-sub"></i></button>
         </div>
 
