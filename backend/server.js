@@ -53,10 +53,6 @@ const corsOptions = {
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cors(corsOptions));
-app.use(cookieParser());
-
-app.use(express.json({ limit: '10mb' }));
-app.use(cors(corsOptions));
 app.use(cookieParser()); // ESSENTIAL FOR READING COOKIES
 
 // ─── HELPERS & MIDDLEWARE ────────────────────────────────────────────────
