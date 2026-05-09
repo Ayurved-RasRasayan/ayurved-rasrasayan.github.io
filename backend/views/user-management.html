@@ -16,7 +16,7 @@
         .header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
         .btn-back {
             background: rgba(255,255,255,0.2); color: white; text-decoration: none;
-            padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-size: 14px; font-weight: 500;
+            padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-size: 14px; font-weight: 500; cursor: pointer; border: none;
         }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
 
@@ -30,6 +30,52 @@
         }
         .stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
         .stat-value { font-size: 28px; font-weight: 800; color: #2d4a22; margin-top: 4px; }
+
+        /* Debug Panel */
+        .debug-panel {
+            background: #1e1e1e; color: #0f0; padding: 12px 16px; border-radius: 8px;
+            margin-bottom: 16px; font-family: 'Courier New', monospace; font-size: 12px;
+            max-height: 200px; overflow-y: auto; display: none;
+        }
+        .debug-panel.visible { display: block; }
+        .debug-line { margin-bottom: 2px; word-break: break-all; }
+        .debug-error { color: #ff5555; }
+        .debug-success { color: #50fa7b; }
+        .debug-info { color: #8be9fd; }
+
+        /* Login Modal */
+        .login-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 5000;
+            align-items: center; justify-content: center;
+        }
+        .login-overlay.show { display: flex; }
+        .login-box {
+            background: white; border-radius: 16px; padding: 36px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+        .login-box h3 { font-size: 20px; margin-bottom: 6px; color: #2d4a22; }
+        .login-subtitle { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+        .login-box label {
+            font-weight: 600; margin-bottom: 6px; display: block;
+            color: #374151; font-size: 13px;
+        }
+        .login-box input {
+            width: 100%; padding: 10px 14px; border: 1px solid #d1d5db;
+            border-radius: 8px; font-size: 14px; margin-bottom: 14px; font-family: inherit;
+        }
+        .login-box input:focus {
+            outline: none; border-color: #2d4a22;
+            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
+        }
+        .login-error {
+            background: #fef2f2; color: #991b1b; padding: 8px 12px;
+            border-radius: 6px; font-size: 13px; margin-bottom: 14px; display: none;
+        }
+        .login-error.show { display: block; }
+        .login-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .login-actions .btn-primary { flex: 1; padding: 12px; font-size: 15px; }
 
         .table-wrapper {
             background: white; border-radius: 12px; overflow-x: auto;
@@ -54,6 +100,8 @@
             padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600;
             cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
         }
+        .btn-primary { background: #2d4a22; color: white; border: none; }
+        .btn-primary:hover { background: #1f3618; }
         .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .btn-danger:hover { background: #fecaca; }
         .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -61,7 +109,7 @@
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px;
-            transition: 0.3s; z-index: 1000; font-size: 14px;
+            transition: 0.3s; z-index: 1000; font-size: 14px; max-width: 90vw; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -75,9 +123,14 @@
 
 <div class="container">
     <div class="header">
-        <h1>👥 User Management</h1>
-        <a href="/api/view-orders" class="btn-back">← Back to Orders</a>
+        <h1>User Management</h1>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-back" onclick="toggleDebug()">Debug</button>
+            <a href="/api/view-orders" class="btn-back">Back to Orders</a>
+        </div>
     </div>
+
+    <div id="debugPanel" class="debug-panel"></div>
 
     <div class="stats-bar">
         <div class="stat-card">
@@ -108,112 +161,325 @@
             </thead>
             <tbody id="usersTableBody">
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Loading users...</td>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Waiting for login...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Login Modal -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <h3>Admin Login</h3>
+        <div class="login-subtitle">Enter your admin credentials to manage users</div>
+        <div id="loginError" class="login-error">Invalid credentials.</div>
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" placeholder="password" autocomplete="current-password">
+        <div class="login-actions">
+            <button class="btn btn-primary" onclick="submitLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast" class="toast">Notification</div>
 
 <script>
-    const API_BASE = window.location.origin + '/api';
+    var API_BASE = window.location.origin + '/api';
+    var authCredentials = null;
+    var toastTimer = null;
 
-    // Extracts creation date from MongoDB _id string
-    function getDateFromObjectId(oid) {
-        try {
-            // The first 8 characters of an ObjectId represent seconds since Unix epoch
-            const timestamp = parseInt(oid.substring(0, 8), 16) * 1000;
-            return new Date(timestamp);
-        } catch (e) {
-            return new Date(); // Fallback
+    /* ===== DEBUG ===== */
+    function debugLog(message, type) {
+        type = type || 'info';
+        console.log('[NB]', message);
+        var panel = document.getElementById('debugPanel');
+        if (panel) {
+            var line = document.createElement('div');
+            line.className = 'debug-line debug-' + type;
+            line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + message;
+            panel.appendChild(line);
+            panel.scrollTop = panel.scrollHeight;
         }
+    }
+
+    function toggleDebug() {
+        document.getElementById('debugPanel').classList.toggle('visible');
+    }
+
+    /* ===== FETCH WITH TIMEOUT ===== */
+    function fetchWithTimeout(url, options, timeoutMs) {
+        timeoutMs = timeoutMs || 15000;
+        return Promise.race([
+            fetch(url, options),
+            new Promise(function(_, reject) {
+                setTimeout(function() {
+                    reject(new Error('Timeout after ' + (timeoutMs / 1000) + 's'));
+                }, timeoutMs);
+            })
+        ]);
+    }
+
+    /* ===== AUTH ===== */
+    function showLoginModal(errorMsg) {
+        debugLog('Showing login modal', 'info');
+        var overlay = document.getElementById('loginOverlay');
+        var errorEl = document.getElementById('loginError');
+        if (errorMsg) {
+            errorEl.textContent = errorMsg;
+            errorEl.style.display = 'block';
+        } else {
+            errorEl.style.display = 'none';
+        }
+        var savedUser = localStorage.getItem('admin_username') || '';
+        document.getElementById('loginUser').value = savedUser;
+        document.getElementById('loginPass').value = '';
+        overlay.classList.add('show');
+        setTimeout(function() {
+            document.getElementById('loginUser').focus();
+        }, 200);
+    }
+
+    function hideLoginModal() {
+        document.getElementById('loginOverlay').classList.remove('show');
+    }
+
+    function submitLogin() {
+        var username = document.getElementById('loginUser').value.trim();
+        var password = document.getElementById('loginPass').value;
+        if (!username || !password) {
+            var errorEl = document.getElementById('loginError');
+            errorEl.textContent = 'Please enter both username and password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        localStorage.setItem('admin_username', username);
+        localStorage.setItem('admin_password', password);
+        authCredentials = btoa(username + ':' + password);
+        debugLog('Login submitted for: ' + username, 'info');
+        hideLoginModal();
+        fetchUsers();
     }
 
     function getAuth() {
-        let username = localStorage.getItem('admin_username');
-        let password = localStorage.getItem('admin_password');
-        if (!username || !password) {
-            username = prompt('Enter admin username:');
-            password = prompt('Enter admin password:');
-            if (username && password) {
-                localStorage.setItem('admin_username', username);
-                localStorage.setItem('admin_password', password);
-            } else { return null; }
+        if (authCredentials) return { credentials: authCredentials };
+        var username = localStorage.getItem('admin_username');
+        var password = localStorage.getItem('admin_password');
+        if (username && password) {
+            authCredentials = btoa(username + ':' + password);
+            return { credentials: authCredentials };
         }
-        return { credentials: btoa(username + ':' + password) };
+        return null;
     }
 
-    async function fetchUsers() {
+    function clearAuth() {
+        authCredentials = null;
+        localStorage.removeItem('admin_username');
+        localStorage.removeItem('admin_password');
+    }
+
+    document.getElementById('loginPass').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitLogin();
+    });
+    document.getElementById('loginUser').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('loginPass').focus();
+    });
+
+    /* ===== EXTRACT DATE ===== */
+    function getDateFromObjectId(oid) {
         try {
-            const auth = getAuth();
-            if (!auth) throw new Error('Authentication required');
-            const response = await fetch(API_BASE + '/users-data', {
-                headers: { 'Authorization': 'Basic ' + auth.credentials }
-            });
-            if (response.status === 401) {
-                localStorage.removeItem('admin_username');
-                localStorage.removeItem('admin_password');
-                throw new Error('Login failed. Please try again.');
-            }
-            if (!response.ok) throw new Error('Failed to fetch users');
-            const data = await response.json();
-            if (data.success && data.users) {
-                renderTable(data.users);
-                updateStats(data.users);
-                showToast('✅ Loaded ' + data.users.length + ' users');
-            } else { throw new Error(data.error || 'No users found'); }
-        } catch (error) {
-            showToast('❌ ' + error.message);
-            document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">❌ ' + error.message + '<br><button onclick="fetchUsers()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry</button></td></tr>';
+            var timestamp = parseInt(oid.substring(0, 8), 16) * 1000;
+            return new Date(timestamp);
+        } catch (e) {
+            return new Date();
         }
     }
 
+    /* ===== FETCH USERS ===== */
+    async function fetchUsers() {
+        var tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Loading users...</td></tr>';
+
+        try {
+            var auth = getAuth();
+            if (!auth) {
+                debugLog('No credentials, showing login', 'info');
+                showLoginModal();
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">Please log in</td></tr>';
+                return;
+            }
+
+            var fetchUrl = API_BASE + '/users-data';
+            debugLog('Fetching: ' + fetchUrl, 'info');
+            showToast('Loading users...');
+
+            var response = await fetchWithTimeout(fetchUrl, {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            }, 15000);
+
+            debugLog('Response: ' + response.status, response.ok ? 'success' : 'error');
+
+            if (response.status === 401) {
+                clearAuth();
+                showLoginModal('Invalid username or password. Try again.');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">Auth failed</td></tr>';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+
+            var data = await response.json();
+            
+            var users = null;
+            if (data.success && data.users) users = data.users;
+            else if (data.users) users = data.users;
+            else if (Array.isArray(data)) users = data;
+
+            if (users && Array.isArray(users)) {
+                debugLog('Loaded ' + users.length + ' users', 'success');
+                renderTable(users);
+                updateStats(users);
+                showToast('Loaded ' + users.length + ' users');
+            } else {
+                debugLog('Unexpected format: ' + JSON.stringify(data).substring(0, 200), 'error');
+                throw new Error('Unexpected response format');
+            }
+        } catch (error) {
+            debugLog('ERROR: ' + error.message, 'error');
+            showToast('Error: ' + error.message);
+            var errHtml = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">';
+            errHtml += '<b>Failed to load users</b><br>';
+            errHtml += '<span style="font-size:13px;color:#6b7280;">' + escapeHtml(error.message) + '</span><br>';
+            errHtml += '<button onclick="fetchUsers()" style="margin:8px;padding:10px 20px;background:#2d4a22;color:white;border:none;border-radius:8px;cursor:pointer;">Retry</button>';
+            errHtml += '<button onclick="clearAuth();showLoginModal();" style="margin:8px;padding:10px 20px;background:#374151;color:white;border:none;border-radius:8px;cursor:pointer;">Re-login</button>';
+            errHtml += '</td></tr>';
+            tbody.innerHTML = errHtml;
+        }
+    }
+
+    /* ===== RENDER TABLE ===== */
     function renderTable(users) {
-        const tbody = document.getElementById('usersTableBody');
+        var tbody = document.getElementById('usersTableBody');
         if (!users || users.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af;">No users found</td></tr>';
             return;
         }
-        tbody.innerHTML = users.map(user => {
-            // Use our safe extraction function instead of .getTimestamp()
-            const joinDate = getDateFromObjectId(user._id).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const cartCount = user.cart ? user.cart.length : 0;
-            let statusBadge = user.isVerified ? '<span class="badge badge-verified">✅ Verified</span>' : '<span class="badge badge-unverified">⏳ Unverified</span>';
-            return '<tr id="row-' + user._id + '"><td><div class="user-info"><span class="user-name">' + escapeHtml(user.name || 'No Name') + '</span><span class="user-email">' + escapeHtml(user.email || '-') + '</span></div></td><td><span class="user-username">@' + escapeHtml(user.username || '-') + '</span></td><td>' + statusBadge + '</td><td>' + cartCount + ' items</td><td>' + joinDate + '</td><td><button class="btn btn-danger" onclick="deleteUser(\'' + user._id + '\', this)">🗑️ Delete</button></td></tr>';
-        }).join('');
+
+        var html = '';
+        for (var i = 0; i < users.length; i++) {
+            var user = users[i];
+            var joinDate = getDateFromObjectId(user._id).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            var cartCount = user.cart ? user.cart.length : 0;
+            var statusBadge = user.isVerified ? '<span class="badge badge-verified">Verified</span>' : '<span class="badge badge-unverified">Unverified</span>';
+            
+            html += '<tr id="row-' + user._id + '">';
+            html += '<td><div class="user-info"><span class="user-name">' + escapeHtml(user.name || 'No Name') + '</span><span class="user-email">' + escapeHtml(user.email || '-') + '</span></div></td>';
+            html += '<td><span class="user-username">@' + escapeHtml(user.username || '-') + '</span></td>';
+            html += '<td>' + statusBadge + '</td>';
+            html += '<td>' + cartCount + ' items</td>';
+            html += '<td>' + joinDate + '</td>';
+            html += '<td><button class="btn btn-danger" onclick="deleteUser(\'' + user._id + '\', this)">Delete</button></td>';
+            html += '</tr>';
+        }
+        tbody.innerHTML = html;
     }
 
     function updateStats(users) {
         document.getElementById('totalUsers').textContent = users.length;
-        document.getElementById('verifiedUsers').textContent = users.filter(u => u.isVerified).length;
-        document.getElementById('unverifiedUsers').textContent = users.filter(u => !u.isVerified).length;
+        var verifiedCount = 0;
+        var unverifiedCount = 0;
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].isVerified) verifiedCount++;
+            else unverifiedCount++;
+        }
+        document.getElementById('verifiedUsers').textContent = verifiedCount;
+        document.getElementById('unverifiedUsers').textContent = unverifiedCount;
     }
 
+    /* ===== DELETE USER ===== */
     async function deleteUser(userId, btn) {
-        if (!confirm('⚠️ Delete this user permanently? This cannot be undone!')) return;
-        btn.disabled = true; btn.textContent = '...';
-        const auth = getAuth();
+        if (!confirm('Delete this user permanently? This cannot be undone!')) return;
+        btn.disabled = true;
+        btn.textContent = '...';
+        var auth = getAuth();
         try {
-            const response = await fetch(API_BASE + '/delete-user/' + userId, { method: 'DELETE', headers: { 'Authorization': 'Basic ' + auth.credentials } });
-            const data = await response.json();
+            var response = await fetchWithTimeout(API_BASE + '/delete-user/' + userId, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            }, 10000);
+            var data = await response.json();
             if (data.success) {
-                const row = document.getElementById('row-' + userId);
-                row.style.opacity = '0';
-                setTimeout(() => { row.remove(); fetchUsers(); }, 200);
-                showToast('✅ User deleted');
+                var row = document.getElementById('row-' + userId);
+                if (row) {
+                    row.style.opacity = '0';
+                    setTimeout(function() { row.remove(); fetchUsers(); }, 200);
+                }
+                showToast('User deleted');
             } else { throw new Error('Delete failed'); }
         } catch (error) {
-            showToast('❌ Delete failed');
-            btn.disabled = false; btn.textContent = '🗑️ Delete';
+            showToast('Delete failed: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'Delete';
         }
     }
 
-    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-    function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
+    /* ===== HELPERS ===== */
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        var str = String(text);
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
-    fetchUsers();
+    function showToast(msg) {
+        var toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+
+    /* ===== INIT ===== */
+    async function init() {
+        debugLog('Initializing User Management...', 'info');
+        debugLog('API: ' + API_BASE, 'info');
+        
+        if (window.location.protocol === 'file:') {
+            debugLog('ERROR: file:// protocol detected!', 'error');
+            document.getElementById('usersTableBody').innerHTML =
+                '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">' +
+                '<b>Cannot load from file:// protocol</b><br>Open via http://localhost:PORT</td></tr>';
+            return;
+        }
+
+        var auth = getAuth();
+        if (auth) {
+            debugLog('Found saved credentials, fetching...', 'info');
+            fetchUsers();
+        } else {
+            debugLog('No credentials, showing login', 'info');
+            showLoginModal();
+        }
+    }
+
+    /* Global bindings */
+    window.toggleDebug = toggleDebug;
+    window.submitLogin = submitLogin;
+    window.clearAuth = clearAuth;
+    window.showLoginModal = showLoginModal;
+    window.fetchUsers = fetchUsers;
+    window.deleteUser = deleteUser;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { hideLoginModal(); }
+    });
+
+    init();
 </script>
 </body>
 </html>
