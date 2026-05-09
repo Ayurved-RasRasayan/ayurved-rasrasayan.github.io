@@ -141,7 +141,7 @@ async function setSetting(key, value) { await Setting.updateOne({ key }, { value
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,20}$/;
     if (!passwordRegex.test(password)) return res.status(400).json({ error: 'Password must be at least 8 characters, with uppercase, lowercase, number, and special character.' });
 
     const existingUser = await User.findOne({ email });
