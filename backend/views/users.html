@@ -49,9 +49,7 @@
                     <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">My Account</h1>
                     <p class="text-txt-sub mt-1">Manage your profile and view orders</p>
                 </div>
-                <div id="verifyBadge" class="hidden px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                    <!-- Filled by JS -->
-                </div>
+                <div id="verifyBadge" class="hidden px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2"></div>
             </div>
             <div id="profileDetails" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="flex justify-center items-center py-12 col-span-3">
@@ -115,7 +113,7 @@
                 `;
 
                 lucide.createIcons();
-                fetchOrders(user.email);
+                fetchOrders();
 
             } catch (e) {
                 localStorage.removeItem('natura_token');
@@ -123,7 +121,7 @@
             }
         }
 
-        async function fetchOrders(email) {
+        async function fetchOrders() {
             try {
                 const res = await fetch(API_BASE + '/auth/my-orders', { headers: { 'Authorization': `Bearer ${authToken}` }});
                 const orders = await res.json();
