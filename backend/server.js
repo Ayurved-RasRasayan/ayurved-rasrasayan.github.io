@@ -295,6 +295,48 @@ app.get('/api/view-users-data', checkAdminAuth, async (req, res) => {
   }
 });
 
+// ─── MISSING ADMIN HTML ROUTES ──────────────────────────────────────────
+app.get('/api/view-orders', checkAdminAuth, async (req, res) => {
+  try {
+    let html = fs.readFileSync(path.join(__dirname, 'views/orders.html'), 'utf8');
+    res.send(html);
+  } catch (e) { 
+    console.error('View orders error:', e);
+    res.status(500).send('Error loading orders page'); 
+  }
+});
+
+app.get('/api/manage-stock', checkAdminAuth, async (req, res) => {
+  try {
+    const products = await Product.find().sort({ id: 1 });
+    let rows = products.map(p => {
+      const s = p.stock || 0;
+      let badge = '<span style="color:#15803d">In Stock</span>';
+      if (s === 0) badge = '<span style="color:#b91c1c">Out</span>';
+      else if (s <= 10) badge = '<span style="color:#c2410c">Low</span>';
+      return `<tr><td data-label="Product"><div class="pi"><img src="${p.img}" class="pimg" onerror="this.style.display='none'"><div><strong>${p.name}</strong><div style="font-size:10px;color:#6b7280">${p.sci}</div></div></div></td><td data-label="Category" style="font-size:13px;color:#6b7280">${p.catLabel}</td><td data-label="Current">${badge} (${s})</td><td data-label="New Stock"><input type="number" class="si" id="s-${p.id}" value="${s}" min="0" onchange="document.getElementById('b-${p.id}').classList.add('sv')"></td><td data-label="Action"><button class="sb" id="b-${p.id}" onclick="save(${p.id})">Save</button></td></tr>`;
+    }).join('');
+    let html = fs.readFileSync(path.join(__dirname, 'views/stock.html'), 'utf8');
+    res.send(html.replace('{{STOCK_ROWS}}', rows));
+  } catch (e) { res.status(500).send('Error loading stock'); }
+});
+
+app.delete('/api/delete-order/:id', checkAdminAuth, async (req, res) => {
+  try { await Order.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.delete('/api/delete-orders', checkAdminAuth, async (req, res) => {
+  try { await Order.deleteMany({ _id: { $in: req.body.ids } }); res.json({ success: true, deleted: req.body.ids }); } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.put('/api/update-stock', checkAdminAuth, async (req, res) => {
+  try {
+    await Product.updateOne({ id: req.body.id }, { $set: { stock: req.body.stock } });
+    await syncDBToFile();
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ success: false }); }
+});
+
 async function startup() { await syncFileToDB({ removeOrphans: true }); startFileWatcher(); }
 startup();
 
