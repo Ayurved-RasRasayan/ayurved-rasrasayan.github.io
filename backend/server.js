@@ -25,15 +25,35 @@ if (missing.length > 0) {
 // Dynamic CORS to allow credentials from frontend
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5500', 'http://127.0.0.1:5500'];
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    // Clean up the allowed origins (remove trailing slashes)
+    const allowedOrigins = [
+      process.env.FRONTEND_URL, 
+      'http://localhost:5500', 
+      'http://127.0.0.1:5500',
+      'https://ayurved-rasrasayan.github.io' // Hardcoded fallback just in case
+    ].filter(Boolean).map(url => url.endsWith('/') ? url.slice(0, -1) : url);
+
+    // Check if the incoming origin matches any of our allowed origins
+    const isAllowed = allowedOrigins.some(allowed => {
+      return origin === allowed || origin.startsWith(allowed);
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.log(`[CORS BLOCKED] Origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true // ESSENTIAL FOR COOKIES
 };
+
+app.use(express.json({ limit: '10mb' }));
+app.use(cors(corsOptions));
+app.use(cookieParser());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cors(corsOptions));
