@@ -21,15 +21,30 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-// ─── MIDDLEWARE ────────────────────────────────────────
+// ─── MIDDLEWARE ────────────────────────────────────────────────
+// Dynamic CORS to allow credentials from frontend
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
     if (!origin) return callback(null, true);
-    const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5500', 'http://127.0.0.1:5500', 'https://ayurved-rasrasayan.github.io'].filter(Boolean).map(url => url.endsWith('/') ? url.slice(0, -1) : url);
-    const isAllowed = allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed));
-    if (isAllowed) callback(null, true); else callback(new Error('Not allowed by CORS'));
+    
+    // Check if the incoming origin contains your GitHub Pages domain or localhost
+    const allowedDomains = [
+      'ayurved-rasrasayan.github.io', // Matches any path/subdomain on your GitHub Pages
+      'localhost',
+      '127.0.0.1'
+    ];
+
+    const isAllowed = allowedDomains.some(domain => origin.includes(domain));
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log(`[CORS BLOCKED] Origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
   },
-  credentials: true
+  credentials: true // ESSENTIAL FOR COOKIES
 };
 
 app.use(express.json({ limit: '10mb' }));
