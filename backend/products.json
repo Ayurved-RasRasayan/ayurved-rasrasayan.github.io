@@ -1734,6 +1734,48 @@
     "img": "images/tejpatta.jpg",
     "desc": "Premium quality product with various health benefits.",
     "stock": 100
+  },
+  {
+    "id": 128,
+    "name": "Apamarg Chirchita",
+    "sci": "Apamarg Chirchita",
+    "category": "herbs",
+    "catLabel": "Active Pharmaceutical Ingredients",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/apamarg-chirchita.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 129,
+    "name": "Sonth Dried Ginger",
+    "sci": "Sonth Dried Ginger",
+    "category": "herbs",
+    "catLabel": "Active Pharmaceutical Ingredients",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/sonth-dried-ginger.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
+  },
+  {
+    "id": 130,
+    "name": "Stinging Nettle Sisno",
+    "sci": "Stinging Nettle Sisno",
+    "category": "herbs",
+    "catLabel": "Active Pharmaceutical Ingredients",
+    "price": 1000,
+    "unit": "Kg",
+    "moq": "",
+    "lead": "21-30 days",
+    "img": "images/stinging-nettle-sisno.jpg",
+    "desc": "Premium quality product with various health benefits.",
+    "stock": 100
   }
 ]
 
