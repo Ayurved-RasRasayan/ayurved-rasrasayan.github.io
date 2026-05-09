@@ -59,6 +59,8 @@
             transition: all 0.3s;
             font-size: 14px;
             font-weight: 500;
+            cursor: pointer;
+            border: none;
         }
 
         .btn-stock:hover {
@@ -564,6 +566,13 @@
         .dialog-actions { display: flex; gap: 10px; margin-top: 24px; }
         .dialog-actions .btn { flex: 1; padding: 12px; font-size: 15px; }
 
+        /* Login specific */
+        .login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; display: flex; align-items: center; justify-content: center;
+        }
+        .login-overlay.hidden { display: none; }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -579,7 +588,7 @@
 <body>
 
 <!-- Login Modal -->
-<div id="loginModal" class="dialog-overlay show">
+<div id="loginModal" class="login-overlay">
     <div class="dialog-box">
         <h3>🔒 Admin Login</h3>
         <div class="dialog-row">
@@ -662,7 +671,7 @@
                 </tr>
             </thead>
             <tbody id="ordersTableBody">
-                <tr><td colspan="6" style="text-align:center;padding:40px;">Loading orders...</td></tr>
+                <tr><td colspan="6" style="text-align:center;padding:40px;">Waiting for login...</td></tr>
             </tbody>
         </table>
     </div>
@@ -741,6 +750,8 @@
     let printTargetIds = [];
 
     // ============ AUTHENTICATION ============
+    // Stores credentials and proceeds immediately.
+    // API errors are handled gracefully inside the orders table.
     function getAuth() {
         const credentials = sessionStorage.getItem('admin_credentials');
         if (!credentials) return null;
@@ -751,45 +762,22 @@
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
         const errorEl = document.getElementById('loginError');
-        
+
         if (!username || !password) {
             errorEl.textContent = 'Please enter both username and password.';
             errorEl.style.display = 'block';
             return;
         }
 
-        // Store temporarily to attempt fetch
+        // Store credentials immediately
         sessionStorage.setItem('admin_credentials', btoa(username + ':' + password));
-        attemptInit();
-    }
 
-    async function attemptInit() {
-        const auth = getAuth();
-        if (!auth) return;
+        // Dismiss login modal and show the app
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('appContainer').style.display = 'block';
 
-        try {
-            const response = await fetch(API_BASE + '/view-orders-data', {
-                headers: { 'Authorization': 'Basic ' + auth.credentials }
-            });
-
-            if (response.status === 401) {
-                sessionStorage.removeItem('admin_credentials');
-                document.getElementById('loginError').textContent = 'Invalid credentials. Please try again.';
-                document.getElementById('loginError').style.display = 'block';
-                return;
-            }
-
-            if (!response.ok) throw new Error('Server error');
-
-            // Success
-            document.getElementById('loginModal').classList.remove('show');
-            document.getElementById('appContainer').style.display = 'block';
-            await init();
-        } catch (error) {
-            sessionStorage.removeItem('admin_credentials');
-            document.getElementById('loginError').textContent = 'Connection error: ' + error.message;
-            document.getElementById('loginError').style.display = 'block';
-        }
+        // Now attempt to load data (errors shown inside the table)
+        init();
     }
 
     function logout() {
@@ -797,18 +785,21 @@
         location.reload();
     }
 
+    // On page load, check if credentials already exist
+    window.onload = function() {
+        if (getAuth()) {
+            // Already logged in from this session
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('appContainer').style.display = 'block';
+            init();
+        }
+    };
+
     // ============ INITIALIZATION ============
     async function init() {
         await loadExchangeRate();
         await fetchOrders();
     }
-
-    // Check auth on load
-    window.onload = function() {
-        if (getAuth()) {
-            attemptInit();
-        }
-    };
 
     // ============ FETCH ORDERS ============
     async function fetchOrders() {
@@ -823,17 +814,22 @@
             });
 
             if (response.status === 401) {
-                logout();
-                throw new Error('Session expired. Please log in again.');
+                // Bad credentials — kick back to login
+                sessionStorage.removeItem('admin_credentials');
+                document.getElementById('loginModal').classList.remove('hidden');
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('loginError').textContent = 'Invalid username or password.';
+                document.getElementById('loginError').style.display = 'block';
+                throw new Error('Login failed. Please try again.');
             }
 
-            if (!response.ok) throw new Error('Failed to fetch orders');
+            if (!response.ok) throw new Error('Failed to fetch orders (' + response.status + ')');
 
             const data = await response.json();
 
             if (data.success && data.orders) {
                 allOrders = data.orders;
-                applyFilters(); // Applies search, filter, renders table and pagination
+                applyFilters();
                 showToast(`✅ Loaded ${allOrders.length} orders`);
             } else {
                 throw new Error(data.error || 'No orders found');
@@ -842,7 +838,7 @@
             showToast('❌ ' + error.message);
             document.getElementById('ordersTableBody').innerHTML = `
                 <tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">
-                    ❌ ${error.message}<br>
+                    ❌ ${escapeHtml(error.message)}<br>
                     <button onclick="fetchOrders()" style="margin-top:10px;padding:8px 16px;background:#2d4a22;color:white;border:none;border-radius:6px;cursor:pointer;">Retry</button>
                 </td></tr>
             `;
@@ -884,7 +880,6 @@
         let html = '';
         html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Prev</button>`;
 
-        // Simple page numbers (could be enhanced with ellipsis for 100+ pages)
         for (let i = 1; i <= totalPages; i++) {
             if (totalPages > 10 && Math.abs(i - currentPage) > 2 && i !== 1 && i !== totalPages) {
                 if (i === 2 || i === totalPages - 1) html += `<span style="padding:6px;">...</span>`;
@@ -909,7 +904,7 @@
     // ============ RENDER TABLE ============
     function renderTable() {
         const tbody = document.getElementById('ordersTableBody');
-        
+
         if (filteredOrders.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No orders found</td></tr>';
             updateGrandTotal();
@@ -946,7 +941,6 @@
                     const form = item.form || 'Whole Form';
                     const unit = item.unit || '1kg';
 
-                    // FIX: Currency toggle for items
                     let displayLineTotal = currentCurrency === 'USD'
                         ? `$${(lineTotal / exchangeRate).toFixed(2)}`
                         : `NPR ${lineTotal.toLocaleString()}`;
@@ -956,10 +950,10 @@
                             <div class="item-info">
                                 <span class="item-name">${escapeHtml(item.name)}</span>
                                 <div class="item-product-id">
-                                    🆔 ID: ${escapeHtml(productId.toString())} 
-                                    <span style="margin: 0 4px; color: #d1d5db;">|</span> 
-                                    🧪 ${escapeHtml(form)} 
-                                    <span style="margin: 0 4px; color: #d1d5db;">|</span> 
+                                    🆔 ID: ${escapeHtml(productId.toString())}
+                                    <span style="margin: 0 4px; color: #d1d5db;">|</span>
+                                    🧪 ${escapeHtml(form)}
+                                    <span style="margin: 0 4px; color: #d1d5db;">|</span>
                                     ⚖️ ${escapeHtml(unit)}
                                 </div>
                             </div>
@@ -976,7 +970,6 @@
                 ? `$${(totalNPR / exchangeRate).toFixed(2)}`
                 : `NPR ${totalNPR.toLocaleString()}`;
 
-            // FIX: XSS via paymentScreenshot validation
             const proofUrl = safeUrl(order.paymentScreenshot);
 
             html += `
@@ -987,8 +980,8 @@
                     <td>
                         <div class="date-cell">
                             <div class="date-text">${orderDate}<br><small>${orderTime}</small></div>
-                            ${proofUrl 
-                                ? `<img src="${proofUrl}" class="proof-img" onclick="openImage('${proofUrl}')">` 
+                            ${proofUrl
+                                ? `<img src="${proofUrl}" class="proof-img" onclick="openImage('${proofUrl}')">`
                                 : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;">No Proof</div>'}
                         </div>
                     </td>
@@ -1015,7 +1008,7 @@
                         <div class="client-line"><span class="client-label">📞 Phone:</span> ${escapeHtml(client.phone || '-')}</div>
                         <div class="client-line"><span class="client-label">✉️ Email:</span> ${escapeHtml(client.email || '-')}</div>
                         <div class="client-line"><span class="client-label">📍 Address:</span> ${escapeHtml(client.address || '-')}</div>
-                        <div class="client-line"><span class="client-label">💳 Payment:</span> ${order.paymentMethod || 'N/A'}</div>
+                        <div class="client-line"><span class="client-label">💳 Payment:</span> ${escapeHtml(order.paymentMethod || 'N/A')}</div>
                     </td>
                     <td>
                         <div class="action-btns">
@@ -1055,7 +1048,6 @@
                 selectEl.className = `status-select s-${newStatus}`;
                 showToast(`✅ Status updated to ${newStatus}`);
 
-                // Update local array
                 const orderIdx = allOrders.findIndex(o => o._id === orderId);
                 if (orderIdx !== -1) allOrders[orderIdx].status = newStatus;
 
@@ -1093,7 +1085,6 @@
             const data = await response.json();
 
             if (data.success) {
-                // FIX: Remove from array and re-render instead of fetching again
                 allOrders = allOrders.filter(o => o._id !== orderId);
                 applyFilters();
                 updateSelectedCount();
@@ -1126,7 +1117,6 @@
         checkboxes.forEach(cb => cb.checked = !allChecked);
         updateSelectedCount();
 
-        // FIX: Update button text based on state
         const btn = document.getElementById('selectAllBtn');
         btn.textContent = allChecked ? '☑️ Select All' : '☐ Deselect All';
     }
@@ -1177,15 +1167,12 @@
         currentCurrency = currency;
         document.getElementById('btnNPR').classList.toggle('active', currency === 'NPR');
         document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
-
-        // Re-render table to fix item-level currency formatting issue
         renderTable();
         updateGrandTotal();
     }
 
     function updateGrandTotal() {
         let total = 0;
-        // Calculate total based on currently filtered orders, not just visible rows
         filteredOrders.forEach(order => {
             total += Math.round(order.totalNPR || 0);
         });
@@ -1213,7 +1200,6 @@
         }
     }
 
-    // FIX: Implicit event bug resolved by passing button element
     async function refreshRate(btn) {
         const auth = getAuth();
         if (!auth) { logout(); return; }
@@ -1226,12 +1212,12 @@
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             });
             if (response.status === 401) { logout(); return; }
-            
+
             const data = await response.json();
             exchangeRate = data.rate || 133;
             document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
             showToast('✅ Rate updated');
-            setCurrency(currentCurrency); // Refresh displayed numbers
+            setCurrency(currentCurrency);
         } catch (error) {
             showToast('❌ Failed to sync rate');
         } finally {
@@ -1240,10 +1226,7 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
     // ============ PRINT INVOICE SYSTEM ============
-    // ═══════════════════════════════════════════════════════════════════════
-
     function openPrintDialog(mode, orderId) {
         printMode = mode;
 
@@ -1310,7 +1293,6 @@
         const printDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
         const printTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-        // OPTIMIZE: Escape once, use multiple times
         const safeName = escapeHtml(opts.businessName);
         const safeInfo = escapeHtml(opts.businessInfo);
 
@@ -1348,7 +1330,7 @@
 
             let itemsRows = '';
             let itemCount = 0;
-            
+
             if (order.items && order.items.length > 0) {
                 order.items.forEach((item, idx) => {
                     const qty = item.qty || 1;
@@ -1357,7 +1339,7 @@
                     itemCount += qty;
                     const form = item.form || 'Whole Form';
                     const unit = item.unit || '1kg';
-                    
+
                     itemsRows += `
                         <tr>
                             <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">${idx + 1}</td>
@@ -1488,7 +1470,6 @@
         return div.innerHTML;
     }
 
-    // FIX: Security utility to validate URLs
     function safeUrl(str) {
         if (!str) return '';
         try {
