@@ -311,7 +311,8 @@
                 return;
             }
 
-            var fetchUrl = API_BASE + '/users-data';
+            // FIX: Updated to new modular route
+            var fetchUrl = API_BASE + '/auth/users-data';
             debugLog('Fetching: ' + fetchUrl, 'info');
             showToast('Loading users...');
 
@@ -407,7 +408,8 @@
         btn.textContent = '...';
         var auth = getAuth();
         try {
-            var response = await fetchWithTimeout(API_BASE + '/delete-user/' + userId, {
+            // FIX: Updated to new modular route
+            var response = await fetchWithTimeout(API_BASE + '/auth/delete-user/' + userId, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             }, 10000);
