@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; color: #1f2937; padding: 20px; }
         .container { max-width: 1400px; margin: 0 auto; }
-        
+
         .header {
             background: #2d4a22; color: white; padding: 20px; border-radius: 12px;
             margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
@@ -46,29 +46,21 @@
         /* Login Modal */
         .login-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 5000;
-            align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.6); z-index: 5000; align-items: center; justify-content: center;
         }
         .login-overlay.show { display: flex; }
         .login-box {
             background: white; border-radius: 16px; padding: 36px;
-            width: 90%; max-width: 380px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            width: 90%; max-width: 380px; box-shadow: 0 25px 60px rgba(0,0,0,0.3);
         }
         .login-box h3 { font-size: 20px; margin-bottom: 6px; color: #2d4a22; }
         .login-subtitle { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
-        .login-box label {
-            font-weight: 600; margin-bottom: 6px; display: block;
-            color: #374151; font-size: 13px;
-        }
+        .login-box label { font-weight: 600; margin-bottom: 6px; display: block; color: #374151; font-size: 13px; }
         .login-box input {
             width: 100%; padding: 10px 14px; border: 1px solid #d1d5db;
             border-radius: 8px; font-size: 14px; margin-bottom: 14px; font-family: inherit;
         }
-        .login-box input:focus {
-            outline: none; border-color: #2d4a22;
-            box-shadow: 0 0 0 3px rgba(45,74,34,0.15);
-        }
+        .login-box input:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
         .login-error {
             background: #fef2f2; color: #991b1b; padding: 8px 12px;
             border-radius: 6px; font-size: 13px; margin-bottom: 14px; display: none;
@@ -87,7 +79,6 @@
             font-weight: 600; text-transform: uppercase; text-align: left; letter-spacing: 0.05em;
         }
         td { padding: 14px 16px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
-        tr:hover { background: #f9fafb; }
 
         .badge {
             display: inline-flex; align-items: center; gap: 6px;
@@ -105,11 +96,15 @@
         .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .btn-danger:hover { background: #fecaca; }
         .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-outline {
+            background: white; color: #2d4a22; border: 1px solid #2d4a22;
+        }
+        .btn-outline:hover { background: #f0fdf4; }
 
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px;
-            transition: 0.3s; z-index: 1000; font-size: 14px; max-width: 90vw; text-align: center;
+            transition: 0.3s; z-index: 6000; font-size: 14px; max-width: 90vw; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -117,6 +112,186 @@
         .user-name { font-weight: 600; font-size: 14px; color: #1f2937; }
         .user-email { font-size: 12px; color: #6b7280; }
         .user-username { font-size: 11px; color: #9ca3af; font-family: monospace; }
+
+        /* ===== USER ROW CLICKABLE ===== */
+        tr.user-row { cursor: pointer; transition: background 0.15s; }
+        tr.user-row:hover { background: #f0fdf4; }
+
+        /* ===== USER DETAIL PANEL ===== */
+        .detail-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45); z-index: 4000;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .detail-overlay.show { display: block; opacity: 1; }
+
+        .detail-panel {
+            position: fixed; top: 0; right: 0; width: 78%; max-width: 920px; height: 100%;
+            background: #f9fafb; overflow-y: auto; z-index: 4001;
+            transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 30px rgba(0,0,0,0.15);
+        }
+        .detail-panel.open { transform: translateX(0); }
+
+        .dp-header {
+            background: linear-gradient(135deg, #2d4a22 0%, #1a2e1a 100%);
+            color: white; padding: 28px 32px; position: sticky; top: 0; z-index: 10;
+        }
+        .dp-close {
+            position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.15);
+            border: none; color: white; width: 36px; height: 36px; border-radius: 50%;
+            cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .dp-close:hover { background: rgba(255,255,255,0.3); }
+
+        .dp-profile { display: flex; align-items: center; gap: 20px; }
+        .dp-avatar {
+            width: 64px; height: 64px; border-radius: 16px;
+            background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 800; color: white; flex-shrink: 0;
+        }
+        .dp-name { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+        .dp-meta { font-size: 13px; opacity: 0.8; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 12px; }
+        .dp-meta-item { display: flex; align-items: center; gap: 5px; }
+        .dp-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; margin-top: 8px;
+        }
+        .dp-badge-verified { background: rgba(220,252,231,0.25); color: #bbf7d0; }
+        .dp-badge-unverified { background: rgba(254,243,199,0.25); color: #fde68a; }
+
+        .dp-body { padding: 24px 32px 40px; }
+
+        /* Stats row inside detail panel */
+        .dp-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px; margin-bottom: 24px;
+        }
+        .dp-stat {
+            background: white; padding: 16px; border-radius: 10px; border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .dp-stat-icon { font-size: 20px; margin-bottom: 6px; }
+        .dp-stat-val { font-size: 24px; font-weight: 800; color: #2d4a22; }
+        .dp-stat-label { font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em; margin-top: 2px; }
+        .dp-stat.highlight { border-color: #f59e0b; background: #fffbeb; }
+        .dp-stat.highlight .dp-stat-val { color: #92400e; }
+
+        /* Tabs */
+        .dp-tabs {
+            display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
+            border-bottom: 2px solid #e5e7eb; padding-bottom: 0;
+        }
+        .dp-tab {
+            padding: 10px 18px; border: none; background: transparent;
+            font-size: 13px; font-weight: 600; cursor: pointer; color: #6b7280;
+            border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+            border-radius: 6px 6px 0 0;
+        }
+        .dp-tab:hover { color: #2d4a22; background: #f0fdf4; }
+        .dp-tab.active { color: #2d4a22; border-bottom-color: #2d4a22; background: #f0fdf4; }
+        .dp-tab-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 20px; height: 18px; border-radius: 9px; font-size: 10px;
+            font-weight: 800; margin-left: 5px; padding: 0 5px;
+        }
+        .dp-tab-count.green { background: #dcfce7; color: #15803d; }
+        .dp-tab-count.amber { background: #fef3c7; color: #92400e; }
+        .dp-tab-count.blue { background: #dbeafe; color: #1d4ed8; }
+        .dp-tab-count.red { background: #fee2e2; color: #991b1b; }
+        .dp-tab-count.gray { background: #f3f4f6; color: #4b5563; }
+
+        /* Order cards */
+        .dp-orders { display: flex; flex-direction: column; gap: 12px; }
+        .dp-order-card {
+            background: white; border-radius: 10px; border: 1px solid #e5e7eb;
+            overflow: hidden; transition: box-shadow 0.2s;
+        }
+        .dp-order-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .dp-order-card.pending-card { border-left: 4px solid #f59e0b; }
+        .dp-order-card.shipping-card { border-left: 4px solid #3b82f6; }
+        .dp-order-card.completed-card { border-left: 4px solid #22c55e; }
+        .dp-order-card.success-card { border-left: 4px solid #15803d; }
+        .dp-order-card.rejected-card { border-left: 4px solid #ef4444; }
+
+        .dp-order-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px; cursor: pointer; gap: 12px; flex-wrap: wrap;
+        }
+        .dp-order-head:hover { background: #f9fafb; }
+        .dp-order-id-group { display: flex; align-items: center; gap: 10px; }
+        .dp-order-shortid {
+            background: #e0e7ff; color: #3730a3; padding: 2px 8px;
+            border-radius: 4px; font-size: 12px; font-weight: 700; font-family: monospace;
+        }
+        .dp-order-date { font-size: 12px; color: #6b7280; }
+        .dp-order-right { display: flex; align-items: center; gap: 10px; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+        }
+        .status-badge.Pending { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+        .status-badge.Shipping { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .status-badge.Completed { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-badge.Success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .status-badge.Rejected { background: #fef2f2; color: #b91c1b; border: 1px solid #fecaca; }
+
+        .dp-order-total { font-weight: 800; color: #1a5c1c; font-size: 15px; }
+
+        .dp-expand-icon {
+            color: #9ca3af; transition: transform 0.2s; font-size: 14px;
+        }
+        .dp-expand-icon.rotated { transform: rotate(180deg); }
+
+        .dp-order-items { padding: 0 18px 16px; display: none; }
+        .dp-order-items.show { display: block; }
+
+        .dp-item-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px dashed #e5e7eb; font-size: 13px; gap: 8px; flex-wrap: wrap;
+        }
+        .dp-item-row:last-child { border-bottom: none; }
+        .dp-item-name { font-weight: 600; flex: 2; min-width: 120px; }
+        .dp-item-qty { color: #6b7280; min-width: 70px; }
+        .dp-item-line { font-weight: 700; color: #1a5c1c; text-align: right; min-width: 90px; }
+
+        .dp-order-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 18px; background: #f9fafb; border-top: 1px solid #e5e7eb;
+            font-size: 12px; color: #6b7280; gap: 12px; flex-wrap: wrap;
+        }
+        .dp-order-footer-item { display: flex; align-items: center; gap: 4px; }
+
+        .dp-empty {
+            text-align: center; padding: 48px 20px; color: #9ca3af;
+        }
+        .dp-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+        .dp-empty-text { font-size: 15px; font-weight: 600; }
+        .dp-empty-sub { font-size: 13px; margin-top: 4px; }
+
+        /* Loading spinner */
+        .dp-loading {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 60px 20px; color: #6b7280;
+        }
+        .dp-spinner {
+            width: 36px; height: 36px; border: 3px solid #e5e7eb;
+            border-top-color: #2d4a22; border-radius: 50%;
+            animation: dp-spin 0.8s linear infinite; margin-bottom: 16px;
+        }
+        @keyframes dp-spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .detail-panel { width: 100%; max-width: 100%; }
+            .dp-header { padding: 20px; }
+            .dp-body { padding: 16px; }
+            .dp-profile { flex-direction: column; text-align: center; }
+            .dp-meta { justify-content: center; }
+            .dp-stats { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -184,12 +359,76 @@
     </div>
 </div>
 
+<!-- ===== USER DETAIL SLIDE-IN PANEL ===== -->
+<div id="detailOverlay" class="detail-overlay"></div>
+<div id="detailPanel" class="detail-panel">
+    <div class="dp-header">
+        <button class="dp-close" onclick="closeUserDetail()" title="Close">&times;</button>
+        <div class="dp-profile">
+            <div class="dp-avatar" id="dpAvatar">?</div>
+            <div>
+                <div class="dp-name" id="dpName">Loading...</div>
+                <div class="dp-meta">
+                    <span class="dp-meta-item" id="dpEmailWrap"><span>&#9993;</span> <span id="dpEmail">-</span></span>
+                    <span class="dp-meta-item" id="dpUsernameWrap"><span>@</span> <span id="dpUsername">-</span></span>
+                    <span class="dp-meta-item" id="dpJoinedWrap"><span>&#128197;</span> <span id="dpJoined">-</span></span>
+                </div>
+                <div id="dpBadgeWrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dp-body">
+        <!-- Stats -->
+        <div class="dp-stats" id="dpStats" style="display:none;">
+            <div class="dp-stat">
+                <div class="dp-stat-icon">&#128230;</div>
+                <div class="dp-stat-val" id="dpStatTotal">0</div>
+                <div class="dp-stat-label">Total Orders</div>
+            </div>
+            <div class="dp-stat highlight" id="dpStatPendingWrap">
+                <div class="dp-stat-icon">&#9203;</div>
+                <div class="dp-stat-val" id="dpStatPending">0</div>
+                <div class="dp-stat-label">Pending</div>
+            </div>
+            <div class="dp-stat">
+                <div class="dp-stat-icon">&#9989;</div>
+                <div class="dp-stat-val" id="dpStatCompleted">0</div>
+                <div class="dp-stat-label">Completed</div>
+            </div>
+            <div class="dp-stat">
+                <div class="dp-stat-icon">&#128176;</div>
+                <div class="dp-stat-val" id="dpStatSpent">0</div>
+                <div class="dp-stat-label">Total Spent</div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="dp-loading" id="dpLoading">
+            <div class="dp-spinner"></div>
+            <div>Loading order history...</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="dp-tabs" id="dpTabs" style="display:none;"></div>
+
+        <!-- Orders list -->
+        <div class="dp-orders" id="dpOrders"></div>
+    </div>
+</div>
+
 <div id="toast" class="toast">Notification</div>
 
 <script>
     var API_BASE = window.location.origin + '/api';
     var authCredentials = null;
     var toastTimer = null;
+    var allUsers = [];
+
+    // Detail panel state
+    var dpCurrentUser = null;
+    var dpAllOrders = [];
+    var dpActiveFilter = 'All';
 
     /* ===== DEBUG ===== */
     function debugLog(message, type) {
@@ -215,9 +454,7 @@
         return Promise.race([
             fetch(url, options),
             new Promise(function(_, reject) {
-                setTimeout(function() {
-                    reject(new Error('Timeout after ' + (timeoutMs / 1000) + 's'));
-                }, timeoutMs);
+                setTimeout(function() { reject(new Error('Timeout after ' + (timeoutMs / 1000) + 's')); }, timeoutMs);
             })
         ]);
     }
@@ -227,24 +464,15 @@
         debugLog('Showing login modal', 'info');
         var overlay = document.getElementById('loginOverlay');
         var errorEl = document.getElementById('loginError');
-        if (errorMsg) {
-            errorEl.textContent = errorMsg;
-            errorEl.style.display = 'block';
-        } else {
-            errorEl.style.display = 'none';
-        }
-        var savedUser = localStorage.getItem('admin_username') || '';
-        document.getElementById('loginUser').value = savedUser;
+        if (errorMsg) { errorEl.textContent = errorMsg; errorEl.style.display = 'block'; }
+        else { errorEl.style.display = 'none'; }
+        document.getElementById('loginUser').value = localStorage.getItem('admin_username') || '';
         document.getElementById('loginPass').value = '';
         overlay.classList.add('show');
-        setTimeout(function() {
-            document.getElementById('loginUser').focus();
-        }, 200);
+        setTimeout(function() { document.getElementById('loginUser').focus(); }, 200);
     }
 
-    function hideLoginModal() {
-        document.getElementById('loginOverlay').classList.remove('show');
-    }
+    function hideLoginModal() { document.getElementById('loginOverlay').classList.remove('show'); }
 
     function submitLogin() {
         var username = document.getElementById('loginUser').value.trim();
@@ -280,67 +508,46 @@
         localStorage.removeItem('admin_password');
     }
 
-    document.getElementById('loginPass').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') submitLogin();
-    });
-    document.getElementById('loginUser').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') document.getElementById('loginPass').focus();
-    });
+    document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') submitLogin(); });
+    document.getElementById('loginUser').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
 
-    /* ===== EXTRACT DATE ===== */
+    /* ===== EXTRACT DATE FROM OBJECTID ===== */
     function getDateFromObjectId(oid) {
-        try {
-            var timestamp = parseInt(oid.substring(0, 8), 16) * 1000;
-            return new Date(timestamp);
-        } catch (e) {
-            return new Date();
-        }
+        try { return new Date(parseInt(oid.substring(0, 8), 16) * 1000); }
+        catch (e) { return new Date(); }
     }
 
     /* ===== FETCH USERS ===== */
     async function fetchUsers() {
         var tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Loading users...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af;">Loading users...</td></tr>';
 
         try {
             var auth = getAuth();
-            if (!auth) {
-                debugLog('No credentials, showing login', 'info');
-                showLoginModal();
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">Please log in</td></tr>';
-                return;
-            }
+            if (!auth) { showLoginModal(); tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#6b7280;">Please log in</td></tr>'; return; }
 
-            // FIX: Updated to new modular route
             var fetchUrl = API_BASE + '/auth/users-data';
             debugLog('Fetching: ' + fetchUrl, 'info');
             showToast('Loading users...');
 
-            var response = await fetchWithTimeout(fetchUrl, {
-                headers: { 'Authorization': 'Basic ' + auth.credentials }
-            }, 15000);
-
+            var response = await fetchWithTimeout(fetchUrl, { headers: { 'Authorization': 'Basic ' + auth.credentials } }, 15000);
             debugLog('Response: ' + response.status, response.ok ? 'success' : 'error');
 
             if (response.status === 401) {
-                clearAuth();
-                showLoginModal('Invalid username or password. Try again.');
+                clearAuth(); showLoginModal('Invalid username or password. Try again.');
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">Auth failed</td></tr>';
                 return;
             }
-
-            if (!response.ok) {
-                throw new Error('Server returned ' + response.status);
-            }
+            if (!response.ok) throw new Error('Server returned ' + response.status);
 
             var data = await response.json();
-            
             var users = null;
             if (data.success && data.users) users = data.users;
             else if (data.users) users = data.users;
             else if (Array.isArray(data)) users = data;
 
             if (users && Array.isArray(users)) {
+                allUsers = users;
                 debugLog('Loaded ' + users.length + ' users', 'success');
                 renderTable(users);
                 updateStats(users);
@@ -362,7 +569,7 @@
         }
     }
 
-    /* ===== RENDER TABLE ===== */
+    /* ===== RENDER USER TABLE ===== */
     function renderTable(users) {
         var tbody = document.getElementById('usersTableBody');
         if (!users || users.length === 0) {
@@ -375,15 +582,23 @@
             var user = users[i];
             var joinDate = getDateFromObjectId(user._id).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             var cartCount = user.cart ? user.cart.length : 0;
-            var statusBadge = user.isVerified ? '<span class="badge badge-verified">Verified</span>' : '<span class="badge badge-unverified">Unverified</span>';
-            
-            html += '<tr id="row-' + user._id + '">';
+            var statusBadge = user.isVerified
+                ? '<span class="badge badge-verified">&#10003; Verified</span>'
+                : '<span class="badge badge-unverified">&#9888; Unverified</span>';
+
+            // Encode user data as JSON for the click handler (escape single quotes in values)
+            var userDataAttr = escapeHtml(JSON.stringify({ id: user._id, email: user.email || '', name: user.name || '', username: user.username || '', isVerified: !!user.isVerified, joinDate: joinDate }));
+
+            html += '<tr class="user-row" onclick="viewUserDetail(this)" data-user=\'' + userDataAttr + '\'>';
             html += '<td><div class="user-info"><span class="user-name">' + escapeHtml(user.name || 'No Name') + '</span><span class="user-email">' + escapeHtml(user.email || '-') + '</span></div></td>';
             html += '<td><span class="user-username">@' + escapeHtml(user.username || '-') + '</span></td>';
             html += '<td>' + statusBadge + '</td>';
             html += '<td>' + cartCount + ' items</td>';
             html += '<td>' + joinDate + '</td>';
-            html += '<td><button class="btn btn-danger" onclick="deleteUser(\'' + user._id + '\', this)">Delete</button></td>';
+            html += '<td onclick="event.stopPropagation();" style="display:flex;gap:6px;flex-wrap:wrap;">';
+            html += '<button class="btn btn-outline" onclick="viewUserDetail(this.closest(\'tr\'))">&#128065; View</button>';
+            html += '<button class="btn btn-danger" onclick="deleteUser(\'' + user._id + '\', this)">Delete</button>';
+            html += '</td>';
             html += '</tr>';
         }
         tbody.innerHTML = html;
@@ -391,42 +606,301 @@
 
     function updateStats(users) {
         document.getElementById('totalUsers').textContent = users.length;
-        var verifiedCount = 0;
-        var unverifiedCount = 0;
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].isVerified) verifiedCount++;
-            else unverifiedCount++;
-        }
-        document.getElementById('verifiedUsers').textContent = verifiedCount;
-        document.getElementById('unverifiedUsers').textContent = unverifiedCount;
+        var v = 0, u = 0;
+        for (var i = 0; i < users.length; i++) { if (users[i].isVerified) v++; else u++; }
+        document.getElementById('verifiedUsers').textContent = v;
+        document.getElementById('unverifiedUsers').textContent = u;
     }
 
     /* ===== DELETE USER ===== */
     async function deleteUser(userId, btn) {
         if (!confirm('Delete this user permanently? This cannot be undone!')) return;
-        btn.disabled = true;
-        btn.textContent = '...';
+        btn.disabled = true; btn.textContent = '...';
         var auth = getAuth();
         try {
-            // FIX: Updated to new modular route
             var response = await fetchWithTimeout(API_BASE + '/auth/delete-user/' + userId, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Basic ' + auth.credentials }
+                method: 'DELETE', headers: { 'Authorization': 'Basic ' + auth.credentials }
             }, 10000);
             var data = await response.json();
             if (data.success) {
                 var row = document.getElementById('row-' + userId);
-                if (row) {
-                    row.style.opacity = '0';
-                    setTimeout(function() { row.remove(); fetchUsers(); }, 200);
-                }
+                if (row) { row.style.opacity = '0'; setTimeout(function() { row.remove(); fetchUsers(); }, 200); }
                 showToast('User deleted');
             } else { throw new Error('Delete failed'); }
         } catch (error) {
             showToast('Delete failed: ' + error.message);
-            btn.disabled = false;
-            btn.textContent = 'Delete';
+            btn.disabled = false; btn.textContent = 'Delete';
         }
+    }
+
+    /* ==========================================================
+       USER DETAIL PANEL — Order History & Pending Orders
+       ========================================================== */
+
+    function viewUserDetail(rowEl) {
+        var userData;
+        try { userData = JSON.parse(rowEl.getAttribute('data-user')); }
+        catch (e) { showToast('Could not read user data'); return; }
+
+        dpCurrentUser = userData;
+        dpAllOrders = [];
+        dpActiveFilter = 'All';
+
+        // Populate header
+        var initials = '?';
+        if (userData.name && userData.name.length > 0) {
+            var parts = userData.name.trim().split(/\s+/);
+            initials = parts.map(function(p) { return p[0]; }).join('').toUpperCase().substring(0, 2);
+        }
+        document.getElementById('dpAvatar').textContent = initials;
+        document.getElementById('dpName').textContent = userData.name || 'Unknown User';
+        document.getElementById('dpEmail').textContent = userData.email || 'No email';
+        document.getElementById('dpUsername').textContent = userData.username || '-';
+        document.getElementById('dpJoined').textContent = userData.joinDate || '-';
+
+        var badgeHtml = userData.isVerified
+            ? '<span class="dp-badge dp-badge-verified">&#10003; Verified</span>'
+            : '<span class="dp-badge dp-badge-unverified">&#9888; Unverified</span>';
+        document.getElementById('dpBadgeWrap').innerHTML = badgeHtml;
+
+        // Show panel
+        document.getElementById('detailOverlay').classList.add('show');
+        document.getElementById('detailPanel').classList.add('open');
+
+        // Show loading, hide content
+        document.getElementById('dpLoading').style.display = 'flex';
+        document.getElementById('dpStats').style.display = 'none';
+        document.getElementById('dpTabs').style.display = 'none';
+        document.getElementById('dpOrders').innerHTML = '';
+
+        // Fetch orders for this user
+        fetchUserOrders(userData.email, userData.id);
+    }
+
+    async function fetchUserOrders(email, userId) {
+        var auth = getAuth();
+        if (!auth) { showToast('Auth required'); closeUserDetail(); return; }
+
+        try {
+            var url = API_BASE + '/orders/user-orders?';
+            var params = [];
+            if (email) params.push('email=' + encodeURIComponent(email));
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            url += params.join('&');
+
+            debugLog('Fetching user orders: ' + url, 'info');
+
+            var response = await fetchWithTimeout(url, {
+                headers: { 'Authorization': 'Basic ' + auth.credentials }
+            }, 15000);
+
+            if (!response.ok) throw new Error('Server returned ' + response.status);
+
+            var data = await response.json();
+
+            if (data.success && Array.isArray(data.orders)) {
+                dpAllOrders = data.orders;
+                debugLog('Loaded ' + dpAllOrders.length + ' orders for user', 'success');
+                renderDetailContent(data.stats || computeStats(dpAllOrders));
+            } else {
+                throw new Error('Unexpected response format');
+            }
+        } catch (error) {
+            debugLog('ERROR fetching user orders: ' + error.message, 'error');
+            document.getElementById('dpLoading').style.display = 'none';
+            document.getElementById('dpOrders').innerHTML =
+                '<div class="dp-empty"><div class="dp-empty-icon">&#9888;</div><div class="dp-empty-text">Failed to load orders</div><div class="dp-empty-sub">' + escapeHtml(error.message) + '</div></div>';
+            showToast('Error loading orders: ' + error.message);
+        }
+    }
+
+    function computeStats(orders) {
+        var stats = { total: 0, pending: 0, shipping: 0, completed: 0, success: 0, rejected: 0, totalSpent: 0, pendingAmount: 0 };
+        for (var i = 0; i < orders.length; i++) {
+            var o = orders[i];
+            stats.total++;
+            var s = o.status || 'Pending';
+            if (s === 'Pending') { stats.pending++; stats.pendingAmount += (o.totalNPR || 0); }
+            else if (s === 'Shipping') stats.shipping++;
+            else if (s === 'Completed') stats.completed++;
+            else if (s === 'Success') stats.success++;
+            else if (s === 'Rejected') stats.rejected++;
+            stats.totalSpent += (o.totalNPR || 0);
+        }
+        return stats;
+    }
+
+    function renderDetailContent(stats) {
+        // Hide loading
+        document.getElementById('dpLoading').style.display = 'none';
+
+        // Stats
+        document.getElementById('dpStats').style.display = 'grid';
+        document.getElementById('dpStatTotal').textContent = stats.total;
+        document.getElementById('dpStatPending').textContent = stats.pending;
+        document.getElementById('dpStatCompleted').textContent = stats.completed + stats.success;
+        document.getElementById('dpStatSpent').textContent = 'NPR ' + Math.round(stats.totalSpent).toLocaleString();
+
+        // Highlight pending if > 0
+        var pendingWrap = document.getElementById('dpStatPendingWrap');
+        if (stats.pending > 0) { pendingWrap.classList.add('highlight'); }
+        else { pendingWrap.classList.remove('highlight'); }
+
+        // Tabs
+        var tabsData = [
+            { key: 'All', label: 'All', count: stats.total, countClass: 'gray' },
+            { key: 'Pending', label: 'Pending', count: stats.pending, countClass: 'amber' },
+            { key: 'Shipping', label: 'Shipping', count: stats.shipping, countClass: 'blue' },
+            { key: 'Completed', label: 'Completed', count: stats.completed + stats.success, countClass: 'green' },
+            { key: 'Rejected', label: 'Rejected', count: stats.rejected, countClass: 'red' }
+        ];
+
+        var tabsHtml = '';
+        for (var t = 0; t < tabsData.length; t++) {
+            var tab = tabsData[t];
+            var isActive = tab.key === dpActiveFilter ? ' active' : '';
+            tabsHtml += '<button class="dp-tab' + isActive + '" onclick="filterDetailOrders(\'' + tab.key + '\')">';
+            tabsHtml += tab.label;
+            tabsHtml += '<span class="dp-tab-count ' + tab.countClass + '">' + tab.count + '</span>';
+            tabsHtml += '</button>';
+        }
+        document.getElementById('dpTabs').innerHTML = tabsHtml;
+        document.getElementById('dpTabs').style.display = 'flex';
+
+        // Render orders
+        renderDetailOrders();
+    }
+
+    function filterDetailOrders(status) {
+        dpActiveFilter = status;
+        // Update tab active state
+        var tabs = document.querySelectorAll('.dp-tab');
+        tabs.forEach(function(tab) { tab.classList.remove('active'); });
+        // Re-render tabs to update active
+        var stats = computeStats(dpAllOrders);
+        renderDetailContent(stats);
+    }
+
+    function renderDetailOrders() {
+        var container = document.getElementById('dpOrders');
+        var filtered = dpAllOrders;
+
+        if (dpActiveFilter === 'Pending') {
+            filtered = dpAllOrders.filter(function(o) { return (o.status || 'Pending') === 'Pending'; });
+        } else if (dpActiveFilter === 'Shipping') {
+            filtered = dpAllOrders.filter(function(o) { return o.status === 'Shipping'; });
+        } else if (dpActiveFilter === 'Completed') {
+            filtered = dpAllOrders.filter(function(o) { return o.status === 'Completed' || o.status === 'Success'; });
+        } else if (dpActiveFilter === 'Rejected') {
+            filtered = dpAllOrders.filter(function(o) { return o.status === 'Rejected'; });
+        }
+
+        if (filtered.length === 0) {
+            var emptyIcon = dpActiveFilter === 'Pending' ? '&#9203;' : '&#128230;';
+            container.innerHTML =
+                '<div class="dp-empty">' +
+                '<div class="dp-empty-icon">' + emptyIcon + '</div>' +
+                '<div class="dp-empty-text">No ' + dpActiveFilter.toLowerCase() + ' orders</div>' +
+                '<div class="dp-empty-sub">This user has no ' + dpActiveFilter.toLowerCase() + ' orders at the moment</div>' +
+                '</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < filtered.length; i++) {
+            var order = filtered[i];
+            var shortId = String(order._id).substring(0, 8).toUpperCase();
+            var orderDate = new Date(order.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            var orderTime = new Date(order.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            var status = order.status || 'Pending';
+            var totalNPR = Math.round(order.totalNPR || 0);
+            var statusClass = status.toLowerCase();
+            var emailStatus = order.emailStatus || 'Queue';
+
+            // Items
+            var itemsHtml = '';
+            var itemNames = [];
+            if (order.items && order.items.length > 0) {
+                for (var j = 0; j < order.items.length; j++) {
+                    var item = order.items[j];
+                    var qty = item.qty || 1;
+                    var price = item.price || 0;
+                    var lineTotal = qty * price;
+                    itemNames.push(item.name);
+
+                    itemsHtml += '<div class="dp-item-row">';
+                    itemsHtml += '<span class="dp-item-name">' + escapeHtml(item.name) + '</span>';
+                    itemsHtml += '<span class="dp-item-qty">x' + qty + ' @ NPR ' + price.toLocaleString() + '</span>';
+                    itemsHtml += '<span class="dp-item-line">NPR ' + lineTotal.toLocaleString() + '</span>';
+                    itemsHtml += '</div>';
+                }
+            } else {
+                itemsHtml = '<div class="dp-item-row"><span style="color:#9ca3af;">No items</span></div>';
+            }
+
+            var itemSummary = itemNames.length > 0
+                ? itemNames.length + ' item' + (itemNames.length > 1 ? 's' : '') + ' — ' + itemNames.slice(0, 3).join(', ') + (itemNames.length > 3 ? '...' : '')
+                : 'No items';
+
+            html += '<div class="dp-order-card ' + statusClass + '-card">';
+            html += '<div class="dp-order-head" onclick="toggleOrderItems(\'' + order._id + '\')">';
+            html += '<div class="dp-order-id-group">';
+            html += '<span class="dp-order-shortid">#' + shortId + '</span>';
+            html += '<span class="dp-order-date">' + orderDate + ' ' + orderTime + '</span>';
+            html += '</div>';
+            html += '<div class="dp-order-right">';
+            html += '<span class="status-badge ' + status + '">' + status + '</span>';
+            html += '<span class="dp-order-total">NPR ' + totalNPR.toLocaleString() + '</span>';
+            html += '<span class="dp-expand-icon" id="expand-icon-' + order._id + '">&#9660;</span>';
+            html += '</div>';
+            html += '</div>';
+
+            // Expandable items section
+            html += '<div class="dp-order-items" id="items-' + order._id + '">';
+            html += itemsHtml;
+            html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;border-top:2px solid #2d4a22;margin-top:8px;">';
+            html += '<span style="font-weight:800;color:#2d4a22;">TOTAL</span>';
+            html += '<span style="font-weight:800;color:#1a5c1c;font-size:16px;">NPR ' + totalNPR.toLocaleString() + '</span>';
+            html += '</div>';
+            html += '</div>';
+
+            // Footer with payment method and email status
+            html += '<div class="dp-order-footer">';
+            html += '<span class="dp-order-footer-item">&#128179; ' + escapeHtml(order.paymentMethod || 'N/A') + '</span>';
+            html += '<span class="dp-order-footer-item">&#9993; Email: ' + escapeHtml(emailStatus) + '</span>';
+            if (order.clientDetails && order.clientDetails.address) {
+                html += '<span class="dp-order-footer-item">&#128205; ' + escapeHtml(order.clientDetails.address) + '</span>';
+            }
+            html += '</div>';
+
+            html += '</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    function toggleOrderItems(orderId) {
+        var itemsEl = document.getElementById('items-' + orderId);
+        var iconEl = document.getElementById('expand-icon-' + orderId);
+        if (!itemsEl) return;
+        if (itemsEl.classList.contains('show')) {
+            itemsEl.classList.remove('show');
+            if (iconEl) iconEl.classList.remove('rotated');
+        } else {
+            itemsEl.classList.add('show');
+            if (iconEl) iconEl.classList.add('rotated');
+        }
+    }
+
+    function closeUserDetail() {
+        document.getElementById('detailPanel').classList.remove('open');
+        // Small delay before hiding overlay so the slide animation finishes
+        setTimeout(function() {
+            document.getElementById('detailOverlay').classList.remove('show');
+        }, 350);
+        dpCurrentUser = null;
+        dpAllOrders = [];
+        dpActiveFilter = 'All';
     }
 
     /* ===== HELPERS ===== */
@@ -450,7 +924,7 @@
     async function init() {
         debugLog('Initializing User Management...', 'info');
         debugLog('API: ' + API_BASE, 'info');
-        
+
         if (window.location.protocol === 'file:') {
             debugLog('ERROR: file:// protocol detected!', 'error');
             document.getElementById('usersTableBody').innerHTML =
@@ -460,26 +934,29 @@
         }
 
         var auth = getAuth();
-        if (auth) {
-            debugLog('Found saved credentials, fetching...', 'info');
-            fetchUsers();
-        } else {
-            debugLog('No credentials, showing login', 'info');
-            showLoginModal();
-        }
+        if (auth) { debugLog('Found saved credentials, fetching...', 'info'); fetchUsers(); }
+        else { debugLog('No credentials, showing login', 'info'); showLoginModal(); }
     }
 
-    /* Global bindings */
+    // Close detail panel on overlay click
+    document.getElementById('detailOverlay').addEventListener('click', function() { closeUserDetail(); });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeUserDetail(); hideLoginModal(); }
+    });
+
+    // Global bindings
     window.toggleDebug = toggleDebug;
     window.submitLogin = submitLogin;
     window.clearAuth = clearAuth;
     window.showLoginModal = showLoginModal;
     window.fetchUsers = fetchUsers;
     window.deleteUser = deleteUser;
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { hideLoginModal(); }
-    });
+    window.viewUserDetail = viewUserDetail;
+    window.closeUserDetail = closeUserDetail;
+    window.filterDetailOrders = filterDetailOrders;
+    window.toggleOrderItems = toggleOrderItems;
 
     init();
 </script>
