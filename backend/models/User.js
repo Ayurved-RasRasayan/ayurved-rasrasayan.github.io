@@ -19,10 +19,11 @@ const userSchema = new mongoose.Schema({
   },
   password: { 
     type: String, 
-    required: [true, 'Password is required'], 
-    minlength: 8, 
-    maxlength: 30,
-    select: false  // Excluded from queries by default for security
+    required: [true, 'Password is required'],
+    // minlength and maxlength are intentionally REMOVED here.
+    // Bcrypt hashes are always 60 characters long, so maxlength: 30 blocks them.
+    // Raw password length validation (8-30 chars) is handled in authController.js BEFORE hashing.
+    select: false
   },
 
   // ==========================================
@@ -34,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   verificationCode: { 
     type: String, 
-    select: false  // Never return OTP in queries unless explicitly asked
+    select: false
   },
   verificationExpires: { 
     type: Date, 
@@ -55,7 +56,7 @@ const userSchema = new mongoose.Schema({
   isDeleted: { 
     type: Boolean, 
     default: false, 
-    index: true  // Index for faster queries filtering out deleted users
+    index: true
   },
   deletedAt: { 
     type: Date 
