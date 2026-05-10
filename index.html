@@ -142,9 +142,30 @@
 
   <!-- PRODUCTS -->
   <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2><div class="flex items-center gap-2 mt-3"><span class="rate-dot" id="rateDot"></span><p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p></div></div><div class="flex items-center gap-3"><span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span><select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"><option value="name">Sort by Name</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option></select></div></div>
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
-    <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div></div>
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
+          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <div class="flex items-center gap-2 mt-3"><span class="rate-dot" id="rateDot"></span><p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span>
+          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
+            <option value="name">Sort by Name</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
+      
+      <!-- PAGINATION CONTAINER -->
+      <div id="paginationControls" class="mt-8"></div>
+      
+      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
+    </div>
   </section>
 
   <!-- ABOUT -->
@@ -192,12 +213,7 @@
         <input type="text" id="signupName" placeholder="Full Name" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="text" id="signupUsername" placeholder="Username" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="email" id="signupEmail" placeholder="Email Address" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <div class="relative">
-          <input type="password" id="signupPassword" placeholder="Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-          <button type="button" onclick="togglePasswordVisibility('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main">
-            <i data-lucide="eye" class="w-4 h-4"></i>
-          </button>
-        </div>
+        <input type="password" id="signupPassword" placeholder="Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Sign Up</button>
       </form>
       <p class="text-center text-sm text-txt-sub mt-4">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-medium">Sign In</button></p>
@@ -239,6 +255,10 @@
     let currentCategory = 'all'; 
     let currentSort = 'name';
     
+    // Pagination State
+    const PRODUCTS_PER_PAGE = 30;
+    let currentPage = 1;
+    
     // Modal State
     let currentModalProduct = null; 
     let selectedForm = "Whole Form"; 
@@ -271,19 +291,6 @@
       let priceNPR = product.price * unitFactor * qty;
       if (form === 'Powder Form') priceNPR += 50 * unitFactor * qty;
       return Math.round(priceNPR * 100) / 100;
-    }
-    
-    function togglePasswordVisibility(inputId, btn) {
-      const input = document.getElementById(inputId);
-      const icon = btn.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.setAttribute('data-lucide', 'eye-off');
-      } else {
-        input.type = 'password';
-        icon.setAttribute('data-lucide', 'eye');
-      }
-      lucide.createIcons();
     }
 
     // ==========================================
@@ -336,7 +343,7 @@
     }
 
     // ==========================================
-    // 5. PRODUCTS & CATEGORIES
+    // 5. PRODUCTS, CATEGORIES & PAGINATION
     // ==========================================
     async function loadProducts() {
       const grid = document.getElementById('productGrid'); 
@@ -347,14 +354,13 @@
         if(!res.ok) throw new Error();
         products = await res.json();
       } catch(e) {
-        products = [
-          { id:1, name:"Amla", sci:"Phyllanthus emblica", category:"herbs", catLabel:"Raw Herb", price:450, img:"https://placehold.co/400x300/132316/A3B14B?text=Amla", desc:"Dried Amla fruits, high in Vitamin C.", moq:"1 kg", lead:"5-7 days", unit:"1 kg", stock: 20 },
-          { id:2, name:"Ashwagandha", sci:"Withania somnifera", category:"herbs", catLabel:"Raw Herb", price:890, img:"https://placehold.co/400x300/132316/A3B14B?text=Ashwagandha", desc:"Organic root powder.", moq:"500 gm", lead:"3-5 days", unit:"1 kg", stock: 15 },
-          { id:3, name:"Moringa Oil", sci:"Moringa oleifera", category:"oils", catLabel:"Oil", price:1200, img:"https://placehold.co/400x300/132316/A3B14B?text=Moringa+Oil", desc:"Cold pressed pure oil.", moq:"100 ml", lead:"7 days", unit:"100 ml", stock: 50 },
-          { id:4, name:"Neem Soap", sci:"Azadirachta indica", category:"herbal soap", catLabel:"Organic Herbal Soap", price:350, img:"https://placehold.co/400x300/132316/A3B14B?text=Neem+Soap", desc:"Handmade neem and tulsi soap.", moq:"1 pc", lead:"3 days", unit:"100g", stock: 100 }
-        ];
+        // Fallback Dummy Data
+        products = Array.from({length: 65}).map((_, i) => ({
+          id: i+1, name: `Product ${i+1}`, sci: "Scientific name", category: ['oils','herbs','mushrooms','rasa','namak','herbal soap'][i%6], catLabel: "Category", price: 500 + (i*10), img: "https://placehold.co/400x300/132316/A3B14B?text=Product+" + (i+1), desc: "High quality botanical ingredient.", moq: "1 kg", lead: "5-7 days", unit: "1 kg", stock: 10 + i
+        }));
       }
       renderCatButtons(); 
+      currentPage = 1;
       renderProducts(getFilteredProducts());
     }
 
@@ -386,21 +392,51 @@
 
     function filterCategory(c){ 
       currentCategory = c; 
+      currentPage = 1; // Reset page on filter change
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === c)); 
       renderProducts(getFilteredProducts()); 
     }
 
     function sortProducts(){ 
       currentSort = document.getElementById('sortSelect').value; 
+      currentPage = 1; // Reset page on sort change
       renderProducts(getFilteredProducts()); 
     }
 
+    function goToPage(page) {
+      const filtered = getFilteredProducts();
+      const totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE);
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderProducts(filtered);
+      document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function renderProducts(items){ 
-      const grid = document.getElementById('productGrid'), noR = document.getElementById('noResults'), cnt = document.getElementById('productCount'); 
-      if(!items.length){ grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; return; } 
-      noR.classList.add('hidden'); cnt.textContent = `${items.length}`; 
+      const grid = document.getElementById('productGrid');
+      const noR = document.getElementById('noResults');
+      const cnt = document.getElementById('productCount');
+
+      if(!items.length){ 
+        grid.innerHTML=''; noR.classList.remove('hidden'); cnt.textContent='0'; 
+        document.getElementById('paginationControls').innerHTML = ''; 
+        return; 
+      } 
       
-      grid.innerHTML = items.map(p => { 
+      noR.classList.add('hidden');
+
+      const totalPages = Math.ceil(items.length / PRODUCTS_PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+      const endIndex = startIndex + PRODUCTS_PER_PAGE;
+      const pageItems = items.slice(startIndex, endIndex);
+
+      const showingStart = startIndex + 1;
+      const showingEnd = Math.min(endIndex, items.length);
+      cnt.textContent = `Showing ${showingStart}–${showingEnd} of ${items.length}`;
+      
+      grid.innerHTML = pageItems.map(p => { 
         const priceUSD = (p.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
         let stockBadge = '';
         if (p.stock <= 0) stockBadge = '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>';
@@ -430,7 +466,53 @@
           </div>
         </div>`; 
       }).join(''); 
+
+      renderPagination(totalPages, items.length);
       lucide.createIcons(); 
+    }
+
+    function renderPagination(totalPages, totalItems) {
+      const container = document.getElementById('paginationControls');
+      if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+      let pagesHtml = '';
+
+      // Previous Button
+      pagesHtml += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main'} transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i>Prev</button>`;
+
+      // Page Number Logic (Smart Truncation)
+      const pageNumbers = [];
+      if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pageNumbers.push(i);
+      } else {
+        pageNumbers.push(1);
+        if (currentPage > 3) pageNumbers.push('...');
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+        for (let i = start; i <= end; i++) pageNumbers.push(i);
+        if (currentPage < totalPages - 2) pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+
+      pageNumbers.forEach(p => {
+        if (p === '...') {
+          pagesHtml += `<span class="px-2 py-2.5 text-sm text-txt-third">…</span>`;
+        } else {
+          const isActive = p === currentPage;
+          pagesHtml += `<button onclick="goToPage(${p})" class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-xl border transition-all ${isActive ? 'bg-txt-main text-white border-txt-main shadow-lg' : 'border-border-main hover:bg-brand hover:text-white hover:border-brand'}">${p}</button>`;
+        }
+      });
+
+      // Next Button
+      pagesHtml += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main'} transition-all">Next<i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-border-main">
+          <p class="text-sm text-txt-third">Page <span class="font-semibold text-txt-main">${currentPage}</span> of <span class="font-semibold text-txt-main">${totalPages}</span> <span class="text-txt-third">(${totalItems} products)</span></p>
+          <div class="flex items-center gap-2 flex-wrap justify-center">${pagesHtml}</div>
+        </div>
+      `;
+      lucide.createIcons();
     }
 
     // ==========================================
@@ -731,7 +813,7 @@
           const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` }});
           if (res.ok) {
             currentUser = await res.json();
-            loggedInDiv.classList.remove('hidden'); loggedInDiv.classList.add('flex'); loggedOutDiv.classList.add('hidden');
+            loggedInDiv.classList.remove('hidden'); loggedInDiv.classList.add('flex'); loggedOutDiv.classList.add('hidden'); loggedOutDiv.classList.remove('flex');
             userNameSpan.innerText = currentUser.name || currentUser.username;
 
             if (currentUser.isVerified) {
@@ -761,7 +843,7 @@
         });
         const data = await res.json();
         if (res.ok) { showToast('Account created! Check email for OTP.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); }
-        else { showToast(data.error || 'Signup failed', 'error'); } // Specifically pops up "Email or Username already exists"
+        else { showToast(data.error || 'Signup failed', 'error'); }
       } catch (e) { showToast('Network error', 'error'); }
       btn.disabled = false; btn.innerText = 'Sign Up';
     }
