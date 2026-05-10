@@ -7,6 +7,12 @@ router.post('/signup', authCtrl.signup);
 router.post('/signin', authCtrl.signin);
 router.post('/verify', authCtrl.verifyOTP);
 router.post('/resend-otp', authCtrl.resendOTP);
+
+// ===== NEW: Password Reset Routes =====
+router.post('/forgot-password', authCtrl.forgotPassword);
+router.post('/reset-password', authCtrl.resetPassword);
+// ======================================
+
 router.get('/me', userAuth, authCtrl.getMe);
 router.post('/cart/sync', userAuth, authCtrl.syncCart);
 router.get('/my-orders', userAuth, authCtrl.getMyOrders);
