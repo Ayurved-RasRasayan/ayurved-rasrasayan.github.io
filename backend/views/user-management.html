@@ -96,9 +96,7 @@
         .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .btn-danger:hover { background: #fecaca; }
         .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-outline {
-            background: white; color: #2d4a22; border: 1px solid #2d4a22;
-        }
+        .btn-outline { background: white; color: #2d4a22; border: 1px solid #2d4a22; }
         .btn-outline:hover { background: #f0fdf4; }
 
         .toast {
@@ -113,7 +111,7 @@
         .user-email { font-size: 12px; color: #6b7280; }
         .user-username { font-size: 11px; color: #9ca3af; font-family: monospace; }
 
-        /* ===== USER ROW CLICKABLE ===== */
+        /* Clickable rows */
         tr.user-row { cursor: pointer; transition: background 0.15s; }
         tr.user-row:hover { background: #f0fdf4; }
 
@@ -163,7 +161,6 @@
 
         .dp-body { padding: 24px 32px 40px; }
 
-        /* Stats row inside detail panel */
         .dp-stats {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px; margin-bottom: 24px;
@@ -178,7 +175,6 @@
         .dp-stat.highlight { border-color: #f59e0b; background: #fffbeb; }
         .dp-stat.highlight .dp-stat-val { color: #92400e; }
 
-        /* Tabs */
         .dp-tabs {
             display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
             border-bottom: 2px solid #e5e7eb; padding-bottom: 0;
@@ -202,7 +198,6 @@
         .dp-tab-count.red { background: #fee2e2; color: #991b1b; }
         .dp-tab-count.gray { background: #f3f4f6; color: #4b5563; }
 
-        /* Order cards */
         .dp-orders { display: flex; flex-direction: column; gap: 12px; }
         .dp-order-card {
             background: white; border-radius: 10px; border: 1px solid #e5e7eb;
@@ -226,7 +221,7 @@
             border-radius: 4px; font-size: 12px; font-weight: 700; font-family: monospace;
         }
         .dp-order-date { font-size: 12px; color: #6b7280; }
-        .dp-order-right { display: flex; align-items: center; gap: 10px; }
+        .dp-order-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
         .status-badge {
             display: inline-flex; align-items: center; gap: 4px;
@@ -271,7 +266,20 @@
         .dp-empty-text { font-size: 15px; font-weight: 600; }
         .dp-empty-sub { font-size: 13px; margin-top: 4px; }
 
-        /* Loading spinner */
+        /* Debug info box inside panel */
+        .dp-debug-box {
+            background: #1e1e1e; color: #50fa7b; padding: 16px; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 11px; margin-top: 16px;
+            max-height: 250px; overflow-y: auto; line-height: 1.5;
+        }
+        .dp-debug-box .debug-key { color: #8be9fd; }
+        .dp-debug-box .debug-val { color: #f1fa8c; }
+        .dp-debug-toggle {
+            margin-top: 12px; padding: 6px 14px; background: #f3f4f6; color: #6b7280;
+            border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 12px;
+        }
+        .dp-debug-toggle:hover { background: #e5e7eb; }
+
         .dp-loading {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 60px 20px; color: #6b7280;
@@ -359,7 +367,7 @@
     </div>
 </div>
 
-<!-- ===== USER DETAIL SLIDE-IN PANEL ===== -->
+<!-- Detail Panel -->
 <div id="detailOverlay" class="detail-overlay"></div>
 <div id="detailPanel" class="detail-panel">
     <div class="dp-header">
@@ -379,7 +387,6 @@
     </div>
 
     <div class="dp-body">
-        <!-- Stats -->
         <div class="dp-stats" id="dpStats" style="display:none;">
             <div class="dp-stat">
                 <div class="dp-stat-icon">&#128230;</div>
@@ -403,17 +410,16 @@
             </div>
         </div>
 
-        <!-- Loading state -->
         <div class="dp-loading" id="dpLoading">
             <div class="dp-spinner"></div>
             <div>Loading order history...</div>
         </div>
 
-        <!-- Tabs -->
         <div class="dp-tabs" id="dpTabs" style="display:none;"></div>
-
-        <!-- Orders list -->
         <div class="dp-orders" id="dpOrders"></div>
+
+        <!-- Debug info container (hidden by default) -->
+        <div id="dpDebugContainer" style="display:none;"></div>
     </div>
 </div>
 
@@ -424,11 +430,10 @@
     var authCredentials = null;
     var toastTimer = null;
     var allUsers = [];
-
-    // Detail panel state
     var dpCurrentUser = null;
     var dpAllOrders = [];
     var dpActiveFilter = 'All';
+    var dpDebugData = null;
 
     /* ===== DEBUG ===== */
     function debugLog(message, type) {
@@ -511,7 +516,7 @@
     document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') submitLogin(); });
     document.getElementById('loginUser').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
 
-    /* ===== EXTRACT DATE FROM OBJECTID ===== */
+    /* ===== EXTRACT DATE ===== */
     function getDateFromObjectId(oid) {
         try { return new Date(parseInt(oid.substring(0, 8), 16) * 1000); }
         catch (e) { return new Date(); }
@@ -534,7 +539,7 @@
             debugLog('Response: ' + response.status, response.ok ? 'success' : 'error');
 
             if (response.status === 401) {
-                clearAuth(); showLoginModal('Invalid username or password. Try again.');
+                clearAuth(); showLoginModal('Invalid username or password.');
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#dc2626;">Auth failed</td></tr>';
                 return;
             }
@@ -553,7 +558,6 @@
                 updateStats(users);
                 showToast('Loaded ' + users.length + ' users');
             } else {
-                debugLog('Unexpected format: ' + JSON.stringify(data).substring(0, 200), 'error');
                 throw new Error('Unexpected response format');
             }
         } catch (error) {
@@ -586,10 +590,16 @@
                 ? '<span class="badge badge-verified">&#10003; Verified</span>'
                 : '<span class="badge badge-unverified">&#9888; Unverified</span>';
 
-            // Encode user data as JSON for the click handler (escape single quotes in values)
-            var userDataAttr = escapeHtml(JSON.stringify({ id: user._id, email: user.email || '', name: user.name || '', username: user.username || '', isVerified: !!user.isVerified, joinDate: joinDate }));
+            // Store user data for the detail panel — use data attributes individually to avoid JSON escaping issues
+            html += '<tr class="user-row" onclick="viewUserDetail(this)" ';
+            html += 'data-uid="' + escapeAttr(user._id) + '" ';
+            html += 'data-uemail="' + escapeAttr(user.email || '') + '" ';
+            html += 'data-uname="' + escapeAttr(user.name || '') + '" ';
+            html += 'data-uusername="' + escapeAttr(user.username || '') + '" ';
+            html += 'data-uverified="' + (user.isVerified ? '1' : '0') + '" ';
+            html += 'data-ujoined="' + escapeAttr(joinDate) + '" ';
+            html += 'data-uphone="' + escapeAttr(user.phone || '') + '">';
 
-            html += '<tr class="user-row" onclick="viewUserDetail(this)" data-user=\'' + userDataAttr + '\'>';
             html += '<td><div class="user-info"><span class="user-name">' + escapeHtml(user.name || 'No Name') + '</span><span class="user-email">' + escapeHtml(user.email || '-') + '</span></div></td>';
             html += '<td><span class="user-username">@' + escapeHtml(user.username || '-') + '</span></td>';
             html += '<td>' + statusBadge + '</td>';
@@ -623,7 +633,7 @@
             }, 10000);
             var data = await response.json();
             if (data.success) {
-                var row = document.getElementById('row-' + userId);
+                var row = btn.closest('tr');
                 if (row) { row.style.opacity = '0'; setTimeout(function() { row.remove(); fetchUsers(); }, 200); }
                 showToast('User deleted');
             } else { throw new Error('Delete failed'); }
@@ -634,31 +644,40 @@
     }
 
     /* ==========================================================
-       USER DETAIL PANEL — Order History & Pending Orders
+       USER DETAIL PANEL
        ========================================================== */
 
     function viewUserDetail(rowEl) {
-        var userData;
-        try { userData = JSON.parse(rowEl.getAttribute('data-user')); }
-        catch (e) { showToast('Could not read user data'); return; }
+        // Read user data from data attributes (avoids JSON parse issues)
+        dpCurrentUser = {
+            id: rowEl.getAttribute('data-uid') || '',
+            email: rowEl.getAttribute('data-uemail') || '',
+            name: rowEl.getAttribute('data-uname') || '',
+            username: rowEl.getAttribute('data-uusername') || '',
+            isVerified: rowEl.getAttribute('data-uverified') === '1',
+            joinDate: rowEl.getAttribute('data-ujoined') || '',
+            phone: rowEl.getAttribute('data-uphone') || ''
+        };
 
-        dpCurrentUser = userData;
         dpAllOrders = [];
         dpActiveFilter = 'All';
+        dpDebugData = null;
+
+        debugLog('Viewing user: ' + JSON.stringify(dpCurrentUser), 'info');
 
         // Populate header
         var initials = '?';
-        if (userData.name && userData.name.length > 0) {
-            var parts = userData.name.trim().split(/\s+/);
+        if (dpCurrentUser.name && dpCurrentUser.name.length > 0) {
+            var parts = dpCurrentUser.name.trim().split(/\s+/);
             initials = parts.map(function(p) { return p[0]; }).join('').toUpperCase().substring(0, 2);
         }
         document.getElementById('dpAvatar').textContent = initials;
-        document.getElementById('dpName').textContent = userData.name || 'Unknown User';
-        document.getElementById('dpEmail').textContent = userData.email || 'No email';
-        document.getElementById('dpUsername').textContent = userData.username || '-';
-        document.getElementById('dpJoined').textContent = userData.joinDate || '-';
+        document.getElementById('dpName').textContent = dpCurrentUser.name || 'Unknown User';
+        document.getElementById('dpEmail').textContent = dpCurrentUser.email || 'No email';
+        document.getElementById('dpUsername').textContent = dpCurrentUser.username || '-';
+        document.getElementById('dpJoined').textContent = dpCurrentUser.joinDate || '-';
 
-        var badgeHtml = userData.isVerified
+        var badgeHtml = dpCurrentUser.isVerified
             ? '<span class="dp-badge dp-badge-verified">&#10003; Verified</span>'
             : '<span class="dp-badge dp-badge-unverified">&#9888; Unverified</span>';
         document.getElementById('dpBadgeWrap').innerHTML = badgeHtml;
@@ -672,21 +691,26 @@
         document.getElementById('dpStats').style.display = 'none';
         document.getElementById('dpTabs').style.display = 'none';
         document.getElementById('dpOrders').innerHTML = '';
+        document.getElementById('dpDebugContainer').style.display = 'none';
+        document.getElementById('dpDebugContainer').innerHTML = '';
 
         // Fetch orders for this user
-        fetchUserOrders(userData.email, userData.id);
+        fetchUserOrders();
     }
 
-    async function fetchUserOrders(email, userId) {
+    async function fetchUserOrders() {
         var auth = getAuth();
         if (!auth) { showToast('Auth required'); closeUserDetail(); return; }
 
         try {
-            var url = API_BASE + '/orders/user-orders?';
+            // Build URL with ALL available identifiers for maximum match chance
             var params = [];
-            if (email) params.push('email=' + encodeURIComponent(email));
-            if (userId) params.push('userId=' + encodeURIComponent(userId));
-            url += params.join('&');
+            if (dpCurrentUser.email) params.push('email=' + encodeURIComponent(dpCurrentUser.email));
+            if (dpCurrentUser.id) params.push('userId=' + encodeURIComponent(dpCurrentUser.id));
+            if (dpCurrentUser.name) params.push('name=' + encodeURIComponent(dpCurrentUser.name));
+            if (dpCurrentUser.phone) params.push('phone=' + encodeURIComponent(dpCurrentUser.phone));
+
+            var url = API_BASE + '/orders/user-orders?' + params.join('&');
 
             debugLog('Fetching user orders: ' + url, 'info');
 
@@ -694,13 +718,25 @@
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
             }, 15000);
 
+            if (response.status === 401) {
+                showToast('Auth failed');
+                closeUserDetail();
+                return;
+            }
+
             if (!response.ok) throw new Error('Server returned ' + response.status);
 
             var data = await response.json();
 
             if (data.success && Array.isArray(data.orders)) {
                 dpAllOrders = data.orders;
-                debugLog('Loaded ' + dpAllOrders.length + ' orders for user', 'success');
+                dpDebugData = data.debug || null;
+                debugLog('Loaded ' + dpAllOrders.length + ' orders for user', dpAllOrders.length > 0 ? 'success' : 'error');
+
+                if (dpDebugData) {
+                    debugLog('Server debug: ' + JSON.stringify(dpDebugData), 'info');
+                }
+
                 renderDetailContent(data.stats || computeStats(dpAllOrders));
             } else {
                 throw new Error('Unexpected response format');
@@ -710,7 +746,7 @@
             document.getElementById('dpLoading').style.display = 'none';
             document.getElementById('dpOrders').innerHTML =
                 '<div class="dp-empty"><div class="dp-empty-icon">&#9888;</div><div class="dp-empty-text">Failed to load orders</div><div class="dp-empty-sub">' + escapeHtml(error.message) + '</div></div>';
-            showToast('Error loading orders: ' + error.message);
+            showToast('Error loading orders');
         }
     }
 
@@ -731,7 +767,6 @@
     }
 
     function renderDetailContent(stats) {
-        // Hide loading
         document.getElementById('dpLoading').style.display = 'none';
 
         // Stats
@@ -741,10 +776,9 @@
         document.getElementById('dpStatCompleted').textContent = stats.completed + stats.success;
         document.getElementById('dpStatSpent').textContent = 'NPR ' + Math.round(stats.totalSpent).toLocaleString();
 
-        // Highlight pending if > 0
         var pendingWrap = document.getElementById('dpStatPendingWrap');
-        if (stats.pending > 0) { pendingWrap.classList.add('highlight'); }
-        else { pendingWrap.classList.remove('highlight'); }
+        if (stats.pending > 0) pendingWrap.classList.add('highlight');
+        else pendingWrap.classList.remove('highlight');
 
         // Tabs
         var tabsData = [
@@ -767,16 +801,35 @@
         document.getElementById('dpTabs').innerHTML = tabsHtml;
         document.getElementById('dpTabs').style.display = 'flex';
 
-        // Render orders
+        // Orders
         renderDetailOrders();
+
+        // Show debug info if 0 orders and debug data exists
+        if (dpAllOrders.length === 0 && dpDebugData) {
+            var debugContainer = document.getElementById('dpDebugContainer');
+            debugContainer.style.display = 'block';
+            debugContainer.innerHTML =
+                '<button class="dp-debug-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">Show Debug Info</button>' +
+                '<div class="dp-debug-box" style="display:none;">' +
+                formatDebugData(dpDebugData) +
+                '</div>';
+        }
+    }
+
+    function formatDebugData(debug) {
+        if (!debug) return '';
+        var html = '<div style="margin-bottom:8px;color:#ff79c6;font-weight:bold;">No orders matched. Debug info:</div>';
+        for (var key in debug) {
+            if (!debug.hasOwnProperty(key)) continue;
+            var val = debug[key];
+            if (typeof val === 'object') val = JSON.stringify(val, null, 2);
+            html += '<div><span class="debug-key">' + escapeHtml(key) + ':</span> <span class="debug-val">' + escapeHtml(String(val)) + '</span></div>';
+        }
+        return html;
     }
 
     function filterDetailOrders(status) {
         dpActiveFilter = status;
-        // Update tab active state
-        var tabs = document.querySelectorAll('.dp-tab');
-        tabs.forEach(function(tab) { tab.classList.remove('active'); });
-        // Re-render tabs to update active
         var stats = computeStats(dpAllOrders);
         renderDetailContent(stats);
     }
@@ -817,7 +870,6 @@
             var statusClass = status.toLowerCase();
             var emailStatus = order.emailStatus || 'Queue';
 
-            // Items
             var itemsHtml = '';
             var itemNames = [];
             if (order.items && order.items.length > 0) {
@@ -838,10 +890,6 @@
                 itemsHtml = '<div class="dp-item-row"><span style="color:#9ca3af;">No items</span></div>';
             }
 
-            var itemSummary = itemNames.length > 0
-                ? itemNames.length + ' item' + (itemNames.length > 1 ? 's' : '') + ' — ' + itemNames.slice(0, 3).join(', ') + (itemNames.length > 3 ? '...' : '')
-                : 'No items';
-
             html += '<div class="dp-order-card ' + statusClass + '-card">';
             html += '<div class="dp-order-head" onclick="toggleOrderItems(\'' + order._id + '\')">';
             html += '<div class="dp-order-id-group">';
@@ -855,7 +903,6 @@
             html += '</div>';
             html += '</div>';
 
-            // Expandable items section
             html += '<div class="dp-order-items" id="items-' + order._id + '">';
             html += itemsHtml;
             html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;border-top:2px solid #2d4a22;margin-top:8px;">';
@@ -864,7 +911,6 @@
             html += '</div>';
             html += '</div>';
 
-            // Footer with payment method and email status
             html += '<div class="dp-order-footer">';
             html += '<span class="dp-order-footer-item">&#128179; ' + escapeHtml(order.paymentMethod || 'N/A') + '</span>';
             html += '<span class="dp-order-footer-item">&#9993; Email: ' + escapeHtml(emailStatus) + '</span>';
@@ -872,7 +918,6 @@
                 html += '<span class="dp-order-footer-item">&#128205; ' + escapeHtml(order.clientDetails.address) + '</span>';
             }
             html += '</div>';
-
             html += '</div>';
         }
 
@@ -894,7 +939,6 @@
 
     function closeUserDetail() {
         document.getElementById('detailPanel').classList.remove('open');
-        // Small delay before hiding overlay so the slide animation finishes
         setTimeout(function() {
             document.getElementById('detailOverlay').classList.remove('show');
         }, 350);
@@ -910,6 +954,11 @@
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    function escapeAttr(text) {
+        if (text === null || text === undefined) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function showToast(msg) {
@@ -938,15 +987,9 @@
         else { debugLog('No credentials, showing login', 'info'); showLoginModal(); }
     }
 
-    // Close detail panel on overlay click
     document.getElementById('detailOverlay').addEventListener('click', function() { closeUserDetail(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeUserDetail(); hideLoginModal(); } });
 
-    // Close on Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { closeUserDetail(); hideLoginModal(); }
-    });
-
-    // Global bindings
     window.toggleDebug = toggleDebug;
     window.submitLogin = submitLogin;
     window.clearAuth = clearAuth;
