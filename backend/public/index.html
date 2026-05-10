@@ -240,87 +240,92 @@
     <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
   </div>
 
-  <!-- SIGNUP MODAL -->
+  <!-- ========== SIGNUP MODAL (NO USERNAME) ========== -->
   <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
       <form onsubmit="handleSignup(event)" class="space-y-4">
-        <input type="text" id="signupName" placeholder="Full Name" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <input type="text" id="signupUsername" placeholder="Username" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <input type="email" id="signupEmail" placeholder="Email Address" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <div class="relative">
-          <input type="password" id="signupPassword" placeholder="Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-          <button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
+          <div class="relative">
+            <input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+            <button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+          </div>
         </div>
-        <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Sign Up</button>
+        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
       </form>
-      <p class="text-center text-sm text-txt-sub mt-4">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-medium">Sign In</button></p>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
     </div>
   </div>
 
-  <!-- SIGNIN MODAL -->
+  <!-- ========== SIGNIN MODAL (WITH FORGOT PASSWORD) ========== -->
   <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
       <form onsubmit="handleSignin(event)" class="space-y-4">
-        <input type="text" id="signinLogin" placeholder="Email or Username" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-        <div class="relative">
-          <input type="password" id="signinPassword" placeholder="Password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-          <button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
+          <div class="relative">
+            <input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+            <button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+          </div>
         </div>
-        <div class="text-right">
-          <button type="button" onclick="switchAuthModal('forgot')" class="text-xs text-brand font-medium hover:underline">Forgot Password?</button>
-        </div>
-        <button type="submit" class="w-full py-3 bg-txt-main text-white font-medium rounded-xl hover:bg-black">Sign In</button>
+        <button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium rounded-xl hover:bg-black transition-colors">Sign In</button>
       </form>
-      <p class="text-center text-sm text-txt-sub mt-4">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-medium">Sign Up</button></p>
+      <!-- PROMINENT FORGOT PASSWORD BUTTON -->
+      <div class="mt-4">
+        <button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2">
+          <i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?
+        </button>
+      </div>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div>
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD MODAL -->
+  <!-- ========== FORGOT PASSWORD MODAL ========== -->
   <div id="forgotModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      
-      <!-- Step 1: Enter Email -->
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <!-- Step 1 -->
       <div id="forgotStep1">
-        <p class="text-sm text-txt-sub mb-4">Enter your email and we'll send you a 6-digit code to reset your password.</p>
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mb-4 flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0"></i><p class="text-xs text-orange-700">Enter your email and we'll send a 6-digit code valid for 5 minutes.</p></div>
         <form onsubmit="handleForgotPassword(event)" class="space-y-4">
-          <input type="email" id="forgotEmail" placeholder="Your Email Address" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-          <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Send Reset Code</button>
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Send Reset Code</button>
         </form>
       </div>
-
-      <!-- Step 2: Enter OTP & New Password -->
+      <!-- Step 2 -->
       <div id="forgotStep2" class="hidden">
-        <p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="forgotEmailDisplay" class="font-medium text-txt-main"></span></p>
-        <p class="text-[10px] text-orange-500 mb-4">Code expires in 5 minutes.</p>
+        <p class="text-sm text-txt-sub mb-1">Code sent to <span id="forgotEmailDisplay" class="font-semibold text-txt-main"></span></p>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
         <form onsubmit="handleResetPassword(event)" class="space-y-4">
-          <input type="text" id="resetOtp" placeholder="6-digit code" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand">
-          <div class="relative">
-            <input type="password" id="resetNewPassword" placeholder="New Password (8-30 characters)" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-            <button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div>
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label>
+            <div class="relative">
+              <input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+              <button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+            </div>
           </div>
-          <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Reset Password</button>
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
         </form>
-        <button onclick="handleResendForgotOTP()" id="resendForgotOtpBtn" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Resend Code</button>
+        <button onclick="handleResendForgotOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Didn't get it? Resend Code</button>
       </div>
-
-      <p class="text-center text-sm text-txt-sub mt-4">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-medium">Sign In</button></p>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
     </div>
   </div>
 
-  <!-- OTP VERIFICATION MODAL (for Signup) -->
+  <!-- OTP VERIFICATION MODAL -->
   <div id="otpModal" class="fixed inset-0 z-[60] bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6 text-center">
       <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Verify Email</h3><button onclick="closeAuthModal('otp')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="otpEmailDisplay" class="font-medium text-txt-main"></span></p>
-      <p class="text-[10px] text-orange-500 mb-4">Code expires in 5 minutes.</p>
+      <p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="otpEmailDisplay" class="font-semibold text-txt-main"></span></p>
+      <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center justify-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
       <form onsubmit="handleVerifyOTP(event)" class="space-y-4">
         <input type="text" id="otpCode" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand">
-        <button type="submit" class="w-full py-3 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover">Verify</button>
+        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Verify</button>
       </form>
-      <button onclick="handleResendOTP()" id="resendOtpBtn" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors">Resend Code</button>
+      <button onclick="handleResendOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors">Didn't get it? Resend Code</button>
     </div>
   </div>
 
@@ -349,21 +354,10 @@
     // ==========================================
     // 2. HELPERS
     // ==========================================
-    function fetchWithTimeout(url, options, timeout) {
-      timeout = timeout || 8000;
-      return Promise.race([fetch(url, options), new Promise(function(_, reject) { setTimeout(function() { reject(new Error('Request timeout')); }, timeout); })]);
-    }
+    function fetchWithTimeout(url, options, timeout) { timeout = timeout || 8000; return Promise.race([fetch(url, options), new Promise(function(_, reject) { setTimeout(function() { reject(new Error('Request timeout')); }, timeout); })]); }
     function getUnitFactor(unit) { var map = {'10gm':0.01,'125gm':0.125,'250gm':0.25,'500gm':0.5,'1kg':1,'15ml':0.015,'30ml':0.03,'50ml':0.05,'100ml':0.1,'200ml':0.2,'500ml':0.5,'1000ml':1,'100gm':1}; return map[unit] || 1; }
     function calculateModalPrice(product, form, unit, qty) { if (!product) return 0; var unitFactor = getUnitFactor(unit); var priceNPR = product.price * unitFactor * qty; if (form === 'Powder Form') priceNPR += 50 * unitFactor * qty; return Math.round(priceNPR * 100) / 100; }
-    
-    // Password Toggle
-    function togglePassword(inputId, btn) {
-      var input = document.getElementById(inputId);
-      var icon = btn.querySelector('i');
-      if (input.type === 'password') { input.type = 'text'; icon.setAttribute('data-lucide', 'eye'); }
-      else { input.type = 'password'; icon.setAttribute('data-lucide', 'eye-off'); }
-      lucide.createIcons();
-    }
+    function togglePassword(inputId, btn) { var input = document.getElementById(inputId); var icon = btn.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.setAttribute('data-lucide', 'eye'); } else { input.type = 'password'; icon.setAttribute('data-lucide', 'eye-off'); } lucide.createIcons(); }
 
     // ==========================================
     // 3. TOAST SYSTEM
@@ -447,7 +441,7 @@
     function setPaymentCurrency(curr) { selectedPaymentCurrency = curr; var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUsd = totalNPR / exchangeRate; if (curr === 'npr') { document.getElementById('paymentTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('paymentTotalSub').innerHTML = '$' + totalUsd.toFixed(2); } else { document.getElementById('paymentTotal').innerHTML = '$' + totalUsd.toFixed(2); document.getElementById('paymentTotalSub').innerHTML = 'NPR ' + totalNPR.toLocaleString(); } document.querySelectorAll('.currency-btn').forEach(function(b) { b.classList.remove('active-curr'); }); document.getElementById(curr === 'npr' ? 'btnNPR' : 'btnUSD').classList.add('active-curr'); }
     function handleFileUpload(e) { var f = e.target.files[0]; if (!f) return; if (f.size > 5 * 1024 * 1024) { showToast('Max 5MB', 'error'); return; } rawFileForUpload = f; lastCompressedBase64 = null; document.getElementById('uploadPlaceholder').classList.add('hidden'); document.getElementById('uploadProgressContainer').classList.remove('hidden'); var reader = new FileReader(); reader.onload = function(ev) { document.getElementById('progressBar').style.width = '100%'; setTimeout(function() { document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); document.getElementById('imagePreview').src = ev.target.result; lucide.createIcons(); }, 300); }; reader.readAsDataURL(f); }
     function clearScreenshot(e) { if (e) e.stopPropagation(); rawFileForUpload = null; lastCompressedBase64 = null; document.getElementById('paymentScreenshot').value = ""; document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); document.getElementById('progressBar').style.width = '0%'; }
-    async function submitOrderToBackend() { var name = document.getElementById('clientName').value.trim(); var phone = document.getElementById('clientPhone').value.trim(); var email = document.getElementById('clientEmail').value.trim(); var address = document.getElementById('clientAddress').value.trim(); if (!name) { showToast('Please enter your full name', 'error'); document.getElementById('clientName').classList.add('input-error'); return; } if (!phone) { showToast('Please enter your phone number', 'error'); document.getElementById('clientPhone').classList.add('input-error'); return; } if (!email || !email.includes('@') || !email.includes('.')) { showToast('Please enter a valid email', 'error'); document.getElementById('clientEmail').classList.add('input-error'); return; } if (!rawFileForUpload && !lastCompressedBase64) { showToast('Please upload payment screenshot', 'error'); return; } if (!cart.length) { showToast('Cart is empty', 'error'); return; } ['clientName', 'clientPhone', 'clientEmail'].forEach(function(id) { document.getElementById(id).classList.remove('input-error'); }); showProcessingOverlay(1); var compressedBase64 = lastCompressedBase64; try { if (!compressedBase64 && rawFileForUpload) { compressedBase64 = await compressImage(rawFileForUpload); lastCompressedBase64 = compressedBase64; } } catch (e) { hideProcessingOverlay(); showErrorPopup('Failed to process image. Please upload a different file.'); return; } showProcessingOverlay(2); try { var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUSD = totalNPR / exchangeRate; var paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; var currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD'; var orderData = { items: cart.map(function(i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit, form: i.form }; }), totalNPR: totalNPR, totalUSD: totalUSD, paidAmount: paidAmount, currency: currency, paymentMethod: selectedPaymentMethod, paymentScreenshot: compressedBase64, clientDetails: { name: name, phone: phone, email: email, address: address || 'N/A' } }; var res = await fetchWithTimeout(BACKEND_URL + '/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) }, 20000); showProcessingOverlay(3); if (res.ok) { var data = await res.json(); hideProcessingOverlay(); showSuccessPopup(data.orderId || data._id || 'PENDING'); cart = []; updateCartUI(); rawFileForUpload = null; lastCompressedBase64 = null; clearScreenshot(); ['clientName', 'clientPhone', 'clientEmail', 'clientAddress'].forEach(function(id) { document.getElementById(id).value = ""; }); closePaymentModal(); syncCartToDB(); } else { var err = await res.json(); hideProcessingOverlay(); showErrorPopup(err.message || 'Server rejected the order. Please try again.'); } } catch (err) { hideProcessingOverlay(); showErrorPopup('Network error. Please check your connection and retry.'); } }
+    async function submitOrderToBackend() { var name = document.getElementById('clientName').value.trim(); var phone = document.getElementById('clientPhone').value.trim(); var email = document.getElementById('clientEmail').value.trim(); var address = document.getElementById('clientAddress').value.trim(); if (!name) { showToast('Please enter your full name', 'error'); document.getElementById('clientName').classList.add('input-error'); return; } if (!phone) { showToast('Please enter your phone number', 'error'); document.getElementById('clientPhone').classList.add('input-error'); return; } if (!email || !email.includes('@') || !email.includes('.')) { showToast('Please enter a valid email', 'error'); document.getElementById('clientEmail').classList.add('input-error'); return; } if (!rawFileForUpload && !lastCompressedBase64) { showToast('Please upload payment screenshot', 'error'); return; } if (!cart.length) { showToast('Cart is empty', 'error'); return; } ['clientName', 'clientPhone', 'clientEmail'].forEach(function(id) { document.getElementById(id).classList.remove('input-error'); }); showProcessingOverlay(1); var compressedBase64 = lastCompressedBase64; try { if (!compressedBase64 && rawFileForUpload) { compressedBase64 = await compressImage(rawFileForUpload); lastCompressedBase64 = compressedBase64; } } catch (e) { hideProcessingOverlay(); showErrorPopup('Failed to process image. Please upload a different file.'); return; } showProcessingOverlay(2); try { var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUSD = totalNPR / exchangeRate; var paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; var currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD'; var orderData = { items: cart.map(function(i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit, form: i.form }; }), totalNPR: totalNPR, totalUSD: totalUSD, paidAmount: paidAmount, currency: currency, paymentMethod: selectedPaymentMethod, paymentScreenshot: compressedBase64, clientDetails: { name: name, phone: phone, email: email, address: address || 'N/A' } }; var res = await fetchWithTimeout(BACKEND_URL + '/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) }, 20000); showProcessingOverlay(3); if (res.ok) { var data = await res.json(); hideProcessingOverlay(); showSuccessPopup(data.orderId || data._id || 'PENDING'); cart = []; updateCartUI(); rawFileForUpload = null; lastCompressedBase64 = null; clearScreenshot(); ['clientName', 'clientPhone', 'clientEmail', 'clientAddress'].forEach(function(id) { document.getElementById(id).value = ""; }); closePaymentModal(); syncCartToDB(); } else { var err = await res.json(); hideProcessingOverlay(); showErrorPopup(err.message || 'Server rejected the order.'); } } catch (err) { hideProcessingOverlay(); showErrorPopup('Network error. Please check your connection and retry.'); } }
     function retrySubmission() { closeErrorPopup(); submitOrderToBackend(); }
 
     // ==========================================
@@ -456,75 +450,27 @@
     async function submitInquiry(e) { e.preventDefault(); var btn = e.target.querySelector('button[type="submit"]'); var msgDiv = document.getElementById('formMsg'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/inquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName: document.getElementById('inquiryFirstName').value, lastName: document.getElementById('inquiryLastName').value, email: document.getElementById('inquiryEmail').value, company: document.getElementById('inquiryCompany').value || '', message: document.getElementById('contactMessage').value }) }); if (res.ok) { msgDiv.textContent = '✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden', 'text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch (err) { msgDiv.textContent = '✕ Error sending inquiry.'; msgDiv.classList.remove('hidden', 'text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry', 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
 
     // ==========================================
-    // 14. AUTHENTICATION
+    // 14. AUTHENTICATION (NO USERNAME)
     // ==========================================
-    async function checkAuthState() { var loggedOutDiv = document.getElementById('authButtonsLoggedOut'); var loggedInDiv = document.getElementById('authButtonsLoggedIn'); var userNameSpan = document.getElementById('userNameDisplay'); if (authToken) { try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } }); if (res.ok) { currentUser = await res.json(); loggedInDiv.style.display = 'flex'; loggedOutDiv.style.display = 'none'; userNameSpan.innerText = currentUser.name || currentUser.username; if (currentUser.isVerified && currentUser.cart && currentUser.cart.length > 0) { if (cart.length === 0) { cart = currentUser.cart; updateCartUI(); } else { syncCartToDB(true); } } lucide.createIcons(); return; } } catch (e) { console.error('Auth check failed:', e.message); } } currentUser = null; authToken = null; localStorage.removeItem('natura_token'); loggedInDiv.style.display = 'none'; loggedOutDiv.style.display = ''; lucide.createIcons(); }
+    async function checkAuthState() { var loggedOutDiv = document.getElementById('authButtonsLoggedOut'); var loggedInDiv = document.getElementById('authButtonsLoggedIn'); var userNameSpan = document.getElementById('userNameDisplay'); if (authToken) { try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } }); if (res.ok) { currentUser = await res.json(); loggedInDiv.style.display = 'flex'; loggedOutDiv.style.display = 'none'; userNameSpan.innerText = currentUser.name || currentUser.email; if (currentUser.isVerified && currentUser.cart && currentUser.cart.length > 0) { if (cart.length === 0) { cart = currentUser.cart; updateCartUI(); } else { syncCartToDB(true); } } lucide.createIcons(); return; } } catch (e) { console.error('Auth check failed:', e.message); } } currentUser = null; authToken = null; localStorage.removeItem('natura_token'); loggedInDiv.style.display = 'none'; loggedOutDiv.style.display = ''; lucide.createIcons(); }
     function openAuthModal(type) { document.getElementById(type + 'Modal').classList.remove('hidden'); document.getElementById(type + 'Modal').classList.add('flex'); }
     function closeAuthModal(type) { document.getElementById(type + 'Modal').classList.add('hidden'); document.getElementById(type + 'Modal').classList.remove('flex'); }
     function switchAuthModal(type) { ['signin', 'signup', 'otp', 'forgot'].forEach(function(t) { closeAuthModal(t); }); openAuthModal(type); }
-    
-    async function handleSignup(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Creating...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('signupName').value, username: document.getElementById('signupUsername').value, email: document.getElementById('signupEmail').value, password: document.getElementById('signupPassword').value }) }); var data = await res.json(); if (res.ok) { showToast('Account created! Check email for OTP.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); } else { showToast(data.error || 'Signup failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Sign Up'; }
-    
-    async function handleSignin(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Signing...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ login: document.getElementById('signinLogin').value, password: document.getElementById('signinPassword').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); currentUser = data.user; closeAuthModal('signin'); if (!data.user.isVerified) { document.getElementById('otpEmailDisplay').innerText = data.user.email; openAuthModal('otp'); } else { checkAuthState(); showToast('Welcome back, ' + data.user.name + '!'); } } else { showToast(data.error || 'Signin failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Sign In'; }
-    
-    async function handleVerifyOTP(e) { e.preventDefault(); try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('otpEmailDisplay').innerText, code: document.getElementById('otpCode').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); closeAuthModal('otp'); checkAuthState(); showToast('Email verified!'); } else { showToast(data.error || 'Invalid code', 'error'); } } catch (e) { showToast('Network error', 'error'); } }
-    
-    async function handleResendOTP() { var email = document.getElementById('otpEmailDisplay').innerText; if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/resend-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
 
-    // FORGOT PASSWORD LOGIC
-    async function handleForgotPassword(e) {
-      e.preventDefault();
-      var btn = e.target.querySelector('button');
-      var email = document.getElementById('forgotEmail').value.trim();
-      if (!email) { showToast('Enter your email', 'error'); return; }
-      btn.disabled = true; btn.innerText = 'Sending...';
-      try {
-        var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) });
-        var data = await res.json();
-        if (res.ok) {
-          document.getElementById('forgotEmailDisplay').innerText = email;
-          document.getElementById('forgotStep1').classList.add('hidden');
-          document.getElementById('forgotStep2').classList.remove('hidden');
-          showToast('Reset code sent to your email!');
-        } else { showToast(data.error || 'Failed to send code', 'error'); }
-      } catch (e) { showToast('Network error', 'error'); }
-      btn.disabled = false; btn.innerText = 'Send Reset Code';
-    }
+    // SIGNUP — email only, no username
+    async function handleSignup(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Creating...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('signupName').value, email: document.getElementById('signupEmail').value, password: document.getElementById('signupPassword').value }) }); var data = await res.json(); if (res.ok) { showToast('Account created! Check email for 6-digit code.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); } else { showToast(data.error || 'Signup failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Create Account'; }
 
-    async function handleResetPassword(e) {
-      e.preventDefault();
-      var btn = e.target.querySelector('button');
-      var email = document.getElementById('forgotEmail').value.trim();
-      var otp = document.getElementById('resetOtp').value.trim();
-      var newPass = document.getElementById('resetNewPassword').value;
-      if (!otp || otp.length !== 6) { showToast('Enter the 6-digit code', 'error'); return; }
-      if (!newPass || newPass.length < 8) { showToast('Password must be 8-30 characters', 'error'); return; }
-      btn.disabled = true; btn.innerText = 'Resetting...';
-      try {
-        var res = await fetchWithTimeout(BACKEND_URL + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, otp: otp, newPassword: newPass }) });
-        var data = await res.json();
-        if (res.ok) {
-          showToast('Password reset successfully! Please sign in.');
-          switchAuthModal('signin');
-          // Reset forgot modal for next time
-          document.getElementById('forgotStep1').classList.remove('hidden');
-          document.getElementById('forgotStep2').classList.add('hidden');
-          document.getElementById('forgotEmail').value = '';
-          document.getElementById('resetOtp').value = '';
-          document.getElementById('resetNewPassword').value = '';
-        } else { showToast(data.error || 'Reset failed', 'error'); }
-      } catch (e) { showToast('Network error', 'error'); }
-      btn.disabled = false; btn.innerText = 'Reset Password';
-    }
+    // SIGNIN — email only
+    async function handleSignin(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Signing in...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('signinEmail').value, password: document.getElementById('signinPassword').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); currentUser = data.user; closeAuthModal('signin'); if (!data.user.isVerified) { document.getElementById('otpEmailDisplay').innerText = data.user.email; openAuthModal('otp'); } else { checkAuthState(); showToast('Welcome back, ' + data.user.name + '!'); } } else { showToast(data.error || 'Invalid email or password', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Sign In'; }
 
-    async function handleResendForgotOTP() {
-      var email = document.getElementById('forgotEmail').value.trim();
-      if (!email) return;
-      try {
-        var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) });
-        var data = await res.json(); showToast(res.ok ? 'New code sent!' : data.error, res.ok ? 'success' : 'error');
-      } catch (e) { showToast('Error', 'error'); }
-    }
+    // VERIFY OTP (6 digits, 5 min expiry)
+    async function handleVerifyOTP(e) { e.preventDefault(); try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('otpEmailDisplay').innerText, code: document.getElementById('otpCode').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); closeAuthModal('otp'); checkAuthState(); showToast('Email verified successfully!'); } else { showToast(data.error || 'Invalid or expired code', 'error'); } } catch (e) { showToast('Network error', 'error'); } }
+    async function handleResendOTP() { var email = document.getElementById('otpEmailDisplay').innerText; if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/resend-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New 6-digit code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
+
+    // FORGOT PASSWORD
+    async function handleForgotPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); if (!email) { showToast('Enter your email', 'error'); return; } btn.disabled = true; btn.innerText = 'Sending...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); if (res.ok) { document.getElementById('forgotEmailDisplay').innerText = email; document.getElementById('forgotStep1').classList.add('hidden'); document.getElementById('forgotStep2').classList.remove('hidden'); showToast('Reset code sent!'); } else { showToast(data.error || 'Failed to send code', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Send Reset Code'; }
+    async function handleResetPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); var otp = document.getElementById('resetOtp').value.trim(); var newPass = document.getElementById('resetNewPassword').value; if (!otp || otp.length !== 6) { showToast('Enter the 6-digit code', 'error'); return; } if (!newPass || newPass.length < 8) { showToast('Password must be 8-30 characters', 'error'); return; } btn.disabled = true; btn.innerText = 'Resetting...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, otp: otp, newPassword: newPass }) }); var data = await res.json(); if (res.ok) { showToast('Password reset! Please sign in.'); switchAuthModal('signin'); document.getElementById('forgotStep1').classList.remove('hidden'); document.getElementById('forgotStep2').classList.add('hidden'); document.getElementById('forgotEmail').value = ''; document.getElementById('resetOtp').value = ''; document.getElementById('resetNewPassword').value = ''; } else { showToast(data.error || 'Reset failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Reset Password'; }
+    async function handleResendForgotOTP() { var email = document.getElementById('forgotEmail').value.trim(); if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
 
     function handleLogout() { authToken = null; currentUser = null; localStorage.removeItem('natura_token'); cart = []; updateCartUI(); checkAuthState(); showToast('Signed out'); }
     async function syncCartToDB(returnUpdatedCart) { if (!authToken || !currentUser || !currentUser.isVerified) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/cart/sync', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }, body: JSON.stringify({ cart: cart }) }, 5000); if (returnUpdatedCart && res.ok) { var data = await res.json(); if (data.cart) { cart = data.cart; updateCartUI(); } } } catch (e) { console.error('Cart sync failed:', e.message); } }
