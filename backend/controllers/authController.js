@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Order = require('../models/Order');
 const { generateOTP } = require('../utils/helpers');
-const { sendOTPEmail } = require('../services/emailService');
+const { sendOTPEmail, sendResetEmail } = require('../services/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'natura_botanica_super_secret_key_123';
 
@@ -25,46 +25,39 @@ exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are required.' });
     }
 
-    // Validate password length
     if (password.length < 8 || password.length > 30) {
       return res.status(400).json({ error: 'Password must be between 8 and 30 characters.' });
     }
 
-    // Check if email already exists (exclude soft-deleted)
     const existingUser = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
     });
+
     if (existingUser) {
       return res.status(400).json({ error: 'An account with this email already exists.' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate 6-digit OTP
     const otp = generateOTP();
 
-    // Create user
     const user = new User({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
       isVerified: false,
       verificationCode: otp,
-      verificationExpires: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+      verificationExpires: new Date(Date.now() + 5 * 60 * 1000),
       cart: []
     });
 
     await user.save();
-
-    // Send OTP email
     await sendOTPEmail(email, name, otp);
 
     res.status(201).json({
@@ -89,23 +82,21 @@ exports.signin = async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    // Find user by email (exclude soft-deleted)
+    // .select('+password') because password has select:false in model
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
-    });
+    }).select('+password');
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
-    // Generate token
     const token = generateToken(user);
 
     res.json({
@@ -140,7 +131,7 @@ exports.verifyOTP = async (req, res) => {
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
-    });
+    }).select('+verificationCode +verificationExpires');
 
     if (!user) {
       return res.status(400).json({ error: 'User not found.' });
@@ -155,14 +146,12 @@ exports.verifyOTP = async (req, res) => {
     }
 
     if (user.verificationExpires < new Date()) {
-      // Clear expired code
       user.verificationCode = undefined;
       user.verificationExpires = undefined;
       await user.save();
       return res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
     }
 
-    // Mark as verified
     user.isVerified = true;
     user.verificationCode = undefined;
     user.verificationExpires = undefined;
@@ -203,7 +192,7 @@ exports.resendOTP = async (req, res) => {
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
-    });
+    }).select('+verificationCode +verificationExpires');
 
     if (!user) {
       return res.status(400).json({ error: 'User not found.' });
@@ -213,13 +202,11 @@ exports.resendOTP = async (req, res) => {
       return res.status(400).json({ error: 'Email is already verified.' });
     }
 
-    // Generate new OTP
     const otp = generateOTP();
     user.verificationCode = otp;
-    user.verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    user.verificationExpires = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
 
-    // Send email
     await sendOTPEmail(email, user.name, otp);
 
     res.json({
@@ -247,26 +234,22 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
-    });
+    }).select('+verificationCode +verificationExpires');
 
-    // Security: Always return the same message whether user exists or not
-    // This prevents attackers from discovering which emails are registered
+    // Always return same message whether user exists or not (security)
     if (!user) {
       return res.status(200).json({
         message: 'If an account with that email exists, a reset code has been sent.'
       });
     }
 
-    // Generate 6-digit OTP
     const otp = generateOTP();
-
-    // Save OTP using the same verificationCode fields
     user.verificationCode = otp;
-    user.verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    user.verificationExpires = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
 
-    // Send reset email
-    await sendOTPEmail(email, user.name, otp);
+    // Use sendResetEmail (not sendOTPEmail) for password reset
+    await sendResetEmail(email, user.name, otp);
 
     res.status(200).json({
       message: 'If an account with that email exists, a reset code has been sent.'
@@ -285,55 +268,46 @@ exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
-    // Validate all fields
     if (!email || !otp || !newPassword) {
       return res.status(400).json({ error: 'Email, OTP, and new password are required.' });
     }
 
-    // Validate OTP format (must be 6 digits)
     if (!/^\d{6}$/.test(otp)) {
       return res.status(400).json({ error: 'OTP must be exactly 6 digits.' });
     }
 
-    // Validate password length
     if (newPassword.length < 8 || newPassword.length > 30) {
       return res.status(400).json({ error: 'Password must be between 8 and 30 characters.' });
     }
 
-    // Find user
+    // Need password + verification fields from DB
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       isDeleted: { $ne: true } 
-    });
+    }).select('+password +verificationCode +verificationExpires');
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or reset code.' });
     }
 
-    // Check if OTP exists
     if (!user.verificationCode) {
       return res.status(400).json({ error: 'No reset code was requested. Please request a new one.' });
     }
 
-    // Check if OTP matches
     if (user.verificationCode !== otp) {
       return res.status(400).json({ error: 'Invalid reset code.' });
     }
 
-    // Check if OTP is expired
     if (user.verificationExpires < new Date()) {
-      // Clear expired OTP
       user.verificationCode = undefined;
       user.verificationExpires = undefined;
       await user.save();
       return res.status(400).json({ error: 'Reset code has expired. Please request a new one.' });
     }
 
-    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update password and clear OTP
     user.password = hashedPassword;
     user.verificationCode = undefined;
     user.verificationExpires = undefined;
@@ -395,7 +369,6 @@ exports.syncCart = async (req, res) => {
       return res.status(400).json({ error: 'Invalid cart data.' });
     }
 
-    // Merge local cart into database cart
     let dbCart = [...(user.cart || [])];
 
     for (const localItem of localCart) {
@@ -443,7 +416,6 @@ exports.getMyOrders = async (req, res) => {
 // ==========================================
 exports.getUsers = async (req, res) => {
   try {
-    // Only return active (non-deleted) users
     const users = await User.find({ isDeleted: { $ne: true } })
       .sort({ _id: -1 })
       .select('-password -verificationCode -verificationExpires');
@@ -461,14 +433,11 @@ exports.getUsers = async (req, res) => {
 // ==========================================
 exports.deleteUser = async (req, res) => {
   try {
-    // Soft delete instead of hard delete
-    // This preserves order history and prevents email reuse
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
         isDeleted: true,
         deletedAt: new Date(),
-        // Clear sensitive data but keep email to prevent reuse
         password: '$2b$10$DELETED.ACCOUNT.NO.LONGER.VALID',
         verificationCode: undefined,
         verificationExpires: undefined,
