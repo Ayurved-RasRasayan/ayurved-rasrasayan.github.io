@@ -42,6 +42,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/inquiries', require('./routes/inquiryRoutes'));
+app.use('/api/trending', require('./routes/trendingRoutes')); // ✅ ADDED TRENDING ROUTE
 app.use('/api', require('./routes/settingRoutes'));
 app.use('/api', require('./routes/viewRoutes'));
 
