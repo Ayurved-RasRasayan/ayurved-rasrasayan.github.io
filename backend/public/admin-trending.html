@@ -19,16 +19,19 @@
         select:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
         .btn-save { background: #2d4a22; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; }
         .btn-save:hover { background: #1f3618; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; transition: 0.3s; z-index: 1000; font-size: 14px; }
+        .btn-save:disabled { background: #9ca3af; cursor: not-allowed; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; transition: 0.3s; z-index: 1000; font-size: 14px; max-width: 90vw; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
-        .error-msg { color: #dc2626; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+        .toast.toast-error { background: #dc2626; }
+        .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <h1>⭐ Trending: Admin Picks</h1>
-        <a href="/view-orders.html" class="btn-back">← Back to Orders</a>
+        <!-- FIXED: Updated link to match your actual admin route -->
+        <a href="/api/view-orders" class="btn-back">← Back to Orders</a>
     </div>
     <div class="card">
         <p>Select <strong>2 products</strong> to feature at the very beginning of the Trending 3D Carousel on your homepage. The remaining 8 slots are filled automatically by your top-selling products.</p>
@@ -39,36 +42,49 @@
         <label for="pick2">Staff Pick #2</label>
         <select id="pick2"><option value="">Loading products...</option></select>
         
-        <button class="btn-save" onclick="savePicks()">Save Trending Picks</button>
-        <div id="errorMsg" class="error-msg"></div>
+        <button class="btn-save" id="saveBtn" onclick="savePicks()">Save Trending Picks</button>
+        
+        <div id="errorBox" class="error-box"></div>
     </div>
 </div>
 <div id="toast" class="toast">Notification</div>
 
 <script>
-    const API = window.location.origin + '/api';
+    // ==========================================
+    // LIVE BACKEND URL
+    // ==========================================
+    const API = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
     let allProducts = [];
 
     async function init() {
-        // Check if admin is logged in (reuse credentials from view-orders.html)
         const username = localStorage.getItem('admin_username');
         const password = localStorage.getItem('admin_password');
         
         if (!username || !password) {
-            window.location.href = '/view-orders.html';
+            showError("Not logged in! Please go to the Admin Orders page and log in first.");
+            document.getElementById('saveBtn').disabled = true;
             return;
         }
         
         const credentials = btoa(username + ':' + password);
 
         try {
-            // 1. Fetch all products for the dropdowns
+            // 1. Fetch all products
             const prodRes = await fetch(API + '/products', { headers: { 'Authorization': 'Basic ' + credentials } });
-            const prodData = await prodRes.json();
             
-            // Handle both array and object responses
+            if (!prodRes.ok) {
+                throw new Error('Failed to fetch products (Status: ' + prodRes.status + ')');
+            }
+            
+            const prodData = await prodRes.json();
             allProducts = prodData.products || prodData || [];
             
+            if (allProducts.length === 0) {
+                document.getElementById('pick1').innerHTML = '<option value="">No products found in DB</option>';
+                document.getElementById('pick2').innerHTML = '<option value="">No products found in DB</option>';
+                return;
+            }
+
             const optionsHtml = '<option value="">-- Select a Product --</option>' + allProducts.map(p => 
                 `<option value="${p._id}">${p.name} (NPR ${p.price || 0})</option>`
             ).join('');
@@ -76,35 +92,34 @@
             document.getElementById('pick1').innerHTML = optionsHtml;
             document.getElementById('pick2').innerHTML = optionsHtml;
 
-            // 2. Fetch Current Picks to pre-select them
+            // 2. Fetch Current Picks
             const picksRes = await fetch(API + '/trending');
-            const picksData = await picksRes.json();
-            
-            if (picksData.success && picksData.trending) {
-                const currentPicks = picksData.trending.filter(p => p.isPick);
-                if (currentPicks[0]) document.getElementById('pick1').value = currentPicks[0]._id;
-                if (currentPicks[1]) document.getElementById('pick2').value = currentPicks[1]._id;
+            if (picksRes.ok) {
+                const picksData = await picksRes.json();
+                if (picksData.success && picksData.trending) {
+                    const currentPicks = picksData.trending.filter(p => p.isPick);
+                    if (currentPicks[0]) document.getElementById('pick1').value = currentPicks[0]._id;
+                    if (currentPicks[1]) document.getElementById('pick2').value = currentPicks[1]._id;
+                }
             }
         } catch (e) {
-            showToast('Failed to load data. Check console.');
-            console.error(e);
+            showError("Init Error: " + e.message);
         }
     }
 
     async function savePicks() {
         const pick1 = document.getElementById('pick1').value;
         const pick2 = document.getElementById('pick2').value;
-        const errorEl = document.getElementById('errorMsg');
-        errorEl.style.display = 'none';
+        const btn = document.getElementById('saveBtn');
+        
+        hideError();
 
         if (!pick1 || !pick2) {
-            errorEl.textContent = 'Please select exactly 2 products.';
-            errorEl.style.display = 'block';
+            showError('Please select exactly 2 products.');
             return;
         }
         if (pick1 === pick2) {
-            errorEl.textContent = 'Please select 2 DIFFERENT products.';
-            errorEl.style.display = 'block';
+            showError('Please select 2 DIFFERENT products.');
             return;
         }
 
@@ -112,29 +127,47 @@
         const password = localStorage.getItem('admin_password');
         const credentials = btoa(username + ':' + password);
 
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+
         try {
             const res = await fetch(API + '/trending/picks', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + credentials },
                 body: JSON.stringify({ picks: [pick1, pick2] })
             });
+            
             const data = await res.json();
             
-            if (data.success) {
+            if (res.ok && data.success) {
                 showToast('✅ Trending picks saved successfully!');
             } else {
-                throw new Error(data.error || 'Failed to save');
+                throw new Error(data.error || 'Server returned status ' + res.status);
             }
         } catch (e) {
-            showToast('Error: ' + e.message);
+            showError("Save Failed: " + e.message);
+            showToast('❌ Error saving picks', true);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save Trending Picks';
         }
     }
 
-    function showToast(msg) {
+    function showError(msg) {
+        const box = document.getElementById('errorBox');
+        box.textContent = msg;
+        box.style.display = 'block';
+    }
+
+    function hideError() {
+        document.getElementById('errorBox').style.display = 'none';
+    }
+
+    function showToast(msg, isError) {
         const t = document.getElementById('toast'); 
         t.textContent = msg; 
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+        t.className = 'toast show' + (isError ? ' toast-error' : '');
+        setTimeout(() => t.className = 'toast', 3500);
     }
 
     init();
