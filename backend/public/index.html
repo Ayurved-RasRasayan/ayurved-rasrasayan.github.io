@@ -452,11 +452,12 @@
           return;
         }
 
-        // FIX: Duplicate products 3 times to create a manual infinite loop
-        // This avoids Swiper's broken built-in loop for Coverflow
         var originalProducts = data.trending;
+        var totalOriginal = originalProducts.length;
+        
+        // FIX: Duplicate 3 times to create a seamless manual loop track
         var infiniteProducts = [...originalProducts, ...originalProducts, ...originalProducts];
-        var startIndex = originalProducts.length; // Start in the middle batch
+        var startIndex = totalOriginal; // Start in the middle batch
 
         wrapper.innerHTML = infiniteProducts.map(function(product) {
           var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
@@ -473,37 +474,44 @@
 
         // Delay Swiper init slightly to let DOM calculate image/slide widths accurately
         setTimeout(function() {
-          var totalOriginal = originalProducts.length;
+          var isSnapping = false; // Guard to prevent infinite event loops
 
           new Swiper(".trendingSwiper", {
             effect: "coverflow", 
             grabCursor: true, 
             centeredSlides: true, 
             slidesPerView: "auto", 
-            initialSlide: startIndex, // Start at the middle batch
+            initialSlide: startIndex, // Start in the middle
             coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
             autoplay: { 
               delay: 4000, 
-              disableOnInteraction: false, 
-              pauseOnMouseEnter: true 
+              disableOnInteraction: false, // Keeps spinning after user swipes
+              pauseOnMouseEnter: true      // Pauses on hover
             },
-            loop: false, // MUST BE FALSE. Swiper's loop breaks Coverflow.
+            loop: false, // MUST BE FALSE. We handle the infinite loop manually.
             pagination: { el: ".swiper-pagination", clickable: true },
             breakpoints: { 
               320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 
               768: { slidesPerView: "auto" } 
             },
-            // MANUAL INFINITE LOOP LOGIC
             on: {
-              transitionEnd: function(swiper) {
+              slideChange: function(swiper) {
+                if (isSnapping) return; // Don't run if we are already snapping
                 var current = swiper.activeIndex;
-                // If we drift into the 3rd batch, silently snap back to the 2nd batch
+                
+                // If we reach the 3rd batch, silently snap back to the 2nd batch
                 if (current >= totalOriginal * 2) {
-                  swiper.slideTo(current - totalOriginal, 0); // 0 speed = instant invisible snap
-                }
-                // If we drift backwards into the 1st batch, silently jump forward to the 2nd batch
+                  isSnapping = true;
+                  swiper.slideTo(current - totalOriginal, 1); // 1ms is instant but safer than 0
+                  swiper.update(); // Force coverflow to recalculate
+                  isSnapping = false;
+                } 
+                // If we somehow go backwards into the 1st batch, jump forward to the 2nd
                 else if (current < totalOriginal) {
-                  swiper.slideTo(current + totalOriginal, 0);
+                  isSnapping = true;
+                  swiper.slideTo(current + totalOriginal, 1);
+                  swiper.update();
+                  isSnapping = false;
                 }
               }
             }
@@ -517,6 +525,7 @@
         document.getElementById('trendingSection').style.display = 'none';
       }
     }
+    
     // ==========================================
     // 9. PRODUCTS & PAGINATION
     // ==========================================
