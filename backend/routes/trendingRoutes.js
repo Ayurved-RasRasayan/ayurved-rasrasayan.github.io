@@ -1,30 +1,53 @@
 const express = require('express');
 const router = express.Router();
 const Trending = require('../models/Trending');
-const basicAuth = require('express-basic-auth'); // Assuming you use this for admin
 
-// Admin Auth Middleware (Adjust to match your exact auth setup)
-const adminAuth = basicAuth({
-    users: { [process.env.ADMIN_USER]: process.env.ADMIN_PASSWORD },
-    challenge: true
-});
+// ==========================================
+// CUSTOM ADMIN AUTH MIDDLEWARE
+// (No external packages needed, uses your .env variables)
+// ==========================================
+const adminAuth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+        return res.status(401).json({ error: 'Unauthorized: Missing auth header' });
+    }
+
+    try {
+        const base64Credentials = authHeader.split(' ')[1];
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+        const [username, password] = credentials.split(':');
+
+        if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASSWORD) {
+            next(); // Auth success, proceed to route
+        } else {
+            return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+        }
+    } catch (err) {
+        return res.status(401).json({ error: 'Unauthorized: Malformed auth header' });
+    }
+};
+
+// ==========================================
+// ROUTES
+// ==========================================
 
 // GET current trending picks
 router.get('/', adminAuth, async (req, res) => {
     try {
-        // We only keep one document in this collection
         let trending = await Trending.findOne();
         if (!trending) {
             trending = await Trending.create({ picks: [] });
         }
         res.json(trending);
     } catch (err) {
+        console.error('Fetch trending error:', err);
         res.status(500).json({ error: 'Failed to fetch trending picks' });
     }
 });
 
-// PUT (or POST) to save trending picks
-router.put('/', adminAuth, async (req, res) => {
+// POST to save trending picks (Matching the 'POST' method in your frontend)
+router.post('/', adminAuth, async (req, res) => {
     try {
         const { picks } = req.body;
         
@@ -34,7 +57,7 @@ router.put('/', adminAuth, async (req, res) => {
 
         // Upsert: update if exists, create if it doesn't
         const updatedTrending = await Trending.findOneAndUpdate(
-            {}, // find the first document
+            {}, // find the first (and only) document
             { picks: picks },
             { new: true, upsert: true }
         );
