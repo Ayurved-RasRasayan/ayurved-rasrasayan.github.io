@@ -31,21 +31,19 @@ const adminAuth = (req, res, next) => {
 // ROUTES
 // ==========================================
 
-// GET current trending picks (WITH POPULATE FOR HOMEPAGE)
+// GET current trending picks (PUBLIC - No auth required so the homepage can display the carousel)
 router.get('/', async (req, res) => {
     try {
         let trending = await Trending.findOne()
-            // THIS IS THE MAGIC: It swaps the IDs for full product data!
-            .populate('picks'); 
+            .populate('picks'); // THIS swaps the raw IDs for full product data (name, img, price)
 
         if (!trending) {
-            trending = await Trending.create({ picks: [] });
+            // If no document exists yet, return an empty picks array
+            return res.json({ picks: [] });
         }
         
-        // If it's an admin request, we might want just the IDs for the dropdowns.
-        // If it's the homepage, we want the full populated data.
-        // Let's return the full data. The admin panel will handle extracting the IDs.
-        res.json(trending);
+        // Return strictly the picks array so the frontend gets consistent data
+        res.json({ picks: trending.picks || [] });
         
     } catch (err) {
         console.error('Fetch trending error:', err);
@@ -53,7 +51,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST to save trending picks
+// POST to save trending picks (PROTECTED - Admin Auth Required)
 router.post('/', adminAuth, async (req, res) => {
     try {
         const { picks } = req.body;
@@ -62,6 +60,7 @@ router.post('/', adminAuth, async (req, res) => {
             return res.status(400).json({ error: 'Exactly 4 picks are required' });
         }
 
+        // Upsert: Update if a document exists, create if it doesn't
         const updatedTrending = await Trending.findOneAndUpdate(
             {},
             { picks: picks },
