@@ -1,187 +1,623 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Trending - NaturaBotanica</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; color: #1f2937; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .header { background: #2d4a22; color: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.3rem; }
-        .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
-        .btn-back:hover { background: rgba(255,255,255,0.3); }
-        .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card p { margin-bottom: 16px; color: #6b7280; font-size: 14px; line-height: 1.5; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #374151; }
-        select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 20px; background: white; cursor: pointer; }
-        select:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
-        .btn-save { background: #2d4a22; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; }
-        .btn-save:hover { background: #1f3618; }
-        .btn-save:disabled { background: #9ca3af; cursor: not-allowed; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; transition: 0.3s; z-index: 1000; font-size: 14px; max-width: 90vw; text-align: center; }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.toast-error { background: #dc2626; }
-        .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 15px; display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Swiper.js CSS (Required for 3D Carousel) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
+            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917', 'card-dark': '#132316',
+            'txt-main': '#1C1917', 'txt-sub': '#57534E', 'txt-third': '#78716C', 'border-main': '#E7E5E4',
+            'esewa': '#5EBC5D', 'khalti': '#5C2D91',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar{width:0px;background:transparent}
+    ::selection{background:#A3B14B;color:white}
+    body{font-family:'Inter',sans-serif}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .anim-up{opacity:0;animation:fadeInUp 0.8s ease-out forwards}
+    .anim-d1{animation-delay:.1s}.anim-d2{animation-delay:.2s}.anim-d3{animation-delay:.3s}.anim-d4{animation-delay:.4s}
+    .typewriter{overflow:hidden;white-space:nowrap;border-right:3px solid #A3B14B;animation:blink-caret .75s step-end infinite}
+    @keyframes blink-caret{from,to{border-color:transparent}50%{border-color:#A3B14B}}
+    .product-card:hover .product-img{transform:scale(1.05)}
+    .cat-btn.active{background:#1C1917;color:#FAFAF9}
+    .payment-modal-open #products{filter:blur(4px);opacity:.6;pointer-events:none}
+    input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
+    .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .pay-tab.active{border-color:#A3B14B;color:#A3B14B;background:rgba(163,177,75,.05)}
+    .currency-btn.active-curr{background-color:#1C1917;color:white}
+    .input-error{border-color:#EF4444!important;background-color:#FEF2F2}
+    .hero-bg-fallback{background:linear-gradient(135deg,#050A06 0%,#132316 40%,#1C1917 70%,#050A06 100%)}
+    .about-bg-fallback{background:linear-gradient(135deg,#132316 0%,#1C1917 50%,#050A06 100%)}
+    .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+    .fancy-select{position:relative}
+    .fancy-select-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border-radius:12px;border:1px solid #e7e5e4;box-shadow:0 10px 25px -5px rgba(0,0,0,.1);z-index:60;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s ease;overflow:hidden}
+    .fancy-select.open .fancy-select-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+    .fancy-option{padding:8px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f1f5f9;transition:all .15s}
+    .fancy-option:last-child{border-bottom:none}
+    .fancy-option:hover{background:#fefce8;color:#A3B14B;padding-left:16px}
+    .rotate-180{transform:rotate(180deg)}
+    @keyframes modalFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+    .modal-enter{animation:modalFadeIn .3s ease-out forwards}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+    .toast-enter{animation:slideInRight .4s ease-out forwards}
+    @keyframes slideOutRight{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100%)}}
+    .toast-exit{animation:slideOutRight .3s ease-in forwards}
+    @keyframes slowSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .logo-spin{animation:slowSpin 10s linear infinite}
+    @keyframes successPop{0%{transform:scale(0);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+    .success-pop{animation:successPop .5s ease-out forwards}
+    @keyframes stepPulse{0%,100%{opacity:.4}50%{opacity:1}}
+    .step-active{animation:stepPulse 1.2s ease-in-out infinite}
+    @keyframes progressStripe{0%{background-position:0 0}100%{background-position:40px 0}}
+    .progress-bar-animated{background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);background-size:40px 40px;animation:progressStripe 1s linear infinite}
+    @keyframes countdownBar{from{width:100%}to{width:0%}}
+    .countdown-bar{animation:countdownBar 5s linear forwards}
+
+    /* ==========================================
+       TRENDING SWIPER 3D COVERFLOW STYLES
+       ========================================== */
+    .trendingSwiper { width: 100%; padding-top: 20px; padding-bottom: 60px; }
+    .trendingSwiper .swiper-slide {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow: hidden;
+      width: 320px; height: auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .trendingSwiper .swiper-slide:hover {
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .trending-card-img {
+      width: 100%; height: 320px; object-fit: cover; background: #f3f4f6;
+    }
+    .trending-card-content { padding: 24px; text-align: center; }
+    .trending-card-name { font-size: 18px; font-weight: 700; color: #1C1917; margin-bottom: 8px; }
+    .trending-card-price { font-size: 16px; font-weight: 800; color: #2d4a22; }
+    .trending-badge {
+      position: absolute; top: 16px; left: 16px;
+      background: #1C1917; color: white; padding: 6px 14px;
+      border-radius: 20px; font-size: 12px; font-weight: 700;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .swiper-pagination-bullet { background: #A3B14B !important; width: 10px; height: 10px; opacity: 0.4; }
+    .swiper-pagination-bullet-active { opacity: 1 !important; background: #2d4a22 !important; }
+
+    @media (max-width: 768px) {
+      .trendingSwiper .swiper-slide { width: 280px; }
+      .trending-card-img { height: 260px; }
+    }
+  </style>
 </head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>⭐ Trending: Admin Picks</h1>
-        <a href="/api/view-orders" class="btn-back">← Back to Orders</a>
+<body class="bg-bg-light text-txt-main">
+
+  <!-- NAVBAR -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background:rgba(250,250,249,.8);backdrop-filter:blur(12px)">
+    <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20"><i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i></div>
+        <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main">NaturaBotanica</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 md:gap-8">
+        <a href="#trendingSection" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Trending</a>
+        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
+        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
+        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
+        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
+      </div>
+      <div class="flex items-center gap-2 md:gap-4">
+        <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
+        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center" style="display:none">0</span></button>
+        <div id="authButtonsLoggedOut" class="hidden md:flex items-center gap-2">
+          <button onclick="openAuthModal('signin')" class="px-4 py-2 text-sm font-medium text-txt-main hover:bg-black/5 rounded-xl transition-colors">Sign In</button>
+          <button onclick="openAuthModal('signup')" class="px-4 py-2 text-sm font-medium bg-txt-main text-white rounded-xl hover:bg-black transition-colors">Sign Up</button>
+        </div>
+        <div id="authButtonsLoggedIn" class="hidden items-center gap-3">
+          <a href="/profile" class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 rounded-full hover:bg-brand/20 transition-colors"><i data-lucide="user-check" class="w-4 h-4 text-brand"></i><span id="userNameDisplay" class="text-sm font-medium text-brand">User</span></a>
+          <button onclick="handleLogout()" class="p-2 rounded-full hover:bg-black/5 transition-colors" title="Sign Out"><i data-lucide="log-out" class="w-5 h-5 text-txt-sub"></i></button>
+        </div>
+        <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
+      </div>
     </div>
-    <div class="card">
-        <p>Select <strong>2 products</strong> to feature at the very beginning of the Trending 3D Carousel on your homepage. The remaining 8 slots are filled automatically by your top-selling products.</p>
-        
-        <label for="pick1">Staff Pick #1</label>
-        <select id="pick1"><option value="">Loading products...</option></select>
-        
-        <label for="pick2">Staff Pick #2</label>
-        <select id="pick2"><option value="">Loading products...</option></select>
-        
-        <button class="btn-save" id="saveBtn" onclick="savePicks()">Save Trending Picks</button>
-        
-        <div id="errorBox" class="error-box"></div>
+  </nav>
+
+  <!-- SEARCH BAR -->
+  <div id="searchBar" class="fixed top-20 left-0 right-0 z-50 bg-white border-b border-border-main shadow-lg" style="display:none">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4"><div class="relative"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i><input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"><button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button></div><div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div></div>
+  </div>
+
+  <!-- MOBILE MENU -->
+  <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
+    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
+      <div class="p-6"><div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="flex flex-col gap-4"><a href="#trendingSection" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Trending</a><a href="#products" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Products</a><a href="#categories" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Categories</a><a href="#about" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">About</a><a href="#contact" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Contact</a></div></div>
     </div>
-</div>
-<div id="toast" class="toast">Notification</div>
+  </div>
 
-<script>
+  <!-- HERO -->
+  <section class="relative min-h-screen flex items-center overflow-hidden bg-bg-dark">
+    <div class="absolute inset-0 hero-bg-fallback z-0"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 w-full items-stretch">
+      <div class="flex flex-col justify-center">
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 w-fit"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Minerals & Salts</span></div>
+        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
+        <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Organic Soaps — sourced from Himalayas and beyond.</p>
+        <div class="anim-up anim-d3 flex flex-wrap gap-4">
+          <a href="#trendingSection" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25">See What's Trending <i data-lucide="trending-up" class="w-4 h-4"></i></a>
+          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10">Get Quote</a>
+        </div>
+        <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
+          <div><div class="text-2xl md:text-3xl font-semibold text-white" id="visitorCount">5,000+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Visitors</div></div>
+          <div class="w-px h-8 md:h-10 bg-white/10"></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">70+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Products</div></div>
+          <div class="w-px h-8 md:h-10 bg-white/10"></div>
+          <div><div class="text-2xl md:text-3xl font-semibold text-white">9</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
+        </div>
+      </div>
+      <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 shadow-2xl min-h-[500px]"><img src="images/jeM6q.jpg" alt="Chakra" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'"></div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20"><span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span><i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i></div>
+  </section>
+
+  <!-- ==========================================
+       TRENDING PRODUCTS SECTION (3D Coverflow)
+       ========================================== -->
+  <section id="trendingSection" class="py-16 md:py-24 lg:py-32 bg-bg-light relative z-10 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mb-10 md:mb-16">
+      <span class="inline-block px-3 py-1 bg-brand/10 text-brand text-xs font-bold uppercase tracking-widest rounded-full mb-3">Hot Right Now</span>
+      <h2 class="text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight text-txt-main">Trending Products</h2>
+      <p class="text-sm md:text-base text-txt-sub mt-3 max-w-xl mx-auto">Our top staff picks and most loved bestsellers, updated in real-time.</p>
+    </div>
+
+    <div class="swiper trendingSwiper">
+      <div class="swiper-wrapper" id="trendingWrapper">
+        <!-- Slides are injected dynamically via JS -->
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4" id="catButtons"></div></div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section id="products" class="py-16 md:py-24 lg:py-32 transition-opacity duration-300">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
+          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <div class="flex items-center gap-2 mt-3"><span class="rate-dot" id="rateDot"></span><p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span>
+          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
+            <option value="name">Sort by Name</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
+      <div id="paginationControls" class="mt-8"></div>
+      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 md:px-6 relative"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2><p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, premium essential oils, authentic Rasa Shastra minerals, traditional Salts (Namak), and handcrafted Herbal Soaps.</p><div class="grid grid-cols-2 gap-4 md:gap-6"><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4><p class="text-xs md:text-sm text-white/50">COA with every order</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4><p class="text-xs md:text-sm text-white/50">50+ countries served</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Himalayan Source</h4><p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Expert Support</h4><p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p></div></div></div><div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5"></div></div></div></div></section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="py-16 md:py-24 lg:py-32"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2><p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p><div class="space-y-4"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm md:text-base font-medium">sales.naturabotanica20@gmail.com</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">WhatsApp No</p><p class="text-sm md:text-base font-medium">+977 98012 34567</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Location</p><p class="text-sm md:text-base font-medium">Kathmandu, Nepal</p></div></div></div></div>
+    <form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-5"><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><textarea id="contactMessage" placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea><button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button><div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div></form></div></div></section>
+
+  <!-- FOOTER -->
+  <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12"><div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-white"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div><div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-2"><span class="rate-dot"></span><span class="text-xs text-white/40" id="footerRateText">1 USD = ...</span></div></div></div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)"><div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col"><div class="p-6 border-b border-border-main flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="cartItems" class="flex-1 overflow-y-auto p-6"></div><div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4"><div class="flex items-center justify-between"><span class="text-txt-sub">Subtotal</span><div class="text-right"><span id="cartTotal" class="text-xl font-semibold">NPR 0</span><span id="cartTotalUsd" class="block text-xs text-txt-sub">$0.00</span></div></div><button onclick="proceedToInquiry()" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2">Proceed to Inquiry <i data-lucide="arrow-right" class="w-4 h-4"></i></button><div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-300"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">Pay Securely</span><div class="flex-grow border-t border-gray-300"></div></div><div class="grid grid-cols-2 gap-3"><button onclick="openPaymentModal('esewa')" class="py-3 bg-esewa text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>eSewa</button><button onclick="openPaymentModal('khalti')" class="py-3 bg-khalti text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>Khalti</button></div><button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500">Clear Cart</button></div></div></div>
+  
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
+
+  <!-- PAYMENT MODAL -->
+  <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh] modal-enter">
+      <div class="p-6 pb-2 flex-shrink-0"><button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 z-10"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1">Complete Payment</h3><p class="text-txt-sub text-sm">Scan QR and upload screenshot.</p></div>
+      <div class="px-6 pb-6 overflow-y-auto">
+        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-4"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details</h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
+        <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4"><div class="flex justify-between items-center mb-2"><span class="text-xs font-medium uppercase text-txt-third">Total</span><div class="text-right"><span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0</span><span id="paymentTotalSub" class="block text-[10px] text-txt-sub">$0.00</span></div></div><div class="text-xs text-txt-third" id="paymentItemsCount">0 items</div><div class="mt-3 pt-3 border-t border-gray-200"><label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label><div class="flex bg-gray-200 p-1 rounded-lg"><button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold">NPR</button><button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold">USD</button></div></div></div>
+        <div class="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl"><button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium">eSewa</button><button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium">Khalti</button></div>
+        <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner"><img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" onerror="this.style.display='none'"><img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"></div><p class="mt-3 text-sm font-medium">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
+        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width:0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot.</p></div>
+      </div>
+      <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
+    </div>
+  </div>
+
+  <!-- PROCESSING OVERLAY -->
+  <div id="processingOverlay" class="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl">
+      <div class="mb-6"><i data-lucide="loader-2" class="w-12 h-12 text-brand mx-auto animate-spin"></i></div>
+      <h3 class="text-xl font-semibold mb-2" id="processingTitle">Processing Order</h3>
+      <p class="text-sm text-txt-sub mb-6" id="processingSubtitle">Please do not close this window...</p>
+      <div class="space-y-3 text-left mb-6">
+        <div class="flex items-center gap-3" id="pStep1"><div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-3 h-3 text-brand"></i></div><span class="text-sm font-medium">Compressing proof...</span></div>
+        <div class="flex items-center gap-3 opacity-40" id="pStep2"><div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"><i data-lucide="upload" class="w-3 h-3 text-gray-500"></i></div><span class="text-sm font-medium">Uploading to server...</span></div>
+        <div class="flex items-center gap-3 opacity-40" id="pStep3"><div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-3 h-3 text-gray-500"></i></div><span class="text-sm font-medium">Confirming in database...</span></div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"><div id="processingProgressBar" class="bg-brand h-2 rounded-full progress-bar-animated transition-all duration-500" style="width:10%"></div></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS POPUP -->
+  <div id="successPopup" class="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl modal-enter">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 success-pop"><i data-lucide="check" class="w-10 h-10 text-green-600"></i></div>
+      <h3 class="text-2xl font-bold mb-2">Order Placed!</h3>
+      <p class="text-sm text-txt-sub mb-1">Your Order ID is</p>
+      <p class="text-lg font-mono font-bold text-brand mb-4" id="successOrderId">#ORDER-123</p>
+      <p class="text-sm text-txt-sub leading-relaxed mb-6">We will verify your payment and send you a confirmation email shortly.</p>
+      <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-2"><div class="bg-green-500 h-1.5 rounded-full countdown-bar"></div></div>
+      <p class="text-[10px] text-txt-third">Auto-closing in 5 seconds...</p>
+    </div>
+  </div>
+
+  <!-- ERROR POPUP -->
+  <div id="errorPopup" class="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl modal-enter">
+      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i></div>
+      <h3 class="text-2xl font-bold mb-2">Submission Failed</h3>
+      <p class="text-sm text-txt-sub leading-relaxed mb-6" id="errorMessage">Something went wrong. Please try again.</p>
+      <button onclick="retrySubmission()" class="w-full py-3 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2 mb-3"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Retry Submission</button>
+      <button onclick="closeErrorPopup()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 transition-colors">Cancel & Go Back</button>
+    </div>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
+  </div>
+
+  <!-- ========== SIGNUP MODAL (NO USERNAME) ========== -->
+  <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form onsubmit="handleSignup(event)" class="space-y-4">
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
+          <div class="relative">
+            <input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+            <button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
+      </form>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
+    </div>
+  </div>
+
+  <!-- ========== SIGNIN MODAL (WITH FORGOT PASSWORD) ========== -->
+  <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form onsubmit="handleSignin(event)" class="space-y-4">
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
+          <div class="relative">
+            <input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+            <button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium rounded-xl hover:bg-black transition-colors">Sign In</button>
+      </form>
+      <div class="mt-4">
+        <button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2">
+          <i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?
+        </button>
+      </div>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div>
+    </div>
+  </div>
+
+  <!-- ========== FORGOT PASSWORD MODAL ========== -->
+  <div id="forgotModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <div id="forgotStep1">
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mb-4 flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0"></i><p class="text-xs text-orange-700">Enter your email and we'll send a 6-digit code valid for 5 minutes.</p></div>
+        <form onsubmit="handleForgotPassword(event)" class="space-y-4">
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Send Reset Code</button>
+        </form>
+      </div>
+      <div id="forgotStep2" class="hidden">
+        <p class="text-sm text-txt-sub mb-1">Code sent to <span id="forgotEmailDisplay" class="font-semibold text-txt-main"></span></p>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
+        <form onsubmit="handleResetPassword(event)" class="space-y-4">
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div>
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label>
+            <div class="relative">
+              <input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
+              <button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
+            </div>
+          </div>
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
+        </form>
+        <button onclick="handleResendForgotOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Didn't get it? Resend Code</button>
+      </div>
+      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
+    </div>
+  </div>
+
+  <!-- OTP VERIFICATION MODAL -->
+  <div id="otpModal" class="fixed inset-0 z-[60] bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
+    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6 text-center">
+      <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Verify Email</h3><button onclick="closeAuthModal('otp')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="otpEmailDisplay" class="font-semibold text-txt-main"></span></p>
+      <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center justify-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
+      <form onsubmit="handleVerifyOTP(event)" class="space-y-4">
+        <input type="text" id="otpCode" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand">
+        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Verify</button>
+      </form>
+      <button onclick="handleResendOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors">Didn't get it? Resend Code</button>
+    </div>
+  </div>
+
+  <!-- Swiper.js JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
     // ==========================================
-    // LIVE BACKEND URL
+    // 1. CONFIGURATION & STATE
     // ==========================================
-    const API = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
-    let allProducts = [];
+    var BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
+    var exchangeRate = 133;
+    var products = [];
+    var cart = [];
+    var currentCategory = 'all';
+    var currentSort = 'name';
+    var PRODUCTS_PER_PAGE = 30;
+    var currentPage = 1;
+    var currentModalProduct = null;
+    var selectedForm = "Whole Form";
+    var selectedUnitValue = "1kg";
+    var selectedPaymentMethod = 'esewa';
+    var selectedPaymentCurrency = 'npr';
+    var rawFileForUpload = null;
+    var lastCompressedBase64 = null;
+    var authToken = localStorage.getItem('natura_token');
+    var currentUser = null;
 
-    async function init() {
-        const username = localStorage.getItem('admin_username');
-        const password = localStorage.getItem('admin_password');
+    // ==========================================
+    // 2. HELPERS
+    // ==========================================
+    function fetchWithTimeout(url, options, timeout) { timeout = timeout || 8000; return Promise.race([fetch(url, options), new Promise(function(_, reject) { setTimeout(function() { reject(new Error('Request timeout')); }, timeout); })]); }
+    function getUnitFactor(unit) { var map = {'10gm':0.01,'125gm':0.125,'250gm':0.25,'500gm':0.5,'1kg':1,'15ml':0.015,'30ml':0.03,'50ml':0.05,'100ml':0.1,'200ml':0.2,'500ml':0.5,'1000ml':1,'100gm':1}; return map[unit] || 1; }
+    function calculateModalPrice(product, form, unit, qty) { if (!product) return 0; var unitFactor = getUnitFactor(unit); var priceNPR = product.price * unitFactor * qty; if (form === 'Powder Form') priceNPR += 50 * unitFactor * qty; return Math.round(priceNPR * 100) / 100; }
+    function togglePassword(inputId, btn) { var input = document.getElementById(inputId); var icon = btn.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.setAttribute('data-lucide', 'eye'); } else { input.type = 'password'; icon.setAttribute('data-lucide', 'eye-off'); } lucide.createIcons(); }
+
+    // ==========================================
+    // 3. TOAST SYSTEM
+    // ==========================================
+    function showToast(msg, type) { type = type || 'success'; var container = document.getElementById('toastContainer'); var el = document.createElement('div'); el.className = 'toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm pointer-events-auto'; el.innerHTML = '<i data-lucide="' + (type === 'success' ? 'check-circle' : 'alert-circle') + '" class="w-4 h-4 inline mr-2 ' + (type === 'success' ? 'text-brand' : 'text-red-500') + '"></i>' + msg; container.appendChild(el); lucide.createIcons(); setTimeout(function() { el.classList.add('toast-exit'); setTimeout(function() { el.remove(); }, 300); }, 2500); }
+
+    // ==========================================
+    // 4. IMAGE COMPRESSION
+    // ==========================================
+    function compressImage(file) { return new Promise(function(resolve, reject) { var reader = new FileReader(); reader.onload = function(e) { var img = new Image(); img.onload = function() { var canvas = document.createElement('canvas'); var MAX_WIDTH = 800; var width = img.width; var height = img.height; if (width > MAX_WIDTH) { height = (height * MAX_WIDTH) / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; var ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', 0.5)); }; img.onerror = function() { reject(new Error('Failed to load image')); }; img.src = e.target.result; }; reader.onerror = function() { reject(new Error('Failed to read file')); }; reader.readAsDataURL(file); }); }
+
+    // ==========================================
+    // 5. PROCESSING / POPUP OVERLAYS
+    // ==========================================
+    function showProcessingOverlay(step) { var overlay = document.getElementById('processingOverlay'); overlay.classList.remove('hidden'); overlay.classList.add('flex'); var s1 = document.getElementById('pStep1'); var s2 = document.getElementById('pStep2'); var s3 = document.getElementById('pStep3'); var bar = document.getElementById('processingProgressBar'); s1.className = 'flex items-center gap-3 opacity-40'; s2.className = 'flex items-center gap-3 opacity-40'; s3.className = 'flex items-center gap-3 opacity-40'; if (step >= 1) { s1.className = 'flex items-center gap-3 step-active'; bar.style.width = '30%'; } if (step >= 2) { s1.className = 'flex items-center gap-3'; s2.className = 'flex items-center gap-3 step-active'; bar.style.width = '65%'; } if (step >= 3) { s2.className = 'flex items-center gap-3'; s3.className = 'flex items-center gap-3 step-active'; bar.style.width = '90%'; } }
+    function hideProcessingOverlay() { var overlay = document.getElementById('processingOverlay'); overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+    function showSuccessPopup(orderId) { document.getElementById('successOrderId').textContent = '#' + (orderId || 'PENDING'); var popup = document.getElementById('successPopup'); popup.classList.remove('hidden'); popup.classList.add('flex'); lucide.createIcons(); setTimeout(function() { popup.classList.add('hidden'); popup.classList.remove('flex'); }, 5000); }
+    function showErrorPopup(message) { document.getElementById('errorMessage').textContent = message || 'Something went wrong. Please try again.'; var popup = document.getElementById('errorPopup'); popup.classList.remove('hidden'); popup.classList.add('flex'); lucide.createIcons(); }
+    function closeErrorPopup() { var popup = document.getElementById('errorPopup'); popup.classList.add('hidden'); popup.classList.remove('flex'); }
+
+    // ==========================================
+    // 6. EXCHANGE RATE
+    // ==========================================
+    async function loadExchangeRate() { try { var res = await fetchWithTimeout(BACKEND_URL + '/public/rate'); if (res.ok) { var data = await res.json(); if (data.rate && data.rate > 0) exchangeRate = data.rate; } } catch (e) { console.error('Rate fetch failed, using default 133:', e.message); } updateRateDisplays(); loadProducts(); }
+    function updateRateDisplays() { var r = exchangeRate.toFixed(2); var label = document.getElementById('rateLabel'); if (label) label.textContent = '$ prices at 1 USD = Rs. ' + r; var ft = document.getElementById('footerRateText'); if (ft) ft.textContent = '1 USD = Rs. ' + r + ' NPR'; }
+
+    // ==========================================
+    // 7. VISITOR COUNTER
+    // ==========================================
+    async function loadVisitorCount() { try { var res = await fetchWithTimeout(BACKEND_URL + '/public/visits'); if (res.ok) { var data = await res.json(); if (data.count) { var el = document.getElementById('visitorCount'); if (el) animateCounter(el, data.count); } } } catch (e) { console.error('Visitor count failed:', e.message); } }
+    function animateCounter(el, target) { var current = 0; var interval = setInterval(function() { current += Math.ceil(target / 60); if (current >= target) { current = target; clearInterval(interval); } el.textContent = current.toLocaleString() + '+'; }, 20); }
+
+    // ==========================================
+    // 8. TRENDING PRODUCTS (3D COVERFLOW)
+    // ==========================================
+    async function loadTrending() {
+      var wrapper = document.getElementById('trendingWrapper');
+      try {
+        var res = await fetchWithTimeout(BACKEND_URL + '/trending');
+        var data = await res.json();
         
-        if (!username || !password) {
-            showError("Not logged in! Please go to the Admin Orders page and log in first.");
-            document.getElementById('saveBtn').disabled = true;
-            return;
-        }
-        
-        const credentials = btoa(username + ':' + password);
-
-        try {
-            // 1. Fetch all products
-            const prodRes = await fetch(API + '/products', { headers: { 'Authorization': 'Basic ' + credentials } });
-            
-            if (!prodRes.ok) {
-                throw new Error('Failed to fetch products (Status: ' + prodRes.status + ')');
-            }
-            
-            const prodData = await prodRes.json();
-            allProducts = prodData.products || prodData || [];
-            
-            console.log("Products received from DB:", allProducts);
-
-            if (allProducts.length === 0) {
-                document.getElementById('pick1').innerHTML = '<option value="">No products found in DB</option>';
-                document.getElementById('pick2').innerHTML = '<option value="">No products found in DB</option>';
-                return;
-            }
-
-            // FIX: We try to find a valid ID. If _id is missing, we try 'id', then 'name'.
-            // This ensures the value is never "undefined".
-            const optionsHtml = '<option value="">-- Select a Product --</option>' + allProducts.map(p => {
-                const uniqueVal = p._id || p.id || p.name; 
-                return `<option value="${uniqueVal}">${p.name} (NPR ${p.price || 0})</option>`;
-            }).join('');
-            
-            document.getElementById('pick1').innerHTML = optionsHtml;
-            document.getElementById('pick2').innerHTML = optionsHtml;
-
-            // 2. Fetch Current Picks
-            const picksRes = await fetch(API + '/trending');
-            if (picksRes.ok) {
-                const picksData = await picksRes.json();
-                if (picksData.success && picksData.trending) {
-                    const currentPicks = picksData.trending.filter(p => p.isPick);
-                    // We use the same logic to match the current values
-                    if (currentPicks[0]) {
-                         const val1 = currentPicks[0]._id || currentPicks[0].id || currentPicks[0].name;
-                         document.getElementById('pick1').value = val1;
-                    }
-                    if (currentPicks[1]) {
-                         const val2 = currentPicks[1]._id || currentPicks[1].id || currentPicks[1].name;
-                         document.getElementById('pick2').value = val2;
-                    }
-                }
-            }
-        } catch (e) {
-            showError("Init Error: " + e.message);
-        }
-    }
-
-    async function savePicks() {
-        const pick1 = document.getElementById('pick1').value;
-        const pick2 = document.getElementById('pick2').value;
-        const btn = document.getElementById('saveBtn');
-        
-        hideError();
-
-        if (!pick1 || !pick2) {
-            showError('Please select exactly 2 products.');
-            return;
-        }
-        if (pick1 === pick2) {
-            showError('Please select 2 DIFFERENT products.');
-            return;
+        // Hide section if no trending products exist yet
+        if (!data.success || !data.trending || data.trending.length === 0) {
+          document.getElementById('trendingSection').style.display = 'none';
+          return;
         }
 
-        const username = localStorage.getItem('admin_username');
-        const password = localStorage.getItem('admin_password');
-        const credentials = btoa(username + ':' + password);
+        // Generate HTML for each product slide
+        wrapper.innerHTML = data.trending.map(function(product) {
+          var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
+          return '<div class="swiper-slide">' +
+            (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3 text-yellow-400"></i> Staff Pick</div>' : '') +
+            '<img src="' + (product.image || product.img || 'https://placehold.co/400x300/132316/A3B14B?text=NaturaBotanica') + '" alt="' + product.name + '" class="trending-card-img">' +
+            '<div class="trending-card-content">' +
+              '<div class="trending-card-name">' + product.name + '</div>' +
+              '<div class="trending-card-price">NPR ' + Math.round(product.price || 0).toLocaleString() + ' <span class="text-xs text-txt-sub font-normal">$' + priceUSD + '</span></div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
 
-        btn.disabled = true;
-        btn.textContent = 'Saving...';
+        // Initialize Swiper with 3D Coverflow + Auto-Spin
+        new Swiper(".trendingSwiper", {
+          effect: "coverflow",
+          grabCursor: true,
+          centeredSlides: true,
+          slidesPerView: "auto",
+          initialSlide: 0, // Start at Staff Pick #1
+          coverflowEffect: {
+            rotate: 15,      // 3D rotation angle
+            stretch: 0,
+            depth: 200,      // 3D depth effect
+            modifier: 1,
+            slideShadows: true,
+          },
+          autoplay: {
+            delay: 4000,                // Auto-slide every 4 seconds
+            disableOnInteraction: true,  // STOP auto-spin when user swipes!
+            pauseOnMouseEnter: true,     // Pause when mouse hovers over slide
+          },
+          loop: true,               // Infinite continuous loop
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          // Responsive adjustments for mobile
+          breakpoints: {
+            320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } },
+            768: { slidesPerView: "auto" }
+          }
+        });
 
-        try {
-            const res = await fetch(API + '/trending/picks', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + credentials },
-                body: JSON.stringify({ picks: [pick1, pick2] })
-            });
-            
-            const data = await res.json();
-            
-            if (res.ok && data.success) {
-                showToast('✅ Trending picks saved successfully!');
-            } else {
-                throw new Error(data.error || 'Server returned status ' + res.status);
-            }
-        } catch (e) {
-            showError("Save Failed: " + e.message);
-            showToast('❌ Error saving picks', true);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Save Trending Picks';
-        }
+        // Re-initialize Lucide Icons for dynamically added elements
+        lucide.createIcons();
+
+      } catch (error) {
+        console.error('Failed to load trending products:', error);
+        document.getElementById('trendingSection').style.display = 'none';
+      }
     }
 
-    function showError(msg) {
-        const box = document.getElementById('errorBox');
-        box.textContent = msg;
-        box.style.display = 'block';
+    // ==========================================
+    // 9. PRODUCTS & PAGINATION
+    // ==========================================
+    async function loadProducts() { var grid = document.getElementById('productGrid'); grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/products'); if (!res.ok) throw new Error('API error'); products = await res.json(); } catch (e) { console.error('Products fetch failed, using fallback:', e.message); products = Array.from({ length: 65 }).map(function(_, i) { return { id: i + 1, name: 'Product ' + (i + 1), sci: 'Scientific name', category: ['oils','herbs','mushrooms','rasa','namak','herbal soap','extracts','seeds / masala'][i % 8], catLabel: ['Oils','Herbs','Mushrooms','Rasa','Namak','Herbal Soap','Extracts','Seeds / Masala'][i % 8], price: 500 + (i * 10), img: 'https://placehold.co/400x300/132316/A3B14B?text=Product+' + (i + 1), desc: 'High quality botanical ingredient sourced from the Himalayas.', moq: '1 kg', lead: '5-7 days', unit: '1 kg', stock: 10 + i }; }); } renderCatButtons(); currentPage = 1; renderProducts(getFilteredProducts()); }
+    function renderCatButtons() { var cats = ['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap','seeds / masala']; var icons = { 'all':'grid-3x3','oils':'droplet','extracts':'flask-conical','mushrooms':'nut','herbs':'leaf','rasa':'rocking-chair','namak':'sparkles','herbal soap':'droplets','seeds / masala':'wheat' }; document.getElementById('catButtons').innerHTML = cats.map(function(c) { var displayName = c === 'herbal soap' ? 'Herbal Soap' : c === 'seeds / masala' ? 'Seeds / Masala' : c.charAt(0).toUpperCase() + c.slice(1); return '<button onclick="filterCategory(\'' + c + '\')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="' + c + '"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="' + icons[c] + '" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium">' + displayName + '</span></button>'; }).join(''); lucide.createIcons(); }
+    function getFilteredProducts() { var f = products.slice(); if (currentCategory !== 'all') f = f.filter(function(p) { return p.category === currentCategory; }); if (currentSort === 'name') f.sort(function(a, b) { return a.name.localeCompare(b.name); }); if (currentSort === 'price-asc') f.sort(function(a, b) { return a.price - b.price; }); if (currentSort === 'price-desc') f.sort(function(a, b) { return b.price - a.price; }); return f; }
+    function filterCategory(c) { currentCategory = c; currentPage = 1; document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.cat === c); }); renderProducts(getFilteredProducts()); }
+    function sortProducts() { currentSort = document.getElementById('sortSelect').value; currentPage = 1; renderProducts(getFilteredProducts()); }
+    function goToPage(page) { var filtered = getFilteredProducts(); var totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE); if (page < 1 || page > totalPages) return; currentPage = page; renderProducts(filtered); document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    function renderProducts(items) { var grid = document.getElementById('productGrid'); var noR = document.getElementById('noResults'); var cnt = document.getElementById('productCount'); if (!items.length) { grid.innerHTML = ''; noR.classList.remove('hidden'); cnt.textContent = '0'; document.getElementById('paginationControls').innerHTML = ''; return; } noR.classList.add('hidden'); var totalPages = Math.ceil(items.length / PRODUCTS_PER_PAGE); if (currentPage > totalPages) currentPage = totalPages; var startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE; var endIndex = startIndex + PRODUCTS_PER_PAGE; var pageItems = items.slice(startIndex, endIndex); cnt.textContent = 'Showing ' + (startIndex + 1) + '–' + Math.min(endIndex, items.length) + ' of ' + items.length; grid.innerHTML = pageItems.map(function(p) { var priceUSD = (p.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var stockBadge = p.stock <= 0 ? '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>' : p.stock < 10 ? '<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium rounded-full">Low Stock</span>' : '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium rounded-full">In Stock</span>'; var disabledAttr = p.stock <= 0 ? 'disabled' : ''; var btnClass = p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'; var btnText = p.stock <= 0 ? 'Out of Stock' : 'Add to Cart'; return '<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(\'' + p.id + '\')"><img src="' + p.img + '" class="product-img w-full h-full object-cover transition-transform duration-500"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">' + p.catLabel + '</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ' + p.id + '</span></div></div><div class="p-5"><div class="flex items-center justify-between mb-1"><h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(\'' + p.id + '\')">' + p.name + '</h3>' + stockBadge + '</div><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ' + p.price.toLocaleString() + ' / ' + p.unit + '</span><span class="text-xs text-txt-sub block">$' + priceUSD + ' / ' + p.unit + '</span></div><button onclick="addToCart(\'' + p.id + '\')" ' + disabledAttr + ' class="px-4 py-2 ' + btnClass + ' text-white text-xs rounded-xl transition-all">' + btnText + '</button></div></div></div>'; }).join(''); renderPagination(totalPages, items.length); lucide.createIcons(); }
+    function renderPagination(totalPages, totalItems) { var container = document.getElementById('paginationControls'); if (totalPages <= 1) { container.innerHTML = ''; return; } var pagesHtml = '<button onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ' + (currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main') + ' transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i>Prev</button>'; var pageNumbers = []; if (totalPages <= 7) { for (var i = 1; i <= totalPages; i++) pageNumbers.push(i); } else { pageNumbers.push(1); if (currentPage > 3) pageNumbers.push('...'); for (var j = Math.max(2, currentPage - 1); j <= Math.min(totalPages - 1, currentPage + 1); j++) pageNumbers.push(j); if (currentPage < totalPages - 2) pageNumbers.push('...'); pageNumbers.push(totalPages); } pageNumbers.forEach(function(p) { if (p === '...') pagesHtml += '<span class="px-2 py-2.5 text-sm text-txt-third">…</span>'; else { var isActive = p === currentPage; pagesHtml += '<button onclick="goToPage(' + p + ')" class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-xl border transition-all ' + (isActive ? 'bg-txt-main text-white border-txt-main shadow-lg' : 'border-border-main hover:bg-brand hover:text-white hover:border-brand') + '">' + p + '</button>'; } }); pagesHtml += '<button onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ' + (currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main') + ' transition-all">Next<i data-lucide="chevron-right" class="w-4 h-4"></i></button>'; container.innerHTML = '<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-border-main"><p class="text-sm text-txt-third">Page <span class="font-semibold text-txt-main">' + currentPage + '</span> of <span class="font-semibold text-txt-main">' + totalPages + '</span> (' + totalItems + ' products)</p><div class="flex items-center gap-2 flex-wrap justify-center">' + pagesHtml + '</div></div>'; lucide.createIcons(); }
+
+    // ==========================================
+    // 10. SEARCH
+    // ==========================================
+    function initSearch() { document.getElementById('searchInput').addEventListener('input', function(e) { var query = e.target.value.toLowerCase().trim(); var resultsDiv = document.getElementById('searchResults'); if (!query) { resultsDiv.innerHTML = ''; return; } var matches = products.filter(function(p) { return p.name.toLowerCase().includes(query) || (p.sci && p.sci.toLowerCase().includes(query)) || p.category.toLowerCase().includes(query) || (p.catLabel && p.catLabel.toLowerCase().includes(query)); }); if (!matches.length) { resultsDiv.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found.</p>'; return; } resultsDiv.innerHTML = matches.map(function(p) { return '<div class="flex items-center gap-3 p-3 rounded-xl hover:bg-bg-light cursor-pointer transition-colors" onclick="closeSearch(); openModal(\'' + p.id + '\');"><img src="' + p.img + '" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display=\'none\'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">' + p.name + '</p><p class="text-[10px] text-txt-third">' + p.catLabel + ' · NPR ' + p.price.toLocaleString() + '</p></div><i data-lucide="arrow-up-right" class="w-4 h-4 text-txt-third flex-shrink-0"></i></div>'; }).join(''); lucide.createIcons(); }); document.getElementById('searchClose').addEventListener('click', closeSearch); }
+    function openSearch() { document.getElementById('searchBar').style.display = 'block'; setTimeout(function() { document.getElementById('searchInput').focus(); }, 50); }
+    function closeSearch() { document.getElementById('searchBar').style.display = 'none'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
+
+    // ==========================================
+    // 11. CART LOGIC
+    // ==========================================
+    function addToCart(id, qty) { qty = qty || 1; var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; var existing = cart.find(function(i) { return String(i.id) === String(id) && i.unit === p.unit && i.form === 'Whole Form'; }); if (existing) existing.qty += qty; else cart.push({ id: p.id, name: p.name, price: p.price, qty: qty, img: p.img, unit: p.unit, form: 'Whole Form' }); updateCartUI(); showToast(p.name + ' added to cart'); syncCartToDB(); }
+    function updateCartUI() { var totalItems = cart.reduce(function(s, i) { return s + i.qty; }, 0); var cEl = document.getElementById('cartCount'); if (totalItems > 0) { cEl.style.display = 'flex'; cEl.textContent = totalItems; } else { cEl.style.display = 'none'; } var cartDiv = document.getElementById('cartItems'); if (cartDiv) cartDiv.innerHTML = cart.map(function(i) { return '<div class="flex gap-4 py-4 border-b"><img src="' + i.img + '" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">' + i.name + '</h4><p class="text-xs text-txt-sub">' + i.form + ' · ' + i.unit + '</p><p class="text-sm">' + i.qty + ' x NPR ' + i.price.toLocaleString() + '</p><button onclick="removeFromCart(\'' + i.id + '\',\'' + i.unit + '\',\'' + i.form + '\')" class="text-red-500 text-xs mt-1">Remove</button></div></div>'; }).join(''); var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); document.getElementById('cartTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('cartTotalUsd').innerHTML = '$' + (totalNPR / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var footer = document.getElementById('cartFooter'); if (cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); document.getElementById('cartItemCount').textContent = '(' + totalItems + ' items)'; }
+    function removeFromCart(id, unit, form) { cart = cart.filter(function(i) { return !(String(i.id) === String(id) && i.unit === unit && i.form === form); }); updateCartUI(); showToast('Removed'); syncCartToDB(); }
+    function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared'); syncCartToDB(); }
+    function openCart() { document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(function() { document.getElementById('cartPanel').style.transform = 'translateX(0)'; }, 10); }
+    function closeCart() { document.getElementById('cartPanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('cartOverlay').classList.add('hidden'); }, 300); }
+    function proceedToInquiry() { if (!cart.length) return; closeCart(); var msg = document.getElementById('contactMessage'); var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); msg.value += '\n\n--- Cart Total: NPR ' + total.toLocaleString() + ' ---\n'; cart.forEach(function(i) { msg.value += '- ' + i.name + ' (' + i.form + ', ' + i.unit + '): ' + i.qty + ' x NPR ' + i.price + '\n'; }); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); showToast('Cart added to inquiry'); }
+
+    // ==========================================
+    // 12. PRODUCT MODAL
+    // ==========================================
+    function openModal(id) { var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; currentModalProduct = p; var formOptions = [], unitOptions = []; switch (p.category) { case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break; case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break; default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break; } selectedForm = formOptions[0]; selectedUnitValue = unitOptions[unitOptions.length - 1]; var iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' }; var html = '<div class="relative"><img src="' + p.img + '" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display=\'none\'"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium rounded-full">' + p.catLabel + '</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ' + p.id + '</div></div><div class="p-4"><div class="flex justify-between items-start gap-2 mb-1"><h3 class="text-lg font-semibold tracking-tight">' + p.name + '</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#' + p.id + '</span></div><p class="text-[10px] text-txt-third italic mb-2">' + (p.sci || '') + '</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">' + (p.desc || '') + '</p><div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'form\')"><div class="flex items-center gap-1.5"><i data-lucide="' + (iconMap[selectedForm] || 'layers') + '" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selFormLabel">' + selectedForm + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i></div><div class="fancy-select-dropdown" id="formDD">' + formOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm(\'' + opt + '\')"><i data-lucide="' + (iconMap[opt] || 'layers') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div><div class="fancy-select relative" id="unitDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'unit\')"><div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selUnitLabel">' + selectedUnitValue + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i></div><div class="fancy-select-dropdown" id="unitDD">' + unitOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit(\'' + opt + '\')"><i data-lucide="' + (opt.includes('ml') ? 'droplet' : 'cube') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div></div><div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3"><div class="flex justify-between items-center"><div><span class="text-[9px] uppercase text-txt-sub">Total Price</span><div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div><div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div><div id="powderNote" class="text-[8px] text-orange-500 mt-1 ' + (selectedForm === 'Powder Form' ? '' : 'hidden') + '">+NPR 50/kg powder fee included</div></div><div class="text-right"><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="mFormBadge">' + selectedForm + '</span><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="mUnitBadge">' + selectedUnitValue + '</span></div></div></div><div class="grid grid-cols-3 gap-1.5 mb-3"><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Base Unit</p><p class="text-[10px] text-white font-medium">' + (p.unit || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">' + (p.moq || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">' + (p.lead || '7d') + '</p></div></div><div class="flex gap-2"><div class="flex items-center border border-border-main rounded-lg overflow-hidden"><button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none"><button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div></div>'; document.getElementById('modalDynamicContent').innerHTML = html; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(function() { lucide.createIcons(); updateModalPrice(); }, 50); }
+    function closeModal() { document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct = null; }
+    function toggleDropdown(type) { var container = document.getElementById(type + 'DDCont'); var chev = document.getElementById(type + 'Chev'); if (!container) return; var otherType = type === 'form' ? 'unit' : 'form'; var otherCont = document.getElementById(otherType + 'DDCont'); var otherChev = document.getElementById(otherType + 'Chev'); if (otherCont) otherCont.classList.remove('open'); if (otherChev) otherChev.classList.remove('rotate-180'); container.classList.toggle('open'); chev.classList.toggle('rotate-180'); }
+    function selectForm(form) { selectedForm = form; document.getElementById('selFormLabel').innerText = form; document.getElementById('mFormBadge').innerText = form; var pn = document.getElementById('powderNote'); if (pn) pn.classList.toggle('hidden', form !== 'Powder Form'); document.getElementById('formDDCont').classList.remove('open'); document.getElementById('formChev').classList.remove('rotate-180'); updateModalPrice(); }
+    function selectUnit(unit) { selectedUnitValue = unit; document.getElementById('selUnitLabel').innerText = unit; document.getElementById('mUnitBadge').innerText = unit; document.getElementById('unitDDCont').classList.remove('open'); document.getElementById('unitChev').classList.remove('rotate-180'); updateModalPrice(); }
+    function updateModalPrice() { if (!currentModalProduct) return; var qty = parseInt(document.getElementById('modalQty').value) || 1; var finalPriceNPR = calculateModalPrice(currentModalProduct, selectedForm, selectedUnitValue, qty); document.getElementById('dynPrice').innerHTML = 'NPR ' + finalPriceNPR.toLocaleString(); document.getElementById('dynUsd').innerHTML = '$' + (finalPriceNPR / exchangeRate).toFixed(2); }
+    function changeQty(delta) { var inp = document.getElementById('modalQty'); if (inp) inp.value = Math.max(1, (parseInt(inp.value) || 1) + delta); updateModalPrice(); }
+    function addEnhancedToCart() { if (!currentModalProduct) return; var qty = parseInt(document.getElementById('modalQty').value) || 1; var unitPriceNPR = calculateModalPrice(currentModalProduct, selectedForm, selectedUnitValue, 1); var cartItem = { id: currentModalProduct.id, name: currentModalProduct.name, img: currentModalProduct.img, unit: selectedUnitValue, form: selectedForm, price: unitPriceNPR, qty: qty }; var existing = cart.find(function(i) { return String(i.id) === String(cartItem.id) && i.unit === cartItem.unit && i.form === cartItem.form; }); if (existing) existing.qty += qty; else cart.push(cartItem); updateCartUI(); showToast('Added ' + qty + ' x ' + selectedUnitValue + ' ' + selectedForm); closeModal(); syncCartToDB(); }
+
+    // ==========================================
+    // 13. PAYMENT MODAL & ORDER SUBMISSION
+    // ==========================================
+    function openPaymentModal(method) { selectedPaymentMethod = method; var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUSD = totalNPR / exchangeRate; document.getElementById('paymentTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('paymentTotalSub').innerHTML = '$' + totalUSD.toFixed(2); document.getElementById('paymentItemsCount').innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items'; document.querySelectorAll('.pay-tab').forEach(function(t) { t.classList.remove('active'); }); document.getElementById('tab-' + method).classList.add('active'); document.getElementById('paymentMethodLabel').innerHTML = method === 'esewa' ? 'eSewa' : 'Khalti'; document.getElementById('qr-esewa').classList.toggle('hidden', method !== 'esewa'); document.getElementById('qr-khalti').classList.toggle('hidden', method !== 'khalti'); document.getElementById('paymentModal').classList.remove('hidden'); document.getElementById('paymentModal').classList.add('flex'); document.body.classList.add('payment-modal-open'); }
+    function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('flex'); document.body.classList.remove('payment-modal-open'); }
+    function switchPaymentTab(method) { openPaymentModal(method); }
+    function setPaymentCurrency(curr) { selectedPaymentCurrency = curr; var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUsd = totalNPR / exchangeRate; if (curr === 'npr') { document.getElementById('paymentTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('paymentTotalSub').innerHTML = '$' + totalUsd.toFixed(2); } else { document.getElementById('paymentTotal').innerHTML = '$' + totalUsd.toFixed(2); document.getElementById('paymentTotalSub').innerHTML = 'NPR ' + totalNPR.toLocaleString(); } document.querySelectorAll('.currency-btn').forEach(function(b) { b.classList.remove('active-curr'); }); document.getElementById(curr === 'npr' ? 'btnNPR' : 'btnUSD').classList.add('active-curr'); }
+    function handleFileUpload(e) { var f = e.target.files[0]; if (!f) return; if (f.size > 5 * 1024 * 1024) { showToast('Max 5MB', 'error'); return; } rawFileForUpload = f; lastCompressedBase64 = null; document.getElementById('uploadPlaceholder').classList.add('hidden'); document.getElementById('uploadProgressContainer').classList.remove('hidden'); var reader = new FileReader(); reader.onload = function(ev) { document.getElementById('progressBar').style.width = '100%'; setTimeout(function() { document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); document.getElementById('imagePreview').src = ev.target.result; lucide.createIcons(); }, 300); }; reader.readAsDataURL(f); }
+    function clearScreenshot(e) { if (e) e.stopPropagation(); rawFileForUpload = null; lastCompressedBase64 = null; document.getElementById('paymentScreenshot').value = ""; document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('uploadProgressContainer').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); document.getElementById('progressBar').style.width = '0%'; }
+    async function submitOrderToBackend() { var name = document.getElementById('clientName').value.trim(); var phone = document.getElementById('clientPhone').value.trim(); var email = document.getElementById('clientEmail').value.trim(); var address = document.getElementById('clientAddress').value.trim(); if (!name) { showToast('Please enter your full name', 'error'); document.getElementById('clientName').classList.add('input-error'); return; } if (!phone) { showToast('Please enter your phone number', 'error'); document.getElementById('clientPhone').classList.add('input-error'); return; } if (!email || !email.includes('@') || !email.includes('.')) { showToast('Please enter a valid email', 'error'); document.getElementById('clientEmail').classList.add('input-error'); return; } if (!rawFileForUpload && !lastCompressedBase64) { showToast('Please upload payment screenshot', 'error'); return; } if (!cart.length) { showToast('Cart is empty', 'error'); return; } ['clientName', 'clientPhone', 'clientEmail'].forEach(function(id) { document.getElementById(id).classList.remove('input-error'); }); showProcessingOverlay(1); var compressedBase64 = lastCompressedBase64; try { if (!compressedBase64 && rawFileForUpload) { compressedBase64 = await compressImage(rawFileForUpload); lastCompressedBase64 = compressedBase64; } } catch (e) { hideProcessingOverlay(); showErrorPopup('Failed to process image. Please upload a different file.'); return; } showProcessingOverlay(2); try { var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUSD = totalNPR / exchangeRate; var paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; var currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD'; var orderData = { items: cart.map(function(i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit, form: i.form }; }), totalNPR: totalNPR, totalUSD: totalUSD, paidAmount: paidAmount, currency: currency, paymentMethod: selectedPaymentMethod, paymentScreenshot: compressedBase64, clientDetails: { name: name, phone: phone, email: email, address: address || 'N/A' } }; var res = await fetchWithTimeout(BACKEND_URL + '/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) }, 20000); showProcessingOverlay(3); if (res.ok) { var data = await res.json(); hideProcessingOverlay(); showSuccessPopup(data.orderId || data._id || 'PENDING'); cart = []; updateCartUI(); rawFileForUpload = null; lastCompressedBase64 = null; clearScreenshot(); ['clientName', 'clientPhone', 'clientEmail', 'clientAddress'].forEach(function(id) { document.getElementById(id).value = ""; }); closePaymentModal(); syncCartToDB(); } else { var err = await res.json(); hideProcessingOverlay(); showErrorPopup(err.message || 'Server rejected the order.'); } } catch (err) { hideProcessingOverlay(); showErrorPopup('Network error. Please check your connection and retry.'); } }
+    function retrySubmission() { closeErrorPopup(); submitOrderToBackend(); }
+
+    // ==========================================
+    // 14. INQUIRY FORM
+    // ==========================================
+    async function submitInquiry(e) { e.preventDefault(); var btn = e.target.querySelector('button[type="submit"]'); var msgDiv = document.getElementById('formMsg'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/inquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName: document.getElementById('inquiryFirstName').value, lastName: document.getElementById('inquiryLastName').value, email: document.getElementById('inquiryEmail').value, company: document.getElementById('inquiryCompany').value || '', message: document.getElementById('contactMessage').value }) }); if (res.ok) { msgDiv.textContent = '✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden', 'text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch (err) { msgDiv.textContent = '✕ Error sending inquiry.'; msgDiv.classList.remove('hidden', 'text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry', 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
+
+    // ==========================================
+    // 15. AUTHENTICATION (NO USERNAME)
+    // ==========================================
+    async function checkAuthState() { var loggedOutDiv = document.getElementById('authButtonsLoggedOut'); var loggedInDiv = document.getElementById('authButtonsLoggedIn'); var userNameSpan = document.getElementById('userNameDisplay'); if (authToken) { try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } }); if (res.ok) { currentUser = await res.json(); loggedInDiv.style.display = 'flex'; loggedOutDiv.style.display = 'none'; userNameSpan.innerText = currentUser.name || currentUser.email; if (currentUser.isVerified && currentUser.cart && currentUser.cart.length > 0) { if (cart.length === 0) { cart = currentUser.cart; updateCartUI(); } else { syncCartToDB(true); } } lucide.createIcons(); return; } } catch (e) { console.error('Auth check failed:', e.message); } } currentUser = null; authToken = null; localStorage.removeItem('natura_token'); loggedInDiv.style.display = 'none'; loggedOutDiv.style.display = ''; lucide.createIcons(); }
+    function openAuthModal(type) { document.getElementById(type + 'Modal').classList.remove('hidden'); document.getElementById(type + 'Modal').classList.add('flex'); }
+    function closeAuthModal(type) { document.getElementById(type + 'Modal').classList.add('hidden'); document.getElementById(type + 'Modal').classList.remove('flex'); }
+    function switchAuthModal(type) { ['signin', 'signup', 'otp', 'forgot'].forEach(function(t) { closeAuthModal(t); }); openAuthModal(type); }
+
+    async function handleSignup(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Creating...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('signupName').value, email: document.getElementById('signupEmail').value, password: document.getElementById('signupPassword').value }) }); var data = await res.json(); if (res.ok) { showToast('Account created! Check email for 6-digit code.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); } else { showToast(data.error || 'Signup failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Create Account'; }
+    async function handleSignin(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Signing in...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('signinEmail').value, password: document.getElementById('signinPassword').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); currentUser = data.user; closeAuthModal('signin'); if (!data.user.isVerified) { document.getElementById('otpEmailDisplay').innerText = data.user.email; openAuthModal('otp'); } else { checkAuthState(); showToast('Welcome back, ' + data.user.name + '!'); } } else { showToast(data.error || 'Invalid email or password', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Sign In'; }
+    async function handleVerifyOTP(e) { e.preventDefault(); try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('otpEmailDisplay').innerText, code: document.getElementById('otpCode').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); closeAuthModal('otp'); checkAuthState(); showToast('Email verified successfully!'); } else { showToast(data.error || 'Invalid or expired code', 'error'); } } catch (e) { showToast('Network error', 'error'); } }
+    async function handleResendOTP() { var email = document.getElementById('otpEmailDisplay').innerText; if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/resend-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New 6-digit code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
+    async function handleForgotPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); if (!email) { showToast('Enter your email', 'error'); return; } btn.disabled = true; btn.innerText = 'Sending...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); if (res.ok) { document.getElementById('forgotEmailDisplay').innerText = email; document.getElementById('forgotStep1').classList.add('hidden'); document.getElementById('forgotStep2').classList.remove('hidden'); showToast('Reset code sent!'); } else { showToast(data.error || 'Failed to send code', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Send Reset Code'; }
+    async function handleResetPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); var otp = document.getElementById('resetOtp').value.trim(); var newPass = document.getElementById('resetNewPassword').value; if (!otp || otp.length !== 6) { showToast('Enter the 6-digit code', 'error'); return; } if (!newPass || newPass.length < 8) { showToast('Password must be 8-30 characters', 'error'); return; } btn.disabled = true; btn.innerText = 'Resetting...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, otp: otp, newPassword: newPass }) }); var data = await res.json(); if (res.ok) { showToast('Password reset! Please sign in.'); switchAuthModal('signin'); document.getElementById('forgotStep1').classList.remove('hidden'); document.getElementById('forgotStep2').classList.add('hidden'); document.getElementById('forgotEmail').value = ''; document.getElementById('resetOtp').value = ''; document.getElementById('resetNewPassword').value = ''; } else { showToast(data.error || 'Reset failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Reset Password'; }
+    async function handleResendForgotOTP() { var email = document.getElementById('forgotEmail').value.trim(); if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
+    function handleLogout() { authToken = null; currentUser = null; localStorage.removeItem('natura_token'); cart = []; updateCartUI(); checkAuthState(); showToast('Signed out'); }
+    async function syncCartToDB(returnUpdatedCart) { if (!authToken || !currentUser || !currentUser.isVerified) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/cart/sync', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }, body: JSON.stringify({ cart: cart }) }, 5000); if (returnUpdatedCart && res.ok) { var data = await res.json(); if (data.cart) { cart = data.cart; updateCartUI(); } } } catch (e) { console.error('Cart sync failed:', e.message); } }
+
+    // ==========================================
+    // 16. MOBILE MENU
+    // ==========================================
+    function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('mobileOverlay').classList.add('hidden'); }, 300); }
+
+    // ==========================================
+    // 17. EVENT LISTENERS & BOOT
+    // ==========================================
+    function initEventListeners() {
+      document.getElementById('cartToggle').addEventListener('click', openCart);
+      document.getElementById('searchToggle').addEventListener('click', openSearch);
+      document.getElementById('mobileMenu').addEventListener('click', function() { document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(function() { document.getElementById('mobilePanel').style.transform = 'translateX(0)'; }, 10); });
+      document.getElementById('mobileClose').addEventListener('click', closeMobile);
+      document.getElementById('cartOverlay').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeCart(); });
+      document.getElementById('productModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeModal(); });
+      document.getElementById('paymentModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closePaymentModal(); });
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closePaymentModal(); closeSearch(); ['signin', 'signup', 'otp', 'forgot'].forEach(function(t) { closeAuthModal(t); }); } });
+      initSearch();
     }
 
-    function hideError() {
-        document.getElementById('errorBox').style.display = 'none';
-    }
-
-    function showToast(msg, isError) {
-        const t = document.getElementById('toast'); 
-        t.textContent = msg; 
-        t.className = 'toast show' + (isError ? ' toast-error' : '');
-        setTimeout(() => t.className = 'toast', 3500);
-    }
-
-    init();
-</script>
+    lucide.createIcons();
+    initEventListeners();
+    loadExchangeRate();
+    loadVisitorCount();
+    checkAuthState();
+    loadTrending(); // Load 3D Trending Carousel
+  </script>
 </body>
 </html>
