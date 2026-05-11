@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose'); // Required for ObjectId validation
 const Trending = require('../models/Trending');
-const Product = require('../models/Product'); // Import Product model
+const Product = require('../models/Product'); // Required to fetch product details
 
 // ==========================================
 // CUSTOM ADMIN AUTH MIDDLEWARE
@@ -43,13 +44,22 @@ router.get('/', async (req, res) => {
         
         const productIds = trending.picks;
         
-        // MANUALLY FETCH PRODUCTS: Search by both MongoDB _id and custom id field
-        const products = await Product.find({
-            $or: [
-                { _id: { $in: productIds } },
-                { id: { $in: productIds } }
-            ]
-        });
+        // FIX: Prevent Mongoose CastError by separating valid ObjectIds from custom string IDs
+        const validObjectIds = productIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+        const customIds = productIds.filter(id => !mongoose.Types.ObjectId.isValid(id));
+        
+        let queryConditions = [];
+        if (validObjectIds.length > 0) {
+            queryConditions.push({ _id: { $in: validObjectIds } });
+        }
+        if (customIds.length > 0) {
+            queryConditions.push({ id: { $in: customIds } });
+        }
+        
+        let products = [];
+        if (queryConditions.length > 0) {
+            products = await Product.find({ $or: queryConditions });
+        }
         
         // Re-order the products to match the exact order the admin selected
         const orderedPicks = productIds.map(pid => 
