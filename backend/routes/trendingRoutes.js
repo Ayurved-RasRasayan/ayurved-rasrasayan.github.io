@@ -4,7 +4,6 @@ const Trending = require('../models/Trending');
 
 // ==========================================
 // CUSTOM ADMIN AUTH MIDDLEWARE
-// (No external packages needed, uses your .env variables)
 // ==========================================
 const adminAuth = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -19,7 +18,7 @@ const adminAuth = (req, res, next) => {
         const [username, password] = credentials.split(':');
 
         if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASSWORD) {
-            next(); // Auth success, proceed to route
+            next();
         } else {
             return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
         }
@@ -32,21 +31,29 @@ const adminAuth = (req, res, next) => {
 // ROUTES
 // ==========================================
 
-// GET current trending picks
-router.get('/', adminAuth, async (req, res) => {
+// GET current trending picks (WITH POPULATE FOR HOMEPAGE)
+router.get('/', async (req, res) => {
     try {
-        let trending = await Trending.findOne();
+        let trending = await Trending.findOne()
+            // THIS IS THE MAGIC: It swaps the IDs for full product data!
+            .populate('picks'); 
+
         if (!trending) {
             trending = await Trending.create({ picks: [] });
         }
+        
+        // If it's an admin request, we might want just the IDs for the dropdowns.
+        // If it's the homepage, we want the full populated data.
+        // Let's return the full data. The admin panel will handle extracting the IDs.
         res.json(trending);
+        
     } catch (err) {
         console.error('Fetch trending error:', err);
         res.status(500).json({ error: 'Failed to fetch trending picks' });
     }
 });
 
-// POST to save trending picks (Matching the 'POST' method in your frontend)
+// POST to save trending picks
 router.post('/', adminAuth, async (req, res) => {
     try {
         const { picks } = req.body;
@@ -55,9 +62,8 @@ router.post('/', adminAuth, async (req, res) => {
             return res.status(400).json({ error: 'Exactly 4 picks are required' });
         }
 
-        // Upsert: update if exists, create if it doesn't
         const updatedTrending = await Trending.findOneAndUpdate(
-            {}, // find the first (and only) document
+            {},
             { picks: picks },
             { new: true, upsert: true }
         );
