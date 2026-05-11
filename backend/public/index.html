@@ -465,15 +465,35 @@
           '</div>';
         }).join('');
 
-        new Swiper(".trendingSwiper", {
-          effect: "coverflow", grabCursor: true, centeredSlides: true, slidesPerView: "auto", initialSlide: 0,
-          coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
-          autoplay: { delay: 4000, disableOnInteraction: true, pauseOnMouseEnter: true },
-          loop: true,
-          pagination: { el: ".swiper-pagination", clickable: true },
-          breakpoints: { 320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 768: { slidesPerView: "auto" } }
-        });
-        lucide.createIcons();
+        // FIX 3: Delay Swiper init slightly to let DOM calculate image/slide widths accurately
+        setTimeout(function() {
+          new Swiper(".trendingSwiper", {
+            effect: "coverflow", 
+            grabCursor: true, 
+            centeredSlides: true, 
+            slidesPerView: "auto", 
+            initialSlide: 0,
+            coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
+            // FIX 1: Autoplay resumes after user stops interacting
+            autoplay: { 
+              delay: 4000, 
+              disableOnInteraction: false, 
+              pauseOnMouseEnter: true 
+            },
+            loop: true,
+            // FIX 2: Force Swiper to duplicate enough slides so loop+coverflow doesn't freeze
+            loopedSlides: 6,
+            loopAdditionalSlides: 6,
+            pagination: { el: ".swiper-pagination", clickable: true },
+            breakpoints: { 
+              320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 
+              768: { slidesPerView: "auto" } 
+            }
+          });
+          
+          lucide.createIcons();
+        }, 300); // 300ms delay
+
       } catch (error) {
         console.error('Failed to load trending products:', error);
         document.getElementById('trendingSection').style.display = 'none';
