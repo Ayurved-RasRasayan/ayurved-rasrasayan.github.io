@@ -20,17 +20,39 @@ const sendEmail = async (payload) => {
 // CLIENT: ORDER STATUS UPDATE
 // ==========================================
 exports.sendClientEmail = (toEmail, toName, orderId, status) => {
-  const displayStatus = status === 'Success' ? 'Payment Successful' : status;
+  // Format the status for better readability in the email
+  let displayStatus = status;
+  let statusColor = '#1C1917'; // default text color
+  let statusBg = '#FFFFFF';    // default background
+
+  if (status === 'Success') {
+    displayStatus = 'Payment Successful';
+    statusColor = '#15803d';
+    statusBg = '#f0fdf4';
+  } else if (status === 'Shipping') {
+    displayStatus = 'Order Shipped';
+    statusColor = '#1d4ed8';
+    statusBg = '#eff6ff';
+  } else if (status === 'Completed') {
+    displayStatus = 'Order Completed';
+    statusColor = '#15803d';
+    statusBg = '#f0fdf4';
+  } else if (status === 'Rejected') {
+    displayStatus = 'Order Rejected';
+    statusColor = '#b91c1b';
+    statusBg = '#fef2f2';
+  }
+
   return sendEmail({ 
     to: [{ email: toEmail, name: toName }], 
-    subject: `Order Update: #${orderId}`, 
+    subject: `Order Update: #${orderId} - ${displayStatus}`, 
     htmlContent: `
       <div style="font-family:'Inter',Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#FAFAF9;border-radius:16px;border:1px solid #E7E5E4;">
         <h2 style="color:#1C1917;margin:0 0 16px;">Order Update</h2>
         <p style="color:#57534E;font-size:15px;">Hello ${toName},</p>
         <p style="color:#57534E;font-size:15px;">Your order <strong>#${orderId}</strong> status is now:</p>
-        <div style="background:#FFFFFF;padding:16px;border-radius:12px;text-align:center;margin:16px 0;border:1px solid #E7E5E4;">
-          <p style="font-size:18px;font-weight:600;color:#1C1917;margin:0;">${displayStatus}</p>
+        <div style="background:${statusBg};padding:16px;border-radius:12px;text-align:center;margin:16px 0;border:1px solid #E7E5E4;">
+          <p style="font-size:18px;font-weight:600;color:${statusColor};margin:0;">${displayStatus}</p>
         </div>
         <p style="color:#78716C;font-size:13px;margin-top:20px;">Thank you for shopping with NaturaBotanica!</p>
       </div>
@@ -118,7 +140,7 @@ exports.sendOTPEmail = (toEmail, toName, otp) => {
 };
 
 // ==========================================
-// PASSWORD RESET OTP (5 min) - NEW
+// PASSWORD RESET OTP (5 min)
 // ==========================================
 exports.sendResetEmail = (toEmail, toName, otp) => {
   return sendEmail({ 
