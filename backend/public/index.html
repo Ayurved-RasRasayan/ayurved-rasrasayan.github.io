@@ -74,35 +74,31 @@
        TRENDING SWIPER 3D COVERFLOW STYLES
        ========================================== */
     .trendingSwiper { width: 100%; padding-top: 20px; padding-bottom: 60px; }
-    .trendingSwiper .swiper-slide {
-      background: #fff; border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow: hidden;
-      width: 320px; height: auto;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .trendingSwiper .swiper-slide:hover {
-      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-    }
-    .trending-card-img {
-      width: 100%; height: 320px; object-fit: cover; background: #f3f4f6;
-    }
+    .trendingSwiper .swiper-slide { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow: hidden; width: 320px; height: auto; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .trendingSwiper .swiper-slide:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+    .trending-card-img { width: 100%; height: 320px; object-fit: cover; background: #f3f4f6; }
     .trending-card-content { padding: 24px; text-align: center; }
     .trending-card-name { font-size: 18px; font-weight: 700; color: #1C1917; margin-bottom: 8px; }
     .trending-card-price { font-size: 16px; font-weight: 800; color: #2d4a22; }
-    .trending-badge {
-      position: absolute; top: 16px; left: 16px;
-      background: #1C1917; color: white; padding: 6px 14px;
-      border-radius: 20px; font-size: 12px; font-weight: 700;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10;
-      display: flex; align-items: center; gap: 6px;
-    }
+    .trending-badge { position: absolute; top: 16px; left: 16px; background: #1C1917; color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; display: flex; align-items: center; gap: 6px; }
     .swiper-pagination-bullet { background: #A3B14B !important; width: 10px; height: 10px; opacity: 0.4; }
     .swiper-pagination-bullet-active { opacity: 1 !important; background: #2d4a22 !important; }
 
-    @media (max-width: 768px) {
-      .trendingSwiper .swiper-slide { width: 280px; }
-      .trending-card-img { height: 260px; }
+    @media (max-width: 768px) { .trendingSwiper .swiper-slide { width: 280px; } .trending-card-img { height: 260px; } }
+
+    /* ==========================================
+       FIRE GLOW ANIMATION (Hero Chakra)
+       ========================================== */
+    @keyframes fireScale {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.05); filter: brightness(1.2); }
     }
+    @keyframes fireShadow {
+      0%, 100% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(163,177,75,0.3); }
+      50% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(163,177,75,0.7), 0 0 100px rgba(255,120,0,0.4); }
+    }
+    .fire-img { animation: fireScale 4s ease-in-out infinite; }
+    .fire-container { animation: fireShadow 4s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
@@ -169,7 +165,8 @@
           <div><div class="text-2xl md:text-3xl font-semibold text-white">9</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
         </div>
       </div>
-            <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 fire-container min-h-[500px]">
+      <!-- FIRE GLOW CHAKRA IMAGE -->
+      <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 fire-container min-h-[500px]">
         <img src="images/jeM6q.jpg" alt="Chakra" class="absolute inset-0 w-full h-full object-cover fire-img" onerror="this.style.display='none'">
       </div>
     </div>
@@ -299,19 +296,14 @@
     <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
   </div>
 
-  <!-- ========== SIGNUP MODAL (NO USERNAME) ========== -->
+  <!-- ========== SIGNUP MODAL ========== -->
   <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
       <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
       <form onsubmit="handleSignup(event)" class="space-y-4">
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
-          <div class="relative">
-            <input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-            <button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
-          </div>
-        </div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label><div class="relative"><input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
         <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
       </form>
       <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
@@ -324,12 +316,7 @@
       <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
       <form onsubmit="handleSignin(event)" class="space-y-4">
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label>
-          <div class="relative">
-            <input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-            <button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
-          </div>
-        </div>
+        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label><div class="relative"><input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
         <button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium rounded-xl hover:bg-black transition-colors">Sign In</button>
       </form>
       <div class="mt-4"><button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2"><i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?</button></div>
@@ -527,7 +514,7 @@
         document.getElementById('trendingSection').style.display = 'none';
       }
     }
-    
+
     // ==========================================
     // 9. PRODUCTS & PAGINATION
     // ==========================================
