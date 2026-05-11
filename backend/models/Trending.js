@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const trendingSchema = new mongoose.Schema({
     picks: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product' // This tells MongoDB these IDs belong to the Product model
+        type: String, // Changed from ObjectId to String to accept any ID format
+        trim: true
     }]
 });
 
