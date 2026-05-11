@@ -316,7 +316,7 @@
     </div>
   </div>
 
-  <!-- ========== SIGNIN MODAL (WITH FORGOT PASSWORD) ========== -->
+  <!-- ========== SIGNIN MODAL ========== -->
   <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
     <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
       <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
@@ -330,11 +330,7 @@
         </div>
         <button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium rounded-xl hover:bg-black transition-colors">Sign In</button>
       </form>
-      <div class="mt-4">
-        <button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2">
-          <i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?
-        </button>
-      </div>
+      <div class="mt-4"><button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2"><i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?</button></div>
       <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div>
     </div>
   </div>
@@ -355,12 +351,7 @@
         <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
         <form onsubmit="handleResetPassword(event)" class="space-y-4">
           <div><label class="block text-xs font-medium text-txt-sub mb-1.5">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label>
-            <div class="relative">
-              <input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10">
-              <button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button>
-            </div>
-          </div>
+          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label><div class="relative"><input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
           <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
         </form>
         <button onclick="handleResendForgotOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Didn't get it? Resend Code</button>
@@ -456,18 +447,17 @@
         var res = await fetchWithTimeout(BACKEND_URL + '/trending');
         var data = await res.json();
         
-        // Hide section if no trending products exist yet
         if (!data.success || !data.trending || data.trending.length === 0) {
           document.getElementById('trendingSection').style.display = 'none';
           return;
         }
 
-        // Generate HTML for each product slide
         wrapper.innerHTML = data.trending.map(function(product) {
           var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
+          var imgSrc = product.img || product.image || 'https://placehold.co/400x300/132316/A3B14B?text=NaturaBotanica';
           return '<div class="swiper-slide">' +
             (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3 text-yellow-400"></i> Staff Pick</div>' : '') +
-            '<img src="' + (product.image || product.img || 'https://placehold.co/400x300/132316/A3B14B?text=NaturaBotanica') + '" alt="' + product.name + '" class="trending-card-img">' +
+            '<img src="' + imgSrc + '" alt="' + product.name + '" class="trending-card-img">' +
             '<div class="trending-card-content">' +
               '<div class="trending-card-name">' + product.name + '</div>' +
               '<div class="trending-card-price">NPR ' + Math.round(product.price || 0).toLocaleString() + ' <span class="text-xs text-txt-sub font-normal">$' + priceUSD + '</span></div>' +
@@ -475,40 +465,15 @@
           '</div>';
         }).join('');
 
-        // Initialize Swiper with 3D Coverflow + Auto-Spin
         new Swiper(".trendingSwiper", {
-          effect: "coverflow",
-          grabCursor: true,
-          centeredSlides: true,
-          slidesPerView: "auto",
-          initialSlide: 0, // Start at Staff Pick #1
-          coverflowEffect: {
-            rotate: 15,      // 3D rotation angle
-            stretch: 0,
-            depth: 200,      // 3D depth effect
-            modifier: 1,
-            slideShadows: true,
-          },
-          autoplay: {
-            delay: 4000,                // Auto-slide every 4 seconds
-            disableOnInteraction: true,  // STOP auto-spin when user swipes!
-            pauseOnMouseEnter: true,     // Pause when mouse hovers over slide
-          },
-          loop: true,               // Infinite continuous loop
-          pagination: {
-            el: ".swiper-pagination",
-            clickable: true,
-          },
-          // Responsive adjustments for mobile
-          breakpoints: {
-            320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } },
-            768: { slidesPerView: "auto" }
-          }
+          effect: "coverflow", grabCursor: true, centeredSlides: true, slidesPerView: "auto", initialSlide: 0,
+          coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
+          autoplay: { delay: 4000, disableOnInteraction: true, pauseOnMouseEnter: true },
+          loop: true,
+          pagination: { el: ".swiper-pagination", clickable: true },
+          breakpoints: { 320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 768: { slidesPerView: "auto" } }
         });
-
-        // Re-initialize Lucide Icons for dynamically added elements
         lucide.createIcons();
-
       } catch (error) {
         console.error('Failed to load trending products:', error);
         document.getElementById('trendingSection').style.display = 'none';
@@ -575,7 +540,7 @@
     async function submitInquiry(e) { e.preventDefault(); var btn = e.target.querySelector('button[type="submit"]'); var msgDiv = document.getElementById('formMsg'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/inquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName: document.getElementById('inquiryFirstName').value, lastName: document.getElementById('inquiryLastName').value, email: document.getElementById('inquiryEmail').value, company: document.getElementById('inquiryCompany').value || '', message: document.getElementById('contactMessage').value }) }); if (res.ok) { msgDiv.textContent = '✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden', 'text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error(); } catch (err) { msgDiv.textContent = '✕ Error sending inquiry.'; msgDiv.classList.remove('hidden', 'text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry', 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); } }
 
     // ==========================================
-    // 15. AUTHENTICATION (NO USERNAME)
+    // 15. AUTHENTICATION
     // ==========================================
     async function checkAuthState() { var loggedOutDiv = document.getElementById('authButtonsLoggedOut'); var loggedInDiv = document.getElementById('authButtonsLoggedIn'); var userNameSpan = document.getElementById('userNameDisplay'); if (authToken) { try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } }); if (res.ok) { currentUser = await res.json(); loggedInDiv.style.display = 'flex'; loggedOutDiv.style.display = 'none'; userNameSpan.innerText = currentUser.name || currentUser.email; if (currentUser.isVerified && currentUser.cart && currentUser.cart.length > 0) { if (cart.length === 0) { cart = currentUser.cart; updateCartUI(); } else { syncCartToDB(true); } } lucide.createIcons(); return; } } catch (e) { console.error('Auth check failed:', e.message); } } currentUser = null; authToken = null; localStorage.removeItem('natura_token'); loggedInDiv.style.display = 'none'; loggedOutDiv.style.display = ''; lucide.createIcons(); }
     function openAuthModal(type) { document.getElementById(type + 'Modal').classList.remove('hidden'); document.getElementById(type + 'Modal').classList.add('flex'); }
@@ -615,9 +580,9 @@
     lucide.createIcons();
     initEventListeners();
     loadExchangeRate();
+    loadTrending(); // Load 3D Trending Carousel
     loadVisitorCount();
     checkAuthState();
-    loadTrending(); // Load 3D Trending Carousel
   </script>
 </body>
 </html>
