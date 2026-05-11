@@ -82,7 +82,7 @@
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.className = 'toast show' + (isError ? ' toast-error' : '');
-        setTimeout(() => { toast.className = 'toast'; }, 3000);
+        setTimeout(() => { toast.className = 'toast'; }, 4000); // Increased time to read errors
     }
 
     // Populate all 4 dropdowns with the fetched products
@@ -92,8 +92,6 @@
             select.innerHTML = '<option value="">-- Select a Product --</option>'; // Clear loading state
             
             allProducts.forEach(product => {
-                // Assuming your product objects have 'id' and 'name' properties. 
-                // Adjust '_id' or 'title' if your backend uses different keys.
                 const id = product.id || product._id; 
                 const name = product.name || product.title;
                 
@@ -129,10 +127,7 @@
                 throw new Error(`HTTP error! Status: ${prodRes.status}`);
             }
 
-            // Parse JSON (Fix for Issue #3)
             const data = await prodRes.json();
-            
-            // Handle if the API returns an object with a products array vs just an array
             allProducts = Array.isArray(data) ? data : (data.products || []);
 
             // Populate the 4 dropdown menus
@@ -143,7 +138,6 @@
                 const trendRes = await fetch(API + '/trending', { headers });
                 if (trendRes.ok) {
                     const trendData = await trendRes.json();
-                    // Assuming the backend returns something like { picks: ["id1", "id2", "id3", "id4"] }
                     const currentPicks = Array.isArray(trendData) ? trendData : (trendData.picks || []);
                     
                     if (currentPicks.length >= 4) {
@@ -155,7 +149,6 @@
                 }
             } catch (trendErr) {
                 console.warn("Could not fetch current trending picks, starting fresh.", trendErr);
-                // This is fine, the admin will just make selections from scratch
             }
 
         } catch (err) {
@@ -193,25 +186,34 @@
         const credentials = btoa(username + ':' + password);
 
         try {
-            // Sending PUT request to save the picks (Adjust to POST if your backend requires it)
+            // Using POST (Change to 'PUT' if your backend specifically requires it)
             const res = await fetch(API + '/trending', {
-                method: 'PUT', 
+                method: 'POST', 
                 headers: {
                     'Authorization': 'Basic ' + credentials,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ picks: picks }) // Sends { "picks": ["id1", "id2", "id3", "id4"] }
+                body: JSON.stringify({ picks: picks })
             });
 
+            // ENHANCED ERROR HANDLING: Read the actual error from the server
             if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
+                let errorMsg = `Error ${res.status}: `;
+                try {
+                    const errorData = await res.json();
+                    errorMsg += errorData.error || errorData.message || JSON.stringify(errorData);
+                } catch {
+                    errorMsg += await res.text();
+                }
+                throw new Error(errorMsg);
             }
 
             showToast("Trending picks saved successfully! 🎉");
             
         } catch (err) {
             console.error("Failed to save picks:", err);
-            showToast("Error saving picks. Please try again.", true);
+            // Now the toast will show the REAL reason it failed
+            showToast("Save failed: " + err.message, true);
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = 'Save Trending Picks';
@@ -219,7 +221,7 @@
     }
 
     // ==========================================
-    // INITIALIZATION TRIGGER (Fix for Issue #7)
+    // INITIALIZATION TRIGGER
     // ==========================================
     window.addEventListener('DOMContentLoaded', init);
 </script>
