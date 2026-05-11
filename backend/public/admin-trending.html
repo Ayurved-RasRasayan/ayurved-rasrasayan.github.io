@@ -82,7 +82,7 @@
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.className = 'toast show' + (isError ? ' toast-error' : '');
-        setTimeout(() => { toast.className = 'toast'; }, 4000); // Increased time to read errors
+        setTimeout(() => { toast.className = 'toast'; }, 4000);
     }
 
     // Populate all 4 dropdowns with the fetched products
@@ -138,13 +138,16 @@
                 const trendRes = await fetch(API + '/trending', { headers });
                 if (trendRes.ok) {
                     const trendData = await trendRes.json();
-                    const currentPicks = Array.isArray(trendData) ? trendData : (trendData.picks || []);
+                    const currentPicks = trendData.picks || [];
                     
                     if (currentPicks.length >= 4) {
-                        document.getElementById('pick1').value = currentPicks[0];
-                        document.getElementById('pick2').value = currentPicks[1];
-                        document.getElementById('pick3').value = currentPicks[2];
-                        document.getElementById('pick4').value = currentPicks[3];
+                        // EXTRACT THE ID FROM THE POPULATED OBJECT
+                        // If backend populates, item is an object { _id: "...", name: "..." }
+                        // If backend doesn't populate, item is just a string "..."
+                        document.getElementById('pick1').value = currentPicks[0]._id || currentPicks[0];
+                        document.getElementById('pick2').value = currentPicks[1]._id || currentPicks[1];
+                        document.getElementById('pick3').value = currentPicks[2]._id || currentPicks[2];
+                        document.getElementById('pick4').value = currentPicks[3]._id || currentPicks[3];
                     }
                 }
             } catch (trendErr) {
@@ -186,7 +189,7 @@
         const credentials = btoa(username + ':' + password);
 
         try {
-            // Using POST (Change to 'PUT' if your backend specifically requires it)
+            // Sending POST request (Matching the backend router.post '/')
             const res = await fetch(API + '/trending', {
                 method: 'POST', 
                 headers: {
