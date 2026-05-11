@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Trending = require('../models/Trending');
+const Product = require('../models/Product'); // Import Product model
 
 // ==========================================
 // CUSTOM ADMIN AUTH MIDDLEWARE
@@ -31,19 +32,31 @@ const adminAuth = (req, res, next) => {
 // ROUTES
 // ==========================================
 
-// GET current trending picks (PUBLIC - No auth required so the homepage can display the carousel)
+// GET current trending picks (PUBLIC)
 router.get('/', async (req, res) => {
     try {
-        let trending = await Trending.findOne()
-            .populate('picks'); // THIS swaps the raw IDs for full product data (name, img, price)
+        let trending = await Trending.findOne();
 
-        if (!trending) {
-            // If no document exists yet, return an empty picks array
+        if (!trending || !trending.picks || trending.picks.length === 0) {
             return res.json({ picks: [] });
         }
         
-        // Return strictly the picks array so the frontend gets consistent data
-        res.json({ picks: trending.picks || [] });
+        const productIds = trending.picks;
+        
+        // MANUALLY FETCH PRODUCTS: Search by both MongoDB _id and custom id field
+        const products = await Product.find({
+            $or: [
+                { _id: { $in: productIds } },
+                { id: { $in: productIds } }
+            ]
+        });
+        
+        // Re-order the products to match the exact order the admin selected
+        const orderedPicks = productIds.map(pid => 
+            products.find(p => String(p._id) === String(pid) || String(p.id) === String(pid))
+        ).filter(Boolean); // .filter(Boolean) removes any nulls if a product was deleted
+        
+        res.json({ picks: orderedPicks });
         
     } catch (err) {
         console.error('Fetch trending error:', err);
@@ -60,7 +73,6 @@ router.post('/', adminAuth, async (req, res) => {
             return res.status(400).json({ error: 'Exactly 4 picks are required' });
         }
 
-        // Upsert: Update if a document exists, create if it doesn't
         const updatedTrending = await Trending.findOneAndUpdate(
             {},
             { picks: picks },
