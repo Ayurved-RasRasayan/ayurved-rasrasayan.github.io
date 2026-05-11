@@ -7,16 +7,18 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; color: #1f2937; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
+        .container { max-width: 700px; margin: 0 auto; }
         .header { background: #2d4a22; color: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 1.3rem; }
         .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
         .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card p { margin-bottom: 16px; color: #6b7280; font-size: 14px; line-height: 1.5; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #374151; }
-        select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 20px; background: white; cursor: pointer; }
-        select:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
+        .card p { margin-bottom: 20px; color: #6b7280; font-size: 14px; line-height: 1.5; }
+        .picks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        @media (max-width: 500px) { .picks-grid { grid-template-columns: 1fr; } }
+        .pick-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #374151; }
+        .pick-group select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+        .pick-group select:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
         .btn-save { background: #2d4a22; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; }
         .btn-save:hover { background: #1f3618; }
         .btn-save:disabled { background: #9ca3af; cursor: not-allowed; }
@@ -33,13 +35,26 @@
         <a href="/api/view-orders" class="btn-back">← Back to Orders</a>
     </div>
     <div class="card">
-        <p>Select <strong>2 products</strong> to feature at the very beginning of the Trending 3D Carousel on your homepage. The remaining 8 slots are filled automatically by your top-selling products.</p>
+        <p>Select <strong>4 products</strong> to feature at the very beginning of the Trending 3D Carousel on your homepage. The remaining 6 slots are filled automatically by your top-selling products.</p>
         
-        <label for="pick1">Staff Pick #1</label>
-        <select id="pick1"><option value="">Loading products...</option></select>
-        
-        <label for="pick2">Staff Pick #2</label>
-        <select id="pick2"><option value="">Loading products...</option></select>
+        <div class="picks-grid">
+            <div class="pick-group">
+                <label for="pick1">Staff Pick #1</label>
+                <select id="pick1"><option value="">Loading products...</option></select>
+            </div>
+            <div class="pick-group">
+                <label for="pick2">Staff Pick #2</label>
+                <select id="pick2"><option value="">Loading products...</option></select>
+            </div>
+            <div class="pick-group">
+                <label for="pick3">Staff Pick #3</label>
+                <select id="pick3"><option value="">Loading products...</option></select>
+            </div>
+            <div class="pick-group">
+                <label for="pick4">Staff Pick #4</label>
+                <select id="pick4"><option value="">Loading products...</option></select>
+            </div>
+        </div>
         
         <button class="btn-save" id="saveBtn" onclick="savePicks()">Save Trending Picks</button>
         
@@ -71,107 +86,4 @@
             // 1. Fetch all products
             const prodRes = await fetch(API + '/products', { headers: { 'Authorization': 'Basic ' + credentials } });
             
-            if (!prodRes.ok) {
-                throw new Error('Failed to fetch products (Status: ' + prodRes.status + ')');
-            }
-            
-            const prodData = await prodRes.json();
-            allProducts = prodData.products || prodData || [];
-            
-            if (allProducts.length === 0) {
-                document.getElementById('pick1').innerHTML = '<option value="">No products found in DB</option>';
-                document.getElementById('pick2').innerHTML = '<option value="">No products found in DB</option>';
-                return;
-            }
-
-            // FIX: Use p.id (which matches your frontend product data structure) instead of p._id
-            const optionsHtml = '<option value="">-- Select a Product --</option>' + allProducts.map(p => 
-                `<option value="${p.id || p._id}">${p.name} (NPR ${p.price || 0})</option>`
-            ).join('');
-            
-            document.getElementById('pick1').innerHTML = optionsHtml;
-            document.getElementById('pick2').innerHTML = optionsHtml;
-
-            // 2. Fetch Current Picks to pre-select them
-            const picksRes = await fetch(API + '/trending');
-            if (picksRes.ok) {
-                const picksData = await picksRes.json();
-                if (picksData.success && picksData.trending) {
-                    const currentPicks = picksData.trending.filter(p => p.isPick);
-                    // FIX: Match using the correct ID format
-                    if (currentPicks[0]) document.getElementById('pick1').value = currentPicks[0].id || currentPicks[0]._id;
-                    if (currentPicks[1]) document.getElementById('pick2').value = currentPicks[1].id || currentPicks[1]._id;
-                }
-            }
-        } catch (e) {
-            showError("Init Error: " + e.message);
-        }
-    }
-
-    async function savePicks() {
-        const pick1 = document.getElementById('pick1').value;
-        const pick2 = document.getElementById('pick2').value;
-        const btn = document.getElementById('saveBtn');
-        
-        hideError();
-
-        if (!pick1 || !pick2) {
-            showError('Please select exactly 2 products.');
-            return;
-        }
-        if (pick1 === pick2) {
-            showError('Please select 2 DIFFERENT products.');
-            return;
-        }
-
-        const username = localStorage.getItem('admin_username');
-        const password = localStorage.getItem('admin_password');
-        const credentials = btoa(username + ':' + password);
-
-        btn.disabled = true;
-        btn.textContent = 'Saving...';
-
-        try {
-            const res = await fetch(API + '/trending/picks', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + credentials },
-                body: JSON.stringify({ picks: [pick1, pick2] })
-            });
-            
-            const data = await res.json();
-            
-            if (res.ok && data.success) {
-                showToast('✅ Trending picks saved successfully!');
-            } else {
-                throw new Error(data.error || 'Server returned status ' + res.status);
-            }
-        } catch (e) {
-            showError("Save Failed: " + e.message);
-            showToast('❌ Error saving picks', true);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Save Trending Picks';
-        }
-    }
-
-    function showError(msg) {
-        const box = document.getElementById('errorBox');
-        box.textContent = msg;
-        box.style.display = 'block';
-    }
-
-    function hideError() {
-        document.getElementById('errorBox').style.display = 'none';
-    }
-
-    function showToast(msg, isError) {
-        const t = document.getElementById('toast'); 
-        t.textContent = msg; 
-        t.className = 'toast show' + (isError ? ' toast-error' : '');
-        setTimeout(() => t.className = 'toast', 3500);
-    }
-
-    init();
-</script>
-</body>
-</html>
+            if (!prod
