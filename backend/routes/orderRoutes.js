@@ -3,11 +3,90 @@ const router = express.Router();
 const { checkAuth } = require('../middleware/auth');
 const orderCtrl = require('../controllers/orderController');
 const Order = require('../models/Order');
+const { sendClientEmail } = require('../services/emailService');
 
 // Helper to escape regex special chars
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+// ==========================================
+// PUT /api/orders/update-status
+// Updates order status AND sends email
+// when status changes to Success or Shipping
+// ==========================================
+router.put('/update-status', checkAuth, async (req, res) => {
+  try {
+    const { id, status } = req.body;
+
+    if (!id || !status) {
+      return res.status(400).json({ success: false, error: 'Order ID and status are required' });
+    }
+
+    const validStatuses = ['Pending', 'Shipping', 'Completed', 'Success', 'Rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status value' });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    const oldStatus = order.status;
+    order.status = status;
+
+    // ==========================================
+    // EMAIL TRIGGER LOGIC
+    // Send client email when status changes TO
+    // Success (Payment OK) or Shipping
+    // ==========================================
+    const EMAIL_TRIGGER_STATUSES = ['Success', 'Shipping'];
+
+    let emailSent = false;
+    let emailStatus = order.emailStatus || 'Queue';
+
+    if (EMAIL_TRIGGER_STATUSES.includes(status) && oldStatus !== status) {
+      const clientEmail = order.clientDetails?.email;
+      const clientName = order.clientDetails?.name || 'Customer';
+      const shortId = String(order._id).substring(0, 8).toUpperCase();
+
+      if (clientEmail) {
+        console.log(`[UPDATE-STATUS] 📧 Sending "${status}" email to ${clientEmail} for order #${shortId}`);
+
+        const emailResult = await sendClientEmail(clientEmail, clientName, shortId, status);
+
+        if (emailResult) {
+          emailSent = true;
+          emailStatus = 'Sent';
+          order.emailStatus = 'Sent';
+          console.log(`[UPDATE-STATUS] ✅ Email sent successfully to ${clientEmail}`);
+        } else {
+          emailStatus = 'Failed';
+          order.emailStatus = 'Failed';
+          console.log(`[UPDATE-STATUS] ❌ Email failed for ${clientEmail}`);
+        }
+      } else {
+        console.log(`[UPDATE-STATUS] ⚠️ No client email on order #${shortId}, skipping email`);
+        emailStatus = 'No Email';
+        order.emailStatus = 'No Email';
+      }
+    }
+
+    await order.save();
+
+    res.json({
+      success: true,
+      status: order.status,
+      emailSent: emailSent,
+      emailStatus: emailStatus
+    });
+
+  } catch (error) {
+    console.error('[UPDATE-STATUS] Error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // ==========================================
 // GET /api/orders/user-orders
@@ -30,14 +109,12 @@ router.get('/user-orders', checkAuth, async (req, res) => {
 
     if (email && email.trim()) {
       const emailRegex = new RegExp('^' + escapeRegex(email.trim()) + '$', 'i');
-      // Try multiple possible field paths for email
       conditions.push({ 'clientDetails.email': emailRegex });
       conditions.push({ 'client.email': emailRegex });
       conditions.push({ email: emailRegex });
     }
 
     if (userId && userId.trim()) {
-      // Try multiple possible field paths for userId
       conditions.push({ userId: userId.trim() });
       conditions.push({ user: userId.trim() });
       conditions.push({ user_id: userId.trim() });
@@ -45,7 +122,6 @@ router.get('/user-orders', checkAuth, async (req, res) => {
 
     if (name && name.trim()) {
       const nameRegex = new RegExp(escapeRegex(name.trim()), 'i');
-      // Try multiple possible field paths for name
       conditions.push({ 'clientDetails.name': nameRegex });
       conditions.push({ 'client.name': nameRegex });
       conditions.push({ customerName: nameRegex });
@@ -111,10 +187,9 @@ router.get('/user-orders', checkAuth, async (req, res) => {
 });
 
 // ==========================================
-// EXISTING ROUTES
+// EXISTING ROUTES (unchanged)
 // ==========================================
 router.post('/', orderCtrl.createOrder);
-router.put('/update-status', checkAuth, orderCtrl.updateStatus);
 router.put('/update-order-state', checkAuth, orderCtrl.updateOrderState);
 router.delete('/delete-order/:id', checkAuth, orderCtrl.deleteOrder);
 router.delete('/delete-orders', checkAuth, orderCtrl.deleteOrders);
