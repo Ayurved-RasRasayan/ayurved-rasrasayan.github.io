@@ -3,6 +3,7 @@ const router = express.Router();
 const { checkAuth } = require('../middleware/auth');
 const orderCtrl = require('../controllers/orderController');
 const Order = require('../models/Order');
+const ProductStat = require('../models/ProductStat'); // NEW: Import ProductStat for trending
 const { sendClientEmail } = require('../services/emailService');
 
 // Helper to escape regex special chars
@@ -12,9 +13,8 @@ function escapeRegex(str) {
 
 // ==========================================
 // PUT /api/orders/update-status
-// Updates order status AND sends email
-// when status changes to Success, Shipping,
-// Completed, or Rejected
+// Updates order status, sends email, AND
+// updates trending sales stats when successful
 // ==========================================
 router.put('/update-status', checkAuth, async (req, res) => {
   try {
@@ -36,6 +36,27 @@ router.put('/update-status', checkAuth, async (req, res) => {
 
     const oldStatus = order.status;
     order.status = status;
+
+    // ==========================================
+    // TRENDING STATS LOGIC: Increment units sold when order is confirmed
+    // ==========================================
+    const CONFIRMED_STATUSES = ['Success', 'Completed'];
+    if (CONFIRMED_STATUSES.includes(status) && !CONFIRMED_STATUSES.includes(oldStatus)) {
+      if (order.items && Array.isArray(order.items)) {
+        for (const item of order.items) {
+          try {
+            await ProductStat.findOneAndUpdate(
+              { productId: String(item.id) },
+              { $inc: { unitsSold: item.qty || 1 } },
+              { upsert: true }
+            );
+          } catch (statErr) {
+            console.error('[UPDATE-STATUS] Failed to update trending stats for item:', item.id, statErr);
+          }
+        }
+        console.log(`[UPDATE-STATUS] 📈 Trending stats updated for order #${String(order._id).substring(0, 8)}`);
+      }
+    }
 
     // ==========================================
     // EMAIL TRIGGER LOGIC
