@@ -177,10 +177,12 @@
             display: inline-block; padding: 6px 12px; border-radius: 8px;
             font-size: 11px; font-weight: 800; text-transform: uppercase;
             width: 100%; text-align: center; margin-bottom: 8px;
+            transition: all 0.3s ease;
         }
         .badge-queue { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
         .badge-sent { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .badge-failed { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-no-email { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
         .status-select {
             width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db;
             background: white; font-weight: 600; cursor: pointer; font-size: 12px;
@@ -216,6 +218,9 @@
             font-size: 14px; max-width: 90vw; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.toast-success { background: #15803d; }
+        .toast.toast-warning { background: #b45309; }
+        .toast.toast-error { background: #dc2626; }
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;
@@ -501,7 +506,6 @@
                 return;
             }
 
-            // FIX: Updated to new modular route
             var fetchUrl = API_BASE + '/orders/view-orders-data';
             debugLog('Fetching: ' + fetchUrl, 'info');
             showToast('Loading orders...');
@@ -578,6 +582,7 @@
             var emailBadgeText = 'Queue';
             if (emailStatus === 'Sent') { emailBadgeClass = 'badge-sent'; emailBadgeText = 'Sent'; }
             else if (emailStatus === 'Failed') { emailBadgeClass = 'badge-failed'; emailBadgeText = 'Failed'; }
+            else if (emailStatus === 'No Email') { emailBadgeClass = 'badge-no-email'; emailBadgeText = 'No Email'; }
 
             var itemsHtml = '';
             if (order.items && order.items.length > 0) {
@@ -618,7 +623,9 @@
             html += '<div class="items-list">' + itemsHtml + '</div>';
             html += '<div class="total-row"><span class="total-label">TOTAL</span><span class="total-value" data-npr="' + totalNPR + '">' + displayTotal + '</span></div></td>';
 
-            html += '<td><div class="badge ' + emailBadgeClass + '">' + emailBadgeText + '</div>';
+            /* Status column: badge + select */
+            html += '<td>';
+            html += '<div id="badge-' + orderId + '" class="badge ' + emailBadgeClass + '">' + emailBadgeText + '</div>';
             html += '<select class="status-select s-' + status + '" onchange="updateStatus(\'' + orderId + '\', this.value, this)">';
             html += '<option value="Pending"' + (status === 'Pending' ? ' selected' : '') + '>Pending</option>';
             html += '<option value="Shipping"' + (status === 'Shipping' ? ' selected' : '') + '>Shipping</option>';
@@ -646,27 +653,70 @@
         updateGrandTotal();
     }
 
-    /* ===== UPDATE STATUS ===== */
+    /* ===== UPDATE STATUS (with email trigger) ===== */
     async function updateStatus(orderId, newStatus, selectEl) {
         selectEl.disabled = true;
         var auth = getAuth();
         if (!auth) { showToast('Auth required'); selectEl.disabled = false; return; }
         try {
-            // FIX: Updated to new modular route
             var response = await fetchWithTimeout(API_BASE + '/orders/update-status', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + auth.credentials },
                 body: JSON.stringify({ id: orderId, status: newStatus })
-            }, 10000);
+            }, 15000);
             var data = await response.json();
+
             if (data.success) {
+                /* Update select styling */
                 selectEl.className = 'status-select s-' + newStatus;
-                showToast('Status updated');
+
+                /* Update in-memory order data so re-renders stay correct */
+                var orderIdx = allOrders.findIndex(function(o) { return o._id === orderId; });
+                if (orderIdx !== -1) {
+                    allOrders[orderIdx].status = newStatus;
+                    if (data.emailStatus) {
+                        allOrders[orderIdx].emailStatus = data.emailStatus;
+                    }
+                }
+
+                /* Update email badge in this row */
+                var badge = document.getElementById('badge-' + orderId);
+                if (badge && data.emailStatus) {
+                    if (data.emailStatus === 'Sent') {
+                        badge.className = 'badge badge-sent';
+                        badge.textContent = 'Sent';
+                        debugLog('Badge updated → Sent for order ' + orderId, 'success');
+                    } else if (data.emailStatus === 'Failed') {
+                        badge.className = 'badge badge-failed';
+                        badge.textContent = 'Failed';
+                        debugLog('Badge updated → Failed for order ' + orderId, 'error');
+                    } else if (data.emailStatus === 'No Email') {
+                        badge.className = 'badge badge-no-email';
+                        badge.textContent = 'No Email';
+                        debugLog('Badge updated → No Email for order ' + orderId, 'info');
+                    }
+                }
+
+                /* Show appropriate toast */
+                if (data.emailSent) {
+                    showToast('Order status updated & mail sent ✉️', 'success');
+                    debugLog('Status → ' + newStatus + ', email sent for ' + orderId, 'success');
+                } else if (data.emailStatus === 'Failed') {
+                    showToast('Status updated, but email failed ⚠️', 'warning');
+                    debugLog('Status → ' + newStatus + ', email FAILED for ' + orderId, 'error');
+                } else if (data.emailStatus === 'No Email') {
+                    showToast('Status updated (no client email on file)', 'warning');
+                    debugLog('Status → ' + newStatus + ', no email address for ' + orderId, 'info');
+                } else {
+                    showToast('Status updated');
+                    debugLog('Status → ' + newStatus + ' for ' + orderId, 'info');
+                }
             } else {
                 throw new Error(data.error || 'Update failed');
             }
         } catch (error) {
-            showToast('Error: ' + error.message);
+            showToast('Error: ' + error.message, 'error');
+            debugLog('updateStatus ERROR: ' + error.message, 'error');
         } finally {
             selectEl.disabled = false;
         }
@@ -679,7 +729,6 @@
         btn.textContent = '...';
         var auth = getAuth();
         try {
-            // FIX: Updated to new modular route
             var response = await fetchWithTimeout(API_BASE + '/orders/delete-order/' + orderId, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Basic ' + auth.credentials }
@@ -725,7 +774,6 @@
         btn.disabled = true;
         btn.textContent = '...';
         try {
-            // FIX: Updated to new modular route
             var response = await fetchWithTimeout(API_BASE + '/orders/delete-orders', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + auth.credentials },
@@ -893,7 +941,6 @@
 
             invoices += '<div style="' + pb + 'padding:40px;max-width:800px;margin:0 auto;font-family:sans-serif;color:#1f2937;">';
 
-            /* Header */
             if (opts.includeLogo) {
                 invoices += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2d4a22;">';
                 invoices += '<div><div style="font-size:28px;font-weight:900;color:#2d4a22;">' + escapeHtml(opts.businessName) + '</div>';
@@ -911,7 +958,6 @@
                 invoices += '</div>';
             }
 
-            /* Client & Order info */
             invoices += '<div style="display:flex;justify-content:space-between;margin-bottom:30px;gap:30px;">';
             invoices += '<div style="flex:1;">';
             invoices += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;letter-spacing:1px;margin-bottom:8px;">Bill To</div>';
@@ -931,7 +977,6 @@
             }
             invoices += '</div></div>';
 
-            /* Items table */
             invoices += '<table style="width:100%;border-collapse:collapse;margin-bottom:0;">';
             invoices += '<thead><tr style="background:#2d4a22;">';
             invoices += '<th style="padding:10px 14px;text-align:left;font-size:11px;color:white;font-weight:600;text-transform:uppercase;width:30px;">#</th>';
@@ -943,7 +988,6 @@
             invoices += '<th style="padding:10px 14px;text-align:right;font-size:11px;color:white;font-weight:600;text-transform:uppercase;width:110px;">Total</th>';
             invoices += '</tr></thead><tbody>' + rows + '</tbody></table>';
 
-            /* Totals */
             invoices += '<div style="display:flex;justify-content:flex-end;margin-top:0;">';
             invoices += '<div style="width:350px;">';
             invoices += '<div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#6b7280;"><span>Items</span><span>' + itemCount + '</span></div>';
@@ -953,7 +997,6 @@
             }
             invoices += '</div></div>';
 
-            /* Footer */
             if (opts.includeFooter) {
                 invoices += '<div style="margin-top:50px;padding-top:20px;border-top:2px dashed #d1d5db;text-align:center;">';
                 invoices += '<div style="font-size:14px;font-weight:600;color:#2d4a22;">Thank you for your order!</div>';
@@ -988,12 +1031,21 @@
         return div.innerHTML;
     }
 
-    function showToast(msg) {
+    function showToast(msg, type) {
         var toast = document.getElementById('toast');
         toast.textContent = msg;
+        /* Remove previous type classes */
+        toast.classList.remove('toast-success', 'toast-warning', 'toast-error');
+        /* Add type class if provided */
+        if (type === 'success') toast.classList.add('toast-success');
+        else if (type === 'warning') toast.classList.add('toast-warning');
+        else if (type === 'error') toast.classList.add('toast-error');
         toast.classList.add('show');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        toastTimer = setTimeout(function() {
+            toast.classList.remove('show');
+            toast.classList.remove('toast-success', 'toast-warning', 'toast-error');
+        }, 4000);
     }
 
     function openImage(src) {
