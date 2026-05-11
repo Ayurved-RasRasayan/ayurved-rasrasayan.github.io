@@ -438,7 +438,7 @@
     async function loadVisitorCount() { try { var res = await fetchWithTimeout(BACKEND_URL + '/public/visits'); if (res.ok) { var data = await res.json(); if (data.count) { var el = document.getElementById('visitorCount'); if (el) animateCounter(el, data.count); } } } catch (e) { console.error('Visitor count failed:', e.message); } }
     function animateCounter(el, target) { var current = 0; var interval = setInterval(function() { current += Math.ceil(target / 60); if (current >= target) { current = target; clearInterval(interval); } el.textContent = current.toLocaleString() + '+'; }, 20); }
 
-        // ==========================================
+    // ==========================================
     // 8. TRENDING PRODUCTS (3D COVERFLOW)
     // ==========================================
     async function loadTrending() {
@@ -452,9 +452,13 @@
           return;
         }
 
-        var totalSlides = data.trending.length;
+        // FIX: Duplicate products 3 times to create a manual infinite loop
+        // This avoids Swiper's broken built-in loop for Coverflow
+        var originalProducts = data.trending;
+        var infiniteProducts = [...originalProducts, ...originalProducts, ...originalProducts];
+        var startIndex = originalProducts.length; // Start in the middle batch
 
-        wrapper.innerHTML = data.trending.map(function(product) {
+        wrapper.innerHTML = infiniteProducts.map(function(product) {
           var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
           var imgSrc = product.img || product.image || 'https://placehold.co/400x300/132316/A3B14B?text=NaturaBotanica';
           return '<div class="swiper-slide">' +
@@ -469,31 +473,44 @@
 
         // Delay Swiper init slightly to let DOM calculate image/slide widths accurately
         setTimeout(function() {
+          var totalOriginal = originalProducts.length;
+
           new Swiper(".trendingSwiper", {
             effect: "coverflow", 
             grabCursor: true, 
             centeredSlides: true, 
             slidesPerView: "auto", 
-            initialSlide: 0,
+            initialSlide: startIndex, // Start at the middle batch
             coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
             autoplay: { 
               delay: 4000, 
-              disableOnInteraction: false, // Keeps it spinning even after user swipes
-              pauseOnMouseEnter: true      // Pauses only when mouse hovers
+              disableOnInteraction: false, 
+              pauseOnMouseEnter: true 
             },
-            loop: true,
-            // CRITICAL FIX: Dynamically multiply the duplication to guarantee a seamless endless circle
-            loopedSlides: totalSlides * 3, 
-            loopAdditionalSlides: totalSlides * 3,
+            loop: false, // MUST BE FALSE. Swiper's loop breaks Coverflow.
             pagination: { el: ".swiper-pagination", clickable: true },
             breakpoints: { 
-              320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 }, loopedSlides: totalSlides * 3, loopAdditionalSlides: totalSlides * 3 }, 
+              320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 
               768: { slidesPerView: "auto" } 
+            },
+            // MANUAL INFINITE LOOP LOGIC
+            on: {
+              transitionEnd: function(swiper) {
+                var current = swiper.activeIndex;
+                // If we drift into the 3rd batch, silently snap back to the 2nd batch
+                if (current >= totalOriginal * 2) {
+                  swiper.slideTo(current - totalOriginal, 0); // 0 speed = instant invisible snap
+                }
+                // If we drift backwards into the 1st batch, silently jump forward to the 2nd batch
+                else if (current < totalOriginal) {
+                  swiper.slideTo(current + totalOriginal, 0);
+                }
+              }
             }
           });
           
           lucide.createIcons();
-        }, 300); // 300ms delay
+        }, 300);
 
       } catch (error) {
         console.error('Failed to load trending products:', error);
