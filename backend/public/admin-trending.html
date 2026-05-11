@@ -70,6 +70,44 @@
     const API = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
     let allProducts = [];
 
+    // Helper to show error box
+    function showError(msg) {
+        const box = document.getElementById('errorBox');
+        box.textContent = msg;
+        box.style.display = 'block';
+    }
+
+    // Helper to show toast notifications
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (isError ? ' toast-error' : '');
+        setTimeout(() => { toast.className = 'toast'; }, 3000);
+    }
+
+    // Populate all 4 dropdowns with the fetched products
+    function populateDropdowns() {
+        for (let i = 1; i <= 4; i++) {
+            const select = document.getElementById('pick' + i);
+            select.innerHTML = '<option value="">-- Select a Product --</option>'; // Clear loading state
+            
+            allProducts.forEach(product => {
+                // Assuming your product objects have 'id' and 'name' properties. 
+                // Adjust '_id' or 'title' if your backend uses different keys.
+                const id = product.id || product._id; 
+                const name = product.name || product.title;
+                
+                if (id && name) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = name;
+                    select.appendChild(option);
+                }
+            });
+        }
+    }
+
+    // Main initialization function
     async function init() {
         const username = localStorage.getItem('admin_username');
         const password = localStorage.getItem('admin_password');
@@ -81,9 +119,109 @@
         }
         
         const credentials = btoa(username + ':' + password);
+        const headers = { 'Authorization': 'Basic ' + credentials };
 
         try {
             // 1. Fetch all products
-            const prodRes = await fetch(API + '/products', { headers: { 'Authorization': 'Basic ' + credentials } });
+            const prodRes = await fetch(API + '/products', { headers });
             
-            if (!prod
+            if (!prodRes.ok) {
+                throw new Error(`HTTP error! Status: ${prodRes.status}`);
+            }
+
+            // Parse JSON (Fix for Issue #3)
+            const data = await prodRes.json();
+            
+            // Handle if the API returns an object with a products array vs just an array
+            allProducts = Array.isArray(data) ? data : (data.products || []);
+
+            // Populate the 4 dropdown menus
+            populateDropdowns();
+
+            // 2. Fetch current trending picks to pre-select them
+            try {
+                const trendRes = await fetch(API + '/trending', { headers });
+                if (trendRes.ok) {
+                    const trendData = await trendRes.json();
+                    // Assuming the backend returns something like { picks: ["id1", "id2", "id3", "id4"] }
+                    const currentPicks = Array.isArray(trendData) ? trendData : (trendData.picks || []);
+                    
+                    if (currentPicks.length >= 4) {
+                        document.getElementById('pick1').value = currentPicks[0];
+                        document.getElementById('pick2').value = currentPicks[1];
+                        document.getElementById('pick3').value = currentPicks[2];
+                        document.getElementById('pick4').value = currentPicks[3];
+                    }
+                }
+            } catch (trendErr) {
+                console.warn("Could not fetch current trending picks, starting fresh.", trendErr);
+                // This is fine, the admin will just make selections from scratch
+            }
+
+        } catch (err) {
+            console.error("Failed to load products:", err);
+            showError("Failed to load products. Please refresh the page or check your login credentials.");
+        }
+    }
+
+    // Save the selected 4 picks to the backend
+    async function savePicks() {
+        const p1 = document.getElementById('pick1').value;
+        const p2 = document.getElementById('pick2').value;
+        const p3 = document.getElementById('pick3').value;
+        const p4 = document.getElementById('pick4').value;
+
+        // Validation: Ensure all 4 are selected
+        if (!p1 || !p2 || !p3 || !p4) {
+            showToast("Please select exactly 4 products before saving.", true);
+            return;
+        }
+
+        // Validation: Ensure no duplicates
+        const picks = [p1, p2, p3, p4];
+        if (new Set(picks).size < 4) {
+            showToast("Please select 4 UNIQUE products. Duplicates are not allowed.", true);
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        const username = localStorage.getItem('admin_username');
+        const password = localStorage.getItem('admin_password');
+        const credentials = btoa(username + ':' + password);
+
+        try {
+            // Sending PUT request to save the picks (Adjust to POST if your backend requires it)
+            const res = await fetch(API + '/trending', {
+                method: 'PUT', 
+                headers: {
+                    'Authorization': 'Basic ' + credentials,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ picks: picks }) // Sends { "picks": ["id1", "id2", "id3", "id4"] }
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+
+            showToast("Trending picks saved successfully! 🎉");
+            
+        } catch (err) {
+            console.error("Failed to save picks:", err);
+            showToast("Error saving picks. Please try again.", true);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Trending Picks';
+        }
+    }
+
+    // ==========================================
+    // INITIALIZATION TRIGGER (Fix for Issue #7)
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
