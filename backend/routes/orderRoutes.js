@@ -13,7 +13,8 @@ function escapeRegex(str) {
 // ==========================================
 // PUT /api/orders/update-status
 // Updates order status AND sends email
-// when status changes to Success or Shipping
+// when status changes to Success, Shipping,
+// Completed, or Rejected
 // ==========================================
 router.put('/update-status', checkAuth, async (req, res) => {
   try {
@@ -39,9 +40,9 @@ router.put('/update-status', checkAuth, async (req, res) => {
     // ==========================================
     // EMAIL TRIGGER LOGIC
     // Send client email when status changes TO
-    // Success (Payment OK) or Shipping
+    // Success, Shipping, Completed, or Rejected
     // ==========================================
-    const EMAIL_TRIGGER_STATUSES = ['Success', 'Shipping'];
+    const EMAIL_TRIGGER_STATUSES = ['Success', 'Shipping', 'Completed', 'Rejected'];
 
     let emailSent = false;
     let emailStatus = order.emailStatus || 'Queue';
@@ -104,7 +105,6 @@ router.get('/user-orders', checkAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'At least one search parameter (email, userId, name, phone) is required' });
     }
 
-    // Build an array of match conditions — we use $or so ANY match counts
     const conditions = [];
 
     if (email && email.trim()) {
@@ -145,7 +145,6 @@ router.get('/user-orders', checkAuth, async (req, res) => {
     const orders = await Order.find(query).sort({ timestamp: -1 });
     console.log('[USER-ORDERS] Found:', orders.length, 'orders');
 
-    // DEBUG: If 0 results, fetch a sample order to see the actual field structure
     let debugInfo = null;
     if (orders.length === 0) {
       const sampleOrder = await Order.findOne().lean();
@@ -167,7 +166,6 @@ router.get('/user-orders', checkAuth, async (req, res) => {
       }
     }
 
-    // Compute stats
     const stats = {
       total: orders.length,
       pending: orders.filter(o => o.status === 'Pending').length,
