@@ -1,54 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Trending - NaturaBotanica</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; color: #1f2937; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .header { background: #2d4a22; color: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.3rem; }
-        .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
-        .btn-back:hover { background: rgba(255,255,255,0.3); }
-        .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card p { margin-bottom: 16px; color: #6b7280; font-size: 14px; line-height: 1.5; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #374151; }
-        select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 20px; background: white; cursor: pointer; }
-        select:focus { outline: none; border-color: #2d4a22; box-shadow: 0 0 0 3px rgba(45,74,34,0.15); }
-        .btn-save { background: #2d4a22; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; }
-        .btn-save:hover { background: #1f3618; }
-        .btn-save:disabled { background: #9ca3af; cursor: not-allowed; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; transition: 0.3s; z-index: 1000; font-size: 14px; max-width: 90vw; text-align: center; }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.toast-error { background: #dc2626; }
-        .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 15px; display: none; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>⭐ Trending: Admin Picks</h1>
-        <!-- FIXED: Updated link to match your actual admin route -->
-        <a href="/api/view-orders" class="btn-back">← Back to Orders</a>
-    </div>
-    <div class="card">
-        <p>Select <strong>2 products</strong> to feature at the very beginning of the Trending 3D Carousel on your homepage. The remaining 8 slots are filled automatically by your top-selling products.</p>
-        
-        <label for="pick1">Staff Pick #1</label>
-        <select id="pick1"><option value="">Loading products...</option></select>
-        
-        <label for="pick2">Staff Pick #2</label>
-        <select id="pick2"><option value="">Loading products...</option></select>
-        
-        <button class="btn-save" id="saveBtn" onclick="savePicks()">Save Trending Picks</button>
-        
-        <div id="errorBox" class="error-box"></div>
-    </div>
-</div>
-<div id="toast" class="toast">Notification</div>
-
 <script>
     // ==========================================
     // LIVE BACKEND URL
@@ -79,15 +28,21 @@
             const prodData = await prodRes.json();
             allProducts = prodData.products || prodData || [];
             
+            // Debug: Check the console (F12) to see exactly what data came back
+            console.log("Products received from DB:", allProducts);
+
             if (allProducts.length === 0) {
                 document.getElementById('pick1').innerHTML = '<option value="">No products found in DB</option>';
                 document.getElementById('pick2').innerHTML = '<option value="">No products found in DB</option>';
                 return;
             }
 
-            const optionsHtml = '<option value="">-- Select a Product --</option>' + allProducts.map(p => 
-                `<option value="${p._id}">${p.name} (NPR ${p.price || 0})</option>`
-            ).join('');
+            // FIX: We try to find a valid ID. If _id is missing, we try 'id', then 'name'.
+            // This ensures the value is never "undefined".
+            const optionsHtml = '<option value="">-- Select a Product --</option>' + allProducts.map(p => {
+                const uniqueVal = p._id || p.id || p.name; 
+                return `<option value="${uniqueVal}">${p.name} (NPR ${p.price || 0})</option>`;
+            }).join('');
             
             document.getElementById('pick1').innerHTML = optionsHtml;
             document.getElementById('pick2').innerHTML = optionsHtml;
@@ -98,8 +53,15 @@
                 const picksData = await picksRes.json();
                 if (picksData.success && picksData.trending) {
                     const currentPicks = picksData.trending.filter(p => p.isPick);
-                    if (currentPicks[0]) document.getElementById('pick1').value = currentPicks[0]._id;
-                    if (currentPicks[1]) document.getElementById('pick2').value = currentPicks[1]._id;
+                    // We use the same logic to match the current values
+                    if (currentPicks[0]) {
+                         const val1 = currentPicks[0]._id || currentPicks[0].id || currentPicks[0].name;
+                         document.getElementById('pick1').value = val1;
+                    }
+                    if (currentPicks[1]) {
+                         const val2 = currentPicks[1]._id || currentPicks[1].id || currentPicks[1].name;
+                         document.getElementById('pick2').value = val2;
+                    }
                 }
             }
         } catch (e) {
@@ -172,5 +134,3 @@
 
     init();
 </script>
-</body>
-</html>
