@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Live Chat</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #sessions { margin-bottom: 20px; }
+        .session-btn { padding: 10px; margin: 5px; cursor: pointer; background: #eee; border: 1px solid #ccc; }
+        .session-btn.active { background: #FF5722; color: white; }
+        #chat-box { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+        .msg { margin-bottom: 5px; }
+        .client { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    
+    <h3>Active Sessions:</h3>
+    <div id="sessions"></div>
+
+    <div id="chat-box"></div>
+    
+    <input type="text" id="admin-input" placeholder="Type reply..." style="width: 80%; padding: 10px;">
+    <button onclick="sendAdminMsg()" style="padding: 10px;">Send</button>
+
+    <script>
+        const socket = io();
+        let activeSession = null;
+
+        // Listen for clients requesting human help
+        socket.on('admin-notification', (data) => {
+            let sessionsDiv = document.getElementById('sessions');
+            
+            // Create a button for this session if it doesn't exist
+            if (!document.getElementById('btn-' + data.sessionId)) {
+                let btn = document.createElement('button');
+                btn.id = 'btn-' + data.sessionId;
+                btn.className = 'session-btn';
+                btn.innerText = 'Chat: ' + data.sessionId.substring(5, 10);
+                btn.onclick = () => {
+                    activeSession = data.sessionId;
+                    document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('chat-box').innerHTML = ''; // Clear chat box for new session
+                };
+                sessionsDiv.appendChild(btn);
+            }
+            
+            // Auto-select the session if none selected
+            if (!activeSession) {
+                document.getElementById('btn-' + data.sessionId).click();
+            }
+
+            // If we are viewing this session, show the message
+            if (activeSession === data.sessionId) {
+                let msgDiv = document.createElement('div');
+                msgDiv.className = 'msg client';
+                msgDiv.innerText = "Client: " + data.text;
+                document.getElementById('chat-box').appendChild(msgDiv);
+            }
+        });
+
+        function sendAdminMsg() {
+            let input = document.getElementById('admin-input');
+            let text = input.value.trim();
+            if (!text || !activeSession) return;
+
+            // Send to backend
+            socket.emit('admin-message', { sessionId: activeSession, text: text });
+
+            // Show in our admin chat box
+            let msgDiv = document.createElement('div');
+            msgDiv.className = 'msg admin';
+            msgDiv.innerText = "You: " + text;
+            document.getElementById('chat-box').appendChild(msgDiv);
+
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
