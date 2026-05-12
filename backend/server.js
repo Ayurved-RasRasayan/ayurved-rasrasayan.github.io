@@ -45,7 +45,7 @@ app.use('/api/inquiries', require('./routes/inquiryRoutes'));
 app.use('/api/trending', require('./routes/trendingRoutes')); // ✅ ADDED TRENDING ROUTE
 app.use('/api', require('./routes/settingRoutes'));
 app.use('/api', require('./routes/viewRoutes'));
-
+app.use('/api/chat', require('./routes/chatRoutes'));
 // ==========================================
 // ERROR HANDLING
 // ==========================================
