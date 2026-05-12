@@ -6,12 +6,7 @@ const ChatLog = require('../models/ChatLog');
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
-    model: "const model = genAI.getGenerativeModel({ 
     model: "gemini-pro",
-    systemInstruction: `You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. 
-    Answer questions about products, MOQs, and shipping. Keep answers brief and professional. 
-    If you don't know the exact answer, or if the user asks to speak to a human, agent, or specialist, you MUST say exactly: [HANDOFF]`
-});",
     systemInstruction: `You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. 
     Answer questions about products, MOQs, and shipping. Keep answers brief and professional. 
     If you don't know the exact answer, or if the user asks to speak to a human, agent, or specialist, you MUST say exactly: [HANDOFF]`
@@ -49,8 +44,8 @@ router.post('/', async (req, res) => {
 
         if (botText.includes('[HANDOFF]')) {
             handoff = true;
-            finalText = "I'm connecting you to a Professional Assistance specialist. Please hold on or leave your email below.";
-            chatLog.handedOff = true; // Mark session as handed off
+            finalText = "I'm connecting you to a Professional Assistance specialist. Please hold on or click the button below to leave a quote request.";
+            chatLog.handedOff = true; 
         }
 
         // Save bot response
@@ -62,17 +57,6 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.error('Chat error:', error);
         res.status(500).json({ error: 'Failed to get response' });
-    }
-});
-
-// GET /api/chat/logs - Admin route to view chat history
-router.get('/logs', async (req, res) => {
-    // (You should add admin auth middleware here later)
-    try {
-        const logs = await ChatLog.find().sort({ 'messages.timestamp': -1 }).limit(50);
-        res.json(logs);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
 
