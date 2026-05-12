@@ -6,21 +6,32 @@
   <title>NaturaBotanica — Premium Botanical, Pharmaceutical & Mineral Ingredients</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Swiper.js CSS (Required for 3D Carousel) -->
+  <!-- Swiper.js CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { sans: ['Space Grotesk', 'sans-serif'] },
+          borderRadius: { 
+            'none': '0px', 'sm': '0px', 'DEFAULT': '0px', 'md': '0px', 
+            'lg': '0px', 'xl': '0px', '2xl': '0px', '3xl': '0px', 'full': '9999px' 
+          },
           colors: {
-            brand: '#D4AF37', 'brand-hover': '#C5A028', 'brand-dark': '#8A7122', // PREMIUM GOLD
-            'bg-light': '#F8F9FA', 'bg-dark': '#0B1120', 'bg-dark2': '#1A2332', 'card-dark': '#0F172A', // DEEP OCEAN
-            'txt-main': '#1E293B', 'txt-sub': '#64748B', 'txt-third': '#94A3B8', 'border-main': '#E2E8F0', // COOL SLATES
+            brand: '#FF5722', 'brand-hover': '#E64A19', 'brand-dark': '#BF360C',
+            'bg-light': '#FAFAFA', 'bg-dark': '#000000', 'bg-dark2': '#121212', 'card-dark': '#1E1E1E',
+            'txt-main': '#000000', 'txt-sub': '#555555', 'txt-third': '#888888', 'border-main': '#000000',
             'esewa': '#5EBC5D', 'khalti': '#5C2D91',
+          },
+          boxShadow: {
+            'DEFAULT': '4px 4px 0px 0px rgba(0,0,0,1)',
+            'md': '4px 4px 0px 0px rgba(0,0,0,1)',
+            'lg': '6px 6px 0px 0px rgba(0,0,0,1)',
+            'xl': '8px 8px 0px 0px rgba(0,0,0,1)',
+            'brand': '4px 4px 0px 0px rgba(255,87,34,1)',
           }
         }
       }
@@ -28,31 +39,36 @@
   </script>
   <style>
     ::-webkit-scrollbar{width:0px;background:transparent}
-    ::selection{background:#D4AF37;color:white}
-    body{font-family:'Inter',sans-serif}
+    ::selection{background:#FF5722;color:white}
+    body{font-family:'Space Grotesk',sans-serif}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     .anim-up{opacity:0;animation:fadeInUp 0.8s ease-out forwards}
     .anim-d1{animation-delay:.1s}.anim-d2{animation-delay:.2s}.anim-d3{animation-delay:.3s}.anim-d4{animation-delay:.4s}
-    .typewriter{overflow:hidden;white-space:nowrap;border-right:3px solid #D4AF37;animation:blink-caret .75s step-end infinite}
-    @keyframes blink-caret{from,to{border-color:transparent}50%{border-color:#D4AF37}}
+    .typewriter{overflow:hidden;white-space:nowrap;border-right:3px solid #FF5722;animation:blink-caret .75s step-end infinite}
+    @keyframes blink-caret{from,to{border-color:transparent}50%{border-color:#FF5722}}
+    
+    .product-card { border: 2px solid #000; transition: all 0.1s; }
+    .product-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
     .product-card:hover .product-img{transform:scale(1.05)}
-    .cat-btn.active{background:#1E293B;color:#F8F9FA}
+    .cat-btn.active{background:#000;color:#FAFAFA;border:2px solid #000}
     .payment-modal-open #products{filter:blur(4px);opacity:.6;pointer-events:none}
     input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
     .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .pay-tab.active{border-color:#D4AF37;color:#D4AF37;background:rgba(212,175,55,.05)}
-    .currency-btn.active-curr{background-color:#1E293B;color:white}
+    .pay-tab.active{border:2px solid #000;color:#000;background:transparent;font-weight:700}
+    .currency-btn.active-curr{background-color:#000;color:white}
     .input-error{border-color:#EF4444!important;background-color:#FEF2F2}
-    .hero-bg-fallback{background:linear-gradient(135deg,#0B1120 0%,#0F172A 40%,#1A2332 70%,#0B1120 100%)}
-    .about-bg-fallback{background:linear-gradient(135deg,#0F172A 0%,#1A2332 50%,#0B1120 100%)}
+    .hero-bg-fallback{background:#000}
+    .about-bg-fallback{background:#121212}
     .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+    
     .fancy-select{position:relative}
-    .fancy-select-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border-radius:12px;border:1px solid #e7e5e4;box-shadow:0 10px 25px -5px rgba(0,0,0,.1);z-index:60;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s ease;overflow:hidden}
+    .fancy-select-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:2px solid #000;box-shadow:4px 4px 0px 0px rgba(0,0,0,1);z-index:60;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s ease;overflow:hidden}
     .fancy-select.open .fancy-select-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
-    .fancy-option{padding:8px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f1f5f9;transition:all .15s}
+    .fancy-option{padding:8px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #000;transition:all .15s}
     .fancy-option:last-child{border-bottom:none}
-    .fancy-option:hover{background:#fffbeb;color:#D4AF37;padding-left:16px}
+    .fancy-option:hover{background:#FF5722;color:white;padding-left:16px}
     .rotate-180{transform:rotate(180deg)}
+    
     @keyframes modalFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
     .modal-enter{animation:modalFadeIn .3s ease-out forwards}
     @keyframes slideInRight{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
@@ -70,62 +86,84 @@
     @keyframes countdownBar{from{width:100%}to{width:0%}}
     .countdown-bar{animation:countdownBar 5s linear forwards}
 
-    /* ==========================================
-       TRENDING SWIPER 3D COVERFLOW STYLES
-       ========================================== */
     .trendingSwiper { width: 100%; padding-top: 20px; padding-bottom: 60px; }
-    .trendingSwiper .swiper-slide { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow: hidden; width: 320px; height: auto; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .trendingSwiper .swiper-slide:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
-    .trending-card-img { width: 100%; height: 320px; object-fit: cover; background: #f3f4f6; }
+    .trendingSwiper .swiper-slide { background: #fff; border: 2px solid #000; overflow: hidden; width: 320px; height: auto; transition: all 0.1s ease; box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
+    .trendingSwiper .swiper-slide:hover { box-shadow: 8px 8px 0px 0px rgba(0,0,0,1); transform: translate(-2px, -2px); }
+    .trending-card-img { width: 100%; height: 320px; object-fit: cover; background: #f3f4f6; border-bottom: 2px solid #000; }
     .trending-card-content { padding: 24px; text-align: center; }
-    .trending-card-name { font-size: 18px; font-weight: 700; color: #1E293B; margin-bottom: 8px; }
-    .trending-card-price { font-size: 16px; font-weight: 800; color: #8A7122; }
-    .trending-badge { position: absolute; top: 16px; left: 16px; background: #0F172A; color: #D4AF37; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; display: flex; align-items: center; gap: 6px; border: 1px solid #D4AF37; }
-    .swiper-pagination-bullet { background: #D4AF37 !important; width: 10px; height: 10px; opacity: 0.4; }
-    .swiper-pagination-bullet-active { opacity: 1 !important; background: #8A7122 !important; }
+    .trending-card-name { font-size: 18px; font-weight: 700; color: #000; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .trending-card-price { font-size: 16px; font-weight: 800; color: #FF5722; }
+    .trending-badge { position: absolute; top: 16px; left: 16px; background: #FF5722; color: white; padding: 6px 14px; font-size: 12px; font-weight: 700; box-shadow: 2px 2px 0px 0px rgba(0,0,,1); z-index: 10; display: flex; align-items: center; gap: 6px; border: 2px solid #000; text-transform: uppercase; }
+    .swiper-pagination-bullet { background: #000 !important; width: 10px; height: 10px; opacity: 0.4; }
+    .swiper-pagination-bullet-active { opacity: 1 !important; background: #FF5722 !important; }
 
     @media (max-width: 768px) { .trendingSwiper .swiper-slide { width: 280px; } .trending-card-img { height: 260px; } }
 
-    /* ==========================================
-       FIRE GLOW ANIMATION (Hero Chakra)
-       ========================================== */
-    @keyframes fireScale {
-      0%, 100% { transform: scale(1); filter: brightness(1); }
-      50% { transform: scale(1.05); filter: brightness(1.2); }
-    }
-    @keyframes fireShadow {
-      0%, 100% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(212,175,55,0.3); }
-      50% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(212,175,55,0.7), 0 0 100px rgba(255,200,50,0.4); }
-    }
     .fire-img { animation: fireScale 4s ease-in-out infinite; }
-    .fire-container { animation: fireShadow 4s ease-in-out infinite; }
+    .fire-container { box-shadow: 8px 8px 0px 0px rgba(255,87,34,1); border: 2px solid white; }
+    @keyframes fireScale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+    /* ==========================================
+       BRUTALIST AI CHAT WIDGET
+       ========================================== */
+    #ai-chat-btn {
+        position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; background: #FF5722; color: white; border: 2px solid #000; box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.1s;
+    }
+    #ai-chat-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+    
+    #ai-chat-box {
+        position: fixed; bottom: 100px; right: 24px; width: 380px; max-height: 500px; background: white; border: 2px solid #000; box-shadow: 8px 8px 0px 0px rgba(0,0,0,1); z-index: 100; display: none; flex-direction: column; font-family: 'Space Grotesk', sans-serif;
+    }
+    #ai-chat-box.open { display: flex; }
+    
+    .chat-header { background: #000; color: #fff; padding: 12px 16px; text-transform: uppercase; font-weight: 700; letter-spacing: 2px; border-bottom: 2px solid #000; display: flex; justify-content: space-between; align-items: center; }
+    .chat-close-btn { background: none; border: none; color: white; cursor: pointer; }
+    
+    #chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; max-height: 350px; background: #FAFAFA; }
+    .msg { padding: 8px 12px; border: 2px solid #000; max-width: 80%; font-size: 13px; line-height: 1.4; }
+    .msg.user { align-self: flex-end; background: #000; color: white; }
+    .msg.bot { align-self: flex-start; background: #fff; }
+    
+    .chat-input-area { display: flex; border-top: 2px solid #000; }
+    #chat-input { flex: 1; padding: 12px; border: none; font-family: inherit; font-size: 13px; outline: none; background: #fff; }
+    #chat-send { background: #FF5722; color: white; border: none; border-left: 2px solid #000; padding: 0 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+    
+    .handoff-area { padding: 16px; border-top: 2px solid #000; background: #fffbeb; text-align: center; }
+    .handoff-area p { font-size: 12px; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
+    .handoff-btn { background: #000; color: white; padding: 8px 16px; border: 2px solid #000; font-weight: 700; text-transform: uppercase; cursor: pointer; font-family: inherit; font-size: 12px; text-decoration: none; display: inline-block; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); }
+    .handoff-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px 0px rgba(0,0,0,1); }
+
+    @media (max-width: 768px) {
+        #ai-chat-box { right: 10px; left: 10px; width: auto; bottom: 90px; max-height: 60vh; }
+        #ai-chat-btn { bottom: 16px; right: 16px; width: 50px; height: 50px; }
+    }
   </style>
 </head>
 <body class="bg-bg-light text-txt-main">
 
   <!-- NAVBAR -->
-  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background:rgba(248,249,250,.8);backdrop-filter:blur(12px)">
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 border-b-2 border-black bg-white">
     <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20"><i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i></div>
-        <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main">NaturaBotanica</span>
+        <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-brand border-2 border-black"><i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i></div>
+        <span class="text-lg md:text-xl font-semibold tracking-tight text-txt-main uppercase">NaturaBotanica</span>
       </a>
       <div class="hidden md:flex items-center gap-6 md:gap-8">
-        <a href="#trendingSection" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Trending</a>
-        <a href="#products" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Products</a>
-        <a href="#categories" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Categories</a>
-        <a href="#about" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">About</a>
-        <a href="#contact" class="text-sm text-txt-sub hover:text-txt-main transition-colors font-medium">Contact</a>
+        <a href="#trendingSection" class="text-sm text-txt-sub hover:text-brand transition-colors font-medium uppercase tracking-wider">Trending</a>
+        <a href="#products" class="text-sm text-txt-sub hover:text-brand transition-colors font-medium uppercase tracking-wider">Products</a>
+        <a href="#categories" class="text-sm text-txt-sub hover:text-brand transition-colors font-medium uppercase tracking-wider">Categories</a>
+        <a href="#about" class="text-sm text-txt-sub hover:text-brand transition-colors font-medium uppercase tracking-wider">About</a>
+        <a href="#contact" class="text-sm text-txt-sub hover:text-brand transition-colors font-medium uppercase tracking-wider">Contact</a>
       </div>
       <div class="flex items-center gap-2 md:gap-4">
         <button id="searchToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
-        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center" style="display:none">0</span></button>
+        <button id="cartToggle" class="p-2 rounded-full hover:bg-black/5 transition-colors relative"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand text-white text-[10px] font-semibold rounded-full items-center justify-center border border-black" style="display:none">0</span></button>
         <div id="authButtonsLoggedOut" class="hidden md:flex items-center gap-2">
-          <button onclick="openAuthModal('signin')" class="px-4 py-2 text-sm font-medium text-txt-main hover:bg-black/5 rounded-xl transition-colors">Sign In</button>
-          <button onclick="openAuthModal('signup')" class="px-4 py-2 text-sm font-medium bg-txt-main text-white rounded-xl hover:bg-black transition-colors">Sign Up</button>
+          <button onclick="openAuthModal('signin')" class="px-4 py-2 text-sm font-medium text-txt-main hover:bg-black/5 transition-colors uppercase tracking-wider">Sign In</button>
+          <button onclick="openAuthModal('signup')" class="px-4 py-2 text-sm font-medium bg-txt-main text-white hover:bg-brand transition-colors border-2 border-black shadow-hard-sm">Sign Up</button>
         </div>
         <div id="authButtonsLoggedIn" class="hidden items-center gap-3">
-          <a href="/profile" class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 rounded-full hover:bg-brand/20 transition-colors"><i data-lucide="user-check" class="w-4 h-4 text-brand"></i><span id="userNameDisplay" class="text-sm font-medium text-brand">User</span></a>
+          <a href="/profile" class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 border-2 border-black rounded-full hover:bg-brand/20 transition-colors"><i data-lucide="user-check" class="w-4 h-4 text-brand"></i><span id="userNameDisplay" class="text-sm font-medium text-brand">User</span></a>
           <button onclick="handleLogout()" class="p-2 rounded-full hover:bg-black/5 transition-colors" title="Sign Out"><i data-lucide="log-out" class="w-5 h-5 text-txt-sub"></i></button>
         </div>
         <button id="mobileMenu" class="md:hidden p-2 rounded-full hover:bg-black/5 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
@@ -134,14 +172,14 @@
   </nav>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="fixed top-20 left-0 right-0 z-50 bg-white border-b border-border-main shadow-lg" style="display:none">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4"><div class="relative"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i><input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"><button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button></div><div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div></div>
+  <div id="searchBar" class="fixed top-20 left-0 right-0 z-50 bg-white border-b-2 border-black shadow-lg" style="display:none">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4"><div class="relative"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-txt-third"></i><input id="searchInput" type="text" placeholder="Search products..." class="w-full pl-12 pr-12 py-3 bg-bg-light border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"><button id="searchClose" class="absolute right-4 top-1/2 -translate-y-1/2"><i data-lucide="x" class="w-5 h-5 text-txt-third"></i></button></div><div id="searchResults" class="mt-2 max-h-80 overflow-y-auto"></div></div>
   </div>
 
   <!-- MOBILE MENU -->
   <div id="mobileOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)">
-    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300">
-      <div class="p-6"><div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="flex flex-col gap-4"><a href="#trendingSection" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Trending</a><a href="#products" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Products</a><a href="#categories" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Categories</a><a href="#about" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">About</a><a href="#contact" class="text-base text-txt-sub hover:text-txt-main py-2 border-b border-border-main" onclick="closeMobile()">Contact</a></div></div>
+    <div id="mobilePanel" class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 border-l-2 border-black">
+      <div class="p-6"><div class="flex items-center justify-between mb-8"><span class="text-lg font-semibold uppercase">Menu</span><button id="mobileClose" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="flex flex-col gap-4"><a href="#trendingSection" class="text-base text-txt-sub hover:text-brand py-2 border-b border-border-main uppercase text-sm tracking-wider" onclick="closeMobile()">Trending</a><a href="#products" class="text-base text-txt-sub hover:text-brand py-2 border-b border-border-main uppercase text-sm tracking-wider" onclick="closeMobile()">Products</a><a href="#categories" class="text-base text-txt-sub hover:text-brand py-2 border-b border-border-main uppercase text-sm tracking-wider" onclick="closeMobile()">Categories</a><a href="#about" class="text-base text-txt-sub hover:text-brand py-2 border-b border-border-main uppercase text-sm tracking-wider" onclick="closeMobile()">About</a><a href="#contact" class="text-base text-txt-sub hover:text-brand py-2 border-b border-border-main uppercase text-sm tracking-wider" onclick="closeMobile()">Contact</a></div></div>
     </div>
   </div>
 
@@ -150,12 +188,12 @@
     <div class="absolute inset-0 hero-bg-fallback z-0"></div>
     <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20 md:pt-48 md:pb-32 grid lg:grid-cols-2 gap-8 lg:gap-16 w-full items-stretch">
       <div class="flex flex-col justify-center">
-        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-8 w-fit"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Minerals & Salts</span></div>
-        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
+        <div class="anim-up inline-flex items-center gap-2 px-4 py-2 border-2 border-white/20 bg-white/5 mb-8 w-fit"><span class="w-2 h-2 rounded-full bg-brand animate-ping"></span><span class="text-xs font-medium text-white/70 uppercase tracking-widest">Botanicals, Minerals & Salts</span></div>
+        <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6 uppercase">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
         <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Organic Soaps — sourced from Himalayas and beyond.</p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#trendingSection" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-bg-dark text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25">See What's Trending <i data-lucide="trending-up" class="w-4 h-4"></i></a>
-          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10">Get Quote</a>
+          <a href="#trendingSection" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-all shadow-brand border-2 border-white uppercase tracking-wider">See What's Trending <i data-lucide="trending-up" class="w-4 h-4"></i></a>
+          <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border-2 border-white/40 text-white text-sm font-medium hover:bg-white/10 uppercase tracking-wider">Get Quote</a>
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
           <div><div class="text-2xl md:text-3xl font-semibold text-white" id="visitorCount">5,000+</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Visitors</div></div>
@@ -165,35 +203,29 @@
           <div><div class="text-2xl md:text-3xl font-semibold text-white">9</div><div class="text-xs text-white/50 uppercase tracking-widest mt-1">Categories</div></div>
         </div>
       </div>
-      <!-- FIRE GLOW CHAKRA IMAGE -->
-      <div class="relative hidden lg:block overflow-hidden rounded-3xl border border-white/5 fire-container min-h-[500px]">
+      <div class="relative hidden lg:block overflow-hidden fire-container min-h-[500px]">
         <img src="images/jeM6q.jpg" alt="Chakra" class="absolute inset-0 w-full h-full object-cover fire-img" onerror="this.style.display='none'">
       </div>
     </div>
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-20"><span class="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span><i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i></div>
   </section>
 
-  <!-- ==========================================
-       TRENDING PRODUCTS SECTION (3D Coverflow)
-       ========================================== -->
+  <!-- TRENDING -->
   <section id="trendingSection" class="py-16 md:py-24 lg:py-32 bg-bg-light relative z-10 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mb-10 md:mb-16">
-      <span class="inline-block px-3 py-1 bg-brand/10 text-brand text-xs font-bold uppercase tracking-widest rounded-full mb-3">Hot Right Now</span>
-      <h2 class="text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight text-txt-main">Trending Products</h2>
+      <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold uppercase tracking-widest mb-3 border-2 border-black shadow-hard-sm">Hot Right Now</span>
+      <h2 class="text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tight text-txt-main uppercase">Trending Products</h2>
       <p class="text-sm md:text-base text-txt-sub mt-3 max-w-xl mx-auto">Our top staff picks and most loved bestsellers, updated in real-time.</p>
     </div>
-
     <div class="swiper trendingSwiper">
-      <div class="swiper-wrapper" id="trendingWrapper">
-        <!-- Slides are injected dynamically via JS -->
-      </div>
+      <div class="swiper-wrapper" id="trendingWrapper"></div>
       <div class="swiper-pagination"></div>
     </div>
   </section>
 
   <!-- CATEGORIES -->
-  <section id="categories" class="py-12 md:py-16 bg-white border-b border-border-main relative z-20">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">Our Collections</h2></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4" id="catButtons"></div></div>
+  <section id="categories" class="py-12 md:py-16 bg-white border-b-2 border-black relative z-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="text-center mb-8 md:mb-10"><p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Browse by Category</p><h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight uppercase">Our Collections</h2></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 md:gap-4" id="catButtons"></div></div>
   </section>
 
   <!-- PRODUCTS -->
@@ -202,12 +234,12 @@
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
         <div>
           <p class="text-xs font-medium uppercase tracking-widest text-brand mb-3">Our Catalog</p>
-          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight">Products & Pricing</h2>
+          <h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight uppercase">Products & Pricing</h2>
           <div class="flex items-center gap-2 mt-3"><span class="rate-dot" id="rateDot"></span><p class="text-sm text-txt-third font-medium" id="rateLabel">Loading exchange rate...</p></div>
         </div>
         <div class="flex items-center gap-3">
           <span class="text-xs md:text-sm text-txt-third" id="productCount">Loading...</span>
-          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border border-border-main rounded-xl px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
+          <select id="sortSelect" onchange="sortProducts()" class="text-xs md:text-sm border-2 border-black px-3 md:px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
             <option value="name">Sort by Name</option>
             <option value="price-asc">Price: Low → High</option>
             <option value="price-desc">Price: High → Low</option>
@@ -216,152 +248,113 @@
       </div>
       <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
       <div id="paginationControls" class="mt-8"></div>
-      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub">No products found.</p></div>
+      <div id="noResults" class="hidden text-center py-20"><i data-lucide="package-x" class="w-16 h-16 text-txt-third mx-auto mb-4"></i><p class="text-lg text-txt-sub uppercase tracking-wider">No products found.</p></div>
     </div>
   </section>
 
   <!-- ABOUT -->
-  <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 md:px-6 relative"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6">Bridging Ancient Wisdom & Modern Science</h2><p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, premium essential oils, authentic Rasa Shastra minerals, traditional Salts (Namak), and handcrafted Herbal Soaps.</p><div class="grid grid-cols-2 gap-4 md:gap-6"><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Quality Tested</h4><p class="text-xs md:text-sm text-white/50">COA with every order</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Global Shipping</h4><p class="text-xs md:text-sm text-white/50">50+ countries served</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Himalayan Source</h4><p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p></div><div class="p-4 md:p-5 rounded-2xl border border-white/10 bg-white/5"><i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base">Expert Support</h4><p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p></div></div></div><div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/5"></div></div></div></div></section>
+  <section id="about" class="py-16 md:py-24 lg:py-32 bg-bg-dark relative overflow-hidden border-t-2 border-white"><div class="max-w-7xl mx-auto px-4 md:px-6 relative"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">About Us</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium text-white tracking-tight mb-6 uppercase">Bridging Ancient Wisdom & Modern Science</h2><p class="text-base md:text-lg font-light text-white/60 leading-relaxed mb-8">We specialize in rare Himalayan medicinal plants, premium essential oils, authentic Rasa Shastra minerals, traditional Salts (Namak), and handcrafted Herbal Soaps.</p><div class="grid grid-cols-2 gap-4 md:gap-6"><div class="p-4 md:p-5 border-2 border-white/20 bg-white/5"><i data-lucide="shield-check" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base uppercase tracking-wider">Quality Tested</h4><p class="text-xs md:text-sm text-white/50">COA with every order</p></div><div class="p-4 md:p-5 border-2 border-white/20 bg-white/5"><i data-lucide="truck" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base uppercase tracking-wider">Global Shipping</h4><p class="text-xs md:text-sm text-white/50">50+ countries served</p></div><div class="p-4 md:p-5 border-2 border-white/20 bg-white/5"><i data-lucide="mountain" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base uppercase tracking-wider">Himalayan Source</h4><p class="text-xs md:text-sm text-white/50">Wild-crafted & cultivated</p></div><div class="p-4 md:p-5 border-2 border-white/20 bg-white/5"><i data-lucide="headphones" class="w-6 h-6 text-brand mb-3"></i><h4 class="text-white font-medium mb-1 text-sm md:text-base uppercase tracking-wider">Expert Support</h4><p class="text-xs md:text-sm text-white/50">Dedicated account mgr</p></div></div></div><div class="relative"><div class="about-bg-fallback w-full h-[400px] md:h-[500px] overflow-hidden shadow-2xl border-2 border-white/20"></div></div></div></div></section>
 
   <!-- CONTACT -->
-  <section id="contact" class="py-16 md:py-24 lg:py-32"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6">Request a Quote</h2><p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p><div class="space-y-4"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="mail" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm md:text-base font-medium">sales.naturabotanica20@gmail.com</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">WhatsApp No</p><p class="text-sm md:text-base font-medium">+977 98012 34567</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-brand"></i></div><div><p class="text-sm text-txt-third">Location</p><p class="text-sm md:text-base font-medium">Kathmandu, Nepal</p></div></div></div></div>
-    <form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-5"><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><textarea id="contactMessage" placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 rounded-xl border border-border-main bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea><button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button><div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div></form></div></div></section>
+  <section id="contact" class="py-16 md:py-24 lg:py-32 border-t-2 border-black"><div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid lg:grid-cols-2 gap-12 lg:gap-16"><div><p class="text-xs font-medium uppercase tracking-widest text-brand mb-4">Get in Touch</p><h2 class="text-2xl md:text-3xl lg:text-5xl font-medium tracking-tight mb-6 uppercase">Request a Quote</h2><p class="text-base md:text-lg font-light text-txt-sub leading-relaxed mb-8">Need bulk pricing or documentation? We respond within 24 hours.</p><div class="space-y-4"><div class="flex items-center gap-4"><div class="w-10 h-10 border-2 border-black flex items-center justify-center bg-brand text-white"><i data-lucide="mail" class="w-5 h-5"></i></div><div><p class="text-sm text-txt-third">Email</p><p class="text-sm md:text-base font-medium">sales.naturabotanica20@gmail.com</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 border-2 border-black flex items-center justify-center bg-brand text-white"><i data-lucide="phone" class="w-5 h-5"></i></div><div><p class="text-sm text-txt-third">WhatsApp No</p><p class="text-sm md:text-base font-medium">+977 98012 34567</p></div></div><div class="flex items-center gap-4"><div class="w-10 h-10 border-2 border-black flex items-center justify-center bg-brand text-white"><i data-lucide="map-pin" class="w-5 h-5"></i></div><div><p class="text-sm text-txt-third">Location</p><p class="text-sm md:text-base font-medium">Kathmandu, Nepal</p></div></div></div></div>
+    <form id="contactForm" onsubmit="submitInquiry(event)" class="space-y-5"><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><input type="text" id="inquiryFirstName" placeholder="First Name" required class="w-full px-5 py-3.5 border-2 border-black bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryLastName" placeholder="Last Name" required class="w-full px-5 py-3.5 border-2 border-black bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><input type="email" id="inquiryEmail" placeholder="Email Address" required class="w-full px-5 py-3.5 border-2 border-black bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><input type="text" id="inquiryCompany" placeholder="Company Name" class="w-full px-5 py-3.5 border-2 border-black bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand"><textarea id="contactMessage" placeholder="Tell us about your requirements..." rows="4" required class="w-full px-5 py-3.5 border-2 border-black bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea><button type="submit" class="w-full py-4 bg-txt-main text-white text-sm font-medium hover:bg-brand transition-colors flex items-center justify-center gap-2 uppercase tracking-wider border-2 border-black shadow-hard-sm">Send Inquiry <i data-lucide="send" class="w-4 h-4"></i></button><div id="formMsg" class="hidden text-center text-sm font-medium py-2"></div></form></div></div></section>
 
   <!-- FOOTER -->
-  <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12"><div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-bg-dark"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div><div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-2"><span class="rate-dot"></span><span class="text-xs text-white/40" id="footerRateText">1 USD = ...</span></div></div></div>
+  <footer class="bg-bg-dark2 py-12 md:py-16 border-t-2 border-white/20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12"><div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center border-2 border-white"><i data-lucide="leaf" class="w-4 h-4 text-bg-dark"></i></div><span class="text-white font-semibold uppercase">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div><div><h4 class="text-sm font-medium text-white mb-4 uppercase">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-brand transition-colors">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-brand transition-colors">Extracts</a></div></div><div><h4 class="text-sm font-medium text-white mb-4 uppercase">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-brand transition-colors">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-brand transition-colors">Contact</a></div></div><div><h4 class="text-sm font-medium text-white mb-4 uppercase">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-brand transition-colors">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-brand transition-colors">Terms of Service</a></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30 uppercase tracking-wider">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-2"><span class="rate-dot"></span><span class="text-xs text-white/40" id="footerRateText">1 USD = ...</span></div></div></div>
   </footer>
 
   <!-- CART SIDEBAR -->
-  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)"><div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col"><div class="p-6 border-b border-border-main flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="cartItems" class="flex-1 overflow-y-auto p-6"></div><div id="cartFooter" class="hidden border-t border-border-main p-6 space-y-4"><div class="flex items-center justify-between"><span class="text-txt-sub">Subtotal</span><div class="text-right"><span id="cartTotal" class="text-xl font-semibold">NPR 0</span><span id="cartTotalUsd" class="block text-xs text-txt-sub">$0.00</span></div></div><button onclick="proceedToInquiry()" class="w-full py-4 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2">Proceed to Inquiry <i data-lucide="arrow-right" class="w-4 h-4"></i></button><div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-300"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">Pay Securely</span><div class="flex-grow border-t border-gray-300"></div></div><div class="grid grid-cols-2 gap-3"><button onclick="openPaymentModal('esewa')" class="py-3 bg-esewa text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>eSewa</button><button onclick="openPaymentModal('khalti')" class="py-3 bg-khalti text-white text-sm font-medium rounded-xl hover:opacity-90 flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>Khalti</button></div><button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500">Clear Cart</button></div></div></div>
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" style="backdrop-filter:blur(4px)"><div id="cartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-bg-light shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col border-l-2 border-black"><div class="p-6 border-b-2 border-black flex items-center justify-between"><div class="flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5"></i><h3 class="text-lg font-semibold uppercase">Your Cart</h3><span id="cartItemCount" class="text-sm text-txt-third">(0 items)</span></div><button onclick="closeCart()" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="cartItems" class="flex-1 overflow-y-auto p-6"></div><div id="cartFooter" class="hidden border-t-2 border-black p-6 space-y-4"><div class="flex items-center justify-between"><span class="text-txt-sub uppercase text-sm">Subtotal</span><div class="text-right"><span id="cartTotal" class="text-xl font-semibold">NPR 0</span><span id="cartTotalUsd" class="block text-xs text-txt-sub">$0.00</span></div></div><button onclick="proceedToInquiry()" class="w-full py-4 bg-txt-main text-white text-sm font-medium hover:bg-brand transition-colors flex items-center justify-center gap-2 uppercase tracking-wider border-2 border-black shadow-hard-sm">Proceed to Inquiry <i data-lucide="arrow-right" class="w-4 h-4"></i></button><div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-300"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">Pay Securely</span><div class="flex-grow border-t border-gray-300"></div></div><div class="grid grid-cols-2 gap-3"><button onclick="openPaymentModal('esewa')" class="py-3 bg-esewa text-white text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2 border-2 border-black shadow-hard-sm"><i data-lucide="credit-card" class="w-4 h-4"></i>eSewa</button><button onclick="openPaymentModal('khalti')" class="py-3 bg-khalti text-white text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2 border-2 border-black shadow-hard-sm"><i data-lucide="credit-card" class="w-4 h-4"></i>Khalti</button></div><button onclick="clearCart()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 uppercase tracking-wider">Clear Cart</button></div></div></div>
   
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[60] space-y-3 pointer-events-none"></div>
 
   <!-- PAYMENT MODAL -->
   <div id="paymentModal" class="fixed inset-0 z-[70] bg-black/60 hidden items-center justify-center p-4 overflow-y-auto" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-[500px] my-4 md:my-8 shadow-2xl relative flex flex-col max-h-[90vh] modal-enter">
-      <div class="p-6 pb-2 flex-shrink-0"><button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 z-10"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1">Complete Payment</h3><p class="text-txt-sub text-sm">Scan QR and upload screenshot.</p></div>
+    <div class="bg-white w-full max-w-[500px] my-4 md:my-8 shadow-xl relative flex flex-col max-h-[90vh] modal-enter border-2 border-black">
+      <div class="p-6 pb-2 flex-shrink-0"><button onclick="closePaymentModal()" class="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 z-10"><i data-lucide="x" class="w-5 h-5"></i></button><h3 class="text-xl md:text-2xl font-semibold tracking-tight mb-1 uppercase">Complete Payment</h3><p class="text-txt-sub text-sm">Scan QR and upload screenshot.</p></div>
       <div class="px-6 pb-6 overflow-y-auto">
-        <div class="bg-gray-50 p-4 rounded-xl border border-border-main mb-4"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details</h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
-        <div class="bg-bg-light p-4 rounded-xl border border-border-main mb-4"><div class="flex justify-between items-center mb-2"><span class="text-xs font-medium uppercase text-txt-third">Total</span><div class="text-right"><span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0</span><span id="paymentTotalSub" class="block text-[10px] text-txt-sub">$0.00</span></div></div><div class="text-xs text-txt-third" id="paymentItemsCount">0 items</div><div class="mt-3 pt-3 border-t border-gray-200"><label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label><div class="flex bg-gray-200 p-1 rounded-lg"><button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 rounded-md text-xs font-bold">NPR</button><button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 rounded-md text-xs font-bold">USD</button></div></div></div>
-        <div class="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl"><button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 rounded-lg text-sm font-medium">eSewa</button><button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 rounded-lg text-sm font-medium">Khalti</button></div>
-        <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner"><img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" onerror="this.style.display='none'"><img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"></div><p class="mt-3 text-sm font-medium">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
-        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width:0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot.</p></div>
+        <div class="bg-gray-50 p-4 border-2 border-black mb-4"><h4 class="text-xs font-bold uppercase text-txt-sub mb-3">Client Details</h4><div class="space-y-3"><div><label class="block text-xs font-medium mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="clientName" placeholder="John Doe" class="w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="block text-xs font-medium mb-1">Phone <span class="text-red-500">*</span></label><input type="tel" id="clientPhone" placeholder="+977..." class="w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium mb-1">Email <span class="text-red-500">*</span></label><input type="email" id="clientEmail" placeholder="example@mail.com" class="w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div></div><div><label class="block text-xs font-medium mb-1">Address</label><textarea id="clientAddress" rows="2" placeholder="Street, City..." class="w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none"></textarea></div></div></div>
+        <div class="bg-bg-light p-4 border-2 border-black mb-4"><div class="flex justify-between items-center mb-2"><span class="text-xs font-medium uppercase text-txt-third">Total</span><div class="text-right"><span id="paymentTotal" class="text-lg md:text-xl font-bold text-brand">NPR 0</span><span id="paymentTotalSub" class="block text-[10px] text-txt-sub">$0.00</span></div></div><div class="text-xs text-txt-third" id="paymentItemsCount">0 items</div><div class="mt-3 pt-3 border-t border-gray-200"><label class="block text-[10px] uppercase font-bold text-txt-sub mb-2">Pay Currency</label><div class="flex bg-gray-200 p-1"><button onclick="setPaymentCurrency('npr')" id="btnNPR" class="currency-btn active-curr flex-1 py-1.5 text-xs font-bold border-2 border-black">NPR</button><button onclick="setPaymentCurrency('usd')" id="btnUSD" class="currency-btn flex-1 py-1.5 text-xs font-bold border-2 border-transparent">USD</button></div></div></div>
+        <div class="flex gap-2 mb-4 bg-gray-100 p-1 border-2 border-black"><button onclick="switchPaymentTab('esewa')" id="tab-esewa" class="pay-tab active flex-1 py-2 text-sm font-medium uppercase">eSewa</button><button onclick="switchPaymentTab('khalti')" id="tab-khalti" class="pay-tab flex-1 py-2 text-sm font-medium uppercase">Khalti</button></div>
+        <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-black flex items-center justify-center p-4 shadow-hard"><img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" onerror="this.style.display='none'"><img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"></div><p class="mt-3 text-sm font-medium uppercase tracking-wider">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
+        <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-black p-4 text-center hover:bg-gray-50 transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 border-2 border-black flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5"></i></div><p class="text-sm font-medium uppercase">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 h-2.5 mb-2 overflow-hidden border border-black"><div id="progressBar" class="bg-brand h-2.5 transition-all" style="width:0%"></div></div><p class="text-xs font-medium text-brand animate-pulse uppercase">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover border-2 border-black"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white text-red-500 p-1.5 border-2 border-black hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1 uppercase">Please upload a payment screenshot.</p></div>
       </div>
-      <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-bg-dark text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
+      <div class="p-4 md:p-6 border-t-2 border-black flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium hover:bg-brand-hover flex items-center justify-center gap-2 uppercase tracking-wider border-2 border-black shadow-hard">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4 uppercase">Your order will be processed after verification.</p></div>
     </div>
   </div>
 
   <!-- PROCESSING OVERLAY -->
   <div id="processingOverlay" class="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl">
+    <div class="bg-white w-full max-w-sm p-8 text-center shadow-xl border-2 border-black">
       <div class="mb-6"><i data-lucide="loader-2" class="w-12 h-12 text-brand mx-auto animate-spin"></i></div>
-      <h3 class="text-xl font-semibold mb-2" id="processingTitle">Processing Order</h3>
-      <p class="text-sm text-txt-sub mb-6" id="processingSubtitle">Please do not close this window...</p>
+      <h3 class="text-xl font-semibold mb-2 uppercase" id="processingTitle">Processing Order</h3>
+      <p class="text-sm text-txt-sub mb-6 uppercase text-xs tracking-wider" id="processingSubtitle">Please do not close this window...</p>
       <div class="space-y-3 text-left mb-6">
-        <div class="flex items-center gap-3" id="pStep1"><div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-3 h-3 text-brand"></i></div><span class="text-sm font-medium">Compressing proof...</span></div>
-        <div class="flex items-center gap-3 opacity-40" id="pStep2"><div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"><i data-lucide="upload" class="w-3 h-3 text-gray-500"></i></div><span class="text-sm font-medium">Uploading to server...</span></div>
-        <div class="flex items-center gap-3 opacity-40" id="pStep3"><div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-3 h-3 text-gray-500"></i></div><span class="text-sm font-medium">Confirming in database...</span></div>
+        <div class="flex items-center gap-3" id="pStep1"><div class="w-6 h-6 border-2 border-black flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-3 h-3 text-brand"></i></div><span class="text-sm font-medium uppercase">Compressing proof...</span></div>
+        <div class="flex items-center gap-3 opacity-40" id="pStep2"><div class="w-6 h-6 border-2 border-black flex items-center justify-center flex-shrink-0"><i data-lucide="upload" class="w-3 h-3"></i></div><span class="text-sm font-medium uppercase">Uploading to server...</span></div>
+        <div class="flex items-center gap-3 opacity-40" id="pStep3"><div class="w-6 h-6 border-2 border-black flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-3 h-3"></i></div><span class="text-sm font-medium uppercase">Confirming in database...</span></div>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"><div id="processingProgressBar" class="bg-brand h-2 rounded-full progress-bar-animated transition-all duration-500" style="width:10%"></div></div>
+      <div class="w-full bg-gray-200 h-2 overflow-hidden border border-black"><div id="processingProgressBar" class="bg-brand h-2 progress-bar-animated transition-all duration-500" style="width:10%"></div></div>
     </div>
   </div>
 
   <!-- SUCCESS POPUP -->
   <div id="successPopup" class="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl modal-enter">
-      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 success-pop"><i data-lucide="check" class="w-10 h-10 text-green-600"></i></div>
-      <h3 class="text-2xl font-bold mb-2">Order Placed!</h3>
-      <p class="text-sm text-txt-sub mb-1">Your Order ID is</p>
+    <div class="bg-white w-full max-w-sm p-8 text-center shadow-xl modal-enter border-2 border-black">
+      <div class="w-20 h-20 bg-brand border-2 border-black flex items-center justify-center mx-auto mb-5 success-pop"><i data-lucide="check" class="w-10 h-10 text-white"></i></div>
+      <h3 class="text-2xl font-bold mb-2 uppercase">Order Placed!</h3>
+      <p class="text-sm text-txt-sub mb-1 uppercase text-xs">Your Order ID is</p>
       <p class="text-lg font-mono font-bold text-brand mb-4" id="successOrderId">#ORDER-123</p>
       <p class="text-sm text-txt-sub leading-relaxed mb-6">We will verify your payment and send you a confirmation email shortly.</p>
-      <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-2"><div class="bg-green-500 h-1.5 rounded-full countdown-bar"></div></div>
-      <p class="text-[10px] text-txt-third">Auto-closing in 5 seconds...</p>
+      <div class="w-full bg-gray-200 h-1.5 overflow-hidden mb-2 border border-black"><div class="bg-brand h-1.5 countdown-bar"></div></div>
+      <p class="text-[10px] text-txt-third uppercase tracking-wider">Auto-closing in 5 seconds...</p>
     </div>
   </div>
 
   <!-- ERROR POPUP -->
   <div id="errorPopup" class="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4 hidden" style="backdrop-filter:blur(6px)">
-    <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl modal-enter">
-      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i></div>
-      <h3 class="text-2xl font-bold mb-2">Submission Failed</h3>
+    <div class="bg-white w-full max-w-sm p-8 text-center shadow-xl modal-enter border-2 border-red-500">
+      <div class="w-20 h-20 bg-red-100 border-2 border-red-500 flex items-center justify-center mx-auto mb-5"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i></div>
+      <h3 class="text-2xl font-bold mb-2 uppercase">Submission Failed</h3>
       <p class="text-sm text-txt-sub leading-relaxed mb-6" id="errorMessage">Something went wrong. Please try again.</p>
-      <button onclick="retrySubmission()" class="w-full py-3 bg-txt-main text-white text-sm font-medium rounded-xl hover:bg-black flex items-center justify-center gap-2 mb-3"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Retry Submission</button>
-      <button onclick="closeErrorPopup()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 transition-colors">Cancel & Go Back</button>
+      <button onclick="retrySubmission()" class="w-full py-3 bg-txt-main text-white text-sm font-medium hover:bg-black flex items-center justify-center gap-2 mb-3 uppercase border-2 border-black shadow-hard-sm"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Retry</button>
+      <button onclick="closeErrorPopup()" class="w-full py-3 text-sm text-txt-third hover:text-red-500 transition-colors uppercase">Cancel & Go Back</button>
     </div>
   </div>
 
   <!-- PRODUCT MODAL -->
   <div id="productModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl modal-enter" id="modalDynamicContent"></div>
+    <div class="bg-bg-light w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-xl modal-enter border-2 border-black" id="modalDynamicContent"></div>
   </div>
 
-  <!-- ========== SIGNUP MODAL ========== -->
-  <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <form onsubmit="handleSignup(event)" class="space-y-4">
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label><div class="relative"><input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
-        <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
-      </form>
-      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
-    </div>
-  </div>
+  <!-- AUTH MODALS (Signup, Signin, Forgot, OTP) - Kept concise for length -->
+  <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><form onsubmit="handleSignup(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Password</label><div class="relative"><input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Create Account</button></form><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div></div></div>
+  <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><form onsubmit="handleSignin(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Password</label><div class="relative"><input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div><button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium hover:bg-black transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Sign In</button></form><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div></div></div>
+  <div id="forgotModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="forgotStep1"><form onsubmit="handleForgotPassword(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Send Reset Code</button></form></div><div id="forgotStep2" class="hidden"><form onsubmit="handleResetPassword(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 border-2 border-black text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">New Password</label><input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Reset Password</button></form></div><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div></div></div>
+  <div id="otpModal" class="fixed inset-0 z-[60] bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 text-center border-2 border-black"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold uppercase">Verify Email</h3><button onclick="closeAuthModal('otp')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="otpEmailDisplay" class="font-semibold text-txt-main"></span></p><form onsubmit="handleVerifyOTP(event)" class="space-y-4"><input type="text" id="otpCode" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 border-2 border-black text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Verify</button></form><button onclick="handleResendOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors uppercase">Didn't get it? Resend Code</button></div></div>
 
-  <!-- ========== SIGNIN MODAL ========== -->
-  <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <form onsubmit="handleSignin(event)" class="space-y-4">
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-        <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label><div class="relative"><input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
-        <button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium rounded-xl hover:bg-black transition-colors">Sign In</button>
-      </form>
-      <div class="mt-4"><button onclick="switchAuthModal('forgot')" class="w-full py-3 border border-border-main rounded-xl text-sm font-medium text-txt-sub hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2"><i data-lucide="key-round" class="w-4 h-4"></i> Forgot Password?</button></div>
-      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div>
-    </div>
-  </div>
-
-  <!-- ========== FORGOT PASSWORD MODAL ========== -->
-  <div id="forgotModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6">
-      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <div id="forgotStep1">
-        <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mb-4 flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0"></i><p class="text-xs text-orange-700">Enter your email and we'll send a 6-digit code valid for 5 minutes.</p></div>
-        <form onsubmit="handleForgotPassword(event)" class="space-y-4">
-          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Send Reset Code</button>
-        </form>
+  <!-- AI CHAT WIDGET HTML -->
+  <div id="ai-chat-box">
+      <div class="chat-header">
+          <span>NaturaBotanica AI</span>
+          <button class="chat-close-btn" onclick="toggleChat()"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <div id="forgotStep2" class="hidden">
-        <p class="text-sm text-txt-sub mb-1">Code sent to <span id="forgotEmailDisplay" class="font-semibold text-txt-main"></span></p>
-        <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
-        <form onsubmit="handleResetPassword(event)" class="space-y-4">
-          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label><div class="relative"><input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
-          <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
-        </form>
-        <button onclick="handleResendForgotOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Didn't get it? Resend Code</button>
+      <div id="chat-messages">
+          <div class="msg bot">Welcome! 🌿 Ask me about products, MOQs, or pricing. Type 'Human' to speak with a specialist.</div>
       </div>
-      <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
-    </div>
+      <div id="handoff-section" class="handoff-area" style="display:none;">
+          <p>Professional Assistance Required</p>
+          <a href="#contact" class="handoff-btn" onclick="toggleChat()">Leave a Quote Request</a>
+      </div>
+      <div class="chat-input-area">
+          <input id="chat-input" type="text" placeholder="Type your question..." onkeypress="if(event.key==='Enter')sendChat()" />
+          <button id="chat-send" onclick="sendChat()">Send</button>
+      </div>
   </div>
-
-  <!-- OTP VERIFICATION MODAL -->
-  <div id="otpModal" class="fixed inset-0 z-[60] bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)">
-    <div class="bg-bg-light rounded-2xl w-full max-w-md shadow-2xl modal-enter p-6 text-center">
-      <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Verify Email</h3><button onclick="closeAuthModal('otp')" class="p-2 rounded-full hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <p class="text-sm text-txt-sub mb-1">Enter the 6-digit code sent to <span id="otpEmailDisplay" class="font-semibold text-txt-main"></span></p>
-      <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center justify-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
-      <form onsubmit="handleVerifyOTP(event)" class="space-y-4">
-        <input type="text" id="otpCode" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand">
-        <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Verify</button>
-      </form>
-      <button onclick="handleResendOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors">Didn't get it? Resend Code</button>
-    </div>
-  </div>
+  <button id="ai-chat-btn" onclick="toggleChat()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  </button>
 
   <!-- Swiper.js JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -399,7 +392,7 @@
     // ==========================================
     // 3. TOAST SYSTEM
     // ==========================================
-    function showToast(msg, type) { type = type || 'success'; var container = document.getElementById('toastContainer'); var el = document.createElement('div'); el.className = 'toast-enter bg-white rounded-xl shadow-lg p-3 mb-2 text-sm pointer-events-auto'; el.innerHTML = '<i data-lucide="' + (type === 'success' ? 'check-circle' : 'alert-circle') + '" class="w-4 h-4 inline mr-2 ' + (type === 'success' ? 'text-brand' : 'text-red-500') + '"></i>' + msg; container.appendChild(el); lucide.createIcons(); setTimeout(function() { el.classList.add('toast-exit'); setTimeout(function() { el.remove(); }, 300); }, 2500); }
+    function showToast(msg, type) { type = type || 'success'; var container = document.getElementById('toastContainer'); var el = document.createElement('div'); el.className = 'toast-enter bg-white border-2 border-black shadow-hard p-3 mb-2 text-sm pointer-events-auto font-medium uppercase text-xs tracking-wider'; el.innerHTML = '<i data-lucide="' + (type === 'success' ? 'check-circle' : 'alert-circle') + '" class="w-4 h-4 inline mr-2 ' + (type === 'success' ? 'text-brand' : 'text-red-500') + '"></i>' + msg; container.appendChild(el); lucide.createIcons(); setTimeout(function() { el.classList.add('toast-exit'); setTimeout(function() { el.remove(); }, 300); }, 2500); }
 
     // ==========================================
     // 4. IMAGE COMPRESSION
@@ -427,7 +420,7 @@
     async function loadVisitorCount() { try { var res = await fetchWithTimeout(BACKEND_URL + '/public/visits'); if (res.ok) { var data = await res.json(); if (data.count) { var el = document.getElementById('visitorCount'); if (el) animateCounter(el, data.count); } } } catch (e) { console.error('Visitor count failed:', e.message); } }
     function animateCounter(el, target) { var current = 0; var interval = setInterval(function() { current += Math.ceil(target / 60); if (current >= target) { current = target; clearInterval(interval); } el.textContent = current.toLocaleString() + '+'; }, 20); }
 
-        // ==========================================
+    // ==========================================
     // 8. TRENDING PRODUCTS (3D COVERFLOW)
     // ==========================================
     async function loadTrending() {
@@ -453,9 +446,9 @@
 
         wrapper.innerHTML = infiniteProducts.map(function(product) {
           var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
-          var imgSrc = product.img || product.image || 'https://placehold.co/400x300/0F172A/D4AF37?text=NaturaBotanica';
+          var imgSrc = product.img || product.image || 'https://placehold.co/400x300/000000/FF5722?text=NaturaBotanica';
           return '<div class="swiper-slide">' +
-            (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3 text-brand"></i> Staff Pick</div>' : '') +
+            (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3"></i> Staff Pick</div>' : '') +
             '<img src="' + imgSrc + '" alt="' + product.name + '" class="trending-card-img">' +
             '<div class="trending-card-content">' +
               '<div class="trending-card-name">' + product.name + '</div>' +
@@ -473,23 +466,18 @@
             centeredSlides: true, 
             slidesPerView: "auto", 
             initialSlide: startIndex, 
-            coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
-            autoplay: { 
-              delay: 4000, 
-              disableOnInteraction: false, 
-              pauseOnMouseEnter: true      
-            },
+            coverflowEffect: { rotate: 5, stretch: 0, depth: 200, modifier: 1, slideShadows: false },
+            autoplay: { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true },
             loop: false, 
             pagination: { el: ".swiper-pagination", clickable: true },
             breakpoints: { 
-              320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 
+              320: { slidesPerView: 1, coverflowEffect: { rotate: 0, depth: 100 } }, 
               768: { slidesPerView: "auto" } 
             },
             on: {
               slideChange: function(swiper) {
                 if (isSnapping) return; 
                 var current = swiper.activeIndex;
-                
                 if (current >= totalOriginal * 2) {
                   isSnapping = true;
                   swiper.slideTo(current - totalOriginal, 1); 
@@ -514,22 +502,23 @@
         document.getElementById('trendingSection').style.display = 'none';
       }
     }
+    
     // ==========================================
     // 9. PRODUCTS & PAGINATION
     // ==========================================
-    async function loadProducts() { var grid = document.getElementById('productGrid'); grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/products'); if (!res.ok) throw new Error('API error'); products = await res.json(); } catch (e) { console.error('Products fetch failed, using fallback:', e.message); products = Array.from({ length: 65 }).map(function(_, i) { return { id: i + 1, name: 'Product ' + (i + 1), sci: 'Scientific name', category: ['oils','herbs','mushrooms','rasa','namak','herbal soap','extracts','seeds / masala'][i % 8], catLabel: ['Oils','Herbs','Mushrooms','Rasa','Namak','Herbal Soap','Extracts','Seeds / Masala'][i % 8], price: 500 + (i * 10), img: 'https://placehold.co/400x300/0F172A/D4AF37?text=Product+' + (i + 1), desc: 'High quality botanical ingredient sourced from the Himalayas.', moq: '1 kg', lead: '5-7 days', unit: '1 kg', stock: 10 + i }; }); } renderCatButtons(); currentPage = 1; renderProducts(getFilteredProducts()); }
-    function renderCatButtons() { var cats = ['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap','seeds / masala']; var icons = { 'all':'grid-3x3','oils':'droplet','extracts':'flask-conical','mushrooms':'nut','herbs':'leaf','rasa':'rocking-chair','namak':'sparkles','herbal soap':'droplets','seeds / masala':'wheat' }; document.getElementById('catButtons').innerHTML = cats.map(function(c) { var displayName = c === 'herbal soap' ? 'Herbal Soap' : c === 'seeds / masala' ? 'Seeds / Masala' : c.charAt(0).toUpperCase() + c.slice(1); return '<button onclick="filterCategory(\'' + c + '\')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="' + c + '"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="' + icons[c] + '" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium">' + displayName + '</span></button>'; }).join(''); lucide.createIcons(); }
+    async function loadProducts() { var grid = document.getElementById('productGrid'); grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub uppercase tracking-wider">Loading products...</p></div>'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/products'); if (!res.ok) throw new Error('API error'); products = await res.json(); } catch (e) { console.error('Products fetch failed, using fallback:', e.message); products = Array.from({ length: 65 }).map(function(_, i) { return { id: i + 1, name: 'Product ' + (i + 1), sci: 'Scientific name', category: ['oils','herbs','mushrooms','rasa','namak','herbal soap','extracts','seeds / masala'][i % 8], catLabel: ['Oils','Herbs','Mushrooms','Rasa','Namak','Herbal Soap','Extracts','Seeds / Masala'][i % 8], price: 500 + (i * 10), img: 'https://placehold.co/400x300/000000/FF5722?text=Product+' + (i + 1), desc: 'High quality botanical ingredient sourced from the Himalayas.', moq: '1 kg', lead: '5-7 days', unit: '1 kg', stock: 10 + i }; }); } renderCatButtons(); currentPage = 1; renderProducts(getFilteredProducts()); }
+    function renderCatButtons() { var cats = ['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap','seeds / masala']; var icons = { 'all':'grid-3x3','oils':'droplet','extracts':'flask-conical','mushrooms':'nut','herbs':'leaf','rasa':'rocking-chair','namak':'sparkles','herbal soap':'droplets','seeds / masala':'wheat' }; document.getElementById('catButtons').innerHTML = cats.map(function(c) { var displayName = c === 'herbal soap' ? 'Herbal Soap' : c === 'seeds / masala' ? 'Seeds / Masala' : c.charAt(0).toUpperCase() + c.slice(1); return '<button onclick="filterCategory(\'' + c + '\')" class="cat-btn group p-3 border-2 border-black hover:border-brand transition-all text-center" data-cat="' + c + '"><div class="w-9 h-9 mx-auto mb-2 border-2 border-black flex items-center justify-center bg-brand text-white"><i data-lucide="' + icons[c] + '" class="w-4 h-4"></i></div><span class="text-[10px] font-medium uppercase tracking-wider">' + displayName + '</span></button>'; }).join(''); lucide.createIcons(); }
     function getFilteredProducts() { var f = products.slice(); if (currentCategory !== 'all') f = f.filter(function(p) { return p.category === currentCategory; }); if (currentSort === 'name') f.sort(function(a, b) { return a.name.localeCompare(b.name); }); if (currentSort === 'price-asc') f.sort(function(a, b) { return a.price - b.price; }); if (currentSort === 'price-desc') f.sort(function(a, b) { return b.price - a.price; }); return f; }
     function filterCategory(c) { currentCategory = c; currentPage = 1; document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.cat === c); }); renderProducts(getFilteredProducts()); }
     function sortProducts() { currentSort = document.getElementById('sortSelect').value; currentPage = 1; renderProducts(getFilteredProducts()); }
     function goToPage(page) { var filtered = getFilteredProducts(); var totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE); if (page < 1 || page > totalPages) return; currentPage = page; renderProducts(filtered); document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    function renderProducts(items) { var grid = document.getElementById('productGrid'); var noR = document.getElementById('noResults'); var cnt = document.getElementById('productCount'); if (!items.length) { grid.innerHTML = ''; noR.classList.remove('hidden'); cnt.textContent = '0'; document.getElementById('paginationControls').innerHTML = ''; return; } noR.classList.add('hidden'); var totalPages = Math.ceil(items.length / PRODUCTS_PER_PAGE); if (currentPage > totalPages) currentPage = totalPages; var startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE; var endIndex = startIndex + PRODUCTS_PER_PAGE; var pageItems = items.slice(startIndex, endIndex); cnt.textContent = 'Showing ' + (startIndex + 1) + '–' + Math.min(endIndex, items.length) + ' of ' + items.length; grid.innerHTML = pageItems.map(function(p) { var priceUSD = (p.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var stockBadge = p.stock <= 0 ? '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded-full">Out of Stock</span>' : p.stock < 10 ? '<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium rounded-full">Low Stock</span>' : '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium rounded-full">In Stock</span>'; var disabledAttr = p.stock <= 0 ? 'disabled' : ''; var btnClass = p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-black'; var btnText = p.stock <= 0 ? 'Out of Stock' : 'Add to Cart'; return '<div class="product-card bg-white rounded-2xl border overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(\'' + p.id + '\')"><img src="' + p.img + '" class="product-img w-full h-full object-cover transition-transform duration-500"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white/90 text-[10px] font-medium rounded-full">' + p.catLabel + '</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black/70 text-[9px] font-mono font-bold rounded-full text-white">ID: ' + p.id + '</span></div></div><div class="p-5"><div class="flex items-center justify-between mb-1"><h3 class="text-base font-semibold cursor-pointer hover:text-brand" onclick="openModal(\'' + p.id + '\')">' + p.name + '</h3>' + stockBadge + '</div><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ' + p.price.toLocaleString() + ' / ' + p.unit + '</span><span class="text-xs text-txt-sub block">$' + priceUSD + ' / ' + p.unit + '</span></div><button onclick="addToCart(\'' + p.id + '\')" ' + disabledAttr + ' class="px-4 py-2 ' + btnClass + ' text-white text-xs rounded-xl transition-all">' + btnText + '</button></div></div></div>'; }).join(''); renderPagination(totalPages, items.length); lucide.createIcons(); }
-    function renderPagination(totalPages, totalItems) { var container = document.getElementById('paginationControls'); if (totalPages <= 1) { container.innerHTML = ''; return; } var pagesHtml = '<button onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ' + (currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main') + ' transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i>Prev</button>'; var pageNumbers = []; if (totalPages <= 7) { for (var i = 1; i <= totalPages; i++) pageNumbers.push(i); } else { pageNumbers.push(1); if (currentPage > 3) pageNumbers.push('...'); for (var j = Math.max(2, currentPage - 1); j <= Math.min(totalPages - 1, currentPage + 1); j++) pageNumbers.push(j); if (currentPage < totalPages - 2) pageNumbers.push('...'); pageNumbers.push(totalPages); } pageNumbers.forEach(function(p) { if (p === '...') pagesHtml += '<span class="px-2 py-2.5 text-sm text-txt-third">…</span>'; else { var isActive = p === currentPage; pagesHtml += '<button onclick="goToPage(' + p + ')" class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-xl border transition-all ' + (isActive ? 'bg-txt-main text-white border-txt-main shadow-lg' : 'border-border-main hover:bg-brand hover:text-white hover:border-brand') + '">' + p + '</button>'; } }); pagesHtml += '<button onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-xl border border-border-main ' + (currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white hover:border-txt-main') + ' transition-all">Next<i data-lucide="chevron-right" class="w-4 h-4"></i></button>'; container.innerHTML = '<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-border-main"><p class="text-sm text-txt-third">Page <span class="font-semibold text-txt-main">' + currentPage + '</span> of <span class="font-semibold text-txt-main">' + totalPages + '</span> (' + totalItems + ' products)</p><div class="flex items-center gap-2 flex-wrap justify-center">' + pagesHtml + '</div></div>'; lucide.createIcons(); }
+    function renderProducts(items) { var grid = document.getElementById('productGrid'); var noR = document.getElementById('noResults'); var cnt = document.getElementById('productCount'); if (!items.length) { grid.innerHTML = ''; noR.classList.remove('hidden'); cnt.textContent = '0'; document.getElementById('paginationControls').innerHTML = ''; return; } noR.classList.add('hidden'); var totalPages = Math.ceil(items.length / PRODUCTS_PER_PAGE); if (currentPage > totalPages) currentPage = totalPages; var startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE; var endIndex = startIndex + PRODUCTS_PER_PAGE; var pageItems = items.slice(startIndex, endIndex); cnt.textContent = 'Showing ' + (startIndex + 1) + '–' + Math.min(endIndex, items.length) + ' of ' + items.length; grid.innerHTML = pageItems.map(function(p) { var priceUSD = (p.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var stockBadge = p.stock <= 0 ? '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium uppercase">Out of Stock</span>' : p.stock < 10 ? '<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-medium uppercase">Low Stock</span>' : '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-medium uppercase">In Stock</span>'; var disabledAttr = p.stock <= 0 ? 'disabled' : ''; var btnClass = p.stock <= 0 ? 'bg-gray-400 cursor-not-allowed opacity-50' : 'bg-txt-main hover:bg-brand'; var btnText = p.stock <= 0 ? 'Out of Stock' : 'Add to Cart'; return '<div class="product-card bg-white overflow-hidden"><div class="relative h-48 overflow-hidden cursor-pointer" onclick="openModal(\'' + p.id + '\')"><img src="' + p.img + '" class="product-img w-full h-full object-cover transition-transform duration-500"><div class="absolute top-3 left-3"><span class="px-2.5 py-1 bg-white border-2 border-black text-[10px] font-medium uppercase tracking-wider">' + p.catLabel + '</span></div><div class="absolute top-3 right-3"><span class="px-2 py-0.5 bg-black text-white text-[9px] font-mono font-bold">#' + p.id + '</span></div></div><div class="p-5 border-t-2 border-black"><div class="flex items-center justify-between mb-1"><h3 class="text-base font-semibold cursor-pointer hover:text-brand uppercase tracking-wider text-sm" onclick="openModal(\'' + p.id + '\')">' + p.name + '</h3>' + stockBadge + '</div><div class="flex items-center justify-between mt-2"><div><span class="text-xl font-semibold">NPR ' + p.price.toLocaleString() + ' <span class="text-xs font-normal lowercase">/ ' + p.unit + '</span></span><span class="text-xs text-txt-sub block">$' + priceUSD + '</span></div><button onclick="addToCart(\'' + p.id + '\')" ' + disabledAttr + ' class="px-4 py-2 ' + btnClass + ' text-white text-xs uppercase tracking-wider transition-all border-2 border-black shadow-hard-sm">' + btnText + '</button></div></div></div>'; }).join(''); renderPagination(totalPages, items.length); lucide.createIcons(); }
+    function renderPagination(totalPages, totalItems) { var container = document.getElementById('paginationControls'); if (totalPages <= 1) { container.innerHTML = ''; return; } var pagesHtml = '<button onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-2 border-black ' + (currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white') + ' transition-all uppercase text-xs"><i data-lucide="chevron-left" class="w-4 h-4"></i>Prev</button>'; var pageNumbers = []; if (totalPages <= 7) { for (var i = 1; i <= totalPages; i++) pageNumbers.push(i); } else { pageNumbers.push(1); if (currentPage > 3) pageNumbers.push('...'); for (var j = Math.max(2, currentPage - 1); j <= Math.min(totalPages - 1, currentPage + 1); j++) pageNumbers.push(j); if (currentPage < totalPages - 2) pageNumbers.push('...'); pageNumbers.push(totalPages); } pageNumbers.forEach(function(p) { if (p === '...') pagesHtml += '<span class="px-2 py-2.5 text-sm text-txt-third">…</span>'; else { var isActive = p === currentPage; pagesHtml += '<button onclick="goToPage(' + p + ')" class="w-10 h-10 flex items-center justify-center text-sm font-medium border-2 border-black transition-all ' + (isActive ? 'bg-txt-main text-white shadow-hard-sm' : 'hover:bg-brand hover:text-white') + '">' + p + '</button>'; } }); pagesHtml += '<button onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + ' class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-2 border-black ' + (currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-txt-main hover:text-white') + ' transition-all uppercase text-xs">Next<i data-lucide="chevron-right" class="w-4 h-4"></i></button>'; container.innerHTML = '<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t-2 border-black"><p class="text-sm text-txt-third uppercase text-xs tracking-wider">Page <span class="font-semibold text-txt-main">' + currentPage + '</span> of <span class="font-semibold text-txt-main">' + totalPages + '</span></p><div class="flex items-center gap-2 flex-wrap justify-center">' + pagesHtml + '</div></div>'; lucide.createIcons(); }
 
     // ==========================================
     // 10. SEARCH
     // ==========================================
-    function initSearch() { document.getElementById('searchInput').addEventListener('input', function(e) { var query = e.target.value.toLowerCase().trim(); var resultsDiv = document.getElementById('searchResults'); if (!query) { resultsDiv.innerHTML = ''; return; } var matches = products.filter(function(p) { return p.name.toLowerCase().includes(query) || (p.sci && p.sci.toLowerCase().includes(query)) || p.category.toLowerCase().includes(query) || (p.catLabel && p.catLabel.toLowerCase().includes(query)); }); if (!matches.length) { resultsDiv.innerHTML = '<p class="text-sm text-txt-third py-4 text-center">No products found.</p>'; return; } resultsDiv.innerHTML = matches.map(function(p) { return '<div class="flex items-center gap-3 p-3 rounded-xl hover:bg-bg-light cursor-pointer transition-colors" onclick="closeSearch(); openModal(\'' + p.id + '\');"><img src="' + p.img + '" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display=\'none\'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">' + p.name + '</p><p class="text-[10px] text-txt-third">' + p.catLabel + ' · NPR ' + p.price.toLocaleString() + '</p></div><i data-lucide="arrow-up-right" class="w-4 h-4 text-txt-third flex-shrink-0"></i></div>'; }).join(''); lucide.createIcons(); }); document.getElementById('searchClose').addEventListener('click', closeSearch); }
+    function initSearch() { document.getElementById('searchInput').addEventListener('input', function(e) { var query = e.target.value.toLowerCase().trim(); var resultsDiv = document.getElementById('searchResults'); if (!query) { resultsDiv.innerHTML = ''; return; } var matches = products.filter(function(p) { return p.name.toLowerCase().includes(query) || (p.sci && p.sci.toLowerCase().includes(query)) || p.category.toLowerCase().includes(query) || (p.catLabel && p.catLabel.toLowerCase().includes(query)); }); if (!matches.length) { resultsDiv.innerHTML = '<p class="text-sm text-txt-third py-4 text-center uppercase tracking-wider">No products found.</p>'; return; } resultsDiv.innerHTML = matches.map(function(p) { return '<div class="flex items-center gap-3 p-3 hover:bg-bg-light cursor-pointer transition-colors border-b-2 border-black" onclick="closeSearch(); openModal(\'' + p.id + '\');"><img src="' + p.img + '" class="w-10 h-10 object-cover border border-black" onerror="this.style.display=\'none\'"><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate uppercase text-xs">' + p.name + '</p><p class="text-[10px] text-txt-third uppercase">' + p.catLabel + ' · NPR ' + p.price.toLocaleString() + '</p></div><i data-lucide="arrow-up-right" class="w-4 h-4 text-txt-third flex-shrink-0"></i></div>'; }).join(''); lucide.createIcons(); }); document.getElementById('searchClose').addEventListener('click', closeSearch); }
     function openSearch() { document.getElementById('searchBar').style.display = 'block'; setTimeout(function() { document.getElementById('searchInput').focus(); }, 50); }
     function closeSearch() { document.getElementById('searchBar').style.display = 'none'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
 
@@ -537,7 +526,7 @@
     // 11. CART LOGIC
     // ==========================================
     function addToCart(id, qty) { qty = qty || 1; var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; var existing = cart.find(function(i) { return String(i.id) === String(id) && i.unit === p.unit && i.form === 'Whole Form'; }); if (existing) existing.qty += qty; else cart.push({ id: p.id, name: p.name, price: p.price, qty: qty, img: p.img, unit: p.unit, form: 'Whole Form' }); updateCartUI(); showToast(p.name + ' added to cart'); syncCartToDB(); }
-    function updateCartUI() { var totalItems = cart.reduce(function(s, i) { return s + i.qty; }, 0); var cEl = document.getElementById('cartCount'); if (totalItems > 0) { cEl.style.display = 'flex'; cEl.textContent = totalItems; } else { cEl.style.display = 'none'; } var cartDiv = document.getElementById('cartItems'); if (cartDiv) cartDiv.innerHTML = cart.map(function(i) { return '<div class="flex gap-4 py-4 border-b"><img src="' + i.img + '" class="w-16 h-16 rounded object-cover"><div><h4 class="font-medium">' + i.name + '</h4><p class="text-xs text-txt-sub">' + i.form + ' · ' + i.unit + '</p><p class="text-sm">' + i.qty + ' x NPR ' + i.price.toLocaleString() + '</p><button onclick="removeFromCart(\'' + i.id + '\',\'' + i.unit + '\',\'' + i.form + '\')" class="text-red-500 text-xs mt-1">Remove</button></div></div>'; }).join(''); var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); document.getElementById('cartTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('cartTotalUsd').innerHTML = '$' + (totalNPR / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var footer = document.getElementById('cartFooter'); if (cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); document.getElementById('cartItemCount').textContent = '(' + totalItems + ' items)'; }
+    function updateCartUI() { var totalItems = cart.reduce(function(s, i) { return s + i.qty; }, 0); var cEl = document.getElementById('cartCount'); if (totalItems > 0) { cEl.style.display = 'flex'; cEl.textContent = totalItems; } else { cEl.style.display = 'none'; } var cartDiv = document.getElementById('cartItems'); if (cartDiv) cartDiv.innerHTML = cart.map(function(i) { return '<div class="flex gap-4 py-4 border-b-2 border-black"><img src="' + i.img + '" class="w-16 h-16 object-cover border-2 border-black"><div><h4 class="font-medium uppercase text-sm">' + i.name + '</h4><p class="text-xs text-txt-sub uppercase">' + i.form + ' · ' + i.unit + '</p><p class="text-sm">' + i.qty + ' x NPR ' + i.price.toLocaleString() + '</p><button onclick="removeFromCart(\'' + i.id + '\',\'' + i.unit + '\',\'' + i.form + '\')" class="text-red-500 text-xs mt-1 uppercase font-bold">Remove</button></div></div>'; }).join(''); var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); document.getElementById('cartTotal').innerHTML = 'NPR ' + totalNPR.toLocaleString(); document.getElementById('cartTotalUsd').innerHTML = '$' + (totalNPR / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 }); var footer = document.getElementById('cartFooter'); if (cart.length) footer.classList.remove('hidden'); else footer.classList.add('hidden'); document.getElementById('cartItemCount').textContent = '(' + totalItems + ' items)'; }
     function removeFromCart(id, unit, form) { cart = cart.filter(function(i) { return !(String(i.id) === String(id) && i.unit === unit && i.form === form); }); updateCartUI(); showToast('Removed'); syncCartToDB(); }
     function clearCart() { cart = []; updateCartUI(); showToast('Cart cleared'); syncCartToDB(); }
     function openCart() { document.getElementById('cartOverlay').classList.remove('hidden'); setTimeout(function() { document.getElementById('cartPanel').style.transform = 'translateX(0)'; }, 10); }
@@ -547,7 +536,7 @@
     // ==========================================
     // 12. PRODUCT MODAL
     // ==========================================
-    function openModal(id) { var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; currentModalProduct = p; var formOptions = [], unitOptions = []; switch (p.category) { case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break; case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break; default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break; } selectedForm = formOptions[0]; selectedUnitValue = unitOptions[unitOptions.length - 1]; var iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' }; var html = '<div class="relative"><img src="' + p.img + '" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display=\'none\'"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-bg-dark text-[9px] font-medium rounded-full">' + p.catLabel + '</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ' + p.id + '</div></div><div class="p-4"><div class="flex justify-between items-start gap-2 mb-1"><h3 class="text-lg font-semibold tracking-tight">' + p.name + '</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#' + p.id + '</span></div><p class="text-[10px] text-txt-third italic mb-2">' + (p.sci || '') + '</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">' + (p.desc || '') + '</p><div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'form\')"><div class="flex items-center gap-1.5"><i data-lucide="' + (iconMap[selectedForm] || 'layers') + '" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selFormLabel">' + selectedForm + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i></div><div class="fancy-select-dropdown" id="formDD">' + formOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm(\'' + opt + '\')"><i data-lucide="' + (iconMap[opt] || 'layers') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div><div class="fancy-select relative" id="unitDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'unit\')"><div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selUnitLabel">' + selectedUnitValue + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i></div><div class="fancy-select-dropdown" id="unitDD">' + unitOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit(\'' + opt + '\')"><i data-lucide="' + (opt.includes('ml') ? 'droplet' : 'cube') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div></div><div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3"><div class="flex justify-between items-center"><div><span class="text-[9px] uppercase text-txt-sub">Total Price</span><div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div><div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div><div id="powderNote" class="text-[8px] text-orange-500 mt-1 ' + (selectedForm === 'Powder Form' ? '' : 'hidden') + '">+NPR 50/kg powder fee included</div></div><div class="text-right"><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="mFormBadge">' + selectedForm + '</span><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="mUnitBadge">' + selectedUnitValue + '</span></div></div></div><div class="grid grid-cols-3 gap-1.5 mb-3"><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Base Unit</p><p class="text-[10px] text-white font-medium">' + (p.unit || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">' + (p.moq || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">' + (p.lead || '7d') + '</p></div></div><div class="flex gap-2"><div class="flex items-center border border-border-main rounded-lg overflow-hidden"><button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none"><button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-bg-dark text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div></div>'; document.getElementById('modalDynamicContent').innerHTML = html; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(function() { lucide.createIcons(); updateModalPrice(); }, 50); }
+    function openModal(id) { var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; currentModalProduct = p; var formOptions = [], unitOptions = []; switch (p.category) { case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break; case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break; default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break; } selectedForm = formOptions[0]; selectedUnitValue = unitOptions[unitOptions.length - 1]; var iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' }; var html = '<div class="relative"><img src="' + p.img + '" class="w-full h-44 object-cover" onerror="this.style.display=\'none\'"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white border-2 border-black flex items-center justify-center shadow-hard-sm"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium uppercase tracking-wider border-2 border-black">' + p.catLabel + '</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black text-white text-[8px] font-mono font-bold">#' + p.id + '</div></div><div class="p-4"><div class="flex justify-between items-start gap-2 mb-1"><h3 class="text-lg font-semibold tracking-tight uppercase">' + p.name + '</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 border-2 border-black text-brand font-bold">#' + p.id + '</span></div><p class="text-[10px] text-txt-third italic mb-2">' + (p.sci || '') + '</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">' + (p.desc || '') + '</p><div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDDCont"><div class="flex items-center justify-between p-2 border-2 border-black bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'form\')"><div class="flex items-center gap-1.5"><i data-lucide="' + (iconMap[selectedForm] || 'layers') + '" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium uppercase" id="selFormLabel">' + selectedForm + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i></div><div class="fancy-select-dropdown" id="formDD">' + formOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm(\'' + opt + '\')"><i data-lucide="' + (iconMap[opt] || 'layers') + '" class="w-3 h-3"></i><span class="uppercase">' + opt + '</span></div>'; }).join('') + '</div></div><div class="fancy-select relative" id="unitDDCont"><div class="flex items-center justify-between p-2 border-2 border-black bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'unit\')"><div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium uppercase" id="selUnitLabel">' + selectedUnitValue + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i></div><div class="fancy-select-dropdown" id="unitDD">' + unitOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit(\'' + opt + '\')"><i data-lucide="' + (opt.includes('ml') ? 'droplet' : 'cube') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div></div><div class="bg-brand/5 p-2.5 border-2 border-black mb-3"><div class="flex justify-between items-center"><div><span class="text-[9px] uppercase text-txt-sub font-bold">Total Price</span><div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div><div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div><div id="powderNote" class="text-[8px] text-orange-500 mt-1 font-bold uppercase ' + (selectedForm === 'Powder Form' ? '' : 'hidden') + '">+NPR 50/kg powder fee included</div></div><div class="text-right"><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 border border-black uppercase font-bold" id="mFormBadge">' + selectedForm + '</span><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 border border-black ml-1 uppercase font-bold" id="mUnitBadge">' + selectedUnitValue + '</span></div></div></div><div class="grid grid-cols-3 gap-1.5 mb-3"><div class="p-1.5 bg-bg-dark2 text-center border-2 border-black"><p class="text-[8px] text-white/50 mb-0.5 uppercase">Base Unit</p><p class="text-[10px] text-white font-medium">' + (p.unit || '1 kg') + '</p></div><div class="p-1.5 bg-bg-dark2 text-center border-2 border-black"><p class="text-[8px] text-white/50 mb-0.5 uppercase">MOQ</p><p class="text-[10px] text-white font-medium">' + (p.moq || '1 kg') + '</p></div><div class="p-1.5 bg-bg-dark2 text-center border-2 border-black"><p class="text-[8px] text-white/50 mb-0.5 uppercase">Lead</p><p class="text-[10px] text-white font-medium">' + (p.lead || '7d') + '</p></div></div><div class="flex gap-2"><div class="flex items-center border-2 border-black overflow-hidden"><button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black hover:text-white"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x-2 border-black focus:outline-none"><button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black hover:text-white"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all uppercase border-2 border-black shadow-hard-sm"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div></div>'; document.getElementById('modalDynamicContent').innerHTML = html; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(function() { lucide.createIcons(); updateModalPrice(); }, 50); }
     function closeModal() { document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct = null; }
     function toggleDropdown(type) { var container = document.getElementById(type + 'DDCont'); var chev = document.getElementById(type + 'Chev'); if (!container) return; var otherType = type === 'form' ? 'unit' : 'form'; var otherCont = document.getElementById(otherType + 'DDCont'); var otherChev = document.getElementById(otherType + 'Chev'); if (otherCont) otherCont.classList.remove('open'); if (otherChev) otherChev.classList.remove('rotate-180'); container.classList.toggle('open'); chev.classList.toggle('rotate-180'); }
     function selectForm(form) { selectedForm = form; document.getElementById('selFormLabel').innerText = form; document.getElementById('mFormBadge').innerText = form; var pn = document.getElementById('powderNote'); if (pn) pn.classList.toggle('hidden', form !== 'Powder Form'); document.getElementById('formDDCont').classList.remove('open'); document.getElementById('formChev').classList.remove('rotate-180'); updateModalPrice(); }
@@ -597,7 +586,65 @@
     function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('mobileOverlay').classList.add('hidden'); }, 300); }
 
     // ==========================================
-    // 17. EVENT LISTENERS & BOOT
+    // 17. AI CHAT WIDGET LOGIC
+    // ==========================================
+    let chatSessionId = 'sess_' + Math.random().toString(36).substr(2, 9); 
+    let chatOpen = false;
+
+    function toggleChat() {
+        const box = document.getElementById('ai-chat-box');
+        const btn = document.getElementById('ai-chat-btn');
+        chatOpen = !chatOpen;
+        if(chatOpen) {
+            box.classList.add('open');
+            btn.style.display = 'none'; 
+            lucide.createIcons(); 
+        } else {
+            box.classList.remove('open');
+            btn.style.display = 'flex'; 
+        }
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('chat-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        appendMessage('user', msg);
+        input.value = '';
+
+        try {
+            const res = await fetchWithTimeout(BACKEND_URL + '/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, sessionId: chatSessionId })
+            }, 10000);
+
+            const data = await res.json();
+            
+            appendMessage('bot', data.response);
+
+            if (data.handoff) {
+                document.getElementById('handoff-section').style.display = 'block';
+                document.getElementById('chat-input').disabled = true;
+                document.getElementById('chat-send').disabled = true;
+            }
+        } catch (err) {
+            appendMessage('bot', 'Network error. Please try again.');
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'msg ' + sender;
+        div.textContent = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight; 
+    }
+
+    // ==========================================
+    // 18. EVENT LISTENERS & BOOT
     // ==========================================
     function initEventListeners() {
       document.getElementById('cartToggle').addEventListener('click', openCart);
