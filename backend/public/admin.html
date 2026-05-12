@@ -79,16 +79,33 @@
         /* Empty State */
         .empty-state { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #9ca3af; }
         .empty-state svg { width: 80px; height: 80px; margin-bottom: 20px; stroke: #d1d5db; }
+
+        /* Login Screen */
+        #login-screen { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; flex-direction: column; gap: 15px; }
+        #login-screen h2 { color: #FF5722; text-transform: uppercase; letter-spacing: 2px; font-size: 20px; margin-bottom: 10px; }
+        #login-screen input { padding: 12px 20px; border: 2px solid #333; background: #111; color: white; font-size: 16px; width: 300px; outline: none; border-radius: 4px; }
+        #login-screen input:focus { border-color: #FF5722; }
+        #login-screen button { padding: 12px 30px; background: #FF5722; color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; border-radius: 4px; margin-top: 10px; transition: background 0.2s; }
+        #login-screen button:hover { background: #E64A19; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>NaturaBotanica Admin</h1>
-        <span><span class="status-dot"></span>Live Chat Connected</span>
+        <span><span class="status-dot"></span>Live Chat System</span>
     </div>
 
-    <div class="container">
+    <!-- SECURITY: Login Screen -->
+    <div id="login-screen">
+        <h2>Admin Access Required</h2>
+        <input type="text" id="admin-username-input" placeholder="Username">
+        <input type="password" id="admin-password-input" placeholder="Password">
+        <button onclick="loginAdmin()">Unlock Dashboard</button>
+    </div>
+
+    <!-- Main Dashboard (Hidden by default until login) -->
+    <div class="container" id="admin-dashboard" style="display: none;">
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>Active Sessions</h2>
@@ -124,56 +141,96 @@
     </div>
 
     <script>
-        const socket = io();
+        let socket = null;
         let activeSession = null;
-        const chatHistories = {}; // Store chat history per session
+        const chatHistories = {}; 
 
-        // Listen for clients requesting human help
-        socket.on('admin-notification', (data) => {
-            let sessionsDiv = document.getElementById('sessions');
+        // ==========================================
+        // SECURITY: LOGIN LOGIC
+        // ==========================================
+        function loginAdmin() {
+            const username = document.getElementById('admin-username-input').value.trim();
+            const password = document.getElementById('admin-password-input').value.trim();
             
-            // Initialize history array if it doesn't exist
-            if (!chatHistories[data.sessionId]) chatHistories[data.sessionId] = [];
-            
-            // Push the new message to history (limit to text for now)
-            chatHistories[data.sessionId].push({ type: 'text', sender: 'client', text: data.text });
+            if (!username || !password) return alert("Please enter both Username and Password.");
 
-            // Create a button for this session if it doesn't exist
-            if (!document.getElementById('btn-' + data.sessionId)) {
-                let btn = document.createElement('button');
-                btn.id = 'btn-' + data.sessionId;
-                btn.className = 'session-btn';
-                let shortId = data.sessionId.substring(5, 10);
-                
-                btn.innerHTML = `
-                    <div class="session-icon">${shortId}</div>
-                    <div class="session-info">
-                        <h4>Session ${shortId}</h4>
-                        <p id="preview-${data.sessionId}">${data.text}</p>
-                    </div>
-                `;
-                
-                btn.onclick = () => {
-                    activeSession = data.sessionId;
-                    document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    loadChatHistory(data.sessionId);
-                };
-                sessionsDiv.appendChild(btn);
-                
-                // Auto-select the first session
-                if (!activeSession) btn.click();
-            } else {
-                // Update the preview text in the sidebar
-                let preview = document.getElementById('preview-' + data.sessionId);
-                if (preview) preview.innerText = data.text;
-            }
+            // Attempt connection with credentials
+            socket = io({
+              auth: {
+                type: 'admin',
+                username: username,
+                password: password
+              }
+            });
 
-            // If we are currently viewing this session, show the message
-            if (activeSession === data.sessionId) {
-                appendMessage('client-msg', data.text);
-            }
+            // If authentication fails
+            socket.on('connect_error', (err) => {
+                alert("Login Failed! Incorrect Username or Password.");
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('admin-dashboard').style.display = 'none';
+                socket.disconnect();
+            });
+
+            // If authentication succeeds
+            socket.on('connect', () => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'flex';
+                initAdminListeners();
+            });
+        }
+
+        // Enter key support for login fields
+        document.getElementById('admin-username-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('admin-password-input').focus(); }
         });
+        document.getElementById('admin-password-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); loginAdmin(); }
+        });
+
+        // ==========================================
+        // CHAT LOGIC (Runs after successful login)
+        // ==========================================
+        function initAdminListeners() {
+            // Listen for clients requesting human help
+            socket.on('admin-notification', (data) => {
+                let sessionsDiv = document.getElementById('sessions');
+                
+                if (!chatHistories[data.sessionId]) chatHistories[data.sessionId] = [];
+                chatHistories[data.sessionId].push({ type: 'text', sender: 'client', text: data.text });
+
+                if (!document.getElementById('btn-' + data.sessionId)) {
+                    let btn = document.createElement('button');
+                    btn.id = 'btn-' + data.sessionId;
+                    btn.className = 'session-btn';
+                    let shortId = data.sessionId.substring(5, 10);
+                    
+                    btn.innerHTML = `
+                        <div class="session-icon">${shortId}</div>
+                        <div class="session-info">
+                            <h4>Session ${shortId}</h4>
+                            <p id="preview-${data.sessionId}">${data.text}</p>
+                        </div>
+                    `;
+                    
+                    btn.onclick = () => {
+                        activeSession = data.sessionId;
+                        document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        loadChatHistory(data.sessionId);
+                    };
+                    sessionsDiv.appendChild(btn);
+                    
+                    if (!activeSession) btn.click();
+                } else {
+                    let preview = document.getElementById('preview-' + data.sessionId);
+                    if (preview) preview.innerText = data.text;
+                }
+
+                if (activeSession === data.sessionId) {
+                    appendMessage('client-msg', data.text);
+                }
+            });
+        }
 
         function loadChatHistory(sessionId) {
             document.getElementById('empty-state').style.display = 'none';
@@ -184,16 +241,12 @@
             document.getElementById('chat-subtitle').innerText = 'Live Chat Active';
             
             let chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = ''; // Clear current view
+            chatBox.innerHTML = ''; 
             
-            // Load saved history
             if (chatHistories[sessionId]) {
                 chatHistories[sessionId].forEach(msg => {
-                    if (msg.type === 'text') {
-                        appendMessage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.text);
-                    } else if (msg.type === 'image') {
-                        appendImage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.src);
-                    }
+                    if (msg.type === 'text') appendMessage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.text);
+                    else if (msg.type === 'image') appendImage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.src);
                 });
             }
         }
@@ -218,65 +271,55 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Handle Text Message Sending (via Button or Enter Key)
+        // Handle Text Message Sending
         function sendAdminMsg() {
+            if (!socket) return;
             let input = document.getElementById('admin-input');
             let text = input.value.trim();
             if (!text || !activeSession) return;
 
             socket.emit('admin-message', { sessionId: activeSession, text: text });
-
-            // Save to history and render
             chatHistories[activeSession].push({ type: 'text', sender: 'admin', text: text });
             appendMessage('admin-msg', text);
             
-            // Update sidebar preview
             let preview = document.getElementById('preview-' + activeSession);
             if (preview) preview.innerText = text;
 
             input.value = '';
-            input.focus(); // Keep focus on input after sending
+            input.focus(); 
         }
 
-        // ✅ ENTER KEY SUPPORT
+        // ENTER KEY SUPPORT FOR CHAT
         document.getElementById('admin-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent new line
+                e.preventDefault(); 
                 sendAdminMsg();
             }
         });
 
-        // ✅ FILE/IMAGE ATTACHMENT SUPPORT
+        // FILE/IMAGE ATTACHMENT SUPPORT
         document.getElementById('fileInput').addEventListener('change', async function(e) {
+            if (!socket) return;
             const file = e.target.files[0];
             if (!file || !activeSession) return;
 
-            // Basic check for file size (limit to 5MB to prevent Socket.io crashing)
             if (file.size > 5 * 1024 * 1024) {
                 alert("File too large! Please keep it under 5MB.");
                 return;
             }
 
             try {
-                // Compress and convert to Base64
                 const base64 = await compressImage(file);
-                
-                // Send over Socket.io
                 socket.emit('admin-image', { sessionId: activeSession, base64: base64 });
-
-                // Save to history and render
                 chatHistories[activeSession].push({ type: 'image', sender: 'admin', src: base64 });
                 appendImage('admin-msg', base64);
                 
                 let preview = document.getElementById('preview-' + activeSession);
                 if (preview) preview.innerText = "📷 Image";
-
             } catch (err) {
                 console.error("Image processing failed:", err);
                 alert("Failed to process image.");
             }
-            
-            // Clear input so same file can be selected again
             e.target.value = '';
         });
 
@@ -299,7 +342,7 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
+                        resolve(canvas.toDataURL('image/jpeg', 0.7)); 
                     };
                     img.onerror = () => reject(new Error('Image load failed'));
                     img.src = e.target.result;
