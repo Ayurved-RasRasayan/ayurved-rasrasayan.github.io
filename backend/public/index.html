@@ -622,7 +622,7 @@
 
             const data = await res.json();
             
-            appendMessage('bot', data.response);
+            appendMessage('bot', data.reply); // <--- CHANGED TO "reply"
 
             if (data.handoff) {
                 document.getElementById('handoff-section').style.display = 'block';
