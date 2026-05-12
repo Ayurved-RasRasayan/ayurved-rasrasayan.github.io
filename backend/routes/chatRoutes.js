@@ -6,7 +6,12 @@ const ChatLog = require('../models/ChatLog');
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
+    model: "const model = genAI.getGenerativeModel({ 
+    model: "gemini-pro",
+    systemInstruction: `You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. 
+    Answer questions about products, MOQs, and shipping. Keep answers brief and professional. 
+    If you don't know the exact answer, or if the user asks to speak to a human, agent, or specialist, you MUST say exactly: [HANDOFF]`
+});",
     systemInstruction: `You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. 
     Answer questions about products, MOQs, and shipping. Keep answers brief and professional. 
     If you don't know the exact answer, or if the user asks to speak to a human, agent, or specialist, you MUST say exactly: [HANDOFF]`
