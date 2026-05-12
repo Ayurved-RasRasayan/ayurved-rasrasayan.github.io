@@ -6,7 +6,7 @@ const ChatLog = require('../models/ChatLog');
 // Initialize Grok (Using OpenAI SDK)
 const openai = new OpenAI({
     baseURL: 'https://api.x.ai/v1',
-    apiKey: process.env.XAI_API_KEY       // <-- FIXED: Changed to underscores!
+    apiKey: process.env.XAI_API_KEY
 });
 
 // POST /api/chat - Handle user messages
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
                 },
                 ...history
             ],
-            model: 'grok-beta'
+            model: 'grok-2'                  // <-- CHANGED to the current Grok model
         });
 
         const botReply = chatCompletion.choices[0].message.content;
