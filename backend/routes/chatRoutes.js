@@ -3,10 +3,10 @@ const router = express.Router();
 const OpenAI = require('openai');
 const ChatLog = require('../models/ChatLog');
 
-// Initialize DeepSeek (Using OpenAI SDK)
+// Initialize Grok (Using OpenAI SDK)
 const openai = new OpenAI({
-    baseURL: 'https://api.deepseek.com',
-    apiKey: process.env['DEEPSEEK-API-KEY']
+    baseURL: 'https://api.x.ai/v1',         // <-- CHANGED to Grok's Base URL
+    apiKey: process.env['XAI-API-KEY']       // <-- CHANGED to your new Grok Key
 });
 
 // POST /api/chat - Handle user messages
@@ -24,13 +24,13 @@ router.post('/', async (req, res) => {
         // Save user message
         chatLog.messages.push({ sender: 'user', text: message });
 
-        // Build conversation history for DeepSeek
+        // Build conversation history for Grok
         const history = chatLog.messages.slice(-10).map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text
         }));
 
-        // Call DeepSeek API
+        // Call Grok API
         const chatCompletion = await openai.chat.completions.create({
             messages: [
                 {
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
                 },
                 ...history
             ],
-            model: 'deepseek-chat'
+            model: 'grok-beta'                  // <-- CHANGED to Grok's Model Name
         });
 
         const botReply = chatCompletion.choices[0].message.content;
@@ -50,7 +50,13 @@ router.post('/', async (req, res) => {
 
         res.json({ reply: botReply });
     } catch (error) {
-        console.error('DeepSeek API error:', error);
+        console.error('Grok API error:', error);
+        
+        // Specific handling for payment/balance issues
+        if (error.status === 402) {
+            return res.status(402).json({ error: 'API balance is insufficient. Please top up your account.' });
+        }
+
         res.status(500).json({ error: 'Failed to get response from AI' });
     }
 });
