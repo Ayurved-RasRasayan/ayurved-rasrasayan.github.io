@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
                 },
                 ...history
             ],
-            model: 'llama3-8b-8192'               // Groq's free, fast model
+            model: 'llama-3.1-8b-instant'               // Groq's free, fast model
         });
 
         const botReply = chatCompletion.choices[0].message.content;
