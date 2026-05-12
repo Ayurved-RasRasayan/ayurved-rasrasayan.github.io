@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const http = require('http'); // ADDED for Socket.io
+const http = require('http'); // Required for Socket.io
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -54,30 +54,40 @@ io.use((socket, next) => {
 // Socket.io Live Chat Logic
 io.on('connection', (socket) => {
   
-  // If it's an admin, put them in a secure private room
+  // ==========================================
+  // ADMIN ONLY LOGIC
+  // ==========================================
   if (socket.isAdmin) {
     console.log('👑 Admin connected:', socket.id);
     socket.join('admins-room');
-    return; // Admins don't need the client logic below
+    // We DO NOT return here anymore, otherwise the admin can't emit messages!
+  } else {
+    // ==========================================
+    // CLIENT ONLY LOGIC
+    // ==========================================
+    console.log('🔌 Client connected:', socket.id);
+
+    // Listen for a client joining a specific chat session
+    socket.on('join-session', (sessionId) => {
+      socket.join(sessionId);
+      console.log(`Socket ${socket.id} joined room ${sessionId}`);
+    });
+
+    // Listen for messages from the client
+    socket.on('client-message', (data) => {
+      console.log('📩 LIVE CHAT MESSAGE RECEIVED:', data.sessionId, data.text);
+      // SECURITY: Only send to the secure admins-room, not everyone!
+      io.to('admins-room').emit('admin-notification', { sessionId: data.sessionId, text: data.text });
+    });
   }
 
-  console.log('🔌 Client connected:', socket.id);
-
-  // Listen for a client joining a specific chat session
-  socket.on('join-session', (sessionId) => {
-    socket.join(sessionId);
-    console.log(`Socket ${socket.id} joined room ${sessionId}`);
-  });
-
-  // Listen for messages from the client
-  socket.on('client-message', (data) => {
-    console.log('📩 LIVE CHAT MESSAGE RECEIVED:', data.sessionId, data.text);
-    // SECURITY: Only send to the secure admins-room, not everyone!
-    io.to('admins-room').emit('admin-notification', { sessionId: data.sessionId, text: data.text });
-  });
-
+  // ==========================================
+  // SHARED LOGIC (Must be outside the else block so Admins can use them!)
+  // ==========================================
+  
   // Listen for text messages from the admin
   socket.on('admin-message', (data) => {
+    if (!socket.isAdmin) return; // Security check so clients can't fake being admin
     console.log('📤 Admin sent message to session:', data.sessionId);
     // Send this message ONLY to the specific client session
     io.to(data.sessionId).emit('admin-msg', data.text);
@@ -85,6 +95,7 @@ io.on('connection', (socket) => {
 
   // Listen for image messages from the admin
   socket.on('admin-image', (data) => {
+    if (!socket.isAdmin) return; // Security check
     console.log('📤 Admin sent image to session:', data.sessionId);
     // Send this image ONLY to the specific client session
     io.to(data.sessionId).emit('admin-image', data.base64);
@@ -161,7 +172,7 @@ const startup = async () => {
     }
 
     // ==========================================
-    // START SERVER (Changed from app.listen to server.listen)
+    // START SERVER (Using server.listen for Socket.io)
     // ==========================================
     server.listen(port, () => console.log(`🚀 Secure Server running on port ${port} (HTTP + Socket.io)`));
 
