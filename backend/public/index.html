@@ -17,9 +17,9 @@
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            brand: '#A3B14B', 'brand-hover': '#8f9c40', 'brand-dark': '#5e6629',
-            'bg-light': '#FAFAF9', 'bg-dark': '#050A06', 'bg-dark2': '#1C1917', 'card-dark': '#132316',
-            'txt-main': '#1C1917', 'txt-sub': '#57534E', 'txt-third': '#78716C', 'border-main': '#E7E5E4',
+            brand: '#D4AF37', 'brand-hover': '#C5A028', 'brand-dark': '#8A7122', // PREMIUM GOLD
+            'bg-light': '#F8F9FA', 'bg-dark': '#0B1120', 'bg-dark2': '#1A2332', 'card-dark': '#0F172A', // DEEP OCEAN
+            'txt-main': '#1E293B', 'txt-sub': '#64748B', 'txt-third': '#94A3B8', 'border-main': '#E2E8F0', // COOL SLATES
             'esewa': '#5EBC5D', 'khalti': '#5C2D91',
           }
         }
@@ -28,30 +28,30 @@
   </script>
   <style>
     ::-webkit-scrollbar{width:0px;background:transparent}
-    ::selection{background:#A3B14B;color:white}
+    ::selection{background:#D4AF37;color:white}
     body{font-family:'Inter',sans-serif}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     .anim-up{opacity:0;animation:fadeInUp 0.8s ease-out forwards}
     .anim-d1{animation-delay:.1s}.anim-d2{animation-delay:.2s}.anim-d3{animation-delay:.3s}.anim-d4{animation-delay:.4s}
-    .typewriter{overflow:hidden;white-space:nowrap;border-right:3px solid #A3B14B;animation:blink-caret .75s step-end infinite}
-    @keyframes blink-caret{from,to{border-color:transparent}50%{border-color:#A3B14B}}
+    .typewriter{overflow:hidden;white-space:nowrap;border-right:3px solid #D4AF37;animation:blink-caret .75s step-end infinite}
+    @keyframes blink-caret{from,to{border-color:transparent}50%{border-color:#D4AF37}}
     .product-card:hover .product-img{transform:scale(1.05)}
-    .cat-btn.active{background:#1C1917;color:#FAFAF9}
+    .cat-btn.active{background:#1E293B;color:#F8F9FA}
     .payment-modal-open #products{filter:blur(4px);opacity:.6;pointer-events:none}
     input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
     .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .pay-tab.active{border-color:#A3B14B;color:#A3B14B;background:rgba(163,177,75,.05)}
-    .currency-btn.active-curr{background-color:#1C1917;color:white}
+    .pay-tab.active{border-color:#D4AF37;color:#D4AF37;background:rgba(212,175,55,.05)}
+    .currency-btn.active-curr{background-color:#1E293B;color:white}
     .input-error{border-color:#EF4444!important;background-color:#FEF2F2}
-    .hero-bg-fallback{background:linear-gradient(135deg,#050A06 0%,#132316 40%,#1C1917 70%,#050A06 100%)}
-    .about-bg-fallback{background:linear-gradient(135deg,#132316 0%,#1C1917 50%,#050A06 100%)}
+    .hero-bg-fallback{background:linear-gradient(135deg,#0B1120 0%,#0F172A 40%,#1A2332 70%,#0B1120 100%)}
+    .about-bg-fallback{background:linear-gradient(135deg,#0F172A 0%,#1A2332 50%,#0B1120 100%)}
     .rate-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
     .fancy-select{position:relative}
     .fancy-select-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border-radius:12px;border:1px solid #e7e5e4;box-shadow:0 10px 25px -5px rgba(0,0,0,.1);z-index:60;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s ease;overflow:hidden}
     .fancy-select.open .fancy-select-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
     .fancy-option{padding:8px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f1f5f9;transition:all .15s}
     .fancy-option:last-child{border-bottom:none}
-    .fancy-option:hover{background:#fefce8;color:#A3B14B;padding-left:16px}
+    .fancy-option:hover{background:#fffbeb;color:#D4AF37;padding-left:16px}
     .rotate-180{transform:rotate(180deg)}
     @keyframes modalFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
     .modal-enter{animation:modalFadeIn .3s ease-out forwards}
@@ -78,11 +78,11 @@
     .trendingSwiper .swiper-slide:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
     .trending-card-img { width: 100%; height: 320px; object-fit: cover; background: #f3f4f6; }
     .trending-card-content { padding: 24px; text-align: center; }
-    .trending-card-name { font-size: 18px; font-weight: 700; color: #1C1917; margin-bottom: 8px; }
-    .trending-card-price { font-size: 16px; font-weight: 800; color: #2d4a22; }
-    .trending-badge { position: absolute; top: 16px; left: 16px; background: #1C1917; color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; display: flex; align-items: center; gap: 6px; }
-    .swiper-pagination-bullet { background: #A3B14B !important; width: 10px; height: 10px; opacity: 0.4; }
-    .swiper-pagination-bullet-active { opacity: 1 !important; background: #2d4a22 !important; }
+    .trending-card-name { font-size: 18px; font-weight: 700; color: #1E293B; margin-bottom: 8px; }
+    .trending-card-price { font-size: 16px; font-weight: 800; color: #8A7122; }
+    .trending-badge { position: absolute; top: 16px; left: 16px; background: #0F172A; color: #D4AF37; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; display: flex; align-items: center; gap: 6px; border: 1px solid #D4AF37; }
+    .swiper-pagination-bullet { background: #D4AF37 !important; width: 10px; height: 10px; opacity: 0.4; }
+    .swiper-pagination-bullet-active { opacity: 1 !important; background: #8A7122 !important; }
 
     @media (max-width: 768px) { .trendingSwiper .swiper-slide { width: 280px; } .trending-card-img { height: 260px; } }
 
@@ -94,8 +94,8 @@
       50% { transform: scale(1.05); filter: brightness(1.2); }
     }
     @keyframes fireShadow {
-      0%, 100% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(163,177,75,0.3); }
-      50% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(163,177,75,0.7), 0 0 100px rgba(255,120,0,0.4); }
+      0%, 100% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(212,175,55,0.3); }
+      50% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(212,175,55,0.7), 0 0 100px rgba(255,200,50,0.4); }
     }
     .fire-img { animation: fireScale 4s ease-in-out infinite; }
     .fire-container { animation: fireShadow 4s ease-in-out infinite; }
@@ -104,7 +104,7 @@
 <body class="bg-bg-light text-txt-main">
 
   <!-- NAVBAR -->
-  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background:rgba(250,250,249,.8);backdrop-filter:blur(12px)">
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500" style="background:rgba(248,249,250,.8);backdrop-filter:blur(12px)">
     <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center shadow-lg shadow-brand/20"><i data-lucide="leaf" class="w-5 h-5 text-white logo-spin"></i></div>
@@ -154,7 +154,7 @@
         <h1 class="anim-up anim-d1 text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-medium text-white leading-[1.1] tracking-tight mb-6">Premium<br><span class="text-brand typewriter">Natural</span><br>Ingredients</h1>
         <p class="anim-up anim-d2 text-base md:text-lg lg:text-2xl font-light text-white/60 leading-relaxed max-w-lg mb-8 md:mb-10">Essential Oils, Extracts, Mushrooms, Rare Herbs, Rasa Uparasa, Salts & Organic Soaps — sourced from Himalayas and beyond.</p>
         <div class="anim-up anim-d3 flex flex-wrap gap-4">
-          <a href="#trendingSection" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-white text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25">See What's Trending <i data-lucide="trending-up" class="w-4 h-4"></i></a>
+          <a href="#trendingSection" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand text-bg-dark text-sm font-medium rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25">See What's Trending <i data-lucide="trending-up" class="w-4 h-4"></i></a>
           <a href="#contact" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border border-white/20 text-white text-sm font-medium rounded-full hover:bg-white/10">Get Quote</a>
         </div>
         <div class="anim-up anim-d4 flex items-center gap-6 md:gap-8 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10">
@@ -229,7 +229,7 @@
 
   <!-- FOOTER -->
   <footer class="bg-bg-dark2 py-12 md:py-16 border-t border-white/5">
-    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12"><div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-white"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div><div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-2"><span class="rate-dot"></span><span class="text-xs text-white/40" id="footerRateText">1 USD = ...</span></div></div></div>
+    <div class="max-w-7xl mx-auto px-4 md:px-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-12"><div class="col-span-2 md:col-span-1"><div class="flex items-center gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-brand flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-bg-dark"></i></div><span class="text-white font-semibold">NaturaBotanica</span></div><p class="text-sm text-white/40">Premium Himalayan ingredients.</p></div><div><h4 class="text-sm font-medium text-white mb-4">Categories</h4><div class="space-y-2"><a href="#" onclick="filterCategory('oils');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Oils</a><a href="#" onclick="filterCategory('extracts');document.getElementById('products').scrollIntoView({behavior:'smooth'});return false" class="block text-sm text-white/40 hover:text-white transition-colors">Extracts</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Company</h4><div class="space-y-2"><a href="#about" class="block text-sm text-white/40 hover:text-white transition-colors">About Us</a><a href="#contact" class="block text-sm text-white/40 hover:text-white transition-colors">Contact</a></div></div><div><h4 class="text-sm font-medium text-white mb-4">Legal</h4><div class="space-y-2"><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Privacy Policy</a><a href="#" class="block text-sm text-white/40 hover:text-white transition-colors">Terms of Service</a></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-white/30">© 2025 NaturaBotanica. All rights reserved.</p><div class="flex items-center gap-2"><span class="rate-dot"></span><span class="text-xs text-white/40" id="footerRateText">1 USD = ...</span></div></div></div>
   </footer>
 
   <!-- CART SIDEBAR -->
@@ -248,7 +248,7 @@
         <div class="flex flex-col items-center justify-center mb-4"><div class="w-48 h-48 md:w-64 md:h-64 bg-white border-2 border-border-main rounded-xl flex items-center justify-center p-4 shadow-inner"><img id="qr-esewa" src="images/esewa-qr.png" class="w-full h-full object-contain" onerror="this.style.display='none'"><img id="qr-khalti" src="images/khalti-qr.png" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"></div><p class="mt-3 text-sm font-medium">Scan using <span id="paymentMethodLabel" class="text-brand">eSewa</span></p></div>
         <div class="mb-6"><label class="block text-xs font-bold uppercase text-txt-sub mb-2">Payment Proof <span class="text-red-500">*</span></label><div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 hover:border-brand transition-all"><input type="file" id="paymentScreenshot" accept="image/*" class="absolute inset-0 w-full h-full z-20 cursor-pointer opacity-0" onchange="handleFileUpload(event)"><div id="uploadPlaceholder" class="flex flex-col items-center py-4"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400"></i></div><p class="text-sm font-medium">Click to upload</p><p class="text-[10px] text-txt-third mt-1">JPG, PNG (Max 5MB)</p></div><div id="uploadProgressContainer" class="hidden flex flex-col items-center py-4 w-full"><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden"><div id="progressBar" class="bg-brand h-2.5 rounded-full transition-all" style="width:0%"></div></div><p class="text-xs font-medium text-brand animate-pulse">Uploading...</p></div><div id="imagePreviewContainer" class="hidden relative"><img id="imagePreview" src="" class="w-full h-32 md:h-40 object-cover rounded-lg border"><button type="button" onclick="clearScreenshot(event)" class="absolute top-2 right-2 bg-white/90 text-red-500 p-1.5 rounded-full shadow-sm hover:bg-red-500 hover:text-white z-20"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div></div><p id="uploadError" class="hidden text-[10px] text-red-500 mt-1">Please upload a payment screenshot.</p></div>
       </div>
-      <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
+      <div class="p-4 md:p-6 border-t border-border-main flex-shrink-0 bg-white"><button onclick="submitOrderToBackend()" id="confirmPayBtn" class="w-full py-4 bg-brand text-bg-dark text-sm font-medium rounded-xl hover:bg-brand-hover flex items-center justify-center gap-2">I have made payment <i data-lucide="check" class="w-4 h-4"></i></button><p class="text-center text-xs text-txt-third mt-4">Your order will be processed after verification.</p></div>
     </div>
   </div>
 
@@ -304,7 +304,7 @@
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
         <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Password</label><div class="relative"><input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
-        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
+        <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Create Account</button>
       </form>
       <div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div>
     </div>
@@ -332,7 +332,7 @@
         <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mb-4 flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0"></i><p class="text-xs text-orange-700">Enter your email and we'll send a 6-digit code valid for 5 minutes.</p></div>
         <form onsubmit="handleForgotPassword(event)" class="space-y-4">
           <div><label class="block text-xs font-medium text-txt-sub mb-1.5">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
-          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Send Reset Code</button>
+          <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Send Reset Code</button>
         </form>
       </div>
       <div id="forgotStep2" class="hidden">
@@ -341,7 +341,7 @@
         <form onsubmit="handleResetPassword(event)" class="space-y-4">
           <div><label class="block text-xs font-medium text-txt-sub mb-1.5">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div>
           <div><label class="block text-xs font-medium text-txt-sub mb-1.5">New Password</label><div class="relative"><input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('resetNewPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div>
-          <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
+          <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Reset Password</button>
         </form>
         <button onclick="handleResendForgotOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors w-full text-center">Didn't get it? Resend Code</button>
       </div>
@@ -357,7 +357,7 @@
       <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4 flex items-center justify-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><p class="text-[11px] text-red-600 font-medium">This code expires in 5 minutes.</p></div>
       <form onsubmit="handleVerifyOTP(event)" class="space-y-4">
         <input type="text" id="otpCode" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 rounded-xl border border-border-main text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand">
-        <button type="submit" class="w-full py-3.5 bg-brand text-white font-medium rounded-xl hover:bg-brand-hover transition-colors">Verify</button>
+        <button type="submit" class="w-full py-3.5 bg-brand text-bg-dark font-medium rounded-xl hover:bg-brand-hover transition-colors">Verify</button>
       </form>
       <button onclick="handleResendOTP()" class="text-sm text-txt-sub mt-4 hover:text-brand transition-colors">Didn't get it? Resend Code</button>
     </div>
@@ -436,29 +436,26 @@
         var res = await fetchWithTimeout(BACKEND_URL + '/trending');
         var data = await res.json();
         
-        // FIX: Backend returns { picks: [...] }, not { success: true, trending: [...] }
         if (!data || !data.picks || data.picks.length === 0) {
           document.getElementById('trendingSection').style.display = 'none';
           return;
         }
 
-        // Map the picks to mark them as staff picks for the badge
         var originalProducts = data.picks.map(function(product) {
-          product.isPick = true; 
+          product.isPick = product.isPick || false; 
           return product;
         });
         
         var totalOriginal = originalProducts.length;
         
-        // Duplicate 3 times to create a seamless manual loop track
         var infiniteProducts = [...originalProducts, ...originalProducts, ...originalProducts];
-        var startIndex = totalOriginal; // Start in the middle batch
+        var startIndex = totalOriginal; 
 
         wrapper.innerHTML = infiniteProducts.map(function(product) {
           var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
-          var imgSrc = product.img || product.image || 'https://placehold.co/400x300/132316/A3B14B?text=NaturaBotanica';
+          var imgSrc = product.img || product.image || 'https://placehold.co/400x300/0F172A/D4AF37?text=NaturaBotanica';
           return '<div class="swiper-slide">' +
-            (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3 text-yellow-400"></i> Staff Pick</div>' : '') +
+            (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3 text-brand"></i> Staff Pick</div>' : '') +
             '<img src="' + imgSrc + '" alt="' + product.name + '" class="trending-card-img">' +
             '<div class="trending-card-content">' +
               '<div class="trending-card-name">' + product.name + '</div>' +
@@ -467,23 +464,22 @@
           '</div>';
         }).join('');
 
-        // Delay Swiper init slightly to let DOM calculate image/slide widths accurately
         setTimeout(function() {
-          var isSnapping = false; // Guard to prevent infinite event loops
+          var isSnapping = false; 
 
           new Swiper(".trendingSwiper", {
             effect: "coverflow", 
             grabCursor: true, 
             centeredSlides: true, 
             slidesPerView: "auto", 
-            initialSlide: startIndex, // Start in the middle
+            initialSlide: startIndex, 
             coverflowEffect: { rotate: 15, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
             autoplay: { 
               delay: 4000, 
-              disableOnInteraction: false, // Keeps spinning after user swipes
-              pauseOnMouseEnter: true      // Pauses on hover
+              disableOnInteraction: false, 
+              pauseOnMouseEnter: true      
             },
-            loop: false, // MUST BE FALSE. We handle the infinite loop manually.
+            loop: false, 
             pagination: { el: ".swiper-pagination", clickable: true },
             breakpoints: { 
               320: { slidesPerView: 1, coverflowEffect: { rotate: 5, depth: 100 } }, 
@@ -491,17 +487,15 @@
             },
             on: {
               slideChange: function(swiper) {
-                if (isSnapping) return; // Don't run if we are already snapping
+                if (isSnapping) return; 
                 var current = swiper.activeIndex;
                 
-                // If we reach the 3rd batch, silently snap back to the 2nd batch
                 if (current >= totalOriginal * 2) {
                   isSnapping = true;
-                  swiper.slideTo(current - totalOriginal, 1); // 1ms is instant but safer than 0
-                  swiper.update(); // Force coverflow to recalculate
+                  swiper.slideTo(current - totalOriginal, 1); 
+                  swiper.update(); 
                   isSnapping = false;
                 } 
-                // If we somehow go backwards into the 1st batch, jump forward to the 2nd
                 else if (current < totalOriginal) {
                   isSnapping = true;
                   swiper.slideTo(current + totalOriginal, 1);
@@ -523,7 +517,7 @@
     // ==========================================
     // 9. PRODUCTS & PAGINATION
     // ==========================================
-    async function loadProducts() { var grid = document.getElementById('productGrid'); grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/products'); if (!res.ok) throw new Error('API error'); products = await res.json(); } catch (e) { console.error('Products fetch failed, using fallback:', e.message); products = Array.from({ length: 65 }).map(function(_, i) { return { id: i + 1, name: 'Product ' + (i + 1), sci: 'Scientific name', category: ['oils','herbs','mushrooms','rasa','namak','herbal soap','extracts','seeds / masala'][i % 8], catLabel: ['Oils','Herbs','Mushrooms','Rasa','Namak','Herbal Soap','Extracts','Seeds / Masala'][i % 8], price: 500 + (i * 10), img: 'https://placehold.co/400x300/132316/A3B14B?text=Product+' + (i + 1), desc: 'High quality botanical ingredient sourced from the Himalayas.', moq: '1 kg', lead: '5-7 days', unit: '1 kg', stock: 10 + i }; }); } renderCatButtons(); currentPage = 1; renderProducts(getFilteredProducts()); }
+    async function loadProducts() { var grid = document.getElementById('productGrid'); grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20"><i data-lucide="loader-2" class="w-12 h-12 text-brand animate-spin mb-4"></i><p class="text-txt-sub">Loading products...</p></div>'; lucide.createIcons(); try { var res = await fetchWithTimeout(BACKEND_URL + '/products'); if (!res.ok) throw new Error('API error'); products = await res.json(); } catch (e) { console.error('Products fetch failed, using fallback:', e.message); products = Array.from({ length: 65 }).map(function(_, i) { return { id: i + 1, name: 'Product ' + (i + 1), sci: 'Scientific name', category: ['oils','herbs','mushrooms','rasa','namak','herbal soap','extracts','seeds / masala'][i % 8], catLabel: ['Oils','Herbs','Mushrooms','Rasa','Namak','Herbal Soap','Extracts','Seeds / Masala'][i % 8], price: 500 + (i * 10), img: 'https://placehold.co/400x300/0F172A/D4AF37?text=Product+' + (i + 1), desc: 'High quality botanical ingredient sourced from the Himalayas.', moq: '1 kg', lead: '5-7 days', unit: '1 kg', stock: 10 + i }; }); } renderCatButtons(); currentPage = 1; renderProducts(getFilteredProducts()); }
     function renderCatButtons() { var cats = ['all','oils','extracts','mushrooms','herbs','rasa','namak','herbal soap','seeds / masala']; var icons = { 'all':'grid-3x3','oils':'droplet','extracts':'flask-conical','mushrooms':'nut','herbs':'leaf','rasa':'rocking-chair','namak':'sparkles','herbal soap':'droplets','seeds / masala':'wheat' }; document.getElementById('catButtons').innerHTML = cats.map(function(c) { var displayName = c === 'herbal soap' ? 'Herbal Soap' : c === 'seeds / masala' ? 'Seeds / Masala' : c.charAt(0).toUpperCase() + c.slice(1); return '<button onclick="filterCategory(\'' + c + '\')" class="cat-btn group p-3 rounded-2xl border border-border-main hover:border-txt-main transition-all text-center" data-cat="' + c + '"><div class="w-9 h-9 mx-auto mb-2 rounded-xl bg-brand/10 flex items-center justify-center"><i data-lucide="' + icons[c] + '" class="w-4 h-4 text-brand"></i></div><span class="text-[10px] font-medium">' + displayName + '</span></button>'; }).join(''); lucide.createIcons(); }
     function getFilteredProducts() { var f = products.slice(); if (currentCategory !== 'all') f = f.filter(function(p) { return p.category === currentCategory; }); if (currentSort === 'name') f.sort(function(a, b) { return a.name.localeCompare(b.name); }); if (currentSort === 'price-asc') f.sort(function(a, b) { return a.price - b.price; }); if (currentSort === 'price-desc') f.sort(function(a, b) { return b.price - a.price; }); return f; }
     function filterCategory(c) { currentCategory = c; currentPage = 1; document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.cat === c); }); renderProducts(getFilteredProducts()); }
@@ -553,7 +547,7 @@
     // ==========================================
     // 12. PRODUCT MODAL
     // ==========================================
-    function openModal(id) { var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; currentModalProduct = p; var formOptions = [], unitOptions = []; switch (p.category) { case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break; case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break; default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break; } selectedForm = formOptions[0]; selectedUnitValue = unitOptions[unitOptions.length - 1]; var iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' }; var html = '<div class="relative"><img src="' + p.img + '" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display=\'none\'"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-white text-[9px] font-medium rounded-full">' + p.catLabel + '</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ' + p.id + '</div></div><div class="p-4"><div class="flex justify-between items-start gap-2 mb-1"><h3 class="text-lg font-semibold tracking-tight">' + p.name + '</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#' + p.id + '</span></div><p class="text-[10px] text-txt-third italic mb-2">' + (p.sci || '') + '</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">' + (p.desc || '') + '</p><div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'form\')"><div class="flex items-center gap-1.5"><i data-lucide="' + (iconMap[selectedForm] || 'layers') + '" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selFormLabel">' + selectedForm + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i></div><div class="fancy-select-dropdown" id="formDD">' + formOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm(\'' + opt + '\')"><i data-lucide="' + (iconMap[opt] || 'layers') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div><div class="fancy-select relative" id="unitDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'unit\')"><div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selUnitLabel">' + selectedUnitValue + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i></div><div class="fancy-select-dropdown" id="unitDD">' + unitOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit(\'' + opt + '\')"><i data-lucide="' + (opt.includes('ml') ? 'droplet' : 'cube') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div></div><div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3"><div class="flex justify-between items-center"><div><span class="text-[9px] uppercase text-txt-sub">Total Price</span><div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div><div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div><div id="powderNote" class="text-[8px] text-orange-500 mt-1 ' + (selectedForm === 'Powder Form' ? '' : 'hidden') + '">+NPR 50/kg powder fee included</div></div><div class="text-right"><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="mFormBadge">' + selectedForm + '</span><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="mUnitBadge">' + selectedUnitValue + '</span></div></div></div><div class="grid grid-cols-3 gap-1.5 mb-3"><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Base Unit</p><p class="text-[10px] text-white font-medium">' + (p.unit || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">' + (p.moq || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">' + (p.lead || '7d') + '</p></div></div><div class="flex gap-2"><div class="flex items-center border border-border-main rounded-lg overflow-hidden"><button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none"><button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-white text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div></div>'; document.getElementById('modalDynamicContent').innerHTML = html; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(function() { lucide.createIcons(); updateModalPrice(); }, 50); }
+    function openModal(id) { var p = products.find(function(x) { return String(x.id) === String(id); }); if (!p) return; currentModalProduct = p; var formOptions = [], unitOptions = []; switch (p.category) { case 'oils': formOptions = ['Liquid Form']; unitOptions = ['15ml','30ml','50ml','100ml','200ml','500ml','1000ml']; break; case 'extracts': case 'mushrooms': case 'rasa': formOptions = ['Whole Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbs': case 'namak': case 'seeds / masala': formOptions = ['Whole Form', 'Powder Form']; unitOptions = ['10gm','125gm','250gm','500gm','1kg']; break; case 'herbal soap': formOptions = ['Whole Bar']; unitOptions = ['100gm']; break; default: formOptions = ['Whole Form']; unitOptions = ['1kg']; break; } selectedForm = formOptions[0]; selectedUnitValue = unitOptions[unitOptions.length - 1]; var iconMap = { 'Liquid Form': 'droplet', 'Powder Form': 'cloud', 'Whole Bar': 'droplets', 'Whole Form': 'leaf' }; var html = '<div class="relative"><img src="' + p.img + '" class="w-full h-44 object-cover rounded-t-2xl" onerror="this.style.display=\'none\'"><button onclick="closeModal()" class="absolute top-2 right-2 w-7 h-7 bg-white/95 rounded-full flex items-center justify-center shadow-md"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><div class="absolute top-2 left-2 px-2 py-0.5 bg-brand text-bg-dark text-[9px] font-medium rounded-full">' + p.catLabel + '</div><div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-white text-[8px] font-mono rounded-full">ID: ' + p.id + '</div></div><div class="p-4"><div class="flex justify-between items-start gap-2 mb-1"><h3 class="text-lg font-semibold tracking-tight">' + p.name + '</h3><span class="text-[10px] font-mono bg-brand/10 px-2 py-0.5 rounded-full text-brand font-bold">#' + p.id + '</span></div><p class="text-[10px] text-txt-third italic mb-2">' + (p.sci || '') + '</p><p class="text-[11px] text-txt-sub leading-relaxed mb-3 line-clamp-2">' + (p.desc || '') + '</p><div class="grid grid-cols-2 gap-2 mb-3"><div class="fancy-select relative" id="formDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'form\')"><div class="flex items-center gap-1.5"><i data-lucide="' + (iconMap[selectedForm] || 'layers') + '" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selFormLabel">' + selectedForm + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="formChev"></i></div><div class="fancy-select-dropdown" id="formDD">' + formOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectForm(\'' + opt + '\')"><i data-lucide="' + (iconMap[opt] || 'layers') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div><div class="fancy-select relative" id="unitDDCont"><div class="flex items-center justify-between p-2 rounded-lg border border-border-main bg-white cursor-pointer text-xs" onclick="toggleDropdown(\'unit\')"><div class="flex items-center gap-1.5"><i data-lucide="scale" class="w-3 h-3 text-brand"></i><span class="text-[11px] font-medium" id="selUnitLabel">' + selectedUnitValue + '</span></div><i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="unitChev"></i></div><div class="fancy-select-dropdown" id="unitDD">' + unitOptions.map(function(opt) { return '<div class="fancy-option text-xs py-1.5 px-3" onclick="selectUnit(\'' + opt + '\')"><i data-lucide="' + (opt.includes('ml') ? 'droplet' : 'cube') + '" class="w-3 h-3"></i><span>' + opt + '</span></div>'; }).join('') + '</div></div></div><div class="bg-brand/5 p-2.5 rounded-xl border border-brand/20 mb-3"><div class="flex justify-between items-center"><div><span class="text-[9px] uppercase text-txt-sub">Total Price</span><div class="text-lg font-bold text-brand" id="dynPrice">NPR 0</div><div class="text-[9px] text-txt-sub" id="dynUsd">$0.00</div><div id="powderNote" class="text-[8px] text-orange-500 mt-1 ' + (selectedForm === 'Powder Form' ? '' : 'hidden') + '">+NPR 50/kg powder fee included</div></div><div class="text-right"><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full" id="mFormBadge">' + selectedForm + '</span><span class="text-[8px] bg-brand/10 px-1.5 py-0.5 rounded-full ml-1" id="mUnitBadge">' + selectedUnitValue + '</span></div></div></div><div class="grid grid-cols-3 gap-1.5 mb-3"><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Base Unit</p><p class="text-[10px] text-white font-medium">' + (p.unit || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">MOQ</p><p class="text-[10px] text-white font-medium">' + (p.moq || '1 kg') + '</p></div><div class="p-1.5 rounded-lg bg-bg-dark2 text-center"><p class="text-[8px] text-white/50 mb-0.5">Lead</p><p class="text-[10px] text-white font-medium">' + (p.lead || '7d') + '</p></div></div><div class="flex gap-2"><div class="flex items-center border border-border-main rounded-lg overflow-hidden"><button onclick="changeQty(-1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="minus" class="w-3 h-3"></i></button><input id="modalQty" type="number" value="1" min="1" class="w-10 text-center py-1.5 text-xs font-medium border-x border-border-main focus:outline-none"><button onclick="changeQty(1)" class="px-2.5 py-1.5 hover:bg-black/5"><i data-lucide="plus" class="w-3 h-3"></i></button></div><button onclick="addEnhancedToCart()" class="flex-1 py-1.5 bg-brand text-bg-dark text-xs font-medium rounded-lg hover:bg-brand-hover flex items-center justify-center gap-1.5 transition-all"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Add to Cart</button></div></div>'; document.getElementById('modalDynamicContent').innerHTML = html; document.getElementById('productModal').classList.remove('hidden'); document.getElementById('productModal').classList.add('flex'); setTimeout(function() { lucide.createIcons(); updateModalPrice(); }, 50); }
     function closeModal() { document.getElementById('productModal').classList.add('hidden'); document.getElementById('productModal').classList.remove('flex'); currentModalProduct = null; }
     function toggleDropdown(type) { var container = document.getElementById(type + 'DDCont'); var chev = document.getElementById(type + 'Chev'); if (!container) return; var otherType = type === 'form' ? 'unit' : 'form'; var otherCont = document.getElementById(otherType + 'DDCont'); var otherChev = document.getElementById(otherType + 'Chev'); if (otherCont) otherCont.classList.remove('open'); if (otherChev) otherChev.classList.remove('rotate-180'); container.classList.toggle('open'); chev.classList.toggle('rotate-180'); }
     function selectForm(form) { selectedForm = form; document.getElementById('selFormLabel').innerText = form; document.getElementById('mFormBadge').innerText = form; var pn = document.getElementById('powderNote'); if (pn) pn.classList.toggle('hidden', form !== 'Powder Form'); document.getElementById('formDDCont').classList.remove('open'); document.getElementById('formChev').classList.remove('rotate-180'); updateModalPrice(); }
@@ -620,7 +614,7 @@
     lucide.createIcons();
     initEventListeners();
     loadExchangeRate();
-    loadTrending(); // Load 3D Trending Carousel
+    loadTrending(); 
     loadVisitorCount();
     checkAuthState();
   </script>
