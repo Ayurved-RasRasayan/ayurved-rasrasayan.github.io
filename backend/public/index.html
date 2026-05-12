@@ -585,11 +585,23 @@
     // ==========================================
     function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('mobileOverlay').classList.add('hidden'); }, 300); }
 
-    // ==========================================
+        // ==========================================
     // 17. AI CHAT WIDGET LOGIC
     // ==========================================
     let chatSessionId = 'sess_' + Math.random().toString(36).substr(2, 9); 
     let chatOpen = false;
+    let isLiveChat = false; // NEW: Track if we are in live chat mode
+    const socket = io(); // NEW: Connect to Socket.io
+
+    // Join the socket room with our session ID
+    socket.on('connect', () => {
+        socket.emit('join-session', chatSessionId);
+    });
+
+    // Listen for messages from the Admin
+    socket.on('admin-msg', (text) => {
+        appendMessage('bot', '👨‍💼 ' + text); // Add an admin icon
+    });
 
     function toggleChat() {
         const box = document.getElementById('ai-chat-box');
@@ -613,6 +625,12 @@
         appendMessage('user', msg);
         input.value = '';
 
+        // If we are in Live Chat mode, send via Socket.io instead of API
+        if (isLiveChat) {
+            socket.emit('client-message', { sessionId: chatSessionId, text: msg });
+            return;
+        }
+
         try {
             const res = await fetchWithTimeout(BACKEND_URL + '/chat', {
                 method: 'POST',
@@ -622,12 +640,12 @@
 
             const data = await res.json();
             
-            appendMessage('bot', data.reply); // <--- CHANGED TO "reply"
+            appendMessage('bot', data.reply);
 
             if (data.handoff) {
-                document.getElementById('handoff-section').style.display = 'block';
-                document.getElementById('chat-input').disabled = true;
-                document.getElementById('chat-send').disabled = true;
+                isLiveChat = true; // Switch to live chat mode!
+                appendMessage('bot', '⏳ You are now in Live Chat. An admin will respond shortly...');
+                document.getElementById('chat-input').placeholder = "Live chat active...";
             }
         } catch (err) {
             appendMessage('bot', 'Network error. Please try again.');
@@ -637,12 +655,11 @@
     function appendMessage(sender, text) {
         const container = document.getElementById('chat-messages');
         const div = document.createElement('div');
-        div.className = 'msg ' + sender;
+        div.className = 'msg ' + (sender === 'user' ? 'user' : 'bot');
         div.textContent = text;
         container.appendChild(div);
         container.scrollTop = container.scrollHeight; 
     }
-
     // ==========================================
     // 18. EVENT LISTENERS & BOOT
     // ==========================================
