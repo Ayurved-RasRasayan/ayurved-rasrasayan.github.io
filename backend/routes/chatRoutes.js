@@ -33,4 +33,26 @@ router.post('/', async (req, res) => {
         // Call DeepSeek API
         const chatCompletion = await openai.chat.completions.create({
             messages: [
-                { role: "system", content: "You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. Answer questions about products, MOQs, and shipping. Keep
+                {
+                    role: "system",
+                    content: `You are a helpful assistant for NaturaBotanica, a supplier of premium Ayurvedic, pharmaceutical, and mineral ingredients. Answer questions about products, MOQs, and shipping. Keep responses concise and professional.`
+                },
+                ...history
+            ],
+            model: 'deepseek-chat'
+        });
+
+        const botReply = chatCompletion.choices[0].message.content;
+
+        // Save bot reply
+        chatLog.messages.push({ sender: 'bot', text: botReply });
+        await chatLog.save();
+
+        res.json({ reply: botReply });
+    } catch (error) {
+        console.error('DeepSeek API error:', error);
+        res.status(500).json({ error: 'Failed to get response from AI' });
+    }
+});
+
+module.exports = router;
