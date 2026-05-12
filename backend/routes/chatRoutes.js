@@ -3,10 +3,10 @@ const router = express.Router();
 const OpenAI = require('openai');
 const ChatLog = require('../models/ChatLog');
 
-// Initialize Grok (Using OpenAI SDK)
+// Initialize Groq (Using OpenAI SDK)
 const openai = new OpenAI({
-    baseURL: 'https://api.x.ai/v1',
-    apiKey: process.env.XAI_API_KEY
+    baseURL: 'https://api.groq.com/openai/v1',   // Pointed to Groq's server
+    apiKey: process.env.GROQ_API_KEY              // Looking for the Groq key
 });
 
 // POST /api/chat - Handle user messages
@@ -24,13 +24,13 @@ router.post('/', async (req, res) => {
         // Save user message
         chatLog.messages.push({ sender: 'user', text: message });
 
-        // Build conversation history for Grok
+        // Build conversation history for Groq
         const history = chatLog.messages.slice(-10).map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text
         }));
 
-        // Call Grok API
+        // Call Groq API
         const chatCompletion = await openai.chat.completions.create({
             messages: [
                 {
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
                 },
                 ...history
             ],
-            model: 'grok-2'                  // <-- CHANGED to the current Grok model
+            model: 'llama3-8b-8192'               // Groq's free, fast model
         });
 
         const botReply = chatCompletion.choices[0].message.content;
@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
 
         res.json({ reply: botReply });
     } catch (error) {
-        console.error('Grok API error:', error);
+        console.error('Groq API error:', error);
         
         // Specific handling for payment/balance issues
         if (error.status === 402) {
