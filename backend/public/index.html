@@ -651,6 +651,9 @@
                 appendMessage('bot', '⏳ You are now in Live Chat. An admin will respond shortly...');
                 document.getElementById('chat-input').placeholder = "Live chat active...";
                 document.getElementById('handoff-section').style.display = 'block'; // Show the handoff button too
+
+              // ✅ ADD THIS LINE: Immediately notify the Admin Dashboard!
+                socket.emit('client-message', { sessionId: chatSessionId, text: 'User requested a human agent.' });
             }
         } catch (err) {
             appendMessage('bot', 'Network error. Please try again.');
