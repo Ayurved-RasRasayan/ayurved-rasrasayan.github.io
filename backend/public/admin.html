@@ -47,13 +47,16 @@
             flex-direction: column; gap: 15px; background: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23e5e7eb"/></svg>') repeat; 
         }
         
-        .message { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; }
+        .msg-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .label-client { color: #6b7280; }
+        .label-admin { color: #FF5722; }
+
+        .message { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; }
         .client-msg { align-self: flex-start; background: #fff; border: 1px solid #e5e7eb; color: #111; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .admin-msg { align-self: flex-end; background: #000; color: #fff; border-bottom-right-radius: 2px; }
-        .system-msg { align-self: center; background: transparent; color: #9ca3af; font-size: 12px; font-style: italic; }
+        .admin-msg { align-self: flex-start; background: #fff7ed; border: 1px solid #FF5722; color: #111; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         
         .message img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
-        .message a { color: #FF5722; text-decoration: underline; }
 
         /* Input Area */
         .input-area { padding: 15px 20px; background: #fff; border-top: 2px solid #e5e7eb; display: flex; gap: 10px; align-items: center; }
@@ -104,7 +107,7 @@
         <button onclick="loginAdmin()">Unlock Dashboard</button>
     </div>
 
-    <!-- Main Dashboard (Hidden by default until login) -->
+    <!-- Main Dashboard -->
     <div class="container" id="admin-dashboard" style="display: none;">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -145,16 +148,12 @@
         let activeSession = null;
         const chatHistories = {}; 
 
-        // ==========================================
-        // SECURITY: LOGIN LOGIC
-        // ==========================================
         function loginAdmin() {
             const username = document.getElementById('admin-username-input').value.trim();
             const password = document.getElementById('admin-password-input').value.trim();
             
             if (!username || !password) return alert("Please enter both Username and Password.");
 
-            // Attempt connection with credentials
             socket = io({
               auth: {
                 type: 'admin',
@@ -163,7 +162,6 @@
               }
             });
 
-            // If authentication fails
             socket.on('connect_error', (err) => {
                 alert("Login Failed! Incorrect Username or Password.");
                 document.getElementById('login-screen').style.display = 'flex';
@@ -171,7 +169,6 @@
                 socket.disconnect();
             });
 
-            // If authentication succeeds
             socket.on('connect', () => {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'flex';
@@ -179,7 +176,6 @@
             });
         }
 
-        // Enter key support for login fields
         document.getElementById('admin-username-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); document.getElementById('admin-password-input').focus(); }
         });
@@ -187,11 +183,7 @@
             if (e.key === 'Enter') { e.preventDefault(); loginAdmin(); }
         });
 
-        // ==========================================
-        // CHAT LOGIC (Runs after successful login)
-        // ==========================================
         function initAdminListeners() {
-            // Listen for clients requesting human help
             socket.on('admin-notification', (data) => {
                 let sessionsDiv = document.getElementById('sessions');
                 
@@ -227,7 +219,7 @@
                 }
 
                 if (activeSession === data.sessionId) {
-                    appendMessage('client-msg', data.text);
+                    appendMessage('client-msg', data.text, 'client');
                 }
             });
         }
@@ -245,33 +237,52 @@
             
             if (chatHistories[sessionId]) {
                 chatHistories[sessionId].forEach(msg => {
-                    if (msg.type === 'text') appendMessage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.text);
-                    else if (msg.type === 'image') appendImage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.src);
+                    if (msg.type === 'text') appendMessage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.text, msg.sender);
+                    else if (msg.type === 'image') appendImage(msg.sender === 'client' ? 'client-msg' : 'admin-msg', msg.src, msg.sender);
                 });
             }
         }
 
-        function appendMessage(cssClass, text) {
+        function appendMessage(cssClass, text, senderType) {
             let chatBox = document.getElementById('chat-box');
+            let wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper';
+            
+            let label = document.createElement('div');
+            label.className = `msg-label ${senderType === 'client' ? 'label-client' : 'label-admin'}`;
+            label.innerText = senderType === 'client' ? 'Client' : 'You';
+            
             let div = document.createElement('div');
             div.className = `message ${cssClass}`;
             div.innerText = text;
-            chatBox.appendChild(div);
+            
+            wrapper.appendChild(label);
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function appendImage(cssClass, src) {
+        function appendImage(cssClass, src, senderType) {
             let chatBox = document.getElementById('chat-box');
+            let wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper';
+            
+            let label = document.createElement('div');
+            label.className = `msg-label ${senderType === 'client' ? 'label-client' : 'label-admin'}`;
+            label.innerText = senderType === 'client' ? 'Client' : 'You';
+            
             let div = document.createElement('div');
             div.className = `message ${cssClass}`;
             let img = document.createElement('img');
             img.src = src;
             div.appendChild(img);
-            chatBox.appendChild(div);
+            
+            wrapper.appendChild(label);
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Handle Text Message Sending
         function sendAdminMsg() {
             if (!socket) return;
             let input = document.getElementById('admin-input');
@@ -280,7 +291,7 @@
 
             socket.emit('admin-message', { sessionId: activeSession, text: text });
             chatHistories[activeSession].push({ type: 'text', sender: 'admin', text: text });
-            appendMessage('admin-msg', text);
+            appendMessage('admin-msg', text, 'admin');
             
             let preview = document.getElementById('preview-' + activeSession);
             if (preview) preview.innerText = text;
@@ -289,7 +300,6 @@
             input.focus(); 
         }
 
-        // ENTER KEY SUPPORT FOR CHAT
         document.getElementById('admin-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault(); 
@@ -297,7 +307,6 @@
             }
         });
 
-        // FILE/IMAGE ATTACHMENT SUPPORT
         document.getElementById('fileInput').addEventListener('change', async function(e) {
             if (!socket) return;
             const file = e.target.files[0];
@@ -312,7 +321,7 @@
                 const base64 = await compressImage(file);
                 socket.emit('admin-image', { sessionId: activeSession, base64: base64 });
                 chatHistories[activeSession].push({ type: 'image', sender: 'admin', src: base64 });
-                appendImage('admin-msg', base64);
+                appendImage('admin-msg', base64, 'admin');
                 
                 let preview = document.getElementById('preview-' + activeSession);
                 if (preview) preview.innerText = "📷 Image";
@@ -323,7 +332,6 @@
             e.target.value = '';
         });
 
-        // Compress Image Helper Function
         function compressImage(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
