@@ -21,7 +21,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // ==========================================
-// SOCKET.IO SETUP
+// SOCKET.IO SETUP & SECURITY
 // ==========================================
 const server = http.createServer(app);
 const { Server } = require('socket.io');
@@ -32,11 +32,38 @@ const io = new Server(server, {
   }
 });
 
+// SECURITY: Socket.io Authentication Middleware
+io.use((socket, next) => {
+  const { username, password, type } = socket.handshake.auth;
+
+  // If it's an admin, verify their credentials
+  if (type === 'admin') {
+    if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASSWORD) {
+      socket.isAdmin = true; // Mark this socket as an admin
+      return next();
+    } else {
+      console.log('❌ Admin connection rejected: Invalid credentials');
+      return next(new Error('Authentication error'));
+    }
+  }
+
+  // Regular clients don't need credentials
+  return next();
+});
+
 // Socket.io Live Chat Logic
 io.on('connection', (socket) => {
-  console.log('🔌 New client connected:', socket.id);
+  
+  // If it's an admin, put them in a secure private room
+  if (socket.isAdmin) {
+    console.log('👑 Admin connected:', socket.id);
+    socket.join('admins-room');
+    return; // Admins don't need the client logic below
+  }
 
-  // Listen for a client or admin joining a specific chat session
+  console.log('🔌 Client connected:', socket.id);
+
+  // Listen for a client joining a specific chat session
   socket.on('join-session', (sessionId) => {
     socket.join(sessionId);
     console.log(`Socket ${socket.id} joined room ${sessionId}`);
@@ -44,18 +71,27 @@ io.on('connection', (socket) => {
 
   // Listen for messages from the client
   socket.on('client-message', (data) => {
-    // Broadcast this message to the Admin Dashboard
-    io.emit('admin-notification', { sessionId: data.sessionId, text: data.text });
+    console.log('📩 LIVE CHAT MESSAGE RECEIVED:', data.sessionId, data.text);
+    // SECURITY: Only send to the secure admins-room, not everyone!
+    io.to('admins-room').emit('admin-notification', { sessionId: data.sessionId, text: data.text });
   });
 
-  // Listen for messages from the admin
+  // Listen for text messages from the admin
   socket.on('admin-message', (data) => {
+    console.log('📤 Admin sent message to session:', data.sessionId);
     // Send this message ONLY to the specific client session
     io.to(data.sessionId).emit('admin-msg', data.text);
   });
 
+  // Listen for image messages from the admin
+  socket.on('admin-image', (data) => {
+    console.log('📤 Admin sent image to session:', data.sessionId);
+    // Send this image ONLY to the specific client session
+    io.to(data.sessionId).emit('admin-image', data.base64);
+  });
+
   socket.on('disconnect', () => {
-    console.log('🔌 Client disconnected:', socket.id);
+    console.log(socket.isAdmin ? '👑 Admin disconnected' : '🔌 Client disconnected', socket.id);
   });
 });
 
