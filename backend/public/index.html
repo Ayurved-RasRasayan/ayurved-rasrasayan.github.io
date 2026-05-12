@@ -328,7 +328,7 @@
     <div class="bg-bg-light w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-xl modal-enter border-2 border-black" id="modalDynamicContent"></div>
   </div>
 
-  <!-- AUTH MODALS (Signup, Signin, Forgot, OTP) - Kept concise for length -->
+  <!-- AUTH MODALS -->
   <div id="signupModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Create Account</h3><button onclick="closeAuthModal('signup')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><form onsubmit="handleSignup(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Full Name</label><input type="text" id="signupName" placeholder="John Doe" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="signupEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Password</label><div class="relative"><input type="password" id="signupPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signupPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Create Account</button></form><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Already have an account? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div></div></div>
   <div id="signinModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Welcome Back</h3><button onclick="closeAuthModal('signin')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><form onsubmit="handleSignin(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="signinEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Password</label><div class="relative"><input type="password" id="signinPassword" placeholder="Your password" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand pr-10"><button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-third hover:text-txt-main"><i data-lucide="eye-off" class="w-5 h-5"></i></button></div></div><button type="submit" class="w-full py-3.5 bg-txt-main text-white font-medium hover:bg-black transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Sign In</button></form><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Don't have an account? <button onclick="switchAuthModal('signup')" class="text-brand font-semibold hover:underline">Sign Up</button></p></div></div></div>
   <div id="forgotModal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4" style="backdrop-filter:blur(4px)"><div class="bg-bg-light w-full max-w-md shadow-xl modal-enter p-6 border-2 border-black"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold uppercase">Reset Password</h3><button onclick="closeAuthModal('forgot')" class="p-2 hover:bg-black/5"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="forgotStep1"><form onsubmit="handleForgotPassword(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">Email Address</label><input type="email" id="forgotEmail" placeholder="you@example.com" required class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Send Reset Code</button></form></div><div id="forgotStep2" class="hidden"><form onsubmit="handleResetPassword(event)" class="space-y-4"><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">6-Digit Code</label><input type="text" id="resetOtp" placeholder="123456" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-3 border-2 border-black text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand"></div><div><label class="block text-xs font-medium text-txt-sub mb-1.5 uppercase">New Password</label><input type="password" id="resetNewPassword" placeholder="8-30 characters" required minlength="8" maxlength="30" class="w-full px-4 py-3 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div><button type="submit" class="w-full py-3.5 bg-brand text-white font-medium hover:bg-brand-hover transition-colors uppercase tracking-wider border-2 border-black shadow-hard-sm">Reset Password</button></form></div><div class="mt-5 text-center"><p class="text-sm text-txt-sub">Remember your password? <button onclick="switchAuthModal('signin')" class="text-brand font-semibold hover:underline">Sign In</button></p></div></div></div>
@@ -358,6 +358,9 @@
 
   <!-- Swiper.js JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Socket.io -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
   <script>
     // ==========================================
@@ -585,13 +588,13 @@
     // ==========================================
     function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('mobileOverlay').classList.add('hidden'); }, 300); }
 
-        // ==========================================
-    // 17. AI CHAT WIDGET LOGIC
+    // ==========================================
+    // 17. AI CHAT WIDGET LOGIC (UPDATED WITH SOCKET.IO)
     // ==========================================
     let chatSessionId = 'sess_' + Math.random().toString(36).substr(2, 9); 
     let chatOpen = false;
-    let isLiveChat = false; // NEW: Track if we are in live chat mode
-    const socket = io(); // NEW: Connect to Socket.io
+    let isLiveChat = false; // Track if we are in live chat mode
+    const socket = io(); // Connect to Socket.io
 
     // Join the socket room with our session ID
     socket.on('connect', () => {
@@ -600,7 +603,7 @@
 
     // Listen for messages from the Admin
     socket.on('admin-msg', (text) => {
-        appendMessage('bot', '👨‍💼 ' + text); // Add an admin icon
+        appendMessage('bot', '👨‍💼 Admin: ' + text);
     });
 
     function toggleChat() {
@@ -640,12 +643,14 @@
 
             const data = await res.json();
             
+            // FIX: Use data.reply instead of data.response
             appendMessage('bot', data.reply);
 
             if (data.handoff) {
                 isLiveChat = true; // Switch to live chat mode!
                 appendMessage('bot', '⏳ You are now in Live Chat. An admin will respond shortly...');
                 document.getElementById('chat-input').placeholder = "Live chat active...";
+                document.getElementById('handoff-section').style.display = 'block'; // Show the handoff button too
             }
         } catch (err) {
             appendMessage('bot', 'Network error. Please try again.');
@@ -660,6 +665,7 @@
         container.appendChild(div);
         container.scrollTop = container.scrollHeight; 
     }
+
     // ==========================================
     // 18. EVENT LISTENERS & BOOT
     // ==========================================
@@ -681,20 +687,6 @@
     loadTrending(); 
     loadVisitorCount();
     checkAuthState();
-
-      <!-- Swiper.js JS -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-  <!-- ADD SOCKET.IO RIGHT HERE -->
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-  <script>
-    // ==========================================
-    // 1. CONFIGURATION & STATE
-    // ==========================================
-    var BACKEND_URL = 'https://ayurved-rasrasayan-github-io-1.onrender.com/api';
-    var exchangeRate = 133;
-    // ... (rest of your code) ...
   </script>
 </body>
 </html>
