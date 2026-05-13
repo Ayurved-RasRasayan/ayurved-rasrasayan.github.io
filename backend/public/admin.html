@@ -7,10 +7,18 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Prevent pull-to-refresh on mobile which causes "erased" messages */
+        html, body { 
+            overflow: hidden; 
+            height: 100%;
+            overscroll-behavior-y: contain; 
+        }
+
         body { background: #f3f4f6; height: 100vh; height: 100dvh; display: flex; flex-direction: column; color: #333; }
         
         /* Header */
-        .header { background: #000; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #FF5722; flex-shrink: 0; }
+        .header { background: #000; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #FF5722; flex-shrink: 0; z-index: 10; }
         .header h1 { font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
         .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
@@ -20,10 +28,10 @@
         .container { display: flex; flex: 1; overflow: hidden; }
 
         /* Sidebar */
-        .sidebar { width: 320px; background: #fff; border-right: 2px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar { width: 320px; background: #fff; border-right: 2px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; z-index: 5; }
         .sidebar-header { padding: 15px; border-bottom: 2px solid #e5e7eb; background: #fafafa; }
         .sidebar-header h2 { font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 1px; font-weight: 700; }
-        #sessions { flex: 1; overflow-y: auto; padding: 5px; -webkit-overflow-scrolling: touch; }
+        #sessions { flex: 1; overflow-y: auto; padding: 5px; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
         
         .session-btn { 
             width: 100%; padding: 12px; margin-bottom: 4px; cursor: pointer; 
@@ -43,24 +51,36 @@
 
         /* Chat Area */
         .chat-area { flex: 1; display: flex; flex-direction: column; background: #f9fafb; min-width: 0; }
-        .chat-header { padding: 12px 20px; background: #fff; border-bottom: 2px solid #e5e7eb; }
+        .chat-header { padding: 12px 20px; background: #fff; border-bottom: 2px solid #e5e7eb; flex-shrink: 0; }
         .chat-header h3 { font-size: 14px; color: #111; text-transform: uppercase; letter-spacing: 0.5px; }
         .chat-header p { font-size: 11px; color: #6b7280; margin-top: 2px; }
 
         #chat-box { 
             flex: 1; padding: 15px; overflow-y: auto; display: flex; 
             flex-direction: column; gap: 12px; background: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23e5e7eb"/></svg>') repeat;
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch; 
+            overscroll-behavior-y: contain; /* Crucial for preventing swipe-down refresh */
+            min-height: 0; /* Crucial for flex scrolling */
         }
         
         .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; }
-        .msg-label { font-size: 10px; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .label-client { color: #6b7280; }
-        .label-admin { color: #FF5722; }
+        .msg-label { font-size: 10px; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 4px; }
+        .label-client { color: #6b7280; text-align: left; }
+        .label-admin { color: #FF5722; text-align: right; }
 
         .message { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .client-msg { align-self: flex-start; background: #fff; border: 1px solid #e5e7eb; color: #111; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .admin-msg { align-self: flex-start; background: #fff7ed; border: 1px solid #FF5722; color: #111; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        /* Client Message - Left Aligned */
+        .client-msg { 
+            background: #fff; border: 1px solid #e5e7eb; color: #111; 
+            border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+        }
+        
+        /* Admin Message - Right Aligned */
+        .admin-msg { 
+            background: #fff7ed; border: 1px solid #FF5722; color: #111; 
+            border-bottom-right-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+        }
         
         .message img { max-width: 100%; border-radius: 8px; margin-top: 6px; display: block; }
 
@@ -327,6 +347,13 @@
             let wrapper = document.createElement('div');
             wrapper.className = 'msg-wrapper';
             
+            // Alignment logic: Client left, Admin right
+            if (senderType === 'client') {
+                wrapper.style.alignSelf = 'flex-start';
+            } else {
+                wrapper.style.alignSelf = 'flex-end';
+            }
+            
             let label = document.createElement('div');
             label.className = `msg-label ${senderType === 'client' ? 'label-client' : 'label-admin'}`;
             label.innerText = senderType === 'client' ? sessionMeta[activeSession].name : 'You';
@@ -345,6 +372,13 @@
             let chatBox = document.getElementById('chat-box');
             let wrapper = document.createElement('div');
             wrapper.className = 'msg-wrapper';
+            
+            // Alignment logic: Client left, Admin right
+            if (senderType === 'client') {
+                wrapper.style.alignSelf = 'flex-start';
+            } else {
+                wrapper.style.alignSelf = 'flex-end';
+            }
             
             let label = document.createElement('div');
             label.className = `msg-label ${senderType === 'client' ? 'label-client' : 'label-admin'}`;
