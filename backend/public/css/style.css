@@ -54,7 +54,17 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 
 /* Trending Swiper */
 .trendingSwiper { width: 100%; padding-top: 20px; padding-bottom: 60px; }
-.trendingSwiper .swiper-slide { background: #fff; border: 1px solid #1A3636; overflow: hidden; width: 320px; height: auto; transition: all 0.2s ease; box-shadow: 2px 2px 0px 0px rgba(26,54,54,0.08); border-radius: 8px;} /* Refined Border & Shadow */
+.trendingSwiper .swiper-slide { 
+    background: #fff; 
+    border: 1px solid #1A3636; 
+    overflow: hidden; 
+    width: 320px; 
+    height: auto; 
+    transition: all 0.2s ease; 
+    box-shadow: 2px 2px 0px 0px rgba(26,54,54,0.08); 
+    border-radius: 8px;
+    cursor: pointer; /* <-- ADD THIS LINE */
+}
 .trendingSwiper .swiper-slide:hover { box-shadow: 3px 3px 0px 0px rgba(26,54,54,0.1); transform: translate(-2px, -2px); }
 .trending-card-img { width: 100%; height: 320px; object-fit: cover; background: #f3f4f6; border-bottom: 1px solid #1A3636; }
 .trending-card-content { padding: 24px; text-align: center; }
