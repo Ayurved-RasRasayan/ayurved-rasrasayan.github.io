@@ -146,13 +146,11 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
   .cat-btn .w-9 { width: 24px; height: 24px; }
   .cat-btn .w-9 i { width: 12px; height: 12px; }
 
-  /* Ensure no horizontal scroll */
   body, html {
     overflow-x: hidden;
     width: 100%;
   }
 
-  /* Fix Payment Modal for small screens */
   #paymentModal > div {
     max-width: 100%;
     border-radius: 8px;
