@@ -1,8 +1,7 @@
-
 ::-webkit-scrollbar{width:6px;background:transparent}
 ::-webkit-scrollbar-thumb{background:#1A3636; border-radius: 10px;}
 ::selection{background:#C45C3C;color:white}
-body{font-family:'Space Grotesk',sans-serif; background: #F7F5F0;}
+body{font-family:'Space Grotesk',sans-serif; background: #F7F5F0; overflow-x: hidden;}
 
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .anim-up{opacity:0;animation:fadeInUp 0.8s ease-out forwards}
@@ -65,8 +64,6 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 .swiper-pagination-bullet { background: #1A3636 !important; width: 10px; height: 10px; opacity: 0.4; }
 .swiper-pagination-bullet-active { opacity: 1 !important; background: #C45C3C !important; }
 
-@media (max-width: 768px) { .trendingSwiper .swiper-slide { width: 280px; } .trending-card-img { height: 260px; } }
-
 /* Hero image */
 .fire-img { animation: fireScale 4s ease-in-out infinite; }
 .fire-container { box-shadow: 8px 8px 0px 0px rgba(196,92,60,0.3); border: 2px solid #F7F5F0; border-radius: 12px; overflow: hidden;}
@@ -101,7 +98,96 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 .handoff-btn { background: #1A3636; color: #F7F5F0; padding: 8px 16px; border: 2px solid #1A3636; font-weight: 700; text-transform: uppercase; cursor: pointer; font-family: inherit; font-size: 12px; text-decoration: none; display: inline-block; box-shadow: 2px 2px 0px 0px rgba(26,54,54,0.2); border-radius: 6px; }
 .handoff-btn:hover { background: #C45C3C; border-color: #A84E32; }
 
+/* ==========================================
+   MOBILE COMPATIBILITY (Samsung, iPhone, Tablet)
+   ========================================== */
+
+/* Prevent iOS auto-zoom on input focus */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS Safe Area (Notch & Home Bar) */
+@supports (padding: max(0px)) {
+  #navbar {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  #ai-chat-btn {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+  }
+  #ai-chat-box {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+  }
+  footer {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Very Small Phones (Samsung Fold closed ~274px, Older Galaxies 320px) */
+@media (max-width: 360px) {
+  .trendingSwiper .swiper-slide { width: 260px; }
+  .trending-card-img { height: 220px; }
+  .trending-card-name { font-size: 14px; }
+  .trending-card-price { font-size: 14px; }
+  .trending-card-content { padding: 16px; }
+  
+  .cat-btn { padding: 6px; border-width: 1px; }
+  .cat-btn span { font-size: 8px; }
+  .cat-btn .w-9 { width: 24px; height: 24px; }
+  .cat-btn .w-9 i { width: 12px; height: 12px; }
+
+  /* Ensure no horizontal scroll */
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Fix Payment Modal for small screens */
+  #paymentModal > div {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 4px;
+  }
+
+  .chat-input-area { flex-direction: column; }
+  #chat-send { width: 100%; padding: 10px; }
+}
+
+/* Standard Mobile (360px - 414px) */
+@media (min-width: 361px) and (max-width: 414px) {
+  .trendingSwiper .swiper-slide { width: 290px; }
+  .trending-card-img { height: 250px; }
+}
+
+/* Tablet adjustments (768px+) */
+@media (min-width: 768px) {
+  #ai-chat-box {
+    width: 400px;
+    max-height: 550px;
+  }
+}
+
+/* Fix backdrop-filter fallback for older Samsung/Android browsers */
+@supports not (backdrop-filter: blur(12px)) {
+  #navbar {
+    background-color: #F7F5F0; /* Solid color fallback */
+  }
+  #searchBar {
+    background-color: #F7F5F0;
+  }
+}
+
 @media (max-width: 768px) {
-    #ai-chat-box { right: 10px; left: 10px; width: auto; bottom: 90px; max-height: 60vh; }
-    #ai-chat-btn { bottom: 16px; right: 16px; width: 50px; height: 50px; }
+  #ai-chat-box { right: 10px; left: 10px; width: auto; bottom: 90px; max-height: 60vh; }
+  #ai-chat-btn { bottom: 16px; right: 16px; width: 50px; height: 50px; }
 }
