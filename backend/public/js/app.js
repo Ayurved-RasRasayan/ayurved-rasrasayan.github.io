@@ -238,8 +238,9 @@ async function loadTrending() {
 
     wrapper.innerHTML = infiniteProducts.map(function(product) {
       var priceUSD = (product.price / exchangeRate).toLocaleString('en-US', { minimumFractionDigits: 2 });
-      var imgSrc = product.img || product.image || 'https://placehold.co/400x300/1A3636/8A6E2F?text=NaturaBotanica'; // Updated Gold
-      return '<div class="swiper-slide">' +
+      var imgSrc = product.img || product.image || 'https://placehold.co/400x300/1A3636/8A6E2F?text=NaturaBotanica';
+      var productId = product.id || product._id; // Extract product ID
+      return '<div class="swiper-slide" onclick="openModal(\'' + productId + '\')">' + // Added onclick
         (product.isPick ? '<div class="trending-badge"><i data-lucide="star" class="w-3 h-3"></i> Staff Pick</div>' : '') +
         '<img src="' + imgSrc + '" alt="' + product.name + '" class="trending-card-img">' +
         '<div class="trending-card-content">' +
