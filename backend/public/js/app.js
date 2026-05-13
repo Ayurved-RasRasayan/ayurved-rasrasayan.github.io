@@ -562,4 +562,46 @@ function closeMobile() { document.getElementById('mobilePanel').style.transform 
 // ==========================================
 var chatSessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
 var chatOpen = false;
-var isLiveChat = false
+var isLiveChat = false;
+var socket = io();
+
+socket.on('connect', function() { socket.emit('join-session', chatSessionId); });
+socket.on('admin-msg', function(text) { appendMessage('bot', '👨‍💼 Admin: ' + text); });
+socket.on('admin-image', function(base64) { var container = document.getElementById('chat-messages'); var div = document.createElement('div'); div.className = 'msg bot'; var adminLabel = document.createElement('div'); adminLabel.style.fontSize = '10px'; adminLabel.style.fontWeight = 'bold'; adminLabel.style.marginBottom = '4px'; adminLabel.innerText = '👨‍💼 Admin:'; var img = document.createElement('img'); img.src = base64; img.style.maxWidth = '100%'; img.style.borderRadius = '4px'; img.style.marginTop = '5px'; div.appendChild(adminLabel); div.appendChild(img); container.appendChild(div); container.scrollTop = container.scrollHeight; });
+
+function toggleChat() { var box = document.getElementById('ai-chat-box'); var btn = document.getElementById('ai-chat-btn'); chatOpen = !chatOpen; if (chatOpen) { box.classList.add('open'); btn.style.display = 'none'; lucide.createIcons(); } else { box.classList.remove('open'); btn.style.display = 'flex'; } }
+async function sendChat() {
+  var input = document.getElementById('chat-input'); var msg = input.value.trim(); if (!msg) return; appendMessage('user', msg); input.value = '';
+  if (isLiveChat) { socket.emit('client-message', { sessionId: chatSessionId, text: msg }); return; }
+  try {
+    var res = await fetchWithTimeout(BACKEND_URL + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, sessionId: chatSessionId }) }, 10000);
+    var data = await res.json(); appendMessage('bot', data.reply);
+    if (data.handoff) { isLiveChat = true; appendMessage('bot', '⏳ You are now in Live Chat. An admin will respond shortly...'); document.getElementById('chat-input').placeholder = "Live chat active..."; document.getElementById('handoff-section').style.display = 'none'; socket.emit('client-message', { sessionId: chatSessionId, text: 'User requested a human agent.' }); }
+  } catch (err) { appendMessage('bot', 'Network error. Please try again.'); }
+}
+function appendMessage(sender, text) { var container = document.getElementById('chat-messages'); var div = document.createElement('div'); div.className = 'msg ' + (sender === 'user' ? 'user' : 'bot'); div.textContent = text; container.appendChild(div); container.scrollTop = container.scrollHeight; }
+
+// ==========================================
+// 18. EVENT LISTENERS
+// ==========================================
+function initEventListeners() {
+  document.getElementById('cartToggle').addEventListener('click', openCart);
+  document.getElementById('searchToggle').addEventListener('click', openSearch);
+  document.getElementById('mobileMenu').addEventListener('click', function() { document.getElementById('mobileOverlay').classList.remove('hidden'); setTimeout(function() { document.getElementById('mobilePanel').style.transform = 'translateX(0)'; }, 10); });
+  document.getElementById('mobileClose').addEventListener('click', closeMobile);
+  document.getElementById('cartOverlay').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeCart(); });
+  document.getElementById('productModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('paymentModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closePaymentModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closePaymentModal(); closeSearch(); ['signin', 'signup', 'otp', 'forgot'].forEach(function(t) { closeAuthModal(t); }); } });
+  initSearch();
+}
+
+// ==========================================
+// 19. BOOT
+// ==========================================
+lucide.createIcons();
+initEventListeners();
+loadExchangeRate();
+loadTrending();
+loadVisitorCount();
+checkAuthState();
