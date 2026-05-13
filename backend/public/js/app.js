@@ -509,4 +509,57 @@ async function submitOrderToBackend() {
   try { if (!compressedBase64 && rawFileForUpload) { compressedBase64 = await compressImage(rawFileForUpload); lastCompressedBase64 = compressedBase64; } } catch (e) { hideProcessingOverlay(); showErrorPopup('Failed to process image.'); return; }
   showProcessingOverlay(2);
   try {
-    var totalNPR = cart.reduce(function(s, i) { return s
+    var totalNPR = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0); var totalUSD = totalNPR / exchangeRate; var paidAmount = selectedPaymentCurrency === 'npr' ? totalNPR : totalUSD; var currency = selectedPaymentCurrency === 'npr' ? 'NPR' : 'USD';
+    var orderData = { items: cart.map(function(i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit, form: i.form }; }), totalNPR: totalNPR, totalUSD: totalUSD, paidAmount: paidAmount, currency: currency, paymentMethod: selectedPaymentMethod, paymentScreenshot: compressedBase64, clientDetails: { name: name, phone: phone, email: email, address: address || 'N/A' } };
+    var res = await fetchWithTimeout(BACKEND_URL + '/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) }, 20000);
+    showProcessingOverlay(3);
+    if (res.ok) { var data = await res.json(); hideProcessingOverlay(); showSuccessPopup(data.orderId || data._id || 'PENDING'); cart = []; updateCartUI(); rawFileForUpload = null; lastCompressedBase64 = null; clearScreenshot(); ['clientName', 'clientPhone', 'clientEmail', 'clientAddress'].forEach(function(id) { document.getElementById(id).value = ""; }); closePaymentModal(); syncCartToDB(); }
+    else { var err = await res.json(); hideProcessingOverlay(); showErrorPopup(err.message || 'Server rejected the order.'); }
+  } catch (err) { hideProcessingOverlay(); showErrorPopup('Network error. Please check your connection and retry.'); }
+}
+function retrySubmission() { closeErrorPopup(); submitOrderToBackend(); }
+
+// ==========================================
+// 14. INQUIRY FORM
+// ==========================================
+async function submitInquiry(e) {
+  e.preventDefault(); var btn = e.target.querySelector('button[type="submit"]'); var msgDiv = document.getElementById('formMsg'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...'; lucide.createIcons();
+  try {
+    var res = await fetchWithTimeout(BACKEND_URL + '/inquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName: document.getElementById('inquiryFirstName').value, lastName: document.getElementById('inquiryLastName').value, email: document.getElementById('inquiryEmail').value, company: document.getElementById('inquiryCompany').value || '', message: document.getElementById('contactMessage').value }) });
+    if (res.ok) { msgDiv.textContent = '✓ Thank you! Inquiry sent.'; msgDiv.classList.remove('hidden', 'text-red-500'); msgDiv.classList.add('text-brand'); e.target.reset(); showToast('Inquiry sent successfully!'); } else throw new Error();
+  } catch (err) { msgDiv.textContent = '✕ Error sending inquiry.'; msgDiv.classList.remove('hidden', 'text-brand'); msgDiv.classList.add('text-red-500'); showToast('Failed to send inquiry', 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Send Inquiry <i data-lucide="send" class="w-4 h-4"></i>'; lucide.createIcons(); }
+}
+
+// ==========================================
+// 15. AUTHENTICATION
+// ==========================================
+async function checkAuthState() {
+  var loggedOutDiv = document.getElementById('authButtonsLoggedOut'); var loggedInDiv = document.getElementById('authButtonsLoggedIn'); var userNameSpan = document.getElementById('userNameDisplay');
+  if (authToken) { try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } }); if (res.ok) { currentUser = await res.json(); loggedInDiv.style.display = 'flex'; loggedOutDiv.style.display = 'none'; userNameSpan.innerText = currentUser.name || currentUser.email; if (currentUser.isVerified && currentUser.cart && currentUser.cart.length > 0) { if (cart.length === 0) { cart = currentUser.cart; updateCartUI(); } else { syncCartToDB(true); } } lucide.createIcons(); return; } } catch (e) { console.error('Auth check failed:', e.message); } }
+  currentUser = null; authToken = null; localStorage.removeItem('natura_token'); loggedInDiv.style.display = 'none'; loggedOutDiv.style.display = ''; lucide.createIcons();
+}
+function openAuthModal(type) { document.getElementById(type + 'Modal').classList.remove('hidden'); document.getElementById(type + 'Modal').classList.add('flex'); }
+function closeAuthModal(type) { document.getElementById(type + 'Modal').classList.add('hidden'); document.getElementById(type + 'Modal').classList.remove('flex'); }
+function switchAuthModal(type) { ['signin', 'signup', 'otp', 'forgot'].forEach(function(t) { closeAuthModal(t); }); openAuthModal(type); }
+
+async function handleSignup(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Creating...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('signupName').value, email: document.getElementById('signupEmail').value, password: document.getElementById('signupPassword').value }) }); var data = await res.json(); if (res.ok) { showToast('Account created! Check email for 6-digit code.'); document.getElementById('otpEmailDisplay').innerText = document.getElementById('signupEmail').value; switchAuthModal('otp'); } else { showToast(data.error || 'Signup failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Create Account'; }
+async function handleSignin(e) { e.preventDefault(); var btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = 'Signing in...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/signin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('signinEmail').value, password: document.getElementById('signinPassword').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); currentUser = data.user; closeAuthModal('signin'); if (!data.user.isVerified) { document.getElementById('otpEmailDisplay').innerText = data.user.email; openAuthModal('otp'); } else { checkAuthState(); showToast('Welcome back, ' + data.user.name + '!'); } } else { showToast(data.error || 'Invalid email or password', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Sign In'; }
+async function handleVerifyOTP(e) { e.preventDefault(); try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: document.getElementById('otpEmailDisplay').innerText, code: document.getElementById('otpCode').value }) }); var data = await res.json(); if (res.ok) { authToken = data.token; localStorage.setItem('natura_token', authToken); closeAuthModal('otp'); checkAuthState(); showToast('Email verified successfully!'); } else { showToast(data.error || 'Invalid or expired code', 'error'); } } catch (e) { showToast('Network error', 'error'); } }
+async function handleResendOTP() { var email = document.getElementById('otpEmailDisplay').innerText; if (!email) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/resend-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); showToast(res.ok ? 'New 6-digit code sent!' : data.error, res.ok ? 'success' : 'error'); } catch (e) { showToast('Error', 'error'); } }
+async function handleForgotPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); if (!email) { showToast('Enter your email', 'error'); return; } btn.disabled = true; btn.innerText = 'Sending...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }); var data = await res.json(); if (res.ok) { document.getElementById('forgotStep1').classList.add('hidden'); document.getElementById('forgotStep2').classList.remove('hidden'); showToast('Reset code sent!'); } else { showToast(data.error || 'Failed to send code', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Send Reset Code'; }
+async function handleResetPassword(e) { e.preventDefault(); var btn = e.target.querySelector('button'); var email = document.getElementById('forgotEmail').value.trim(); var otp = document.getElementById('resetOtp').value.trim(); var newPass = document.getElementById('resetNewPassword').value; if (!otp || otp.length !== 6) { showToast('Enter the 6-digit code', 'error'); return; } if (!newPass || newPass.length < 8) { showToast('Password must be 8-30 characters', 'error'); return; } btn.disabled = true; btn.innerText = 'Resetting...'; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, otp: otp, newPassword: newPass }) }); var data = await res.json(); if (res.ok) { showToast('Password reset! Please sign in.'); switchAuthModal('signin'); document.getElementById('forgotStep1').classList.remove('hidden'); document.getElementById('forgotStep2').classList.add('hidden'); document.getElementById('forgotEmail').value = ''; document.getElementById('resetOtp').value = ''; document.getElementById('resetNewPassword').value = ''; } else { showToast(data.error || 'Reset failed', 'error'); } } catch (e) { showToast('Network error', 'error'); } btn.disabled = false; btn.innerText = 'Reset Password'; }
+function handleLogout() { authToken = null; currentUser = null; localStorage.removeItem('natura_token'); cart = []; updateCartUI(); checkAuthState(); showToast('Signed out'); }
+async function syncCartToDB(returnUpdatedCart) { if (!authToken || !currentUser || !currentUser.isVerified) return; try { var res = await fetchWithTimeout(BACKEND_URL + '/auth/cart/sync', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }, body: JSON.stringify({ cart: cart }) }, 5000); if (returnUpdatedCart && res.ok) { var data = await res.json(); if (data.cart) { cart = data.cart; updateCartUI(); } } } catch (e) { console.error('Cart sync failed:', e.message); } }
+
+// ==========================================
+// 16. MOBILE MENU
+// ==========================================
+function closeMobile() { document.getElementById('mobilePanel').style.transform = 'translateX(100%)'; setTimeout(function() { document.getElementById('mobileOverlay').classList.add('hidden'); }, 300); }
+
+// ==========================================
+// 17. AI CHAT WIDGET (WITH SOCKET.IO)
+// ==========================================
+var chatSessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
+var chatOpen = false;
+var isLiveChat = false
